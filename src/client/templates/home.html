@@ -1,0 +1,41 @@
+
+<div class="row main" style="margin-top: 50px;">
+
+  	<div class="col-md-2 col-md-offset-2">
+	    <div ng-show="user.loaded" style="margin-top:30px;">
+	      <img ng-src="{{ user.value.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
+	      <img ng-src="{{ user.value.avatar_url }}?s=200" class="visible-xs visible-sm" width="200px;"/>
+	      <h4 style="font-weight:400; margin:5px 0;">{{ user.value.name || user.value.login }}</h4>
+	      <h4 ng-show="user.value.name">{{ user.value.login }}</h4>
+	    </div>
+  	</div>
+
+	<div ng-if="!user.value.admin" class="center-block col-md-7 col-md-offset-1" style="max-width:500px; padding:0 20px;">
+		<div style="display:table; width:100%; height:100%; text-align:center;">
+			<div style="display:table-row;">
+				<div style="display:table-cell; padding:10px 0; vertical-align:middle;">
+				<!-- <img src="/assets/images/review-ninja-500.png" class="img-responsive" alt="Review Ninja" /> -->
+					<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px;">Sign in as admin</btn>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6" ng-if="user.value.admin">
+		<h2>Repositories</h2>
+	  	<table  class="col-md-6 table table-hover">
+			<tr ng-repeat="repo in repos | orderBy:'full_name'" ng-class="{'text-primary': repo.claborate.active}">
+				<td><span class="octicon octicon-repo"></span>&nbsp; {{ repo.owner.login }} / {{ repo.name }}</td>
+
+				<td style="text-align:right;">
+					<i class="fa fa-gear" 
+					ng-click="setting(repo)" 
+					tooltip-placement="bottom" 
+					tooltip="Settings">
+					</i>
+				</td>
+
+			</tr>
+		</table>
+	</div>
+</div>
+

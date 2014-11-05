@@ -1,0 +1,10 @@
+.nav-tabs {
+  > li > a {
+    border-bottom: 0;
+    color: $brand-primary-muted;
+  }
+
+  a:hover {
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,292 @@
+// overwrite bootstrap styles
+
+// fonts
+$font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+// colours
+$gray-darker: #666;
+$gray-dark: #999;
+$gray: #ccc;
+$gray-light: #ececec;
+$gray-lighter: #f9f9f9;
+
+// brand colours
+$brand-primary: #3e9a94;
+$brand-primary-muted: #abd5d5;
+$brand-primary-hover: #2c827c;
+$brand-warning: #ffa159;
+$brand-danger: #ad3b25;
+$brand-info: #d0eaea;
+$brand-merged: #6e5494;
+$link-color: #3c3c3d;
+
+// typography
+$text-color: $gray-darker;
+$link-color: $gray-darker;
+$link-hover-color: #3c3c3d;
+
+// headings
+$headings-font-weight: 100;
+$headings-color: $gray-darker;
+
+// forms
+$input-border: $gray-light;
+$input-color: $gray-darker;
+$input-color-placeholder: $gray;
+
+// panels
+$panel-bg: transparent;
+$panel-default-text: $gray-darker;
+$panel-default-border: $gray-light;
+$panel-default-text: $gray-darker;
+$panel-default-heading-bg: $gray-lighter;
+
+// dropdown
+$dropdown-link-color: $gray-darker;
+$dropdown-link-hover-color: darken($gray-darker, 5%);
+
+// components
+$border-radius-small: 0;
+$border-radius-base: 0;
+$border-radius-large: 0;
+$component-active-bg: $gray-light;
+$component-active-color: #555;
+
+// buttons
+$btn-info-bg: #d0eaea;
+$btn-info-color: $brand-primary;
+$btn-default-border: #ececec;
+$btn-default-color: $brand-primary;
+
+// wells
+$well-bg: $gray-lighter;
+$well-border: transparent;
+
+// list group
+$list-group-hover-bg: $gray-light;
+$list-group-border: transparent;
+
+// table
+$table-bg: $gray-lighter;
+$table-bg-hover: $gray-light;
+$table-cell-padding: 20px 25px;
+$table-border-color: transparent;
+
+// tabs
+$nav-tabs-active-link-hover-color: $brand-primary;
+$nav-tabs-border-color: $gray-light;
+$nav-tabs-link-hover-border-color: $gray-light;
+$nav-tabs-active-link-hover-border-color: $gray-light;
+$nav-tabs-active-link-hover-bg: $gray-lighter;
+
+// navbar
+$navbar-default-bg: #333;
+$navbar-default-color: $gray;
+$navbar-default-link-color: $gray;
+$navbar-default-link-hover-color: $gray;
+$navbar-default-brand-hover-color: $gray;
+$navbar-default-link-active-color: $gray;
+$navbar-margin-bottom: 0;
+$nav-link-padding: 15px 25px;
+
+// breadcrumb
+$breadcrumb-bg: transparent;
+$breadcrumb-color: $brand-primary;
+$breadcrumb-active-color: $brand-primary;
+$breadcrumb-separator: ' ';
+
+// label
+$label-default-bg: $brand-info;
+$label-color: $brand-primary;
+
+// code
+$pre-color: #333;
+
+// import bootstrap
+@import '../../../bower/bootstrap-sass-official/assets/stylesheets/bootstrap.scss';
+
+// define our own styles
+$code-line-number-color: #aaa;
+$code-line-select-color: #8a6d3b;
+$code-font-size: 12px;
+
+// import our files
+@import 'breadcrumb';
+@import 'browser';
+@import 'btn';
+@import 'code';
+@import 'diff';
+@import 'git';
+@import 'git-merge';
+@import 'list-group';
+@import 'panel';
+@import 'pull-list';
+@import 'table';
+@import 'tabs';
+@import 'well';
+@import 'issues';
+
+
+//
+// Heights used in calculations below:
+// 52px: navbar height
+// 48px: issues panel header
+//
+
+.scaffold {
+  background: $gray-lighter;
+
+  > .pull {
+    background: $body-bg;
+    min-height: 100vh;
+    min-height: calc(100vh - 52px);
+    padding: 0 30px;
+  }
+
+  > .sidebar {
+    background: $gray-lighter;
+    max-height: 100vh;
+    max-height: calc(100vh - 52px);
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 0;
+
+    .ui-scrollfix {
+      position: fixed;
+      top: 0;
+      width: inherit;
+    }
+
+    .issues {
+      height: 100vh;
+      height: calc(100vh - 100px);
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+  }
+}
+
+.star-dropdown {
+  margin-bottom: 0;
+  max-height: 350px;
+  overflow-y: scroll;
+  padding-bottom: 0;
+
+  > li > a:hover {
+    background-color: transparent !important;
+    cursor: default;
+  }
+
+  .divider {
+    margin-bottom: 0;
+  }
+
+  .star-dropdown-item {
+    border-bottom: 1px solid $gray-light;
+    padding: 5px 0;
+  }
+}
+
+// typography
+
+body {
+  font-weight: 300;
+}
+
+h2 {
+  margin-top: 30px;
+}
+
+h3,
+h4 {
+  font-weight: 200;
+  margin-top: 10px;
+}
+
+.text-body {
+  color: $text-color;
+}
+
+.text-primary.muted {
+  color: $brand-primary-muted;
+}
+
+.text-primary {
+  color: $brand-primary;
+}
+
+img.muted {
+  opacity: 0.5;
+}
+
+.text-warning {
+  color: $brand-warning;
+}
+
+.text-danger {
+  color: $brand-danger;
+}
+
+.text-info {
+  color: $brand-info;
+}
+
+.text-merged {
+  color: $brand-merged;
+}
+
+.text-gray {
+  color: $gray-dark;
+}
+
+.merge-message {
+  border-left: 5px solid;
+  line-height: normal;
+  margin-top: 10px;
+  padding-left: 10px;
+}
+
+// Font Awesome and Octicons
+
+i.fa-times,
+i.fa-plus,
+i.fa-plus-circle,
+i.fa-info,
+i.fa-link {
+  cursor: pointer;
+}
+
+i.fa-times {
+  color: $gray;
+
+  &:hover {
+    color: $gray-darker;
+  }
+}
+
+.octicon {
+  font-size: 16px;
+}
+
+.octicon-large {
+  font-size: 1.33333333em;
+}
+
+.octicon-rotate {
+  -ms-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+small {
+  vertical-align: middle;
+}
+
+// Helper classes
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}

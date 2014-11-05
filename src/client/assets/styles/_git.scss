@@ -1,0 +1,18 @@
+.git {
+  svg {
+    margin: -16px 0 0 80px;
+    overflow: visible;
+
+    .active {
+      fill: #d0eaea;
+    }
+
+    g.select:hover {
+      cursor: pointer;
+
+      circle {
+        fill: #d0eaea;
+      }
+    }
+  }
+}

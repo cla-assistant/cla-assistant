@@ -1,0 +1,13 @@
+.DS_Store
+node_modules
+src/bower
+output
+venv
+.env
+report
+npm-debug.log
+test
+coverage
+src/client/assets/styles/app.css
+src/client/assets/styles/app.css.map
+.sass-cache

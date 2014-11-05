@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>claborate</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- COMPONENT STYLESHEETS -->
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
+
+  <!-- APP STYLESHEET -->
+  <link href="/assets/styles/app.css" rel="stylesheet">
+</head>
+
+<body ng-controller="RootCtrl">
+
+<!-- the navbar -->
+  <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/" style="padding-top:13px;">claborate</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right" ng-show="!!user.value.login">
+          <li>&nbsp;&nbsp;</li>
+          <li class="dropdown">
+            <a href="" class="dropdown-toggle" data-toggle="dropdown">
+              {{ user.value.login }} <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/logout" target="_self">Sign out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <section ui-view></section>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENT SCRIPTS -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+  <script src="/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-route.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular-animate.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
+  <!-- APP -->
+  <!-- <script src="/modules/config.js"></script> -->
+  <script src="/app.js"></script>
+  <script src="/api.js"></script>
+
+  <!-- SERVICES -->
+<!--   <script src="/services/socket.js"></script>
+  <script src="/services/Issue.js"></script>
+  <script src="/services/Pull.js"></script> -->
+
+  <!-- CONTROLLERS -->
+  <script src="/controller/root.js"></script>
+  <script src="/controller/home.js"></script>
+  <script src="/controller/cla.js"></script>
+  <script src="/modals/setting.js"></script>
+
+  <!-- INTERCEPTORS -->
+  <!-- <script src="/interceptors/401.js"></script> -->
+
+</body>
+
+</html>

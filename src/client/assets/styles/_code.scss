@@ -1,0 +1,64 @@
+.code {
+  width: 100%;
+
+  tr.selected,
+  tr:not(.chunk):hover {
+    background-color: #f8eec7 !important;
+  }
+
+  pre {
+    background: none;
+    border: 0;
+    font-size: $code-font-size;
+    margin: 0;
+    padding: 0 8px;
+  }
+
+  .number {
+    border-right: 1px solid $code-line-number-color;
+    text-align: right;
+    width: 30px;
+
+    pre {
+      color: $code-line-number-color;
+    }
+  }
+
+  tr:not(.chunk):not(.deletion):not(.disabled) .number {
+    cursor: pointer;
+  }
+
+  .select {
+    color: $code-line-select-color;
+    cursor: pointer;
+    margin-left: -20px;
+    position: absolute;
+    width: 20px;
+
+    i {
+      position: absolute;
+      visibility: hidden;
+
+      &.fa-circle {
+        font-size: 16px;
+        top: 2px;
+      }
+    }
+  }
+
+  tr.selected .select i {
+    visibility: visible;
+  }
+
+  .chunk pre {
+    color: $code-line-number-color;
+  }
+
+  .addition {
+    background-color: #dfd;
+  }
+
+  .deletion {
+    background-color: #fdd;
+  }
+}

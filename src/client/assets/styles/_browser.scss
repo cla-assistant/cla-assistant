@@ -1,0 +1,23 @@
+.browser {
+  margin-top: -2px;
+
+  .panel-body {
+    overflow-x: scroll;
+    padding: 0;
+  }
+
+  table.browse {
+    margin: 0;
+    width: 100%;
+
+    td {
+      border-bottom: 1px solid $gray-light;
+      margin: 0;
+      padding: 8px 10px;
+    }
+
+    .select i {
+      font-size: inherit;
+    }
+  }
+}

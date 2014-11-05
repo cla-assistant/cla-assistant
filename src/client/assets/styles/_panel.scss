@@ -1,0 +1,26 @@
+.panel.inverse {
+  border: 0;
+  margin-bottom: 0;
+
+  .panel-heading {
+    background: $gray-darker;
+    border-bottom: 0;
+    color: #fff;
+  }
+
+  .panel-body {
+    border-bottom: 10px solid #fff;
+  }
+}
+
+.panel.comment {
+  word-break: break-all;
+
+  .panel-heading {
+    background: $gray-light;
+  }
+
+  .panel-body {
+    background: #fff;
+  }
+}

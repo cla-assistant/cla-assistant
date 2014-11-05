@@ -1,0 +1,26 @@
+.pull-list {
+  .watched {
+    padding: 0;
+    width: 5px;
+
+    &.active {
+      background-color: $brand-primary !important;
+    }
+  }
+}
+
+.author {
+  color: $brand-primary !important;
+
+  &:hover {
+    color: $brand-primary-hover !important;
+  }
+}
+
+.pull-list .icon-ninja-star {
+  color: $brand-primary !important;
+}
+
+.btn.stars {
+  padding: 7px 12px;
+}

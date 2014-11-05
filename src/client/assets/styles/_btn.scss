@@ -1,0 +1,33 @@
+.btn {
+  &.btn-link {
+    color: $brand-primary-muted;
+
+    &:hover {
+      color: $brand-primary;
+      text-decoration: none;
+    }
+
+    &.active {
+      background: none;
+      box-shadow: none;
+      color: $brand-primary;
+    }
+
+    &.inverse {
+      color: $gray;
+      padding: 3px 0 0 5px;
+
+      &:hover,
+      &.active {
+        color: #fff;
+      }
+    }
+  }
+
+  &.btn-merged {
+    background-color: #fff;
+    border: 1px solid;
+    color: $brand-merged;
+    opacity: 1;
+  }
+}
