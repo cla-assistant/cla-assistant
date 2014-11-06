@@ -36,7 +36,6 @@
     "nodemailer": "^1.2.1",
     "nodemailer-sendmail-transport": "^1.0.0",
     "nodemailer-smtp-transport": "^0.1.12",
-    "parse-diff": "git+https://github.com/reviewninja/parse-diff.git",
     "passport": "^0.2.0",
     "passport-github": "^0.1.5",
     "request": "^2.37.0",
@@ -63,8 +62,7 @@
     "mocha": "^1.19.0",
     "should": "^4.0.4",
     "sinon": "^1.10.2",
-    "supertest": "0.13.0",
-    "trace.ninja": "git+https://git@github.com/dtornow/trace.ninja.git"
+    "supertest": "0.13.0"
   },
   "engines": {
     "node": "0.10.x"

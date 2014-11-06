@@ -22,14 +22,14 @@ describe('cla:get', function(done) {
     it('should get gist and render it', function(done) {
 
         var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
-            var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
+            var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId', token: 'abc'};
             done(null, repo);
         });
 
         var githubStub = sinon.stub(github, 'call', function(args, done) {
             var res;
             if (args.obj === 'gists') {
-                assert.deepEqual(args, {obj: 'gists', fun: 'get', arg: { id: 'gistId'}});
+                assert.deepEqual(args, {obj: 'gists', fun: 'get', arg: { id: 'gistId'}, token: 'abc'});
                 res = {files: {xyFile: {content: 'some content'}}};
             } else {
                 assert.equal(args.obj, 'markdown');

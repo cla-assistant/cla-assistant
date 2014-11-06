@@ -26,7 +26,8 @@ module.exports = {
 				fun: 'get',
 				arg: {
 					id: gistArray[gistArray.length - 1]
-				}
+				},
+				token: repo.token
 			}, function(err, res){
 				if (err || !res) {
 					done(err);
