@@ -2,9 +2,9 @@
 
 [![ReviewNinja](http://app.review.ninja/assets/images/wereviewninja-32.png)](http://app.review.ninja/claborate/claborate)
 
--Contributor License Agreement assistant (CLA assistant)
+Contributor License Agreement assistant
 ===
-
+The Contributor License Agreement assistant (CLA assistant) lets you ..
 
 License
 =======
