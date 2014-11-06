@@ -43,7 +43,7 @@ module.exports = {
 					if (result.statusCode !== 200 && err){
 						done(err);
 					}
-					done(null, {raw: result.data});
+					done(null, {raw: result.body});
 				});
 			});
 		});

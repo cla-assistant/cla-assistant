@@ -62,6 +62,8 @@ describe('Home Controller', function() {
 
         httpBackend.flush();
         (repo.claborate).should.be.ok;
+        (repo.claborate.active).should.be.ok;
+
     });
 
     it('should create webhook for the selected repo on activate action if there are no', function(){
@@ -116,10 +118,11 @@ describe('Home Controller', function() {
         httpBackend.expect('POST','/api/repo/remove', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond();
         httpBackend.expect('POST','/api/webhook/remove', { repo: 'myRepo', user: 'login'}).respond();
 
-        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2'}};
+        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2', active: true}};
         homeCtrl.scope.remove(repo);
 
         httpBackend.flush();
+        (repo.claborate.active).should.not.be.ok;
     });
 
 });

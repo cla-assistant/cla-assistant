@@ -40,7 +40,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
 
         $scope.activate = function(repo) {
             $RPC.call('repo', 'create', {repo: repo.name, owner: repo.owner.login, gist: repo.claborate.gist}, function(err, data){
-                repo.claborate.active = data.value;
+                repo.claborate.active = !!data.value;
             });
 
             $RPC.call('webhook', 'create', {repo: repo.name, owner: repo.owner.login}, function(err, data){});
@@ -54,26 +54,28 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
 
         $scope.remove = function(repo){
             $RPC.call('repo', 'remove', {repo: repo.name, owner: repo.owner.login, gist: repo.claborate.gist}, function(err, data){
-                // repo.claborate.active = data.value;
+                if (!err) {
+                    repo.claborate.active = false;
+                }
             });
 
             $RPC.call('webhook', 'remove', {repo: repo.name, user: repo.owner.login}, function(err, data){});
         };
 
-        $scope.setting = function(repo) {
+        $scope.setting = function(index) {
             var modal = $modal.open({
                 templateUrl: '/modals/templates/setting.html',
                 controller: 'SettingCtrl',
                 resolve: {
                     repo: function() {
-                        return repo;
+                        return $scope.repos[index];
                     }
                 }
             });
 
             modal.result.then(function(args){
-                repo = args.repo;
-                $scope[args.action](repo);
+                $scope.repos[index] = args.repo;
+                $scope[args.action]($scope.repos[index]);
 
             }, function(){
                 console.log('dismissed');
