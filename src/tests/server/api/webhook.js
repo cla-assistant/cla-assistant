@@ -82,4 +82,30 @@ describe('webhook:remove', function(done) {
             done();
         });
 	});
+
+    it('should report error if could not delete hook', function(done){
+        var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
+            var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
+            done(null, repo);
+        });
+
+        var githubStub = sinon.stub(github, 'call', function(args_act, done) {
+            if(args_act.fun === 'getHooks'){
+                done(null, [{id: 123, config: {url: 'any other url'} }]);
+                return;
+            }
+
+            assert(args_act.fun);
+            done();
+        });
+
+        var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', user: 'login'}};
+
+        webhook_api.remove(req, function(error, res) {
+            assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
+            githubStub.restore();
+            repoStub.restore();
+            done();
+        });
+    });
 });

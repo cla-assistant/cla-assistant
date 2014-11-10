@@ -1,17 +1,32 @@
 // module
 var url = require('../services/url');
 var github = require('../services/github');
-var webhook = require('../services/webhook');
 // models
 var Repo = require('mongoose').model('Repo');
 
 module.exports = {
 
     get: function(req, done) {
+        github.call({
+            obj: 'repos',
+            fun: 'getHooks',
+            arg: {
+                user: req.args.user,
+                repo: req.args.repo
+            },
+            token: req.user.token
+        }, function(err, hooks) {
+            var hook = null;
 
-        webhook.get(req.args.user, req.args.repo, req.user.token,
-            function(err, hook) {
-
+            if(!err) {
+                hooks.forEach(function(webhook) {
+                    if(webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
+                        hook = webhook;
+                    }
+                });
+            }
+            done(err, hook);
+        });
                 // now we will have to check two things:
                 // 1) webhook user still has push access to this repo
                 // 2) token is still valid
@@ -22,9 +37,6 @@ module.exports = {
 
                 // }
 
-                done(err, hook);
-            }
-        );
     },
 
     create: function(req, done) {
@@ -53,7 +65,8 @@ module.exports = {
     remove: function(req, done) {
         this.get(req, function(err, hook){
             if (err || !hook) {
-                done(err);
+                done(err || 'No webhook found with base url ' + url.baseWebhook);
+                return;
             }
             github.call({
                 obj: 'repos',

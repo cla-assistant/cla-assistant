@@ -37,7 +37,7 @@ module.exports = function(grunt) {
 
         eslint: {
             // app: {
-                options:{
+                options: {
                     config: '.eslintrc'
                 },
                 target: ['*.js', 'src']
