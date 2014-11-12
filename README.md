@@ -4,7 +4,7 @@
 
 Contributor License Agreement assistant
 ===
-The Contributor License Agreement assistant (CLA assistant) lets you ..
+The Contributor License Agreement assistant (CLA assistant) lets you ...
 
 License
 =======
