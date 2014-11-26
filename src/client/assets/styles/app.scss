@@ -187,6 +187,10 @@ $code-font-size: 12px;
   }
 }
 
+.input-group-btn {
+  vertical-align: top;
+}
+
 // typography
 
 body {
@@ -256,7 +260,8 @@ i.fa-link {
   cursor: pointer;
 }
 
-i.fa-times {
+i.fa-times,
+i.fa-gear {
   color: $gray;
 
   &:hover {
@@ -289,4 +294,8 @@ small {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+}
+
+.clickable {
+  cursor: pointer;
 }

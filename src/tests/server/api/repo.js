@@ -100,4 +100,21 @@ describe('repo', function(done) {
             assert.equal(!!res, false);
         });
 	});
+
+	it('should get all repos for user', function(){
+		var repoStub = sinon.stub(Repo, 'find', function(args, done){
+			if (args.owner === 'login') {
+				var r = {owner: 'login', gist: 1234};
+				done(null, [r]);
+				return;
+			}
+			done('no repo found');
+		});
+
+		var req = {user: {login: 'login'}, args: {owner: 'login'}};
+
+		repo_api.getAll(req, function(error, res) {
+            assert.equal(res.length, 1);
+        });
+	});
 });

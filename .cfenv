@@ -1,0 +1,5 @@
+cf set-env cla-assistant-staging PROTOCOL http
+cf set-env cla-assistant-staging HOST preview.cla-assistant.io
+cf set-env cla-assistant-staging MONGODB mongodb://cla:cla@ds035310.mongolab.com:35310/cla-staging
+cf set-env cla-assistant-staging GITHUB_CLIENT cae4e6d2e26b5c246c15
+cf set-env cla-assistant-staging GITHUB_SECRET b71186dd612652b0c590f3539a8cf7b2af9a6ed5

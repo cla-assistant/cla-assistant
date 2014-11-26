@@ -29,15 +29,6 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
                 controller: 'HomeCtrl'
             })
 
-            // //
-            // // Accepted CLA
-            // //
-            // .state('cla', {
-            //     url: '/accept/:owner/:repoId',
-            //     templateUrl: '/templates/cla.html',
-            //     controller: 'ClaController'
-            // })
-
             //
             // Repo state (abstract)
             //

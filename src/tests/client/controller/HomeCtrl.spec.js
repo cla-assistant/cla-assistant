@@ -37,44 +37,76 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/get', { repo: 'Hello-World', owner: 'octocat'}).respond({name: 'Hello-World', owner: 'octocat', gist: 1234});
+        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(1);
+        (homeCtrl.scope.claRepos.length).should.be.equal(1);
         (homeCtrl.scope.user.value.admin).should.be.equal(true);
     });
 
-    it('should not load user repos if he is not an admin', function(){
+    it('should not load user`s repos if he is not an admin', function(){
         rootScope.$broadcast('user');
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
     });
 
-    it('should create repo entry on activate action', function(){
+    it('should create repo entry on addRepo action', function(){
+        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
-        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login', gist: 1234}).respond(true);
-        httpBackend.expect('POST','/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
-
-        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 1234}};
-        homeCtrl.scope.activate(repo);
-
+        homeCtrl.scope.addRepo();
         httpBackend.flush();
-        (repo.claborate).should.be.ok;
-        (repo.claborate.active).should.be.ok;
 
+        (homeCtrl.scope.claRepos.length).should.be.equal(1);
+        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
     });
 
-    it('should create webhook for the selected repo on activate action if there are no', function(){
+    it('should remove repo from claRepos list if create failed on backend', function(){
+        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
+        homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
-        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login', gist: 1234}).respond(true);
+        homeCtrl.scope.addRepo();
+        httpBackend.flush();
+
+        (homeCtrl.scope.claRepos.length).should.be.equal(0);
+    });
+
+    it('should show error message if create failed', function(){
+        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
+        homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
+
+        homeCtrl.scope.addRepo();
+        httpBackend.flush();
+
+        (homeCtrl.scope.errorMsg[0].text).should.be.equal('This repository is already set up.');
+        (homeCtrl.scope.errorMsg[0].promise).should.be.ok;
+    });
+
+    it('should create webhook for the selected repo on update action if gist is given', function(){
+
+        httpBackend.expect('POST','/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 1234}).respond(true);
         httpBackend.expect('POST','/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
 
-        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 1234}};
-        homeCtrl.scope.activate(repo);
+        homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: 1234}];
+        homeCtrl.scope.update(0);
 
         httpBackend.flush();
+        (homeCtrl.scope.claRepos[0].active).should.be.ok;
+    });
+
+    it('should remove webhook for the selected repo on update action if there is NO gist', function(){
+
+        httpBackend.expect('POST','/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
+        httpBackend.expect('POST','/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
+
+        homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: ''}];
+        homeCtrl.scope.update(0);
+
+        httpBackend.flush();
+        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
     });
 
     it('should check repos whether they are activated or NOT', function(){
@@ -82,10 +114,10 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/get', { repo: 'Hello-World', owner: 'octocat'}).respond();
+        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
 
-        (homeCtrl.scope.repos[0].claborate.active).should.not.be.ok;
+        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
     });
 
     it('should check repos whether they are ACTIVATED or not', function(){
@@ -93,36 +125,36 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/get', { repo: 'Hello-World', owner: 'octocat'}).respond({name: 'Hello-World', owner: 'octocat', gist: 1234});
+        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
-        (homeCtrl.scope.repos[0].claborate.active).should.be.ok;
-        (homeCtrl.scope.repos[0].claborate.gist).should.be.ok;
+        (homeCtrl.scope.claRepos[0].active).should.be.ok;
+        (homeCtrl.scope.claRepos[0].gist).should.be.ok;
     });
 
-    it('should update repo on changed gist', function(){
-        httpBackend.expect('POST','/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond(true);
-
-        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2'}};
-        homeCtrl.scope.update(repo);
-
-        httpBackend.flush();
-    });
-
-    it('should check webhook validity (on update)', function(){
-
-    });
-
-    it('should delete db entry and webhook on deactivate', function(){
+    it('should delete db entry and webhook on remove', function(){
         httpBackend.expect('POST','/api/repo/remove', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond();
         httpBackend.expect('POST','/api/webhook/remove', { repo: 'myRepo', user: 'login'}).respond();
 
-        var repo = {id: 123, name: 'myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2', active: true}};
+        var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2', active: true};
+        homeCtrl.scope.claRepos = [repo];
         homeCtrl.scope.remove(repo);
 
         httpBackend.flush();
-        (repo.claborate.active).should.not.be.ok;
+        (homeCtrl.scope.claRepos.length).should.be.equal(0);
+    });
+
+    it('should select repo from the search field', function(){
+        var repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2', active: true}};
+        homeCtrl.scope.select(repo);
+
+        (homeCtrl.scope.selected.full_name).should.be.equal(repo.full_name);
+        (homeCtrl.scope.query.text).should.be.equal(repo.full_name);
+    });
+
+    it('should handle multiple error messages', function(){
+        
     });
 
 });

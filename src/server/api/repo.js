@@ -19,6 +19,15 @@ module.exports = {
 			done(err, repo);
 		});
 	},
+	getAll: function(req, done){
+		repo.getAll(req.args, function(err, repos){
+			// if (!repo || err || repo.owner !== req.user.login) {
+			// 	done(err);
+			// 	return;
+			// }
+			done(err, repos);
+		});
+	},
 	update: function(req, done){
 		repo.update(req.args, done);
 	},

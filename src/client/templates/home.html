@@ -22,18 +22,68 @@
 	</div>
 	<div class="col-md-6" ng-if="user.value.admin">
 		<h2>Repositories</h2>
+
+		<div class="well well-sm">
+	      <form ng-submit="addRepo()">
+	        <div class="form-group">
+	          <div class="input-group">
+	            <div class="form-group has-feedback">
+	              <input type="text" ng-model="query.text" class="form-control" style="height:33px;" ng-focus="query.input=true" ng-blur="finishInput()" />
+	              <i class="fa fa-lg fa-times form-control-feedback" ng-show="query.text" ng-click="query.text=''" style="top:0px;"></i>
+			        <div class="list-group" style="max-height:200px; overflow-y:scroll;" ng-show="query.input">
+			          <a href="" 
+			             class="clickable list-group-item" 
+			             ng-class="{ active: active===repo }" 
+			             ng-click="select(repo); "
+			             ng-repeat="repo in repos | orderBy: 'full_name' | filter: {full_name: query.text}">
+			            {{ repo.full_name }}
+			          </a>
+			        </div>
+	            </div>
+	            <span class="input-group-btn">
+	              <button class="btn btn-info" type="submit" ng-disabled="!query.text">Add Repository</button>
+	            </span>
+	          </div>
+	          <span class="help-block" style="margin-top:1px;">
+	            Type <em>username/</em> or <em>organization/</em> to find a repository
+	          </span>
+	          <div ng-repeat="error in errorMsg" class="alert alert-danger" role="alert" ng-show="errorMsg.length > 0">
+				  <span class="fa fa-warning" aria-hidden="true"></span>
+				  <span class="sr-only">Error:</span>
+				  {{ error }}
+				</div>
+	        </div>
+
+	      </form>
+	    </div>
+
 	  	<table  class="col-md-6 table table-hover">
-			<tr ng-repeat="repo in repos | orderBy:'full_name'" ng-class="{'text-primary': repo.claborate.active}">
-				<td><span class="octicon octicon-repo"></span>&nbsp; {{ repo.owner.login }} / {{ repo.name }}</td>
-
-				<td style="text-align:right;">
-					<i class="fa fa-gear" 
-					ng-click="setting($index)" 
-					tooltip-placement="bottom" 
-					tooltip="Settings">
-					</i>
+			<tr class="clickable" ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
+				<td>
+					<div class="row">
+						<span class="col-sm-10 octicon octicon-repo" ng-click="navigateToDetails($index)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+						<div class="col-sm-2">
+							<i class="fa fa-times action-icon"
+							ng-click="remove(claRepo)" 
+							tooltip-placement="bottom" 
+							tooltip="Remove">
+							</i>
+							<i class="fa fa-gear action-icon" 
+							ng-click="showSettings($index)" 
+							tooltip-placement="bottom" 
+							tooltip="Settings">
+							</i>
+						</div>
+					</div>
+					<div class="row" ng-show="selectedIndex == $index">
+						<h4 class="col-sm-2">Gist URL</h4>
+					    <input ng-model="claRepo.gist" class="col-sm-9 h4" style="font-size:inherit"></input>
+						<div class="col-sm-11" style="padding-right:0">
+						    <!-- <button ng-show="repo.claborate.active" class="btn btn-danger" ng-click="remove()"></button> -->
+						    <button class="btn btn-primary" style="float:right" ng-click="update(repoIndex)">Update</button>
+						</div>					
+					</div>
 				</td>
-
 			</tr>
 		</table>
 	</div>

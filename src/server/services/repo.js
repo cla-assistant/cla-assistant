@@ -20,8 +20,13 @@ module.exports = {
 		repo.save(done);
     },
     get: function(args, done){
-		Repo.findOne({repo: args.repo, owner: args.owner}, function(err, repo){
+        Repo.findOne({repo: args.repo, owner: args.owner}, function(err, repo){
             done(err, repo);
+        });
+    },
+    getAll: function(args, done){
+		Repo.find({owner: args.owner}, function(err, repos){
+            done(err, repos);
         });
     },
     update: function(args, done){
