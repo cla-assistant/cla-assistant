@@ -4,7 +4,7 @@
 
 Contributor License Agreement assistant
 ===
-The Contributor License Agreement assistant (CLA assistant) lets you ..
+The Contributor License Agreement assistant (CLA assistant) lets you ...
 
 License
 =======
@@ -31,4 +31,4 @@ Credits
 ![SAP](https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png)
 
 <p align="center">
-:heart: from the github team @ sap
+:heart: from the GitHub team @ SAP
