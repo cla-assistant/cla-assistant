@@ -51,12 +51,11 @@ module.exports = {
 
     sign: function(req, done) {
 		var now = new Date();
-		var repoId = req.args.repo;
 		var self = this;
 
-		var args = {repo: req.args.repo, user: req.user.id, href: config.terms};
+		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
 
-		cla.check(args,function(err, signed){
+		cla.check(args, function(err, signed){
 			if (!err && !signed) {
 				cla.create(args, function(){
 					User.findOne({uuid: req.user.id}, function(err, user){
@@ -66,12 +65,12 @@ module.exports = {
 
 							user.requests.forEach(function(request){
 								status.update({
-									user: req.user.id,
+									user: req.user.login,
 									owner: req.args.owner,
 									repo_uuid: request.repo.id,
 									repo: request.repo.name,
 									sha: request.sha
-								},null);
+								}, null);
 								repo = request.repo.name;
 								number = request.number;
 							});
@@ -91,8 +90,13 @@ module.exports = {
 		});
     },
 
+    getAll: function(req, done){
+		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
+		cla.getAll(args, done);
+    },
+
     check: function(req, done){
-		var args = {repo: req.args.repo, user: req.user.id, href: config.terms};
+		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
 		cla.check(args, done);
     },
 

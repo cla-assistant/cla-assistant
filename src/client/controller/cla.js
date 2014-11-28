@@ -25,7 +25,8 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
 
         function checkCLA() {
             $RPC.call('cla', 'check', {
-                repo: $stateParams.repo
+                repo: $stateParams.repo,
+                owner: $stateParams.user
             }, function(err, signed){
                 if (!err && signed.value) {
                     $scope.signed = true;

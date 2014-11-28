@@ -52,15 +52,20 @@ module.exports = function(grunt) {
               config: '.scss-lint.yml',
               colorizeOutput: true
             }
+        },
+
+        watch: {
+            karma: {tasks: ['eslint', 'mochaTest', 'karma'], files: 'src/**/*.js'}
         }
     };
 
     // Initialize configuration
+    grunt.loadNpmTasks('grunt-autowatch');
     grunt.initConfig(config);
 
     require('load-grunt-tasks')(grunt);
 
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul', 'coveralls']);
-    grunt.registerTask('default', ['eslint', 'mochaTest', 'karma']);
+    grunt.registerTask('default', ['eslint', 'mochaTest', 'karma', 'watch']);
 };

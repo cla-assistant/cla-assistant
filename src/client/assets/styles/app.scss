@@ -299,3 +299,15 @@ small {
 .clickable {
   cursor: pointer;
 }
+
+// _detial
+.drop_area {
+  border-color: $brand-primary;
+  border-style: dashed;
+  resize: none;
+
+  &:hover {
+    border-color: $brand-primary-hover;
+  }
+
+}

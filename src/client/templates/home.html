@@ -58,31 +58,16 @@
 	    </div>
 
 	  	<table  class="col-md-6 table table-hover">
-			<tr class="clickable" ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
-				<td>
-					<div class="row">
-						<span class="col-sm-10 octicon octicon-repo" ng-click="navigateToDetails($index)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
+				<td class="row">
+						<span class="col-sm-10 octicon octicon-repo clickable" ng-click="navigateToDetails(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
 						<div class="col-sm-2">
 							<i class="fa fa-times action-icon"
 							ng-click="remove(claRepo)" 
 							tooltip-placement="bottom" 
 							tooltip="Remove">
 							</i>
-							<i class="fa fa-gear action-icon" 
-							ng-click="showSettings($index)" 
-							tooltip-placement="bottom" 
-							tooltip="Settings">
-							</i>
 						</div>
-					</div>
-					<div class="row" ng-show="selectedIndex == $index">
-						<h4 class="col-sm-2">Gist URL</h4>
-					    <input ng-model="claRepo.gist" class="col-sm-9 h4" style="font-size:inherit"></input>
-						<div class="col-sm-11" style="padding-right:0">
-						    <!-- <button ng-show="repo.claborate.active" class="btn btn-danger" ng-click="remove()"></button> -->
-						    <button class="btn btn-primary" style="float:right" ng-click="update($index)">Update</button>
-						</div>					
-					</div>
 				</td>
 			</tr>
 		</table>

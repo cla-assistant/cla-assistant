@@ -15,11 +15,11 @@ describe('cla:check', function(done) {
 
 	it('should check cla entry for equal repo, user and gist url', function(done){
         sinon.stub(CLA, 'findOne', function(args, done){
-			assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
+			assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', href: 'gistUrl'});
 			done(null, true);
         });
 
-        var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login', gist: 'gistUrl'};
 		cla.check(args, function(){
 			done();
 		});
@@ -31,7 +31,7 @@ describe('cla:create', function(done) {
 		// CLA.restore();
 	});
 
-	it('should create cla entry for equal repo, user and gist url', function(done){
+	xit('should create cla entry for equal repo, user and gist url', function(done){
 		// var claStub = sinon.createStubInstance(CLA);
 		// claStub.new = function(args){
 		// 	assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});

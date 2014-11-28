@@ -12,14 +12,19 @@ var guid = function(){
 
 module.exports = {
     check: function(args, done) {
-		CLA.findOne({repo: args.repo, user: args.user, href: args.gist}, function(err, cla){
+		CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, href: args.gist}, function(err, cla){
             done(err, !!cla);
+        });
+    },
+    getAll: function(args, done) {
+		CLA.find({repo: args.repo, owner: args.owner, href: args.gist}, function(err, clas){
+            done(err, clas);
         });
     },
     create: function(args, done){
 		var now = new Date();
 
-		var cla = new CLA({uuid: guid(), repo: args.repo, user: args.user, href: args.gist, created_at: now});
+		var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now});
 		cla.save(done);
     },
     remove: function(args, done){

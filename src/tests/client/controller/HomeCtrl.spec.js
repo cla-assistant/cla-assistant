@@ -36,8 +36,8 @@ describe('Home Controller', function() {
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
@@ -54,7 +54,7 @@ describe('Home Controller', function() {
     });
 
     it('should create repo entry on addRepo action', function(){
-        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
         homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
         homeCtrl.scope.addRepo();
@@ -65,7 +65,7 @@ describe('Home Controller', function() {
     });
 
     it('should remove repo from claRepos list if create failed on backend', function(){
-        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
         homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
         homeCtrl.scope.addRepo();
@@ -75,46 +75,45 @@ describe('Home Controller', function() {
     });
 
     it('should show error message if create failed', function(){
-        httpBackend.expect('POST','/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
         homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
         homeCtrl.scope.addRepo();
         httpBackend.flush();
 
-        (homeCtrl.scope.errorMsg[0].text).should.be.equal('This repository is already set up.');
-        (homeCtrl.scope.errorMsg[0].promise).should.be.ok;
+        (homeCtrl.scope.errorMsg[0]).should.be.equal('This repository is already set up.');
     });
 
-    it('should create webhook for the selected repo on update action if gist is given', function(){
+    // xit('should create webhook for the selected repo on update action if gist is given', function(){
 
-        httpBackend.expect('POST','/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 1234}).respond(true);
-        httpBackend.expect('POST','/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
+    //     httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 1234}).respond(true);
+    //     httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
 
-        homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: 1234}];
-        homeCtrl.scope.update(0);
+    //     homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: 1234}];
+    //     homeCtrl.scope.update(0);
 
-        httpBackend.flush();
-        (homeCtrl.scope.claRepos[0].active).should.be.ok;
-    });
+    //     httpBackend.flush();
+    //     (homeCtrl.scope.claRepos[0].active).should.be.ok;
+    // });
 
-    it('should remove webhook for the selected repo on update action if there is NO gist', function(){
+    // xit('should remove webhook for the selected repo on update action if there is NO gist', function(){
 
-        httpBackend.expect('POST','/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
-        httpBackend.expect('POST','/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
+    //     httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
+    //     httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
 
-        homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: ''}];
-        homeCtrl.scope.update(0);
+    //     homeCtrl.scope.claRepos = [{repo: 'myRepo', owner: 'login', gist: ''}];
+    //     homeCtrl.scope.update(0);
 
-        httpBackend.flush();
-        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
-    });
+    //     httpBackend.flush();
+    //     (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
+    // });
 
     it('should check repos whether they are activated or NOT', function(){
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
 
         (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
@@ -124,8 +123,8 @@ describe('Home Controller', function() {
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        httpBackend.expect('POST','/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
@@ -134,8 +133,8 @@ describe('Home Controller', function() {
     });
 
     it('should delete db entry and webhook on remove', function(){
-        httpBackend.expect('POST','/api/repo/remove', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond();
-        httpBackend.expect('POST','/api/webhook/remove', { repo: 'myRepo', user: 'login'}).respond();
+        httpBackend.expect('POST', '/api/repo/remove', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond();
+        httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login'}).respond();
 
         var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2', active: true};
         homeCtrl.scope.claRepos = [repo];
@@ -154,7 +153,6 @@ describe('Home Controller', function() {
     });
 
     it('should handle multiple error messages', function(){
-        
     });
 
 });

@@ -11,7 +11,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.repos = [];
         $scope.claRepos = [];
         $scope.selected = {};
-        $scope.selectedIndex = -1;
         $scope.query = {};
         $scope.errorMsg = [];
 
@@ -107,12 +106,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             $RPC.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){});
         };
 
-        $scope.showSettings = function(index){
-            $scope.selectedIndex = $scope.selectedIndex === index ? -1 : index;
-        };
-
-        $scope.navigateToDetails = function (index) {
-            $state.go('repo.cla', {'user': $scope.claRepos[index].owner, 'repo': $scope.claRepos[index].repo});
+        $scope.navigateToDetails = function (claRepo) {
+            $state.go('details', {'user': claRepo.owner, 'repo': claRepo.repo});
         };
 
         $scope.select = function(repo){
@@ -124,7 +119,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.finishInput = function(){
             $timeout(function(){
                 $scope.query.input = false;
-            },150);
+            }, 150);
         };
 
     }

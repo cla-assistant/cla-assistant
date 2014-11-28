@@ -44,8 +44,10 @@
   },
   "devDependencies": {
     "grunt": "0.4.5",
+    "grunt-autowatch": "^0.1.4",
     "grunt-cli": "0.1.13",
     "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-watch": "^0.5.3",
     "grunt-coveralls": "1.0.0",
     "grunt-eslint": "1.0.0",
     "grunt-http": "1.4.0",

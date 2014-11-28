@@ -1,0 +1,38 @@
+<div class="row main" style="margin-top: 50px;">
+	<div class="container-fluid">
+
+		<div class="row" ng-show="admin">
+			<div class="col-md-5 col-md-offset-3 row">
+
+			    <div class="row">
+					<div class="well" >
+						<h2>Contributor License Agreement</h2>
+						<div style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey;">
+							<div ng-bind-html="renderHtml(claText)"></div>
+						</div>
+					</div>
+					<p class="text-center">
+					</p>
+			    </div>
+				<div class="row">
+					
+					<h4 class="col-md-3 ">Gist URL</h4>
+					<div class="col-md-9">
+				    	<textarea ng-model="repo.gist" class="drop_area" style="width:100%; font-size:inherit"></textarea>
+					    <button class="btn btn-primary" style="float:right" ng-click="update()">Update</button>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-md-2 col-md-offset-2">
+				<h2>Signed by...</h2>
+				<div ng-repeat="user in users" style="margin-top:30px;" class="row">
+					<img ng-src="{{ user.avatar_url }}" class="img-responsive hidden-xs hidden-sm col-md-5" />
+					<img ng-src="{{ user.avatar_url }}?s=200" class="visible-xs visible-sm col-md-5" width="100px;"/>
+					<h4 style="font-weight:400; margin:5px 0;" class="col-md-5">{{ user.name }}  {{ user.login }}</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</div>

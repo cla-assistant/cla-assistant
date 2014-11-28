@@ -108,7 +108,7 @@ describe('cla:sign', function(done) {
 
     it('should store signed cla data if not signed yet', function(done) {
 
-        var user_find = sinon.stub(User,'findOne', function(args, done){
+        var user_find = sinon.stub(User, 'findOne', function(args, done){
             done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo'} }], save: function(){}});
         });
 
@@ -137,7 +137,7 @@ describe('cla:sign', function(done) {
             requests: [{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'}],
             save: function(){}
         };
-        var user_find = sinon.stub(User,'findOne', function(args, done){
+        var user_find = sinon.stub(User, 'findOne', function(args, done){
             done('', user);
         });
 
@@ -157,7 +157,7 @@ describe('cla:sign', function(done) {
                 {repo: {id: 234, name: 'ab_repo'}, sha: 'guid2'}],
             save: function(){}
         };
-        var user_find = sinon.stub(User,'findOne', function(args, done){
+        var user_find = sinon.stub(User, 'findOne', function(args, done){
             done('', user);
         });
         sinon.stub(status, 'update', function(args, done){
@@ -174,3 +174,29 @@ describe('cla:sign', function(done) {
         });
     });
 });
+
+// describe('cla:getUsers', function(done) {
+//     var req = {
+//         user: {id: 3},
+//         args: {
+//             repo: 123,
+//             owner: 'login',
+//             gist: 'url'
+//         }
+//     };
+
+//     beforeEach(function(){
+//         sinon.stub(cla, 'getUsers', function(args, done){
+//             assert(args);
+//             done();
+//         });
+//     });
+
+//     afterEach(function(){
+//         cla.getUsers.restore();
+//     });
+
+//     it('should do something', function(){
+        
+//     });
+// });
