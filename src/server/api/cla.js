@@ -13,7 +13,7 @@ var repoService = require('../services/repo');
 var status = require('../services/status');
 
 module.exports = {
-	get: function(req, done){
+	getGist: function(req, done){
 		repoService.get(req.args, function(err, repo){
 			if (err || !repo) {
 				done(err);
@@ -33,18 +33,28 @@ module.exports = {
 					done(err);
 					return;
 				}
-				github.call({
-					obj: 'markdown',
-					fun: 'render',
-					arg: {
-						text: res.files[Object.keys(res.files)[0]].content
-					}
-				}, function(err, result) {
-					if (result.statusCode !== 200 && err){
-						done(err);
-					}
-					done(null, {raw: result.body});
-				});
+				done(err, res);
+			});
+		});
+	},
+
+	get: function(req, done){
+		this.getGist(req, function(err, res){
+			if (err || !res) {
+				done(err);
+				return;
+			}
+			github.call({
+				obj: 'markdown',
+				fun: 'render',
+				arg: {
+					text: res.files[Object.keys(res.files)[0]].content
+				}
+			}, function(err, result) {
+				if (result.statusCode !== 200 && err){
+					done(err);
+				}
+				done(null, {raw: result.body});
 			});
 		});
 	},
@@ -53,35 +63,40 @@ module.exports = {
 		var now = new Date();
 		var self = this;
 
-		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
+		this.check(req, function(err, signed){
 
-		cla.check(args, function(err, signed){
 			if (!err && !signed) {
-				cla.create(args, function(){
-					User.findOne({uuid: req.user.id}, function(err, user){
-						if (!err) {
-							var number;
-							var repo;
+				repoService.get(req.args, function(err, repo){
+					if (err || !repo) {
+						done(err);
+						return;
+					}
 
-							user.requests.forEach(function(request){
-								status.update({
-									user: req.user.login,
-									owner: req.args.owner,
-									repo_uuid: request.repo.id,
-									repo: request.repo.name,
-									sha: request.sha
-								}, null);
-								repo = request.repo.name;
-								number = request.number;
-							});
+					var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: repo.gist};
+					cla.create(args, function(){
+						User.findOne({uuid: req.user.id}, function(err, user){
+							if (!err) {
+								var number;
 
-							user.requests.length = 0;
-							user.save();
+								user.requests.forEach(function(request){
+									status.update({
+										user: req.user.login,
+										owner: req.args.owner,
+										repo_uuid: request.repo.id,
+										repo: request.repo.name,
+										sha: request.sha
+									}, null);
+									number = request.number;
+								});
 
-							done(err, {pullRequest: number});
-						} else {
-							done(err);
-						}
+								user.requests.length = 0;
+								user.save();
+
+								done(err, {pullRequest: number});
+							} else {
+								done(err);
+							}
+						});
 					});
 				});
 			} else if (signed) {
@@ -91,13 +106,30 @@ module.exports = {
     },
 
     getAll: function(req, done){
-		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
-		cla.getAll(args, done);
+		var self = this;
+
+		this.getGist(req, function(err, gist){
+			if (err || !gist) {
+				done(err);
+				return;
+			}
+			var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: gist.url};
+			cla.getAll(args, done);
+		});
     },
 
     check: function(req, done){
-		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: config.terms};
-		cla.check(args, done);
+		var self = this;
+
+		this.getGist(req, function(err, gist){
+			if (err || !gist) {
+				done(err);
+				return;
+			}
+
+			var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, href: gist.url};
+			cla.check(args, done);
+		});
     },
 
     remove: function(req, done) {

@@ -7,8 +7,6 @@
 var path = require('path');
 
 module.exports = {
-    terms: process.env.TERMS_ID,
-
     server: {
         github: {
             // optional

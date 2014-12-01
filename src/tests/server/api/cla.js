@@ -13,6 +13,7 @@ var Repo = require('../../../server/documents/repo').Repo;
 var github = require('../../../server/services/github');
 var url = require('../../../server/services/url');
 var cla = require('../../../server/services/cla');
+var repo_service = require('../../../server/services/repo');
 var status = require('../../../server/services/status');
 
 // api
@@ -84,7 +85,7 @@ describe('cla:sign', function(done) {
         user: {id: 3},
         args: {
             repo: 123,
-            owner: {id: 1, login: 'login'}
+            owner: 'login'
         }
     };
 
@@ -100,10 +101,26 @@ describe('cla:sign', function(done) {
             assert(args);
             done();
         });
+        sinon.stub(repo_service, 'get', function(args, done){
+            assert(args);
+            done('', {gist: 'url/gistId', token: 'abc'});
+        });
+        sinon.stub(github, 'call', function(args, done) {
+            var res;
+            if (args.obj === 'gists') {
+                assert.deepEqual(args, {obj: 'gists', fun: 'get', arg: { id: 'gistId'}, token: 'abc'});
+                res = {url: 'url', files: {xyFile: {content: 'some content'}}};
+            }
+            done(null, res);
+        });
+        sinon.stub(status, 'update', function(args, done){});
     });
     afterEach(function(){
         cla.check.restore();
         cla.create.restore();
+        repo_service.get.restore();
+        github.call.restore();
+        status.update.restore();
     });
 
     it('should store signed cla data if not signed yet', function(done) {
@@ -146,7 +163,7 @@ describe('cla:sign', function(done) {
         cla_api.sign(req, function(error, res) {
             assert.ifError(error);
             assert.ok(res);
-            user_find.restore();
+            User.findOne.restore();
         });
     });
 
@@ -160,8 +177,6 @@ describe('cla:sign', function(done) {
         var user_find = sinon.stub(User, 'findOne', function(args, done){
             done('', user);
         });
-        sinon.stub(status, 'update', function(args, done){
-        });
 
         req.user.id = 3;
 
@@ -170,7 +185,6 @@ describe('cla:sign', function(done) {
             assert.ok(res);
             assert.equal(status.update.callCount, 2);
             user_find.restore();
-
         });
     });
 });

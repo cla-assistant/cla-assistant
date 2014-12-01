@@ -80,6 +80,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
                     }
                 } else {
                     $scope.claRepos.push(newClaRepo);
+                    $scope.query.text = '';
                 }
             });
         };

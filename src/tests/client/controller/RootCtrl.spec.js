@@ -32,7 +32,7 @@ describe('Root Controller', function() {
 
     it('should get user', function() {
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
         httpBackend.flush();
 
         (rootCtrl.scope.user).should.be.ok;
@@ -41,7 +41,7 @@ describe('Root Controller', function() {
 
     it('should determine user with simple scope', function(){
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
         httpBackend.flush();
 
         (rootCtrl.scope.user.value.admin).should.not.be.ok;
@@ -49,7 +49,7 @@ describe('Root Controller', function() {
 
     it('should determine user with admin scope', function(){
 
-        httpBackend.expect('POST','/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.flush();
 
         (rootCtrl.scope.user.value.admin).should.be.ok;
