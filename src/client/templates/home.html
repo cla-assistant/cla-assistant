@@ -15,7 +15,7 @@
 			<div style="display:table-row;">
 				<div style="display:table-cell; padding:10px 0; vertical-align:middle;">
 				<!-- <img src="/assets/images/review-ninja-500.png" class="img-responsive" alt="Review Ninja" /> -->
-					<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px;">Sign in as admin</btn>
+					<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px;">Sign in with GitHub</btn>
 				</div>
 			</div>
 		</div>
@@ -23,7 +23,7 @@
 	<div class="col-md-6" ng-if="user.value.admin">
 		<h2>Repositories</h2>
 
-		<div class="well well-sm">
+		<div class="well well-sm" style="padding-top:9px">
 	      <form ng-submit="addRepo()">
 	        <div class="form-group">
 	          <div class="input-group">
@@ -35,7 +35,7 @@
 			             class="clickable list-group-item" 
 			             ng-class="{ active: active===repo }" 
 			             ng-click="select(repo); "
-			             ng-repeat="repo in repos | orderBy: 'full_name' | filter: {full_name: query.text}">
+			             ng-repeat="repo in repos | orderBy: 'full_name' | filter: {full_name: query.text}|notIn:claRepos">
 			            {{ repo.full_name }}
 			          </a>
 			        </div>

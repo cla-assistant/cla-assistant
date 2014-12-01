@@ -1,8 +1,10 @@
 var module = angular.module('app',
-    ['ui.utils',
+    ['cla.filters',
+     'ui.utils',
      'ui.router',
      'ui.bootstrap']);
 
+var filters = angular.module('cla.filters', []);
 // *************************************************************
 // Delay start
 // *************************************************************

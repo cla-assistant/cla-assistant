@@ -18,6 +18,16 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             $window.location.href = '/auth/github?admin=true';
         };
 
+
+        $scope.isNotClaRepo = function(repo){
+            var match = false;
+            $scope.claRepos.some(function(claRepo){
+                match = claRepo.repo === repo.name && claRepo.owner === repo.owner.login ? true : false;
+                return match;
+            });
+            return !match;
+        };
+
         var updateScopeData = function(){
             $RPC.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
                 $scope.claRepos = data.value;
@@ -121,6 +131,29 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
                 $scope.query.input = false;
             }, 150);
         };
-
     }
 ]);
+
+filters.filter('notIn', function() {
+    return function(repos, arr) {
+
+        if(arr.length === 0) {
+            return true;
+        }
+
+        var notMatched = [];
+
+        repos.forEach(function(item){
+            var found = false;
+            arr.some(function(claRepo){
+                found = claRepo.repo === item.name && claRepo.owner === item.owner.login ? true : false;
+                return found;
+            });
+            if (!found) {
+                notMatched.push(item);
+            }
+        });
+
+        return notMatched;
+    };
+});
