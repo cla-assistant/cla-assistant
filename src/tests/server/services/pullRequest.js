@@ -25,7 +25,7 @@ describe('pullRequest:badgeComment', function(done) {
 
 		var githubStub = sinon.stub(github, 'call', function(args, git_done){
 			assert.equal(args.token, 'abc');
-
+			git_done(null, 'res', 'meta');
 			done();
 		});
 

@@ -134,8 +134,12 @@ module.exports = {
 
 		var now = new Date();
 
-		var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now});
-		cla.save(done);
+		CLA.create({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now}, function(err, cla){
+			done(cla);
+		});
+
+		// var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now});
+		// cla.save(done);
     },
     remove: function(args, done){
 		var string = '';

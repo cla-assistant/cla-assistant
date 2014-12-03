@@ -50,6 +50,37 @@ describe('webhook pull request', function(test_done) {
 		assert(User.findOne.called);
 		test_done();
 	});
+
+	xit('should update status of pull request if not signed and new user', function(test_done){
+		var user_save = function(){
+			assert(this.requests);
+		};
+		sinon.stub(User, 'findOne', function(args, done){
+			done(null, {token: 'abc', save: user_save});
+        });
+        sinon.stub(cla, 'check', function(args, done){
+			done(null, false);
+        });
+
+		var req = {args: {
+			pull_request: testData,
+			repository: testData.base.repo,
+			number: testData.number,
+			action: 'opened'
+		}};
+
+		var res = {status: function(status){
+						assert.equal(status, 200);
+						return {send: function(result){
+
+						}};
+					}};
+
+		pull_request(req, res);
+		assert(cla.check.called);
+		assert(User.findOne.called);
+		test_done();
+	});
 });
 
 var testData = {

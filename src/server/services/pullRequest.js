@@ -25,7 +25,6 @@ module.exports = {
                 token: token
             }, function(err, res, meta){
                 console.log(err);
-                console.log(res);
             });
         });
     }

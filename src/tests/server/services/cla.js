@@ -194,23 +194,19 @@ describe('cla:sign', function(done) {
 
 describe('cla:create', function(done) {
 	afterEach(function(){
-		// CLA.restore();
+		CLA.create.restore();
 	});
 
-	xit('should create cla entry for equal repo, user and gist url', function(done){
-		// var claStub = sinon.createStubInstance(CLA);
-		// claStub.new = function(args){
-		// 	assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
-		// };
+	it('should create cla entry for equal repo, user and gist url', function(done){
         sinon.stub(CLA, 'create', function(args, done){
-			console.log('create');
-			assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
-			done(null, true);
+			assert(args);
+			// assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
+			done(null, {uuid: args.uuid});
         });
 
         var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
-		cla.create(args, function(){
-			console.log('create');
+		cla.create(args, function(obj){
+			assert.equal(obj.uuid.length, 13);
 			done();
 		});
 	});
