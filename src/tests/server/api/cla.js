@@ -21,10 +21,14 @@ var cla_api = require('../../../server/api/cla');
 
 describe('cla:get', function(done) {
     it('should get gist and render it', function(done) {
-
-        var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
-            var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId', token: 'abc'};
-            done(null, repo);
+        sinon.stub(cla, 'getRepo', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
+            done(null, {gist: 'url'});
+        });
+        sinon.stub(cla, 'getGist', function(repo, done){
+            assert.equal(repo.gist, 'url');
+            var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z'};
+            done(null, res);
         });
 
         var githubStub = sinon.stub(github, 'call', function(args, done) {
@@ -43,8 +47,11 @@ describe('cla:get', function(done) {
         var req = {args: {repo: 'myRepo', owner: 'login'}};
 
         cla_api.get(req, function(error, res) {
+            assert(cla.getRepo.called);
+
             githubStub.restore();
-            repoStub.restore();
+            cla.getRepo.restore();
+            cla.getGist.restore();
             done();
         });
 
@@ -80,137 +87,58 @@ describe('cla:get', function(done) {
     });
 });
 
-describe('cla:sign', function(done) {
+describe('cla api', function(done) {
     var req = {
-        user: {id: 3},
+        user: {id: 3, login: 'login'},
         args: {
-            repo: 123,
-            owner: 'login'
+            repo: 'myRepo',
+            owner: 'owner'
         }
     };
 
-    beforeEach(function(){
+    it('should call cla service on sign', function(done){
+        sinon.stub(cla, 'sign', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
+            done(null);
+        });
+
+        cla_api.sign(req, function(err){
+            assert.ifError(err);
+            assert(cla.sign.called);
+
+            cla.sign.restore();
+            done();
+        });
+    });
+
+    it('should call cla service on check', function(done){
         sinon.stub(cla, 'check', function(args, done){
-            if (args.user === 2) {
-                done(null, true);
-            } else {
-                done(null, false);
-            }
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
+            done(null, true);
         });
-        sinon.stub(cla, 'create', function(args, done){
-            assert(args);
+
+        cla_api.check(req, function(err, signed){
+            assert.ifError(err);
+            assert(cla.check.called);
+
+            cla.check.restore();
             done();
         });
-        sinon.stub(repo_service, 'get', function(args, done){
-            assert(args);
-            done('', {gist: 'url/gistId', token: 'abc'});
-        });
-        sinon.stub(github, 'call', function(args, done) {
-            var res;
-            if (args.obj === 'gists') {
-                assert.deepEqual(args, {obj: 'gists', fun: 'get', arg: { id: 'gistId'}, token: 'abc'});
-                res = {url: 'url', files: {xyFile: {content: 'some content'}}};
-            }
-            done(null, res);
-        });
-        sinon.stub(status, 'update', function(args, done){});
-    });
-    afterEach(function(){
-        cla.check.restore();
-        cla.create.restore();
-        repo_service.get.restore();
-        github.call.restore();
-        status.update.restore();
     });
 
-    it('should store signed cla data if not signed yet', function(done) {
-
-        var user_find = sinon.stub(User, 'findOne', function(args, done){
-            done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo'} }], save: function(){}});
+    it('should call cla service on getAll', function(done){
+        sinon.stub(cla, 'getAll', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
+            done(null, []);
         });
 
-        req.user.id = 3;
+        cla_api.getAll(req, function(err, all){
+            assert.ifError(err);
+            assert(cla.getAll.called);
 
-        cla_api.sign(req, function(error, res) {
-            assert(res.pullRequest);
-            assert(cla.create.called);
-            user_find.restore();
+            cla.getAll.restore();
             done();
         });
-
     });
 
-    it('should do nothing if user has allready signed', function(){
-
-        req.user.id = 2;
-
-        cla_api.sign(req, function(error, res) {
-            assert.equal(cla.create.called, false);
-        });
-    });
-
-    it('should update status of pull request created by user, who signed', function(){
-        var user = {
-            requests: [{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'}],
-            save: function(){}
-        };
-        var user_find = sinon.stub(User, 'findOne', function(args, done){
-            done('', user);
-        });
-
-        req.user.id = 3;
-
-        cla_api.sign(req, function(error, res) {
-            assert.ifError(error);
-            assert.ok(res);
-            User.findOne.restore();
-        });
-    });
-
-    it('should update status of each users pull request', function(){
-       var user = {
-            requests: [
-                {repo: {id: 123, name: 'xy_repo'}, sha: 'guid'},
-                {repo: {id: 234, name: 'ab_repo'}, sha: 'guid2'}],
-            save: function(){}
-        };
-        var user_find = sinon.stub(User, 'findOne', function(args, done){
-            done('', user);
-        });
-
-        req.user.id = 3;
-
-        cla_api.sign(req, function(error, res) {
-            assert.ifError(error);
-            assert.ok(res);
-            assert.equal(status.update.callCount, 2);
-            user_find.restore();
-        });
-    });
 });
-
-// describe('cla:getUsers', function(done) {
-//     var req = {
-//         user: {id: 3},
-//         args: {
-//             repo: 123,
-//             owner: 'login',
-//             gist: 'url'
-//         }
-//     };
-
-//     beforeEach(function(){
-//         sinon.stub(cla, 'getUsers', function(args, done){
-//             assert(args);
-//             done();
-//         });
-//     });
-
-//     afterEach(function(){
-//         cla.getUsers.restore();
-//     });
-
-//     it('should do something', function(){
-        
-//     });
-// });

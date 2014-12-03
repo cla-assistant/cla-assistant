@@ -1,6 +1,6 @@
 // models
 var User = require('mongoose').model('User');
-var CLA = require('mongoose').model('CLA');
+
 // services
 var github = require('../services/github');
 var pullRequest = require('../services/pullRequest');
@@ -16,8 +16,9 @@ module.exports = function(req, res) {
 	var pull_request = req.args.pull_request;
 
 	if(req.args.action === 'opened') {
+		console.log('pr opened');
 		var args = {
-			user: pull_request.user.id,
+			user: pull_request.user.login,
 			owner: req.args.repository.owner.login,
 			repo: req.args.repository.name,
 			repo_uuid: req.args.repository.id,
@@ -51,10 +52,11 @@ module.exports = function(req, res) {
 				return;
 			}
 
-			cla.check({repo: args.repo, user: args.user}, function(err, signed){
+			cla.check(args, function(err, signed){
 				if (!signed && !err) {
 
 					if(user) {
+						user.requests = user.requests ? user.requests : [];
 						user.requests.push({
 							id: pull_request.id,
 							url: pull_request.url,

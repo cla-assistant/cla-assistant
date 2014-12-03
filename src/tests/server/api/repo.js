@@ -22,7 +22,7 @@ describe('repo', function(done) {
 
 		var req = {args: {repo: 'myRepo', owner: 'login', gist: 1234}, user: {token: 'abc'}};
 
-		repo_api.create(req,function(error, res) {
+		repo_api.create(req, function(error, res) {
             repoCreateStub.restore();
             done();
         });
@@ -36,7 +36,7 @@ describe('repo', function(done) {
 
 		var req = {args: {repo: 'myRepo', owner: 'login'}};
 
-		repo_api.check(req,function(error, res) {
+		repo_api.check(req, function(error, res) {
             repoStub.restore();
             done();
         });
@@ -53,7 +53,7 @@ describe('repo', function(done) {
 
 		var req = {args: {repo: 'myRepo', owner: 'login', gist: 'url'}};
 
-		repo_api.update(req,function(error, res) {
+		repo_api.update(req, function(error, res) {
             repoStub.restore();
             done();
         });

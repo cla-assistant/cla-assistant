@@ -6,6 +6,7 @@ var merge = require('merge');
 var passport = require('passport');
 var path = require('path');
 var sass = require('node-sass');
+var sass_middleware = require('node-sass-middleware');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Load configuration
@@ -65,7 +66,7 @@ async.series([
         console.log('bootstrap static files'.bold);
 
         config.server.static.forEach(function(p) {
-            app.use(sass.middleware({
+            app.use(sass_middleware({
                 src: p,
                 dest: p,
                 outputStyle: 'compressed',

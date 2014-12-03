@@ -22,7 +22,7 @@ describe('github:call', function(done) {
 
 		var req = {user: {id: 1, login: 'login', token: 'abc'}, args: {obj: 'gists', fun: 'get'}};
 
-		github_api.call(req,function(error, res) {
+		github_api.call(req, function(error, res) {
             githubStub.restore();
             done();
         });

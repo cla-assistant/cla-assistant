@@ -40,7 +40,7 @@ describe('webhook:call', function(done) {
 
         var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', owner: 'login'}};
 
-        webhook_api.create(req,function(error, res) {
+        webhook_api.create(req, function(error, res) {
             githubStub.restore();
             repoStub.restore();
             done();
@@ -76,7 +76,7 @@ describe('webhook:remove', function(done) {
 
 		var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', user: 'login'}};
 
-		webhook_api.remove(req,function(error, res) {
+		webhook_api.remove(req, function(error, res) {
             githubStub.restore();
             repoStub.restore();
             done();

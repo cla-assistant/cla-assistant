@@ -15,25 +15,21 @@ var status = require('../../../server/services/status');
 
 describe('status:update', function(done) {
 	afterEach(function(){
-		CLA.findOne.restore();
 		Repo.findOne.restore();
 		github.call.restore();
 	});
-	xit('should create comment with admin token', function(done){
-        var claStub = sinon.stub(CLA, 'findOne', function(args, done){
-			done(null, {uuid: 1});
-        });
-		var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
+	it('should create comment with admin token', function(done){
+		sinon.stub(Repo, 'findOne', function(args, done){
 			done(null, {token: 'abc'});
         });
 
-		var githubStub = sinon.stub(github, 'call', function(args, git_done){
+		sinon.stub(github, 'call', function(args, git_done){
 			assert.equal(args.token, 'abc');
-			git_done();
-			done();
 		});
 
-		var args = {owner: 'login', repo: 'myRepo'};
+		var args = {owner: 'login', repo: 'myRepo', signed: true};
 		status.update(args);
+
+		done();
 	});
 });
