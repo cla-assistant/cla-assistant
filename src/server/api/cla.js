@@ -37,9 +37,7 @@ module.exports = {
     },
 
     getAll: function(req, done){
-		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login};
-
-		cla.getAll(args, done);
+		cla.getAll(req.args, done);
 	},
 
     check: function(req, done){

@@ -154,7 +154,6 @@ describe('Home Controller', function() {
 
     it('should handle multiple error messages', function(){
     });
-
 });
 
 var testDataRepos = {data: [

@@ -213,22 +213,56 @@ describe('cla:create', function(done) {
 });
 
 describe('cla:getAll', function(done) {
+    beforeEach(function(){
+        sinon.stub(repo_service, 'get', function(args, done){
+            assert.equal(args.repo, 'myRepo');
+            assert.equal(args.owner, 'owner');
+            done('', {gist: 'url/gistId', token: 'abc'});
+        });
+        sinon.stub(github, 'call', function(args, done) {
+            var res;
+            if (args.obj === 'gists') {
+                assert.deepEqual(args, {obj: 'gists', fun: 'get', arg: { id: 'gistId'}, token: 'abc'});
+                res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z'};
+            }
+            done(null, res);
+        });
+    });
+
 	afterEach(function(){
 		CLA.find.restore();
-	});
+        repo_service.get.restore();
+        github.call.restore();
+    });
 
-	it('should get all signed and valid cla', function(done){
+    it('should get all signed and valid cla', function(done){
         sinon.stub(CLA, 'find', function(args, done){
-			assert(args);
-			done(null, [{id: 1}]);
+            assert(args);
+            done(null, [{id: 1, created_at: '2011-06-20T11:34:15Z'}, {id: 2, created_at: '2010-06-20T11:34:15Z'}]);
         });
 
-        var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
+        var args = {repo: 'myRepo', owner: 'owner', gist: 'gistUrl'};
 
-		cla.getAll(args, function(err, arr){
-			assert.ifError(err);
-			assert.equal(arr.length, 1);
-			done();
+        cla.getAll(args, function(err, arr){
+            assert.ifError(err);
+            assert.equal(arr.length, 1);
+            assert.equal(arr[0].id, 1);
+            assert(repo_service.get.called);
+            assert(github.call.called);
+
+            done();
 		});
 	});
+});
+
+describe('cla:getGist', function(done) {
+    it('should handle repo without gist', function(done){
+        // var repo = {gist: 'wronGistUrl'};
+        var repo = {};
+
+        cla.getGist(repo, function(err, obj){
+            assert.equal(err, 'The gist url "undefined" seems to be invalid');
+            done();
+        });
+    });
 });

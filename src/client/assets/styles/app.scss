@@ -306,8 +306,13 @@ small {
   border-style: dashed;
   resize: none;
 
-  &:hover {
-    border-color: $brand-primary-hover;
+  &.invalid {
+    border-color: $brand-danger;
+    outline-color: $brand-danger;
   }
 
+}
+
+.hint {
+  color: $gray;
 }

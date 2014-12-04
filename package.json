@@ -38,6 +38,7 @@
     "nodemailer-smtp-transport": "^0.1.13",
     "passport": "^0.2.1",
     "passport-github": "^0.1.5",
+    "q": "^1.1.2",
     "request": "^2.47.0",
     "socket.io": "^1.2.1",
     "valid-url": "^1.0.9"

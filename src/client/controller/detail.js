@@ -30,7 +30,8 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$state', '$stateParams
             $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
-                        $HUB.call('user', 'get', {user: entry.user}, function(err, user){
+                        // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
+                        $HUB.call('user', 'getFrom', {user: entry.user}, function(err, user){
                             $scope.users.push(user.value);
                         });
                     });

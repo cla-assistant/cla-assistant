@@ -45,7 +45,7 @@ describe('Detail Controller', function() {
         httpBackend.expect('POST', '/api/repo/get', {repo: stateParams.repo, owner: stateParams.user}).respond({repo: 'myRepo', owner: 'login', gist: 'url'});
         httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login'}).respond({raw: '<p>cla text</p>'});
 		httpBackend.expect('POST', '/api/cla/getAll', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond([{user: 'login'}]);
-		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'get', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
 
         httpBackend.flush();
 
@@ -79,7 +79,7 @@ describe('Detail Controller', function() {
     it('should get all users signed this cla', function(){
 		var repo = detailCtrl.scope.repo;
 		httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.user, gist: repo.gist}).respond([{user: 'login'}]);
-		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'get', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
 
 		detailCtrl.scope.getUsers();
         httpBackend.flush();

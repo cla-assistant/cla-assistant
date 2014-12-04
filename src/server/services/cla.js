@@ -4,6 +4,7 @@ require('../documents/user');
 var User = require('mongoose').model('User');
 var CLA = require('mongoose').model('CLA');
 
+//services
 var github = require('../services/github');
 var url = require('../services/url');
 var repoService = require('../services/repo');
@@ -11,7 +12,13 @@ var status = require('../services/status');
 
 module.exports = {
 	getGist: function(repo, done){
-		var gistArray = repo.gist.split('/');
+		try{
+			var gistArray = repo.gist.split('/');
+		} catch(ex) {
+			done('The gist url "' + repo.gist + '" seems to be invalid');
+			return;
+		}
+
 		github.call({
 			obj: 'gists',
 			fun: 'get',
@@ -120,8 +127,22 @@ module.exports = {
     },
 
     getAll: function(args, done) {
+		var self = this;
+		var valid = [];
 		CLA.find({repo: args.repo, owner: args.owner, href: args.gist}, function(err, clas){
-            done(err, clas);
+			self.getRepo(args, function(err, repo){
+				self.getGist(repo, function(err, gist){
+					clas.forEach(function(cla){
+						var gistTime = new Date(gist.updated_at).getTime();
+						var claTime = new Date(cla.created_at).getTime();
+
+						if (gistTime <= claTime) {
+							valid.push(cla);
+						}
+					});
+					done(err, valid);
+				});
+			});
         });
     },
     create: function(args, done){

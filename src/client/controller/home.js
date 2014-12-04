@@ -139,7 +139,7 @@ filters.filter('notIn', function() {
     return function(repos, arr) {
 
         if(arr.length === 0) {
-            return true;
+            return repos;
         }
 
         var notMatched = [];

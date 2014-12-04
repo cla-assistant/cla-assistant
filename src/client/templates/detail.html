@@ -17,10 +17,11 @@
 				<div class="row">
 					
 					<h4 class="col-md-3 ">Gist URL</h4>
-					<div class="col-md-9">
-				    	<textarea ng-model="repo.gist" class="drop_area" style="width:100%; font-size:inherit"></textarea>
-					    <button class="btn btn-primary" style="float:right" ng-click="update()">Update</button>
-					</div>
+					<form name="claForm" class="col-md-9">
+				    	<textarea type="url" name="gist" ng-model="repo.gist" class="drop_area" style="width:100%; font-size:inherit" required></textarea>
+				    	<span ng-show="!claForm.gist.$valid" class="hint">Please enter a valid gist url here...</span>
+					    <button class="btn btn-primary" style="float:right" ng-click="update()" ng-disabled="!claForm.gist.$valid">Update</button>
+					</form>
 				</div>
 			</div>
 			

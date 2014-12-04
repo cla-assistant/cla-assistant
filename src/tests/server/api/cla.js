@@ -92,7 +92,8 @@ describe('cla api', function(done) {
         user: {id: 3, login: 'login'},
         args: {
             repo: 'myRepo',
-            owner: 'owner'
+            owner: 'owner',
+            gist: 'url/gistId'
         }
     };
 
@@ -128,7 +129,7 @@ describe('cla api', function(done) {
 
     it('should call cla service on getAll', function(done){
         sinon.stub(cla, 'getAll', function(args, done){
-            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', gist: 'url/gistId'});
             done(null, []);
         });
 
