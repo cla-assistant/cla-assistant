@@ -205,7 +205,8 @@ describe('cla:create', function(done) {
         });
 
         var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
-		cla.create(args, function(obj){
+		cla.create(args, function(err, obj){
+			assert.ifError(err);
 			assert.equal(obj.uuid.length, 13);
 			done();
 		});

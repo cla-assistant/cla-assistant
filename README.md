@@ -9,6 +9,9 @@ The Contributor License Agreement assistant (CLA assistant) lets you ...
 License
 =======
 
+Contributor License Agreement assistant
+Copyright (c) 2014 SAP AG or an SAP affiliate company. All rights reserved.
+
 Copyright 2014 by [SAP SE](http://www.sap.com) and made available under the
 [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
 
