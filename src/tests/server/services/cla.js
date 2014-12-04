@@ -191,23 +191,43 @@ describe('cla:sign', function(done) {
 
 });
 
-
 describe('cla:create', function(done) {
-	afterEach(function(){
-		CLA.create.restore();
-	});
+    afterEach(function(){
+        CLA.create.restore();
+    });
 
-	it('should create cla entry for equal repo, user and gist url', function(done){
+    it('should create cla entry for equal repo, user and gist url', function(done){
         sinon.stub(CLA, 'create', function(args, done){
-			assert(args);
-			// assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
-			done(null, {uuid: args.uuid});
+            assert(args);
+            // assert.deepEqual(args, {repo: 'myRepo', user: 'login', href: 'gistUrl'});
+            done(null, {uuid: args.uuid});
         });
 
         var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
-		cla.create(args, function(err, obj){
+        cla.create(args, function(err, obj){
+            assert.ifError(err);
+            assert.equal(obj.uuid.length, 13);
+            done();
+        });
+    });
+});
+
+describe('cla:getAll', function(done) {
+	afterEach(function(){
+		CLA.find.restore();
+	});
+
+	it('should get all signed and valid cla', function(done){
+        sinon.stub(CLA, 'find', function(args, done){
+			assert(args);
+			done(null, [{id: 1}]);
+        });
+
+        var args = {repo: 'myRepo', user: 'login', gist: 'gistUrl'};
+
+		cla.getAll(args, function(err, arr){
 			assert.ifError(err);
-			assert.equal(obj.uuid.length, 13);
+			assert.equal(arr.length, 1);
 			done();
 		});
 	});
