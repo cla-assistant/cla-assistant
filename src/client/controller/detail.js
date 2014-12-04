@@ -85,6 +85,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$state', '$stateParams
 
         $scope.update = function(){
             $RPC.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
+                getRepo();
             });
 
             if ($scope.repo.gist) {
