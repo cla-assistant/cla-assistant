@@ -10,10 +10,8 @@ License
 =======
 
 Contributor License Agreement assistant
-Copyright (c) 2014 SAP AG or an SAP affiliate company. All rights reserved.
 
-Copyright 2014 by [SAP SE](http://www.sap.com) and made available under the
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0). 
+Copyright (c) 2014 [SAP SE](http://www.sap.com) or an SAP affiliate company. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
