@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('DetailCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPC', '$RAW', '$window', '$sce',
-    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPC, $RAW, $window, $sce) {
+module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$window', '$sce', '$modal',
+    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $window, $sce, $modal) {
 
         $scope.repo = {};
         $scope.admin = false;
@@ -106,6 +106,14 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$state', '$stateParams
         $scope.renderHtml = function(html_code)
         {
             return $sce.trustAsHtml(html_code);
+        };
+
+        $scope.info = function() {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/info_gist.html',
+                controller: 'InfoCtrl'
+            });
+            // modal.result.then(function(args){});
         };
     }
 ]);

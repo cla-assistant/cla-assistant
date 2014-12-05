@@ -15,10 +15,10 @@
 					</p>
 			    </div>
 				<div class="row">
-					
-					<h4 class="col-md-3 ">Gist URL</h4>
+					<h4 class="header-logo-wordmark col-md-3">Gist URL</h4>
 					<form name="claForm" class="col-md-9">
 				    	<textarea type="url" name="gist" ng-model="repo.gist" class="drop_area" style="width:100%; font-size:inherit" required></textarea>
+						<button type="button" class="btn btn-default btn-xs" style="border-radius: 50%; padding: 0px 6px;" ng-click="info()"><span class="fa fa-question"></span> </button>
 				    	<span ng-show="!claForm.gist.$valid" class="hint">Please enter a valid gist url here...</span>
 					    <button class="btn btn-primary" style="float:right" ng-click="update()" ng-disabled="!claForm.gist.$valid">Update</button>
 					</form>

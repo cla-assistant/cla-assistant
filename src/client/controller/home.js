@@ -106,7 +106,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.remove = function(claRepo){
-            $RPC.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){ 
+            $RPC.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
                 if (!err) {
                     var i = $scope.claRepos.indexOf(claRepo);
                     if (i > -1) {
