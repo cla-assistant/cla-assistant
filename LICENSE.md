@@ -245,7 +245,7 @@ License: Apache License 2.0
 
 The MIT License (MIT)
 
-Copyright (c) `<year> <copyright holders>
+Copyright (c) `<year> <copyright holders>`
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -275,7 +275,7 @@ Copyright (c) 2000-2006, The Perl Foundation.
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 
-Preamble
+######Preamble
 
 This license establishes the terms under which a given free software
 Package may be copied, modified, distributed, and/or redistributed.
@@ -289,7 +289,7 @@ terms of this license do not permit the full use that you propose to
 make of the Package, you should contact the Copyright Holder and seek
 a different licensing arrangement.
 
-Definitions
+######Definitions
 
     "Copyright Holder" means the individual(s) or organization(s)
     named in the copyright notice for the entire Package.
@@ -334,15 +334,16 @@ Definitions
     translation of the Source form.
 
 
-Permission for Use and Modification Without Distribution
+######Permission for Use and Modification Without Distribution
 
 1.  You are permitted to use the Standard Version and create and use
 Modified Versions for any purpose without restriction, provided that
 you do not Distribute the Modified Version.
+   
 
 
-Permissions for Redistribution of the Standard Version
-
+   ######Permissions for Redistribution of the Standard Version
+   
 2.  You may Distribute verbatim copies of the Source form of the
 Standard Version of this Package in any medium without restriction,
 either gratis or for a Distributor Fee, provided that you duplicate
@@ -356,7 +357,8 @@ Package will still be considered the Standard Version, and as such
 will be subject to the Original License.
 
 
-Distribution of Modified Versions of the Package as Source
+
+   ######Distribution of Modified Versions of the Package as Source
 
 4.  You may Distribute your Modified Version as Source (either gratis
 or for a Distributor Fee, and with or without a Compiled form of the
@@ -365,23 +367,23 @@ from the Standard Version, including, but not limited to, documenting
 any non-standard features, executables, or modules, and provided that
 you do at least ONE of the following:
 
-  a.  make the Modified Version available to the Copyright Holder
+  1.  make the Modified Version available to the Copyright Holder
 of the Standard Version, under the Original License, so that the
 Copyright Holder may include your modifications in the Standard
 Version.
 
-  b.  ensure that installation of your Modified Version does not
+  2.  ensure that installation of your Modified Version does not
 prevent the user installing or running the Standard Version. In
 addition, the Modified Version must bear a name that is different
 from the name of the Standard Version.
 
-  c.  allow anyone who receives a copy of the Modified Version to
+  3.  allow anyone who receives a copy of the Modified Version to
 make the Source form of the Modified Version available to others
 under
 
-    i.  the Original License or
+      1.  the Original License or
 
-    ii.  a license that permits the licensee to freely copy,
+      2.  a license that permits the licensee to freely copy,
 modify and redistribute the Modified Version using the same
 licensing terms that apply to the copy that the licensee
 received, and requires that the Source form of the Modified
@@ -390,8 +392,8 @@ available in that license fees are prohibited but Distributor
 Fees are allowed.
 
 
-Distribution of Compiled Forms of the Standard Version
-or Modified Versions without the Source
+
+   ######Distribution of Compiled Forms of the Standard Version or Modified Versions without the Source
 
 5.  You may Distribute Compiled forms of the Standard Version without
 the Source, provided that you include complete instructions on how to
@@ -408,7 +410,8 @@ the Source, provided that you comply with Section 4 with respect to
 the Source of the Modified Version.
 
 
-Aggregating or Linking the Package
+
+   ######Aggregating or Linking the Package
 
 7.  You may aggregate the Package (either the Standard Version or
 Modified Version) with other packages and Distribute the resulting
@@ -425,7 +428,8 @@ include the Package, and Distribute the result without restriction,
 provided the result does not expose a direct interface to the Package.
 
 
-Items That are Not Considered Part of a Modified Version
+
+   ######Items That are Not Considered Part of a Modified Version
 
 9.  Works (including, but not limited to, modules and scripts) that
 merely extend or make use of the Package, do not, by themselves, cause
@@ -434,7 +438,8 @@ considered parts of the Package itself, and are not subject to the
 terms of this license.
 
 
-General Provisions
+
+   ######General Provisions
 
 10.  Any use, modification, and distribution of the Standard or
 Modified Versions is governed by this Artistic License. By using,
