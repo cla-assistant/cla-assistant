@@ -1,7 +1,7 @@
 
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+<p align="center">Apache License</p>
+<p align="center">Version 2.0, January 2004</p>
+<p align="center">http://www.apache.org/licenses/</p>
 
    TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
@@ -209,35 +209,35 @@ Contributor License Agreement assistant includes the following subcomponents tha
 Your use of these subcomponents is subject to the seperate license terms applicable to
 each subcomponent.
 
-Component: AppJs 0.0.2
-Licensor: Morteza Milani and other AppJS contributors
-Website: https://www.npmjs.org/package/appjs
-License: MIT License
-<year> = 2012
-<copyright holders> = Morteza Milani and other AppJS contributors
+Component: AppJs 0.0.2  
+Licensor: Morteza Milani and other AppJS contributors  
+Website: https://www.npmjs.org/package/appjs  
+License: MIT License  
+`<year> = 2012`  
+`<copyright holders> = Morteza Milani and other AppJS contributors`
 
-Component: Bower
-Licensor: Twitter and other contributors
-Website: https://github.com/bower/bower
-License: MIT License
-<year> = 2014
-<copyright holders> = Twitter and other contributors
+Component: Bower  
+Licensor: Twitter and other contributors  
+Website: https://github.com/bower/bower  
+License: MIT License  
+`<year> = 2014`  
+`<copyright holders> = Twitter and other contributors`
 
-Component: Karma
-Licensor: Google, Inc.
-Website: https://github.com/karma-runner/karma/
-License: MIT License
-<year> = 2011-2014
-<copyright holders> = Google, Inc.
+Component: Karma  
+Licensor: Google, Inc.  
+Website: https://github.com/karma-runner/karma/  
+License: MIT License  
+`<year> = 2011-2014`  
+`<copyright holders> = Google, Inc.`  
 
-Component: Node Package Manager
-Licensor: npm, Inc. and Contributors
-Website: https://github.com/npm/npm
-License: Artistic License 2.0 + additional terms (see below)
+Component: Node Package Manager  
+Licensor: npm, Inc. and Contributors  
+Website: https://github.com/npm/npm  
+License: Artistic License 2.0 + additional terms (see below)  
 
-Component: ReviewNinja
-Licensor: SAP SE
-Website: https://github.com/reviewninja/review.ninja
+Component: ReviewNinja  
+Licensor: SAP SE  
+Website: https://github.com/reviewninja/review.ninja  
 License: Apache License 2.0
 
 
@@ -264,6 +264,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
 --------------------------------------------------------------------------------------------------------------------------
 
 The Artistic License 2.0
@@ -363,29 +365,29 @@ from the Standard Version, including, but not limited to, documenting
 any non-standard features, executables, or modules, and provided that
 you do at least ONE of the following:
 
-    (a)  make the Modified Version available to the Copyright Holder
-    of the Standard Version, under the Original License, so that the
-    Copyright Holder may include your modifications in the Standard
-    Version.
+(a)  make the Modified Version available to the Copyright Holder
+of the Standard Version, under the Original License, so that the
+Copyright Holder may include your modifications in the Standard
+Version.
 
-    (b)  ensure that installation of your Modified Version does not
-    prevent the user installing or running the Standard Version. In
-    addition, the Modified Version must bear a name that is different
-    from the name of the Standard Version.
+(b)  ensure that installation of your Modified Version does not
+prevent the user installing or running the Standard Version. In
+addition, the Modified Version must bear a name that is different
+from the name of the Standard Version.
 
-    (c)  allow anyone who receives a copy of the Modified Version to
-    make the Source form of the Modified Version available to others
-    under
+(c)  allow anyone who receives a copy of the Modified Version to
+make the Source form of the Modified Version available to others
+under
 
-        (i)  the Original License or
+(i)  the Original License or
 
-        (ii)  a license that permits the licensee to freely copy,
-        modify and redistribute the Modified Version using the same
-        licensing terms that apply to the copy that the licensee
-        received, and requires that the Source form of the Modified
-        Version, and of any works derived from it, be made freely
-        available in that license fees are prohibited but Distributor
-        Fees are allowed.
+(ii)  a license that permits the licensee to freely copy,
+modify and redistribute the Modified Version using the same
+licensing terms that apply to the copy that the licensee
+received, and requires that the Source form of the Modified
+Version, and of any works derived from it, be made freely
+available in that license fees are prohibited but Distributor
+Fees are allowed.
 
 
 Distribution of Compiled Forms of the Standard Version
