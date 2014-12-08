@@ -310,7 +310,6 @@ small {
     border-color: $brand-danger;
     outline-color: $brand-danger;
   }
-
 }
 
 .hint {
@@ -318,5 +317,17 @@ small {
 }
 
 .modal-dialog {
-     width: 80%;
+  width: 80%;
+  max-width: 1010px;   
+  min-width: 800px;
+  
+  img {
+    width:100%; 
+    border:solid 1px lightgrey; 
+    margin-top: 30px;
+  }
+}
+
+.free_space {
+  margin: 10px 15px;
 }
