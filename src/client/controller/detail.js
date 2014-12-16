@@ -39,9 +39,8 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         }
 
         $scope.getUsers = function(){
-            $scope.users = [];
-
             $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
+                $scope.users = [];
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
                         // $HUB.call('user', 'get', {user: entry.user}, function(err, user){

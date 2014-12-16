@@ -13,12 +13,13 @@
 							<div class="col-sm-3 text-gray">
 								{{gist.history[gistIndex + 1].committed_at | date:'medium'}}
 							</div>
-							
-							<span class="col-sm-1 fa fa-angle-left" ng-click="gistVersion(gistIndex + 1)"></span>
+							<div class="col-sm-1">
+								<span class="fa fa-angle-left" ng-click="gistVersion(gistIndex + 1)" ng-show="gistIndex < gist.history.length - 1"></span>
+							</div>
 							<div class="col-sm-4">
 								{{gist.history[gistIndex].committed_at | date:'medium'}}
 							</div>
-							<span class="col-sm-1 fa fa-angle-right" ng-click="gistVersion(gistIndex - 1)"></span>
+							<span class="col-sm-1 fa fa-angle-right" ng-click="gistVersion(gistIndex - 1)" ng-show="gistIndex > 0"></span>
 
 							<div class="col-sm-3">
 								{{gist.history[gistIndex - 1].committed_at | date:'medium'}}
