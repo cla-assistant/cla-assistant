@@ -14,19 +14,19 @@ var status = require('../services/status');
 module.exports = {
 	getGist: function(args, done){
 		try{
-			var gistArray = args.gist.split('gists/'); // https://api.github.com/gists/60e9b5d7ce65ca474c29/ce4fb76a7dd1d7b120202b448809157958f61a03
-			gistArray = gistArray.length > 1 ? gistArray : args.gist.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
+			var gist_url = args.gist.gist_url || args.gist.url || args.gist;
+			var gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
 
 		} catch(ex) {
-			done('The gist url "' + args.gist + '" seems to be invalid');
+			done('The gist url "' + gist_url + '" seems to be invalid');
 			return;
 		}
 
 		var path = '/gists/';
-		var id = gistArray[gistArray.length - 1].split('/');
-		path += id[0];
-		if (id[1]) {
-			path = path + '/' + id[1];
+		var id = gistArray[gistArray.length - 1];
+		path += id;
+		if (args.gist.gist_version) {
+			path = path + '/' + args.gist.gist_version;
 		}
 
 		var req = {};
@@ -143,26 +143,33 @@ module.exports = {
     getAll: function(args, done) {
 		var self = this;
 		var valid = [];
-		CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist}, function(err, clas){
-			if (!clas) {
+		if (args.gist.gist_version) {
+			CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url, gist_version: args.gist.gist_version}, function(err, clas){
 				done(err, clas);
-				return;
-			}
-			self.getRepo(args, function(err, repo){
-				self.getGist(repo, function(err, gist){
-					if (!gist) {
-						done(err, gist);
-						return;
-					}
-					clas.forEach(function(cla){
-						if (gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
-							valid.push(cla);
+			});
+		} else {
+			CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url}, function(err, clas){
+				if (!clas) {
+					done(err, clas);
+					return;
+				}
+				self.getRepo(args, function(err, repo){
+					self.getGist(repo, function(err, gist){
+						if (!gist) {
+							done(err, gist);
+							return;
 						}
+						clas.forEach(function(cla){
+							if (gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
+								valid.push(cla);
+							}
+						});
+						done(err, valid);
 					});
-					done(err, valid);
 				});
 			});
-        });
+		}
+
     },
     create: function(args, done){
 		var guid = function(){

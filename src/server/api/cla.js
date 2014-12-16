@@ -9,7 +9,10 @@ module.exports = {
 				done(err);
 				return;
 			}
-			cla.getGist({token: repo.token, gist: req.args.gist || repo.gist}, done);
+			var gist_args = {gist_url: repo.gist};
+			gist_args = req.args.gist ? req.args.gist : gist_args;
+
+			cla.getGist({token: repo.token, gist: gist_args}, done);
 		});
 	},
 
@@ -19,14 +22,17 @@ module.exports = {
 				done(err);
 				return;
 			}
-			github.call({
+			var args = {
 				obj: 'markdown',
 				fun: 'render',
 				arg: {
 					text: res.files[Object.keys(res.files)[0]].content
-				},
-				token: req.user.token
-			}, function(err, result) {
+				}
+			};
+			if (req.user && req.user.token) {
+				args.token = req.user.token;
+			}
+			github.call(args, function(err, result) {
 				if (result.statusCode !== 200 && err){
 					done(err);
 				}

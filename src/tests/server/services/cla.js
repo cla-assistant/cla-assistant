@@ -65,7 +65,7 @@ describe('cla:check', function(done) {
                 path: '/gists/gistId',
                 method: 'GET',
                 headers: {
-                    token: 'abc',
+                    'Authorization': 'token abc',
                     'User-Agent': 'cla-assistant'
                 }
             });
@@ -148,7 +148,7 @@ describe('cla:sign', function(done) {
                 path: '/gists/gistId',
                 method: 'GET',
                 headers: {
-                    token: 'abc',
+                    'Authorization': 'token abc',
                     'User-Agent': 'cla-assistant'
                 }
             });
@@ -284,7 +284,7 @@ describe('cla:getAll', function(done) {
                 path: '/gists/gistId',
                 method: 'GET',
                 headers: {
-                    token: 'abc',
+                    'Authorization': 'token abc',
                     'User-Agent': 'cla-assistant'
                 }
             });
@@ -361,7 +361,7 @@ describe('cla:getGist', function(done) {
             return req;
         });
 
-        var repo = {gist: 'url/gists/gistId/versionId'};
+        var repo = {gist: {gist_url: 'url/gists/gistId', gist_version: 'versionId'}};
 
         cla.getGist(repo, function(err, obj){
             https.request.restore();

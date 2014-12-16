@@ -12,11 +12,11 @@
 				</div>
 				<p class="text-center">
     				<button class="btn btn-success" ng-show="!signed" ng-click="agree()">I agree</button>
+					<a href="{{redirect}}" class="btn btn-primary" ng-show="!!redirect && signed">Proceed on GitHub</a>
 				</p>
 			</div>
 			<div class="col-md-6 col-md-offset-3" ng-show="signed">
 				<!-- <h1 class="center">Thank you for your contribution!</h1> -->
-				<a href="{{redirect}}" class="btn btn-primary" ng-show="!!redirect">Proceed on GitHub</a>
 			</div>
 		</div>
 	</div>

@@ -15,12 +15,12 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         $scope.users = [];
         $scope.errorMsg = [];
 
-        function gistUrl () {
+        function gistArgs () {
+            var args = {gist_url: $scope.repo.gist};
             if ($scope.gist.history && $scope.gist.history.length > 0) {
-                return $scope.gist.history[$scope.gistIndex].url;
-            } else if ($scope.repo.gist) {
-                return $scope.repo.gist;
+                args.gist_version = $scope.gist.history[$scope.gistIndex].version;
             }
+            return args;
         }
 
         function getCLA () {
@@ -29,7 +29,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
                 owner: $scope.repo.owner
             };
             if ($scope.gist.history) {
-                args.gist = gistUrl();
+                args.gist = gistArgs();
             }
             $RPC.call('cla', 'get', args, function(err, cla) {
                 if(!err) {
@@ -41,7 +41,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         $scope.getUsers = function(){
             $scope.users = [];
 
-            $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistUrl()}, function(err, data){
+            $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
                         // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
@@ -54,7 +54,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         };
 
         $scope.getGist = function(){
-            $RPC.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistUrl()}, function(err, data){
+            $RPC.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
                 if (!err && data.value) {
                     $scope.gist = data.value;
                 }

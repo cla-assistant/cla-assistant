@@ -41,7 +41,7 @@ describe('Detail Controller', function() {
     it('should load CLA if gist url is given and user is admin', function(){
 		rootScope.user.value = {id: 123, login: 'login', admin: true};
 		rootScope.$broadcast('user');
-        var args = {repo: 'myRepo', owner: 'login', gist: 'url'};
+        var args = {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}};
 
         httpBackend.expect('POST', '/api/repo/get', {repo: stateParams.repo, owner: stateParams.user}).respond({repo: 'myRepo', owner: 'login', gist: 'url'});
         httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login'}).respond({raw: '<p>cla text</p>'});
@@ -80,7 +80,7 @@ describe('Detail Controller', function() {
 
     it('should get all users signed this cla', function(){
 		var repo = detailCtrl.scope.repo;
-		httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.user, gist: repo.gist}).respond([{user: 'login'}]);
+		httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.user, gist: {gist_url: repo.gist}}).respond([{user: 'login'}]);
 		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
 
 		detailCtrl.scope.getUsers();
@@ -91,7 +91,7 @@ describe('Detail Controller', function() {
 
     it('should get gist from github on getGist function', function(){
         detailCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
-        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond({id: 'gistId'});
+        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}}).respond({id: 'gistId'});
 
         detailCtrl.scope.getGist();
         httpBackend.flush();
@@ -101,7 +101,7 @@ describe('Detail Controller', function() {
 
     it('should handle error in getGist function', function(){
         detailCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
-        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond(500, 'Error');
+        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}}).respond(500, 'Error');
 
         detailCtrl.scope.getGist();
         httpBackend.flush();
@@ -111,13 +111,13 @@ describe('Detail Controller', function() {
 
     it('should reload data for other gist versions on gistVersion', function(){
         rootScope.user.value = {id: 123, login: 'login', admin: true};
+        detailCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+
         detailCtrl.scope.gist = testData;
 
-        var args = {repo: 'myRepo', owner: 'login', gist: 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d4123'};
-        httpBackend.expect('POST', '/api/repo/get', {repo: stateParams.repo, owner: stateParams.user}).respond({repo: 'myRepo', owner: 'login', gist: 'url'});
-        httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login'}).respond({raw: '<p>cla text</p>'});
+        var args = {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url', gist_version: '57a7f021a713b1c5a6a199b54cc514735d2d4123'}};
+        httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url', gist_version: '57a7f021a713b1c5a6a199b54cc514735d2d4123'}}).respond({raw: '<p>cla text</p>'});
         httpBackend.expect('POST', '/api/cla/getAll', args).respond([{user: 'login'}]);
-        httpBackend.expect('POST', '/api/cla/getGist', args).respond({id: 'gistId'});
         httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
 
 
@@ -125,7 +125,6 @@ describe('Detail Controller', function() {
         httpBackend.flush();
 
         (detailCtrl.scope.gistIndex).should.be.equal(1);
-        (detailCtrl.scope.admin).should.be.ok;
         (detailCtrl.scope.repo).should.be.ok;
         (detailCtrl.scope.claText).should.be.ok;
     });
