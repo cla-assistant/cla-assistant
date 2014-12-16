@@ -41,11 +41,13 @@ describe('Detail Controller', function() {
     it('should load CLA if gist url is given and user is admin', function(){
 		rootScope.user.value = {id: 123, login: 'login', admin: true};
 		rootScope.$broadcast('user');
+        var args = {repo: 'myRepo', owner: 'login', gist: 'url'};
 
         httpBackend.expect('POST', '/api/repo/get', {repo: stateParams.repo, owner: stateParams.user}).respond({repo: 'myRepo', owner: 'login', gist: 'url'});
         httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login'}).respond({raw: '<p>cla text</p>'});
-		httpBackend.expect('POST', '/api/cla/getAll', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond([{user: 'login'}]);
-		httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+        httpBackend.expect('POST', '/api/cla/getAll', args).respond([{user: 'login'}]);
+        httpBackend.expect('POST', '/api/cla/getGist', args).respond({id: 'gistId'});
+        httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
 
         httpBackend.flush();
 
@@ -87,4 +89,87 @@ describe('Detail Controller', function() {
 		(detailCtrl.scope.users.length).should.be.equal(1);
     });
 
+    it('should get gist from github on getGist function', function(){
+        detailCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond({id: 'gistId'});
+
+        detailCtrl.scope.getGist();
+        httpBackend.flush();
+
+        (detailCtrl.scope.gist.id).should.be.equal('gistId');
+    });
+
+    it('should handle error in getGist function', function(){
+        detailCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: 'url'}).respond(500, 'Error');
+
+        detailCtrl.scope.getGist();
+        httpBackend.flush();
+
+        (detailCtrl.scope.gist).should.be.empty;
+    });
+
+    it('should reload data for other gist versions on gistVersion', function(){
+        rootScope.user.value = {id: 123, login: 'login', admin: true};
+        detailCtrl.scope.gist = testData;
+
+        var args = {repo: 'myRepo', owner: 'login', gist: 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d4123'};
+        httpBackend.expect('POST', '/api/repo/get', {repo: stateParams.repo, owner: stateParams.user}).respond({repo: 'myRepo', owner: 'login', gist: 'url'});
+        httpBackend.expect('POST', '/api/cla/get', {repo: 'myRepo', owner: 'login'}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('POST', '/api/cla/getAll', args).respond([{user: 'login'}]);
+        httpBackend.expect('POST', '/api/cla/getGist', args).respond({id: 'gistId'});
+        httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+
+
+        detailCtrl.scope.gistVersion(1);
+        httpBackend.flush();
+
+        (detailCtrl.scope.gistIndex).should.be.equal(1);
+        (detailCtrl.scope.admin).should.be.ok;
+        (detailCtrl.scope.repo).should.be.ok;
+        (detailCtrl.scope.claText).should.be.ok;
+    });
 });
+
+var testData = {
+  'url': 'https://api.github.com/gists/10a5479e1ab38ec63566',
+  'owner': {
+    'login': 'octocat'
+  },
+  'user': null,
+  'files': {
+    'ring.erl': {
+      'content': 'contents of gist'
+    }
+  },
+  'created_at': '2010-04-14T02:15:15Z',
+  'updated_at': '2014-05-14T02:15:15Z',
+  'history': [
+    {
+      'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d462f',
+      'version': '57a7f021a713b1c5a6a199b54cc514735d2d462f',
+      'user': {
+        'login': 'octocat'
+      },
+      'change_status': {
+        'deletions': 2,
+        'additions': 18,
+        'total': 20
+      },
+      'committed_at': '2014-05-14T02:15:15Z'
+    },
+    {
+      'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d4123',
+      'version': '57a7f021a713b1c5a6a199b54cc514735d2d4123',
+      'user': {
+        'login': 'octocat'
+      },
+      'change_status': {
+        'deletions': 0,
+        'additions': 180,
+        'total': 180
+      },
+      'committed_at': '2010-04-14T02:15:15Z'
+    }
+  ]
+};

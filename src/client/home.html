@@ -23,9 +23,11 @@
         <a class="navbar-brand" href="/" style="padding-top:13px;">CLA assistant</a>
       </div>
       <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right" ng-show="!!user.value.login">
-          <li>&nbsp;&nbsp;</li>
-          <li class="dropdown">
+        <ul class="nav navbar-nav navbar-right" >
+          <li ng-show="!user.value.login">
+            <a href="/auth/github" target="_self">Sign in with GitHub</a>
+          </li>
+          <li class="dropdown" ng-show="!!user.value.login">
             <a href="" class="dropdown-toggle" data-toggle="dropdown">
               {{ user.value.login }} <span class="caret"></span>
             </a>
@@ -45,6 +47,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- COMPONENT SCRIPTS -->
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>

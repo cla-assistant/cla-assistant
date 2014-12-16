@@ -9,15 +9,29 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
     function ($rootScope, $scope, $stateParams, $HUB, $RPC, $window, $sce, $modal) {
 
         $scope.repo = {};
+        $scope.gist = {};
+        $scope.gistIndex = 0;
         $scope.admin = false;
         $scope.users = [];
         $scope.errorMsg = [];
 
+        function gistUrl () {
+            if ($scope.gist.history && $scope.gist.history.length > 0) {
+                return $scope.gist.history[$scope.gistIndex].url;
+            } else if ($scope.repo.gist) {
+                return $scope.repo.gist;
+            }
+        }
+
         function getCLA () {
-            $RPC.call('cla', 'get', {
+            var args = {
                 repo: $scope.repo.repo,
                 owner: $scope.repo.owner
-            }, function(err, cla) {
+            };
+            if ($scope.gist.history) {
+                args.gist = gistUrl();
+            }
+            $RPC.call('cla', 'get', args, function(err, cla) {
                 if(!err) {
                     $scope.claText = cla.value.raw;
                 }
@@ -27,7 +41,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         $scope.getUsers = function(){
             $scope.users = [];
 
-            $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
+            $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistUrl()}, function(err, data){
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
                         // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
@@ -35,6 +49,14 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
                             $scope.users.push(user.value);
                         });
                     });
+                }
+            });
+        };
+
+        $scope.getGist = function(){
+            $RPC.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistUrl()}, function(err, data){
+                if (!err && data.value) {
+                    $scope.gist = data.value;
                 }
             });
         };
@@ -47,6 +69,7 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
                         $scope.repo = data.value;
                         getCLA();
                         $scope.getUsers();
+                        $scope.getGist();
                     }
                 });
             }
@@ -61,15 +84,6 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
         $scope.logAdminIn = function(){
             $window.location.href = '/auth/github?admin=true';
         };
-
-        // var updateScopeData = function(){
-        //     $RPC.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
-        //         $scope.claRepos = data.value;
-        //         $scope.claRepos.forEach(function(claRepo){
-        //             claRepo.active = claRepo.gist ? true : false;
-        //         });
-        //     });
-        // };
 
         // var showErrorMessage = function(text) {
         //     var error = text;
@@ -114,6 +128,12 @@ module.controller('DetailCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB',
                 controller: 'InfoCtrl'
             });
             // modal.result.then(function(args){});
+        };
+
+        $scope.gistVersion = function(index){
+            $scope.gistIndex = index;
+            getCLA();
+            $scope.getUsers();
         };
     }
 ]);

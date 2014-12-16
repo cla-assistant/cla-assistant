@@ -1,18 +1,30 @@
 <div class="row main" style="margin-top: 50px;">
 	<div class="container-fluid">
-
 		<div class="row" ng-show="admin">
 			<div class="col-md-5 col-md-offset-3 row">
-
 			    <div class="row">
-					<div class="well" >
+					<div class="well" style="padding-top: 0">
 						<h2>Contributor License Agreement</h2>
 						<div style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey;">
 							<div ng-bind-html="renderHtml(claText)"></div>
 						</div>
+
+					    <div class="row" style="text-align:center; margin-top:20px">
+							<div class="col-sm-3 text-gray">
+								{{gist.history[gistIndex + 1].committed_at | date:'medium'}}
+							</div>
+							
+							<span class="col-sm-1 fa fa-angle-left" ng-click="gistVersion(gistIndex + 1)"></span>
+							<div class="col-sm-4">
+								{{gist.history[gistIndex].committed_at | date:'medium'}}
+							</div>
+							<span class="col-sm-1 fa fa-angle-right" ng-click="gistVersion(gistIndex - 1)"></span>
+
+							<div class="col-sm-3">
+								{{gist.history[gistIndex - 1].committed_at | date:'medium'}}
+							</div>
+					    </div>
 					</div>
-					<p class="text-center">
-					</p>
 			    </div>
 				<div class="row">
 					<h4 class="header-logo-wordmark col-md-3">Gist URL</h4>
@@ -25,15 +37,16 @@
 				</div>
 			</div>
 			
-			<div class="col-md-2 col-md-offset-2">
+			<div class="col-md-offset-1 col-md-3">
 				<h2>Signed by...</h2>
-				<div ng-repeat="user in users" style="margin-top:30px;" class="row">
-					<img ng-src="{{ user.avatar_url }}" class="img-responsive hidden-xs hidden-sm col-md-5" />
-					<img ng-src="{{ user.avatar_url }}?s=200" class="visible-xs visible-sm col-md-5" width="100px;"/>
-					<h4 style="font-weight:400; margin:5px 0;" class="col-md-5">{{ user.name }}  {{ user.login }}</h4>
+				<div  style="margin-top:30px;" class="row">
+					<div ng-repeat="user in users" class="col-md-3">
+						<img ng-src="{{ user.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
+						<img ng-src="{{ user.avatar_url }}?s=200" class="visible-xs visible-sm " width="100px;"/>
+						<h6 style="font-weight:400; margin:5px 0;">{{ user.name }}  {{ user.login }}</h6>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	
 </div>

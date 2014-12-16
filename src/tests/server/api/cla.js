@@ -27,7 +27,7 @@ describe('cla:get', function(done) {
         });
         sinon.stub(cla, 'getGist', function(repo, done){
             assert.equal(repo.gist, 'url');
-            var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z'};
+            var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z', history: [{version: 'xyz'}]};
             done(null, res);
         });
 
@@ -99,7 +99,7 @@ describe('cla api', function(done) {
 
     it('should call cla service on sign', function(done){
         sinon.stub(cla, 'sign', function(args, done){
-            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3});
             done(null);
         });
 
@@ -128,8 +128,9 @@ describe('cla api', function(done) {
     });
 
     it('should call cla service on getAll', function(done){
+        req.args.gist = 'url/gistId/version2';
         sinon.stub(cla, 'getAll', function(args, done){
-            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', gist: 'url/gistId'});
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', gist: 'url/gistId/version2'});
             done(null, []);
         });
 
@@ -138,6 +139,26 @@ describe('cla api', function(done) {
             assert(cla.getAll.called);
 
             cla.getAll.restore();
+            done();
+        });
+    });
+
+    it('should call cla service on getGist', function(done){
+        req.args.gist = 'url/gistId/version2';
+        sinon.stub(cla, 'getRepo', function(args, done){
+            done(null, {token: 123, gist: 'url/gistId'});
+        });
+        sinon.stub(cla, 'getGist', function(args, done){
+            assert.deepEqual(args, {token: 123, gist: 'url/gistId/version2'});
+            done(null, {});
+        });
+
+        cla_api.getGist(req, function(err, all){
+            assert.ifError(err);
+            assert(cla.getGist.called);
+
+            cla.getRepo.restore();
+            cla.getGist.restore();
             done();
         });
     });

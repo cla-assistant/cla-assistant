@@ -7,7 +7,7 @@ module.exports = {
     update: function(args, done) {
 
         var status = 'pending';
-        var description = "You haven't sign our CLA yet. Please accept the CLA in order to get your pull request merged.";
+        var description = 'Contributor License Agreement is not signed yet.';
         var token;
 
         repoService.get({repo: args.repo, owner: args.owner}, function(err, res){
@@ -18,7 +18,7 @@ module.exports = {
             var req = { args: args, user: {login: args.user}};
             if (args.signed) {
                 status = 'success';
-                description = 'CLA is accepted.';
+                description = 'Contributor License Agreement is signed.';
             }
 
             github.call({

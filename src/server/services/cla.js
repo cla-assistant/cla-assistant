@@ -1,6 +1,7 @@
 // models
 require('../documents/cla');
 require('../documents/user');
+var https = require('https');
 var User = require('mongoose').model('User');
 var CLA = require('mongoose').model('CLA');
 
@@ -11,27 +12,47 @@ var repoService = require('../services/repo');
 var status = require('../services/status');
 
 module.exports = {
-	getGist: function(repo, done){
+	getGist: function(args, done){
 		try{
-			var gistArray = repo.gist.split('/');
+			var gistArray = args.gist.split('gists/'); // https://api.github.com/gists/60e9b5d7ce65ca474c29/ce4fb76a7dd1d7b120202b448809157958f61a03
+			gistArray = gistArray.length > 1 ? gistArray : args.gist.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
+
 		} catch(ex) {
-			done('The gist url "' + repo.gist + '" seems to be invalid');
+			done('The gist url "' + args.gist + '" seems to be invalid');
 			return;
 		}
 
-		github.call({
-			obj: 'gists',
-			fun: 'get',
-			arg: {
-				id: gistArray[gistArray.length - 1]
-			},
-			token: repo.token
-		}, function(err, res){
-			if (err || !res) {
-				done(err);
-				return;
+		var path = '/gists/';
+		var id = gistArray[gistArray.length - 1].split('/');
+		path += id[0];
+		if (id[1]) {
+			path = path + '/' + id[1];
+		}
+
+		var req = {};
+		var data = '';
+		var options = {
+			hostname: config.server.github.api,
+			port: 443,
+			path: path,
+			method: 'GET',
+			headers: {
+				'Authorization': 'token ' + args.token,
+				'User-Agent': 'cla-assistant'
 			}
-			done(err, res);
+		};
+
+		req = https.request(options, function(res){
+			res.on('data', function(chunk) { data += chunk; });
+			res.on('end', function(){
+				data = JSON.parse(data);
+				done(null, data);
+			});
+		});
+
+		req.end();
+		req.on('error', function (e) {
+			done(e);
 		});
 	},
 	getRepo: function(args, done) {
@@ -41,7 +62,7 @@ module.exports = {
 	},
 
     get: function(args, done) {
-		CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, href: args.gist}, function(err, cla){
+		CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version}, function(err, cla){
             done(err, cla);
         });
     },
@@ -57,19 +78,12 @@ module.exports = {
 
 			args.gist = repo.gist;
 
-			self.get(args, function(err, cla){
-				if (!cla) {
+			self.getGist(repo, function(err, gist){
+				args.gist_version = gist.history[0].version;
+
+				self.get(args, function(err, cla){
+
 					done(err, !!cla);
-					return;
-				}
-				self.getGist(repo, function(err, gist){
-					var gistTime = new Date(gist.updated_at).getTime();
-					var claTime = new Date(cla.created_at).getTime();
-					if (gistTime <= claTime) {
-						done(err, !!cla);
-					} else {
-						done(err, !cla);
-					}
 				});
 			});
 		});
@@ -91,7 +105,7 @@ module.exports = {
 					return;
 				}
 
-				args.href = repo.gist;
+				args.gist_url = repo.gist;
 
 				self.create(args, function(){
 					User.findOne({uuid: args.user_id}, function(err, user){
@@ -129,14 +143,19 @@ module.exports = {
     getAll: function(args, done) {
 		var self = this;
 		var valid = [];
-		CLA.find({repo: args.repo, owner: args.owner, href: args.gist}, function(err, clas){
+		CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist}, function(err, clas){
+			if (!clas) {
+				done(err, clas);
+				return;
+			}
 			self.getRepo(args, function(err, repo){
 				self.getGist(repo, function(err, gist){
+					if (!gist) {
+						done(err, gist);
+						return;
+					}
 					clas.forEach(function(cla){
-						var gistTime = new Date(gist.updated_at).getTime();
-						var claTime = new Date(cla.created_at).getTime();
-
-						if (gistTime <= claTime) {
+						if (gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
 							valid.push(cla);
 						}
 					});
@@ -155,14 +174,16 @@ module.exports = {
 
 		var now = new Date();
 
-		CLA.create({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now}, done);
+		CLA.create({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
+			done(err, res);
+		});
 
-		// var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, href: args.gist, created_at: now});
+		// var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, created_at: now});
 		// cla.save(done);
     },
     remove: function(args, done){
 		var string = '';
-		CLA.where('uuid').gte(1).exec(function(err, data){
+		CLA.where('uuid').gte(1).exec( function(err, data){
 			console.log(data);
 			data.forEach(function(entry){
 				CLA.remove({uuid: entry.uuid}).exec();

@@ -28,7 +28,7 @@
     "ejs": "1.0.0",
     "express": "^4.10.4",
     "express-session": "^1.9.3",
-    "github": "git+https://github.com/reviewninja/node-github.git",
+    "github": "git+https://github.com/KharitonOff/node-github.git",
     "glob": "^4.3.1",
     "merge": "^1.2.0",
     "mongoose": "^3.8.20",
