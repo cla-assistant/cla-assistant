@@ -39,27 +39,26 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
 
         var getRepos = function() {
             if ($rootScope.user.value && $rootScope.user.value.admin) {
-                $HUB.call('repos', 'getAll', {user: $rootScope.user.value.login}, function(err, data){
+                var promises = [];
+                var promise = {};
+                promise = $HUBService.call('repos', 'getAll', {user: $rootScope.user.value.login}, function(err, data){
                     if (err) {
                         return;
                     }
                     $scope.repos = data.value;
-                    updateScopeData();
                 });
+                promises.push(promise);
 
                 $HUB.call('user', 'getOrgs', {}, function(err, data){
-                    var promices = [];
                     var orgRepos = [];
                     data.value.forEach(function(org){
-                        var promice = $HUBService.direct_call(org.repos_url).then(function(data){
-                        // var promice = $RAW.get(org.repos_url, $rootScope.user.token).then(function(data){
+                        promise = $HUBService.direct_call(org.repos_url).then(function(data){
                             data.value.forEach(function(orgRepo){
                                 $scope.repos.push(orgRepo);
                             });
                         });
                     });
-
-                    $q.all(promices).then(function(){
+                    $q.all(promises).then(function(){
                         updateScopeData();
                     });
                 });

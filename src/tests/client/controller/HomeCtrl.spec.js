@@ -37,11 +37,13 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'getOrgs', arg: {} }).respond(testDataOrgs);
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/orgs/github/repos'}).respond([{id: 123}]);
         httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
-        (homeCtrl.scope.repos.length).should.be.equal(1);
+        (homeCtrl.scope.repos.length).should.be.equal(2);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
         (homeCtrl.scope.user.value.admin).should.be.equal(true);
     });
@@ -113,6 +115,8 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'getOrgs', arg: {} }).respond(testDataOrgs);
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/orgs/github/repos'}).respond([{id: 123}]);
         httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
 
@@ -124,8 +128,9 @@ describe('Home Controller', function() {
         rootScope.$broadcast('user');
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'getOrgs', arg: {} }).respond(testDataOrgs);
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/orgs/github/repos'}).respond([{id: 123}]);
         httpBackend.expect('POST', '/api/repo/getAll', { owner: 'octocat'}).respond([{name: 'Hello-World', owner: 'octocat', gist: 1234}]);
-
         httpBackend.flush();
 
         (homeCtrl.scope.claRepos[0].active).should.be.ok;
@@ -186,4 +191,14 @@ var testDataRepos = {data: [
         'url': 'https://api.github.com/repos/octocat/Hello-World',
         'html_url': 'https://github.com/octocat/Hello-World'
     }
+]};
+
+var testDataOrgs = {data: [
+  {
+    'login': 'github',
+    'id': 1,
+    'url': 'https://api.github.com/orgs/github',
+    'repos_url': 'https://api.github.com/orgs/github/repos',
+    'avatar_url': 'https://github.com/images/error/octocat_happy.gif'
+  }
 ]};

@@ -28,15 +28,7 @@ module.exports = {
             res.on('end', function(){
                 data = JSON.parse(data);
                 var meta = {};
-
-                try {
-                    meta.link = res.meta.link;
-                    // meta.hasMore = !!github.hasNextPage(res.meta.link);
-                    meta.scopes = res.meta['x-oauth-scopes'];
-                    delete res.meta;
-                } catch (ex) {
-                    meta = null;
-                }
+                meta.scopes = res.headers['x-oauth-scopes'];
 
                 deferred.resolve({data: data, meta: meta});
 
