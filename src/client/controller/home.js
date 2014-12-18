@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPC', '$RAW', '$window', '$modal', '$timeout',
-    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPC, $RAW, $window, $modal, $timeout) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPC', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q',
+    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPC, $RAW, $HUBService, $window, $modal, $timeout, $q) {
 
         $scope.repos = [];
         $scope.claRepos = [];
@@ -45,6 +45,23 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
                     }
                     $scope.repos = data.value;
                     updateScopeData();
+                });
+
+                $HUB.call('user', 'getOrgs', {}, function(err, data){
+                    var promices = [];
+                    var orgRepos = [];
+                    data.value.forEach(function(org){
+                        var promice = $HUBService.direct_call(org.repos_url).then(function(data){
+                        // var promice = $RAW.get(org.repos_url, $rootScope.user.token).then(function(data){
+                            data.value.forEach(function(orgRepo){
+                                $scope.repos.push(orgRepo);
+                            });
+                        });
+                    });
+
+                    $q.all(promices).then(function(){
+                        updateScopeData();
+                    });
                 });
             }
         };

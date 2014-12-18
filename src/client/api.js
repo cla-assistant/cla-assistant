@@ -23,8 +23,8 @@ ResultSet.prototype.set = function(error, value) {
 };
 
 
-module.factory('$RAW', ['$http',
-    function($http) {
+module.factory('$RAW', ['$q', '$http',
+    function($q, $http) {
         return {
             call: function(m, functn, data, callback) {
                 var now = new Date();
@@ -41,23 +41,37 @@ module.factory('$RAW', ['$http',
                         callback(res, null, new Date() - now);
                     });
             },
-            get: function(url, callback) {
-                return $http.get(url).
+            get: function(url, user_token) {
+                var deferred = $q.defer();
+                var header = {};
+                if (user_token) {
+                    header.Authorization = 'token ' + user_token;
+                }
+                $http.get(url, {'headers': header}).
                     success(function(data, status){
-                        callback(null, data, status);
+                        deferred.resolve(data);
+                        // callback(null, data, status);
                     })
                     .error(function(err, status){
-                        callback(err, null, status);
+                        deferred.reject(err);
+                        // callback(err, null, status);
                     });
+
+                return deferred.promise;
             },
-            post: function(url, d, callback) {
-                return $http.post(url, d).
+            post: function(url, d, user_token) {
+                var deferred = $q.defer();
+                $http.post(url, d).
                     success(function(data, status){
-                        callback(null, data, status);
+                        deferred.resolve(data);
+                        // callback(null, data, status);
                     })
                     .error(function(err, status){
-                        callback(err, null, status);
+                        deferred.reject(err);
+                        // callback(err, null, status);
                     });
+
+                return deferred.promise;
             }
         };
     }
@@ -93,6 +107,10 @@ module.factory('$HUB', ['$RAW', '$log',
                 var data = value ? value.data : null;
                 var meta = value ? value.meta : null;
 
+                if (!data && value) {
+                    data = value;
+                }
+
                 res.set(error, data);
 
                 if(meta) {
@@ -123,6 +141,9 @@ module.factory('$HUB', ['$RAW', '$log',
             call: function(o, functn, data, callback) {
                 return exec('call', new ResultSet(), { obj: o, fun: functn, arg: data }, callback);
             },
+            direct_call: function(url, data, callback) {
+                return exec('direct_call', new ResultSet(), { url: url, arg: data }, callback);
+            },
             wrap: function(o, functn, data, callback) {
                 return exec('wrap', new ResultSet(), { obj: o, fun: functn, arg: data }, callback);
             }
@@ -152,7 +173,18 @@ module.factory('$HUBService', ['$q', '$HUB',
                 if(!err) {
                     deferred.resolve(obj);
                 }
-                return deferred.reject();
+                return deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+
+        var exec_direct = function(type, url, data) {
+            var deferred = $q.defer();
+            $HUB[type](url, data, function(err, obj) {
+                if(!err) {
+                    deferred.resolve(obj);
+                }
+                return deferred.reject(err);
             });
             return deferred.promise;
         };
@@ -160,6 +192,9 @@ module.factory('$HUBService', ['$q', '$HUB',
         return {
             call: function(o, functn, data, callback) {
                 return exec('call', o, functn, data, callback);
+            },
+            direct_call: function(url, data) {
+                return exec_direct('direct_call', url, data);
             },
             wrap: function(o, functn, data, callback) {
                 return exec('wrap', o, functn, data, callback);
