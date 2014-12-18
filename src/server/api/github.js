@@ -26,7 +26,7 @@ module.exports = {
         http_req = https.request(req.args.url, function(res){
             res.on('data', function(chunk) { data += chunk; });
             res.on('end', function(){
-                data = JSON.parse(data);
+                data = data ? JSON.parse(data) : null;
                 var meta = {};
                 meta.scopes = res.headers['x-oauth-scopes'];
 
@@ -50,5 +50,6 @@ module.exports = {
                 done(e);
             }
         });
+        return deferred.promise;
     }
 };

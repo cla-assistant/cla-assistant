@@ -60,9 +60,5 @@ module.exports = {
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login};
 
 		cla.check(args, done);
-    },
-
-    remove: function(req, done) {
-		cla.remove(req.args, done);
     }
 };
