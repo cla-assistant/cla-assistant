@@ -42,9 +42,6 @@ module.exports = function() {
         githubFileReference: function(user, repo, fileReference) {
             return url.resolve(githubBase, '/' + user + '/' + repo + '/blob/' + fileReference);
         },
-        reviewPullRequest: function(user, repo, number) {
-            return url.resolve(baseUrl, '/' + user + '/' + repo + '/pull/' + number);
-        },
         pullRequestBadge: function(repoId, pullNumber) {
             return url.resolve(baseUrl, '/' + repoId + '/pull/' + pullNumber + '/badge');
         },

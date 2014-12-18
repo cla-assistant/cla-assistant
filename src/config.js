@@ -32,13 +32,13 @@ module.exports = {
         always_recompile_sass: process.env.NODE_ENV === 'production' ? false : true,
 
         http: {
-            protocol: process.env.PROTOCOL || 'https',
-            host: process.env.HOST || 'claborate.com',
+            protocol: process.env.PROTOCOL || 'http',
+            host: process.env.HOST || 'cla-assistant.io',
             port: process.env.HOST_PORT
         },
 
         security: {
-            sessionSecret: process.env.SESSION_SECRET || 'claborate',
+            sessionSecret: process.env.SESSION_SECRET || 'cla-assistant',
             cookieMaxAge: 60 * 60 * 1000
         },
 
@@ -51,7 +51,7 @@ module.exports = {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS
             },
-            name: 'review.ninja'
+            name: 'cla-assistant'
         },
 
         mongodb: {

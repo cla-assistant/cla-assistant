@@ -15,21 +15,53 @@ var CLA = require('../../../server/documents/cla').CLA;
 // webhook under test
 var pull_request = require('../../../server/webhooks/pull_request');
 
+
 describe('webhook pull request', function(test_done) {
-	afterEach(function(){
+  var res = {status: function(status){
+    assert.equal(status, 200);
+    return {send: function(result){}};
+  }};
+
+  afterEach(function(){
 		User.findOne.restore();
-		cla.check.restore();
 	});
-	it('should update status of pull request if not signed', function(test_done){
+
+  it('should update status of pull request if not signed', function(test_done){
+    var user_save = function(){
+      assert(this.requests);
+    };
+    sinon.stub(User, 'findOne', function(args, done){
+      done(null, {token: 'abc', save: user_save});
+        });
+    sinon.stub(cla, 'check', function(args, done){
+      done(null, false);
+    });
+
+    var req = {args: {
+      pull_request: testData,
+      repository: testData.base.repo,
+      number: testData.number,
+      action: 'opened'
+    }};
+
+    pull_request(req, res);
+    assert(cla.check.called);
+    assert(User.findOne.called);
+
+    cla.check.restore();
+    test_done();
+  });
+
+	it('should keep all pull request of the user', function(test_done){
 		var user_save = function(){
-			assert(this.requests);
+			assert.equal(this.requests.length, 2);
 		};
 		sinon.stub(User, 'findOne', function(args, done){
-			done(null, {token: 'abc', save: user_save});
+			done(null, {token: 'abc', requests: [{id: 1, url: 'url', number: 1, sha: 'sha', repo: 'repo'}], save: user_save});
         });
-        sinon.stub(cla, 'check', function(args, done){
+    sinon.stub(cla, 'check', function(args, done){
 			done(null, false);
-        });
+    });
 
 		var req = {args: {
 			pull_request: testData,
@@ -38,29 +70,24 @@ describe('webhook pull request', function(test_done) {
 			action: 'opened'
 		}};
 
-		var res = {status: function(status){
-						assert.equal(status, 200);
-						return {send: function(result){
-
-						}};
-					}};
-
 		pull_request(req, res);
 		assert(cla.check.called);
 		assert(User.findOne.called);
+
+    cla.check.restore();
 		test_done();
 	});
 
-	xit('should update status of pull request if not signed and new user', function(test_done){
-		var user_save = function(){
-			assert(this.requests);
-		};
+	it('should update status of pull request if not signed and new user', function(test_done){
 		sinon.stub(User, 'findOne', function(args, done){
-			done(null, {token: 'abc', save: user_save});
-        });
-        sinon.stub(cla, 'check', function(args, done){
+      done(null, null);
+    });
+
+    sinon.stub(User, 'create', function(args){});
+
+    sinon.stub(cla, 'check', function(args, done){
 			done(null, false);
-        });
+    });
 
 		var req = {args: {
 			pull_request: testData,
@@ -69,18 +96,36 @@ describe('webhook pull request', function(test_done) {
 			action: 'opened'
 		}};
 
-		var res = {status: function(status){
-						assert.equal(status, 200);
-						return {send: function(result){
-
-						}};
-					}};
-
 		pull_request(req, res);
 		assert(cla.check.called);
-		assert(User.findOne.called);
+    assert(User.findOne.called);
+		assert(User.create.called);
+
+    User.create.restore();
+    cla.check.restore();
 		test_done();
 	});
+
+  it('should do nothing if user findOne function fails', function(test_done){
+    sinon.stub(User, 'findOne', function(args, done){
+      done('error', null);
+    });
+    sinon.stub(User, 'create', function(args){});
+
+    var req = {args: {
+      pull_request: testData,
+      repository: testData.base.repo,
+      number: testData.number,
+      action: 'opened'
+    }};
+
+    pull_request(req, res);
+    assert(User.findOne.called);
+    assert(!User.create.called);
+
+    User.create.restore();
+    test_done();
+  });
 });
 
 var testData = {

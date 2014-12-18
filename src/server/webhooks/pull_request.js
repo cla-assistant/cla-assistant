@@ -64,8 +64,9 @@ module.exports = function(req, res) {
 							sha: pull_request.head.sha,
 							repo: pull_request.base.repo
 						});
+						user.save();
 					} else {
-						user = new User({
+						User.create({
 							uuid: pull_request.user.id,
 							requests: [{
 								id: pull_request.id,
@@ -76,7 +77,6 @@ module.exports = function(req, res) {
 							}]
 						});
 					}
-					user.save();
 
 					status.update(args);
 
