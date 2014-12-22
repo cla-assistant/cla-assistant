@@ -108,30 +108,37 @@ module.exports = {
 				args.gist_url = repo.gist;
 
 				self.create(args, function(){
+					console.log('create -> ');
 					User.findOne({uuid: args.user_id}, function(err, user){
+						console.log('findOne user ', user, ' error ', err);
 						if (!err) {
 							var number;
 							try{
-								user.requests.forEach(function(request){
-									status.update({
-										user: args.user,
-										owner: args.owner,
-										repo_uuid: request.repo.id,
-										repo: request.repo.name,
-										sha: request.sha,
-										signed: true
-									});
-									number = request.number;
-								});
+								for (var i = user.requests.length - 1; i >= 0; i--) {
+									var request = user.requests[i];
+									if (request.repo.name === args.repo && request.repo.owner.login === args.owner) {
+										status.update({
+											user: args.user,
+											owner: args.owner,
+											repo_uuid: request.repo.id,
+											repo: request.repo.name,
+											sha: request.sha,
+											signed: true
+										});
+										number = request.number;
 
-								user.requests.length = 0;
+										user.requests.splice(i, 1);
+									}
+								}
 								user.save();
 
 								done(err, {pullRequest: number});
 							} catch (ex) {
+								console.log('error? user:',  user);
 								done(err);
 							}
 						} else {
+							console.log('error? user:',  user);
 							done(err);
 						}
 					});
@@ -183,20 +190,6 @@ module.exports = {
 
 		CLA.create({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
 			done(err, res);
-		});
-
-		// var cla = new CLA({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, created_at: now});
-		// cla.save(done);
-    },
-    remove: function(args, done){
-		var string = '';
-		CLA.where('uuid').gte(1).exec( function(err, data){
-			console.log(data);
-			data.forEach(function(entry){
-				CLA.remove({uuid: entry.uuid}).exec();
-				string = string + '; repo: ' + entry.repo + ' user: ' + entry.user;
-			});
-			done(string);
 		});
     }
 };

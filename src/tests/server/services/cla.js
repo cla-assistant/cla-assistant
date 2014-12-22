@@ -121,7 +121,7 @@ describe('cla:sign', function(done) {
     var test_args;
 
     beforeEach(function(){
-		test_args = { repo: 123, owner: 'owner', user: 'login', user_id: 3};
+		test_args = { repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3};
 
         sinon.stub(cla, 'get', function(args, done){
             if (args.user !== 'login') {
@@ -131,6 +131,8 @@ describe('cla:sign', function(done) {
             }
         });
         sinon.stub(CLA, 'create', function(args, done){
+            console.log('stub create -> ');
+            
             assert(args);
             assert(args.gist_url);
             assert(args.gist_version);
@@ -173,7 +175,7 @@ describe('cla:sign', function(done) {
         });
         var user_find = sinon.stub(User, 'findOne', function(args, done){
             assert.deepEqual(args, {uuid: test_args.user_id});
-            done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo'} }], save: function(){}});
+            done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo', owner: {login: 'owner'}} }], save: function(){}});
         });
 
         cla.sign(test_args, function(error, res) {
@@ -222,13 +224,15 @@ describe('cla:sign', function(done) {
         callbacks.end();
     });
 
-    it('should update status of each users pull request', function(done){
+    it('should update status of pull request for the appropriate repo', function(done){
         var user_find = sinon.stub(User, 'findOne', function(args, done){
 			var user = {
 				requests: [
-					{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'},
-					{repo: {id: 234, name: 'ab_repo'}, sha: 'guid2'}],
-				save: function(){}
+					{repo: {id: 123, name: 'xy_repo', owner: {login: 'owner'}}, sha: 'guid'},
+					{repo: {id: 234, name: 'myRepo', owner: {login: 'owner'}}, sha: 'guid2'}],
+				save: function(){
+                    assert.equal(this.requests.length, 1);
+                }
 			};
 			done('', user);
         });
@@ -236,8 +240,26 @@ describe('cla:sign', function(done) {
         cla.sign(test_args, function(error, res) {
             assert.ifError(error);
             assert.ok(res);
-            assert.equal(status.update.callCount, 2);
+            assert.equal(status.update.callCount, 1);
             user_find.restore();
+            done();
+        });
+
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
+    });
+
+    it('should report error if error occours on DB', function(done){
+        
+        sinon.stub(User, 'findOne', function(args, done){
+            done('any DB error', null);
+        });
+
+        cla.sign(test_args, function(err, res){
+            assert(err);
+            assert(!res);
+
+            User.findOne.restore();
             done();
         });
 
