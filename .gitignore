@@ -4,6 +4,7 @@ src/bower
 output
 venv
 .env
+.cfenv
 report
 npm-debug.log
 test
