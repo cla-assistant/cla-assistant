@@ -32,8 +32,8 @@
 	              <i class="fa fa-lg fa-times form-control-feedback" ng-show="query.text" ng-click="query.text=''" style="top:0px;"></i>
 			        <div class="list-group" style="max-height:200px; overflow-y:scroll;" ng-show="query.input">
 			          <a href="" 
-			             class="clickable list-group-item" 
-			             ng-class="{ active: active===repo }" 
+			             class="clickable list-group-item octicon" 
+			             ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]" 
 			             ng-click="select(repo); "
 			             ng-repeat="repo in repos | orderBy: 'full_name' | filter: {full_name: query.text}|notIn:claRepos">
 			            {{ repo.full_name }}
@@ -60,7 +60,7 @@
 	  	<table  class="col-md-6 table table-hover">
 			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
 				<td class="row">
-						<span class="col-sm-10 octicon octicon-repo clickable" ng-click="navigateToDetails(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+						<span class="col-sm-10 octicon clickable" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="navigateToDetails(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
 						<div class="col-sm-2">
 							<i class="fa fa-times action-icon"
 							ng-click="remove(claRepo)" 

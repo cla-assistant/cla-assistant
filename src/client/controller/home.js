@@ -28,11 +28,22 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             return !match;
         };
 
+        var mixRepoData = function(claRepo){
+            $scope.repos.some(function(repo){
+                if (claRepo.repo === repo.name && claRepo.owner === repo.owner.login) {
+                    claRepo.fork = repo.fork;
+                    return true;
+                }
+            });
+            return claRepo;
+        };
+
         var updateScopeData = function(){
             $RPC.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
                 $scope.claRepos = data.value;
                 $scope.claRepos.forEach(function(claRepo){
                     claRepo.active = claRepo.gist ? true : false;
+                    claRepo = mixRepoData(claRepo);
                 });
             });
         };
