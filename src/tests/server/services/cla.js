@@ -131,8 +131,6 @@ describe('cla:sign', function(done) {
             }
         });
         sinon.stub(CLA, 'create', function(args, done){
-            console.log('stub create -> ');
-            
             assert(args);
             assert(args.gist_url);
             assert(args.gist_version);
@@ -250,7 +248,6 @@ describe('cla:sign', function(done) {
     });
 
     it('should report error if error occours on DB', function(done){
-        
         sinon.stub(User, 'findOne', function(args, done){
             done('any DB error', null);
         });

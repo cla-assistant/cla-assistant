@@ -42,9 +42,11 @@
 				<h2>Signed by...</h2>
 				<div  style="margin-top:30px;" class="row">
 					<div ng-repeat="user in users" class="col-md-3">
-						<img ng-src="{{ user.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
-						<img ng-src="{{ user.avatar_url }}?s=200" class="visible-xs visible-sm " width="100px;"/>
-						<h6 style="font-weight:400; margin:5px 0;">{{ user.name }}  {{ user.login }}</h6>
+						<a href="{{user.html_url}}" target="space">
+							<img ng-src="{{ user.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
+							<img ng-src="{{ user.avatar_url }}?s=200" class="visible-xs visible-sm " width="100px;"/>
+							<h6 style="font-weight:400; margin:5px 0;">{{ user.name }}  {{ user.login }}</h6>
+						</a>
 					</div>
 				</div>
 			</div>

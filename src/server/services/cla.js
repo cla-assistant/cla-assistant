@@ -108,9 +108,7 @@ module.exports = {
 				args.gist_url = repo.gist;
 
 				self.create(args, function(){
-					console.log('create -> ');
 					User.findOne({uuid: args.user_id}, function(err, user){
-						console.log('findOne user ', user, ' error ', err);
 						if (!err) {
 							var number;
 							try{
@@ -134,11 +132,9 @@ module.exports = {
 
 								done(err, {pullRequest: number});
 							} catch (ex) {
-								console.log('error? user:',  user);
 								done(err);
 							}
 						} else {
-							console.log('error? user:',  user);
 							done(err);
 						}
 					});
