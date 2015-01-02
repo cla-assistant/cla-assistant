@@ -110,14 +110,17 @@ describe('cla:get', function(done) {
 });
 
 describe('cla api', function(done) {
-    var req = {
-        user: {id: 3, login: 'login'},
-        args: {
-            repo: 'myRepo',
-            owner: 'owner',
-            gist: 'url/gistId'
-        }
-    };
+    var req;
+    beforeEach(function(){
+        req = {
+            user: {id: 3, login: 'login'},
+            args: {
+                repo: 'myRepo',
+                owner: 'owner',
+                gist: 'url/gistId'
+            }
+        };
+    });
 
     it('should call cla service on sign', function(done){
         sinon.stub(cla, 'sign', function(args, done){
@@ -130,6 +133,29 @@ describe('cla api', function(done) {
             assert(cla.sign.called);
 
             cla.sign.restore();
+            done();
+        });
+    });
+
+    it('should call cla service on getLastSignature', function(done) {
+        sinon.stub(cla, 'getRepo', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner'});
+            done(null, {gist: 'url', token: 'abc'});
+        });
+        sinon.stub(cla, 'getLastSignature', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url'});
+            console.log('getLastSignature stub called');
+            done(null, {});
+        });
+
+        req.args = {repo: 'myRepo', owner: 'owner'};
+
+        cla_api.getLastSignature(req, function(err, obj){
+            assert.ifError(err);
+            assert(cla.getLastSignature.called);
+
+            cla.getLastSignature.restore();
+            cla.getRepo.restore();
             done();
         });
     });

@@ -5,15 +5,17 @@
 // path: /:repoId/:prId
 // *****************************************************
 
-module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPC', '$modal', '$sce',
-    function($window, $rootScope, $scope, $stateParams, $RAW, $RPC, $modal, $sce) {
+module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce',
+    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce) {
 
-        $scope.cla = {text: 'dummy text'};
+        // $scope.cla = {text: 'dummy text'};
+        $scope.cla = null;
         $scope.signed = false;
+        $scope.signedCLA = null;
         $scope.repoExists = false;
 
         function getCLA () {
-            $RPC.call('cla', 'get', {
+            return $RPCService.call('cla', 'get', {
                 repo: $stateParams.repo,
                 owner: $stateParams.user
             }, function(err, cla) {
@@ -24,7 +26,7 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         }
 
         function checkCLA() {
-            $RPC.call('cla', 'check', {
+            return $RPCService.call('cla', 'check', {
                 repo: $stateParams.repo,
                 owner: $stateParams.user
             }, function(err, signed){
@@ -35,12 +37,47 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         }
 
         function checkRepo(callback) {
-            $RPC.call('repo', 'check', {
+            return $RPCService.call('repo', 'check', {
                 repo: $stateParams.repo,
                 owner: $stateParams.user
             }, function(err, exists){
                 callback(exists.value);
             });
+        }
+
+        // function getDiff(){
+        //     return $RPCService.call('cla', 'get', {
+        //         repo: $stateParams.repo,
+        //         owner: $stateParams.user,
+        //         gist: {
+        //             gist_url: $scope.signedCLA.gist_url,
+        //             gist_version: $scope.signedCLA.gist_version
+        //         }
+        //     }, function(err, cla) {
+        //         if(!err) {
+        //             $scope.signedCLA.text = cla.value.raw;
+        //         }
+        //     });
+        // }
+
+        function getLastSignature(){
+            var promise = $RPCService.call('cla', 'getLastSignature', {
+                repo: $stateParams.repo,
+                owner: $stateParams.user
+            });
+
+            promise.then(function(data){
+                $RPCService.call('cla', 'get', {
+                    repo: $stateParams.repo,
+                    owner: $stateParams.user,
+                    gist: {gist_url: data.value.gist_url,
+                            gist_version: data.value.gist_version}
+                }).then(function(data){
+                    $scope.signedCLA.text = data.value.raw;
+                });
+            });
+
+            return promise;
         }
 
         checkRepo(function(exists){
@@ -50,10 +87,20 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
                 $scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo + '/pull/' + $stateParams.pullRequest;
             }
             if ($rootScope.user.value) {
-                checkCLA();
+                checkCLA().then(function(signed){
+                    var promise = !signed.value && exists ? getLastSignature() : null;
+                    if (promise) {
+                        promise.then(function(data){
+                            $scope.signedCLA = data.value;
+                        });
+                    }
+                });
             }
             if (exists) {
-                getCLA();
+                getCLA().then(function(data){
+                    $scope.cla = $sce.trustAsHtml(data.value.raw);
+                    $scope.cla.text = data.value.raw;
+                });
             }
         });
 
@@ -61,9 +108,10 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             $window.location.href = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
         };
 
-        $scope.renderHtml = function(html_code)
-        {
-            return $sce.trustAsHtml(html_code);
-        };
+
+        // $scope.renderHtml = function(html_code)
+        // {
+        //     return $sce.trustAsHtml(html_code);
+        // };
     }
 ]);

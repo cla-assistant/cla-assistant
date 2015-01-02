@@ -67,6 +67,12 @@ module.exports = {
         });
     },
 
+    getLastSignature: function(args, done) {
+		CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'gist_url': '*', 'gist_version': '*'}, {select: {'created_at': -1}}, function(err, cla){
+            done(err, cla);
+        });
+    },
+
     check: function(args, done){
 		var self = this;
 

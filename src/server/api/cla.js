@@ -46,6 +46,18 @@ module.exports = {
 		});
 	},
 
+	getLastSignature: function(req, done){
+		cla.getRepo(req.args, function(err, repo){
+			if (err || !repo) {
+				done(err);
+				return;
+			}
+			var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, gist_url: repo.gist};
+
+			cla.getLastSignature(args, done);
+		});
+	},
+
     sign: function(req, done) {
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, user_id: req.user.id};
 

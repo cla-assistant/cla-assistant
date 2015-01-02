@@ -2,7 +2,8 @@ var module = angular.module('app',
     ['cla.filters',
      'ui.utils',
      'ui.router',
-     'ui.bootstrap']);
+     'ui.bootstrap',
+     'diff-match-patch']);
 
 var filters = angular.module('cla.filters', []);
 // *************************************************************

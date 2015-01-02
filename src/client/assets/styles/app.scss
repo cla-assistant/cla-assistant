@@ -320,3 +320,14 @@ small {
 .free_space {
   margin: 10px 15px;
 }
+
+// diff-match-patch
+.ins, ins {
+  color: black;
+  background: #bbffbb;
+}
+
+.del, del {
+  color: black;
+  background: #ffbbbb;
+}

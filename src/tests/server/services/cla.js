@@ -52,6 +52,24 @@ describe('cla:get', function(done) {
     });
 });
 
+describe('cla:getLastSignature', function(done) {
+    afterEach(function(){
+        CLA.findOne.restore();
+    });
+
+    it('should get cla entry for equal repo, user and gist url', function(done){
+        sinon.stub(CLA, 'findOne', function(args, projection, sort, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'gistUrl'});
+            done(null, {});
+        });
+
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'gistUrl'};
+        cla.getLastSignature(args, function(){
+            done();
+        });
+    });
+});
+
 describe('cla:check', function(done) {
     beforeEach(function(){
         sinon.stub(repo_service, 'get', function(args, done){

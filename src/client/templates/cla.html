@@ -6,17 +6,19 @@
 				<div class="well" style="margin: 50px;">
 				<h1>Contributor License Agreement</h1>
 					<div style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey; padding: 10px;">
-					<!-- <%- termsHtml %> -->
-					<div ng-bind-html="renderHtml(claText)"></div>
+						<!-- <%- termsHtml %> -->
+						<div ng-bind-html="cla" ng-hide="signedCLA.text && diff"></div>
+						<div ng-bind-html="cla" ng-if="signedCLA.text && diff" class="textdiff" semantic-diff left-obj="signedCLA.text" right-obj="cla.text" ></div>
 					</div>
+					<label ng-show="signedCLA.text" ng-init="diff = false">
+						<input type="checkbox" ng-model="diff" >
+						Show me changes since last agreement
+					</label>
 				</div>
 				<p class="text-center">
     				<button class="btn btn-success" ng-show="!signed" ng-click="agree()">I agree</button>
 					<a href="{{redirect}}" class="btn btn-primary" ng-show="!!redirect && signed">Proceed on GitHub</a>
 				</p>
-			</div>
-			<div class="col-md-6 col-md-offset-3" ng-show="signed">
-				<!-- <h1 class="center">Thank you for your contribution!</h1> -->
 			</div>
 		</div>
 	</div>
