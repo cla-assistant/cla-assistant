@@ -33,6 +33,7 @@ module.exports = function(config) {
             'src/bower/ngInfiniteScroll/build/ng-infinite-scroll.min.js',
             'src/bower/angulartics/dist/angulartics.min.js',
             'src/bower/angulartics/dist/angulartics-ga.min.js',
+            'src/bower/angular-diff-match-patch/angular-diff-match-patch.js',
 
             // TODO: CDN
             'src/bower/angular-mocks/angular-mocks.js',

@@ -4,7 +4,6 @@ describe('CLA Controller', function() {
 
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
-    beforeEach(angular.mock.module('diff-match-patch'));
 
     beforeEach(angular.mock.inject(function($injector, $rootScope, $controller) {
 
