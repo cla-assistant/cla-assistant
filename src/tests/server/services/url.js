@@ -52,10 +52,31 @@ describe('url:githubFileReference', function(done) {
     });
 });
 
+describe('url:githubPullRequests', function(done) {
+    it('should by default be https://api.github.com/repos/:owner/:repo/pulls', function(done) {
+        assert.equal(url.githubPullRequests('owner', 'repo'),
+                    'https://api.github.com/repos/owner/repo/pulls');
+        done();
+    });
+    it('should set state parameter if provided', function(done) {
+        assert.equal(url.githubPullRequests('owner', 'repo', 'open'),
+                    'https://api.github.com/repos/owner/repo/pulls?state=open');
+        done();
+    });
+});
+
 describe('url:githubPullRequest', function(done) {
-    it('should by default be http://cla-assistant.io/user/repo/pull/1', function(done) {
-        assert.equal(url.githubPullRequest('user', 'repo', 1),
-                    'https://github.com/user/repo/pull/1');
+    it('should by default be https://api.github.com/repos/:owner/:repo/pulls/:number', function(done) {
+        assert.equal(url.githubPullRequest('owner', 'repo', 1),
+                    'https://api.github.com/repos/owner/repo/pulls/1');
+        done();
+    });
+});
+
+describe('url:githubPullRequestCommits', function(done) {
+    it('should by default be https://api.github.com/repos/:owner/:repo/pulls/:number', function(done) {
+        assert.equal(url.githubPullRequestCommits('owner', 'repo', 1),
+                    'https://api.github.com/repos/owner/repo/pulls/1/commits');
         done();
     });
 });

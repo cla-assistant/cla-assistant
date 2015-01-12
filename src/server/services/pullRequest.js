@@ -20,7 +20,7 @@ module.exports = {
                     user: owner,
                     repo: repo,
                     number: pullNumber,
-                    body: '[![claborate](' + badgeUrl + ')](' + claUrl + ') <br/>Please agree to our Contributor License Agreement in order to get your pull request merged.'
+                    body: '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Please agree to our Contributor License Agreement in order to get your pull request merged.'
                 },
                 token: token
             }, function(err, res, meta){

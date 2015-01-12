@@ -48,8 +48,16 @@ module.exports = function() {
         claURL: function(user, repo) {
             return url.resolve(baseUrl, '/' + user + '/' + repo);
         },
+        githubPullRequests: function(owner, repo, state){
+            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls');
+            _url = state ? _url + '?state=' + state : _url;
+            return _url;
+        },
         githubPullRequest: function(owner, repo, number){
-            return url.resolve(githubBase, '/' + owner + '/' + repo + '/pull/' + number);
+            return url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls/' + number);
+        },
+        githubPullRequestCommits: function(owner, repo, number){
+            return this.githubPullRequest(owner, repo, number) + '/commits';
         }
     };
 }();

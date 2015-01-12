@@ -6,6 +6,9 @@ var sinon = require('sinon');
 // modules
 var GitHubApi = require('github');
 
+//api
+var github_api = require('../../../server/api/github');
+
 // config
 global.config = require('../../../config');
 
@@ -15,34 +18,34 @@ var github = rewire('../../../server/services/github');
 var callStub = sinon.stub();
 var authenticateStub = sinon.stub();
 
-function GitHubApiMock(args) {
+describe('github:call', function(done) {
+    function GitHubApiMock(args) {
 
-    assert.deepEqual(args, {
-        protocol: 'https',
-        version: '3.0.0',
-        host: 'api.github.com',
-        pathPrefix: null
+        assert.deepEqual(args, {
+            protocol: 'https',
+            version: '3.0.0',
+            host: 'api.github.com',
+            pathPrefix: null
+        });
+
+        this.obj = {
+            fun: callStub
+        };
+
+        this.authenticate = authenticateStub;
+
+        this.hasNextPage = function(link) {
+            return link;
+        };
+    }
+
+    github.__set__('GitHubApi', GitHubApiMock);
+
+    beforeEach(function() {
+        callStub.reset();
+        authenticateStub.reset();
     });
 
-    this.obj = {
-        fun: callStub
-    };
-
-    this.authenticate = authenticateStub;
-
-    this.hasNextPage = function(link) {
-        return link;
-    };
-}
-
-github.__set__('GitHubApi', GitHubApiMock);
-
-beforeEach(function() {
-    callStub.reset();
-    authenticateStub.reset();
-});
-
-describe('github:call', function(done) {
     it('should return an error if obj is not set', function(done) {
         github.call({}, function(err) {
             assert.equal(err, 'obj required/obj not found');
@@ -122,5 +125,106 @@ describe('github:call', function(done) {
             assert.equal(meta, null);
             done();
         });
+    });
+});
+
+// describe('github:direct_call', function(done){
+//     beforeEach(function(){
+//         sinon.stub(github_api, 'direct_call', function(req, done){
+//             done();
+//         });
+//     });
+
+//     afterEach(function(){
+//         github_api.direct_call.restore();
+//     });
+
+// });
+
+describe('github:call_direct', function(done) {
+    var https = require('https');
+
+    var callbacks = {};
+    var https_req = {
+        header: {},
+        end: function(){},
+        error: function(err){
+            callbacks.error(err);
+        },
+        on: function(fun, cb){
+            callbacks[fun] = cb;
+        },
+        setHeader: function(value, key){
+            this.header[value] = key;
+        }
+    };
+    var res = {
+        headers: {
+            'x-oauth-scopes': 'GitHub scopes'
+        },
+        on: function(fun, callback){
+            callbacks[fun] = callback;
+        }
+    };
+    var args;
+
+    beforeEach(function(){
+        sinon.stub(https, 'request', function(options, done) {
+            assert.equal(options, 'url');
+            done(res);
+            return https_req;
+        });
+
+        args = {token: 'abc', url: 'url'};
+    });
+
+    afterEach(function(){
+        https.request.restore();
+    });
+
+    it('should call github api directly with user token', function(done){
+        github.direct_call(args, function(error, res) {
+            assert.equal(res.meta.scopes, 'GitHub scopes');
+            assert.equal(https_req.header.Authorization, 'token abc');
+
+            done();
+        });
+
+        callbacks.data('{}');
+        callbacks.end();
+    });
+
+    it('should call github api directly with user token using promises', function(done){
+        github.direct_call(args).then(function(res) {
+            assert.equal(res.meta.scopes, 'GitHub scopes');
+            assert.equal(https_req.header.Authorization, 'token abc');
+
+            done();
+        });
+
+        callbacks.data('{}');
+        callbacks.end();
+    });
+
+    it('should fail with error message', function(done){
+        github.direct_call(args, function(error, res) {
+            assert(error);
+            assert.equal(https_req.header.Authorization, 'token abc');
+
+            done();
+        });
+
+        callbacks.error('Wrong URL!');
+    });
+
+    it('should fail with error message unsing promises', function(done){
+        github.direct_call(args).then(null, function(error, res) {
+            assert(error);
+            assert.equal(https_req.header.Authorization, 'token abc');
+
+            done();
+        });
+
+        callbacks.error('Wrong URL!');
     });
 });

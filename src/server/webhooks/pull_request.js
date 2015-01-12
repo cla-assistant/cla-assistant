@@ -1,11 +1,15 @@
+var merge = require('merge');
+
 // models
 var User = require('mongoose').model('User');
+var Repo = require('mongoose').model('Repo');
 
 // services
 var github = require('../services/github');
 var pullRequest = require('../services/pullRequest');
 var status = require('../services/status');
 var cla = require('../services/cla');
+var repoService = require('../services/repo');
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,17 +19,13 @@ var cla = require('../services/cla');
 module.exports = function(req, res) {
 	var pull_request = req.args.pull_request;
 
-	if(req.args.action === 'opened') {
-		console.log('pr opened');
+	console.log(req.args.action);
+	if( ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
 		var args = {
-			user: pull_request.user.login,
 			owner: req.args.repository.owner.login,
 			repo: req.args.repository.name,
-			repo_uuid: req.args.repository.id,
-			sha: req.args.pull_request.head.sha,
 			number: req.args.number
 		};
-
 
 		// var notification_args = {
 		// 	user: req.args.repository.owner.login,
@@ -45,49 +45,22 @@ module.exports = function(req, res) {
 		//         notification_args
 		// );
 
-
-		User.findOne({ uuid: pull_request.user.id }, function(err, user) {
-			if (err) {
-				console.log(err);
-				return;
-			}
-
-			cla.check(args, function(err, signed){
-				if (!signed && !err) {
-
-					if(user) {
-						user.requests = user.requests ? user.requests : [];
-						user.requests.push({
-							id: pull_request.id,
-							url: pull_request.url,
-							number: req.args.number,
-							sha: pull_request.head.sha,
-							repo: pull_request.base.repo
-						});
-						user.save();
-					} else {
-						User.create({
-							uuid: pull_request.user.id,
-							requests: [{
-								id: pull_request.id,
-								url: pull_request.url,
-								number: req.args.number,
-								sha: pull_request.head.sha,
-								repo: pull_request.base.repo
-							}]
-						});
-					}
-
+		repoService.getPRCommitters(args, function(err, committers){
+			if(!err && committers && committers.length > 0){
+				cla.check(args, function(err, signed){
+					args.signed = signed;
 					status.update(args);
+					if (!signed) {
 
-					pullRequest.badgeComment(
-						req.args.repository.owner.login,
-						req.args.repository.name,
-						req.args.repository.id,
-						req.args.number
-					);
-				}
-			});
+						pullRequest.badgeComment(
+							req.args.repository.owner.login,
+							req.args.repository.name,
+							req.args.repository.id,
+							req.args.number
+						);
+					}
+				});
+			}
 		});
 	}
 
