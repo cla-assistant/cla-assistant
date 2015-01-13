@@ -8,27 +8,45 @@ module.exports = {
         var claUrl = url.claURL(owner, repo);
         var token;
 
-        repoService.get({repo: repo, owner: owner}, function(err, res){
-            if (res && !err) {
-                token = res.token;
-            }
+        this.getComment({repo: repo, owner: owner, number: pullNumber}, function(err, comment){
+            repoService.get({repo: repo, owner: owner}, function(err, res){
+                if (res && !err) {
+                    token = res.token;
+                }
 
-            var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Please agree to our Contributor License Agreement in order to get your pull request merged.';
-            if (signed) {
-                body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers has accepted the CLA.';
-            }
-            github.call({
-                obj: 'issues',
-                fun: 'createComment',
-                arg: {
-                    user: owner,
-                    repo: repo,
-                    number: pullNumber,
-                    body: body
-                },
-                token: token
-            }, function(err, res, meta){
-                console.log(err);
+                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
+                if (signed) {
+                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers has accepted the CLA.';
+                }
+                if (!comment) {
+                    github.call({
+                        obj: 'issues',
+                        fun: 'createComment',
+                        arg: {
+                            user: owner,
+                            repo: repo,
+                            number: pullNumber,
+                            body: body
+                        },
+                        token: token
+                    }, function(err, res, meta){
+                        console.log(err);
+                    });
+                } else  {
+                    github.call({
+                        obj: 'issues',
+                        fun: 'editComment',
+                        arg: {
+                            user: owner,
+                            repo: repo,
+                            id: comment.id,
+                            body: body
+                        },
+                        token: token
+                    }, function(err, res, meta){
+                        console.log(err);
+                    });
+                }
             });
         });
     },
@@ -69,7 +87,7 @@ module.exports = {
                 if (res && !err) {
                     token = res.token;
                 }
-                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Please agree to our Contributor License Agreement in order to get your pull request merged.';
+                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
                 if (args.signed) {
                     body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers has accepted the CLA.';
                 }
@@ -85,7 +103,7 @@ module.exports = {
                     },
                     token: token
                 }, function(err, res, meta){
-                    console.log('err:', err, ' res: ', res);
+                    console.log(err);
                 });
             });
         });

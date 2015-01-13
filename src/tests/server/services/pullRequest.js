@@ -13,18 +13,41 @@ var Repo = require('../../../server/documents/repo').Repo;
 var pullRequest = require('../../../server/services/pullRequest');
 
 describe('pullRequest:badgeComment', function(done) {
-	afterEach(function(){
-		github.call.restore();
-		Repo.findOne.restore();
-	});
+	var direct_call_data;
 
-	it('should create comment with admin token', function(done){
-        sinon.stub(Repo, 'findOne', function(args, done){
+  beforeEach(function(){
+    sinon.stub(Repo, 'findOne', function(args, done){
 			done(null, {token: 'abc'});
-        });
+    });
+    sinon.stub(github, 'direct_call', function(args, done){
+      assert.equal(args.token, 'abc');
+      done(null, {data: direct_call_data});
+    });
+  });
 
+  afterEach(function(){
+    github.direct_call.restore();
+    github.call.restore();
+    Repo.findOne.restore();
+  });
+
+  it('should create comment with admin token', function(done){
+    direct_call_data = [];
+    sinon.stub(github, 'call', function(args, git_done){
+      assert.equal(args.fun, 'createComment');
+      assert.equal(args.token, 'abc');
+      git_done(null, 'res', 'meta');
+      done();
+    });
+
+    pullRequest.badgeComment('login', 'myRepo', 123, 1);
+  });
+
+  it('should edit comment with admin token', function(done){
+    direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function(args, git_done){
-			assert.equal(args.token, 'abc');
+			assert.equal(args.fun, 'editComment');
+      assert.equal(args.token, 'abc');
 			git_done(null, 'res', 'meta');
 			done();
 		});
@@ -105,17 +128,13 @@ describe('pullRequest:editComment', function(done) {
 
 		sinon.stub(github, 'call', function(args, git_done){
 			assert.equal(args.token, 'abc');
+      assert(args.arg.id);
 			git_done(null, 'res', 'meta');
-			done();
 		});
 
 		sinon.stub(github, 'direct_call', function(args, done){
 			assert.equal(args.token, 'abc');
-			if(args.url === url.githubPullRequestComments('owner', 'myRepo', 1)){
-				done(null, {data: testDataComments_withCLAComment});
-			} else if (args.url === url.githubPullRequestComment('owner', 'myRepo', 1, 2)){
-				done(null, {data: testDataComments_withCLAComment[1]});
-			}
+			done(null, {data: testDataComments_withCLAComment});
 		});
 	});
 
@@ -125,11 +144,24 @@ describe('pullRequest:editComment', function(done) {
 		Repo.findOne.restore();
 	});
 
-	xit('should edit comment', function(done){
-		var args = {repo: 'myRepo', owner: 'owner', number: 1};
+  it('should edit comment if not signed', function(done){
+    var args = {repo: 'myRepo', owner: 'owner', number: 1};
 
-		pullRequest.editComment(args, function(err, res){
-			assert.equal(github.direct_call.callCount, 2);
+    pullRequest.editComment(args, function(){
+      assert(github.direct_call.called);
+      assert(github.call.called);
+
+      done();
+    });
+  });
+
+	it('should edit comment if signed', function(done){
+		var args = {repo: 'myRepo', owner: 'owner', number: 1, signed: true};
+
+		pullRequest.editComment(args, function(){
+      assert(github.direct_call.called);
+			assert(github.call.called);
+
 			done();
 		});
 	});
