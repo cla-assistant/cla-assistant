@@ -15,6 +15,7 @@ var url = require('../../../server/services/url');
 var cla = require('../../../server/services/cla');
 var repo_service = require('../../../server/services/repo');
 var status = require('../../../server/services/status');
+var prService = require('../../../server/services/pullRequest');
 
 // api
 var cla_api = require('../../../server/api/cla');
@@ -85,7 +86,7 @@ describe('cla:get', function(done) {
     it('should handle wrong gist url', function(done) {
 
         var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
-            var repo = {repo: 'myRepo', owner: 'login', gist: '123'};
+            var repo = {repo: 'myRepo', owner: 'login', gist: '123', token: 'abc'};
             done(null, repo);
         });
         sinon.stub(cla, 'getGist', function(repo, done){
@@ -120,21 +121,101 @@ describe('cla api', function(done) {
                 gist: 'url/gistId'
             }
         };
+
+        sinon.stub(repo_service, 'get', function(args, done){
+            assert(args);
+            done(null, {gist: 'url/gistId', token: 'abc'});
+        });
+        sinon.stub(github, 'direct_call', function(args, done){
+            assert(args.url);
+            assert(args.token);
+            assert.equal(args.url, url.githubPullRequests('owner', 'myRepo', 'open'));
+
+            done(null, {data: [{number: 1}, {number: 2}]});
+        });
+
+        sinon.stub(status, 'update', function(args, done){
+            assert(args.signed);
+        });
+        sinon.stub(cla, 'sign', function(args, done){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3});
+            done(null, 'done');
+        });
+        sinon.stub(cla, 'check', function(args, done){
+            done(null, true);
+        });
+        sinon.stub(prService, 'editComment', function(){});
+    });
+
+    afterEach(function(){
+        status.update.restore();
+        repo_service.get.restore();
+        github.direct_call.restore();
+        cla.check.restore();
+        cla.sign.restore();
+        prService.editComment.restore();
     });
 
     it('should call cla service on sign', function(done){
-        sinon.stub(cla, 'sign', function(args, done){
-            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3});
-            done(null);
-        });
 
         cla_api.sign(req, function(err){
             assert.ifError(err);
             assert(cla.sign.called);
 
-            cla.sign.restore();
             done();
         });
+    });
+
+    it('should update status of pull request created by user, who signed', function(done){
+        cla_api.sign(req, function(error, res) {
+            assert.ifError(error);
+            assert.ok(res);
+            assert(status.update.called);
+
+            done();
+        });
+    });
+
+    it('should update status of all open pull requests for the repo', function(done){
+        cla_api.sign(req, function(error, res) {
+            assert.ifError(error);
+            assert.ok(res);
+            assert.equal(status.update.callCount, 2);
+            assert(github.direct_call.called);
+            assert(prService.editComment.called);
+
+            done();
+        });
+    });
+
+    it('should handle repos without open pull requests', function(done){
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function(args, done){
+            done(null, {});
+        });
+
+        cla_api.sign(req, function(error, res) {
+            assert.ifError(error);
+            assert.ok(res);
+            assert(github.direct_call.called);
+            assert(!status.update.called);
+
+            done();
+        });
+    });
+});
+
+describe('cla api', function(done) {
+    var req;
+    beforeEach(function(){
+        req = {
+            user: {id: 3, login: 'login'},
+            args: {
+                repo: 'myRepo',
+                owner: 'owner',
+                gist: 'url/gistId'
+            }
+        };
     });
 
     it('should call cla service on getLastSignature', function(done) {

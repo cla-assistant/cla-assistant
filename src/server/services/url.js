@@ -42,8 +42,9 @@ module.exports = function() {
         githubFileReference: function(user, repo, fileReference) {
             return url.resolve(githubBase, '/' + user + '/' + repo + '/blob/' + fileReference);
         },
-        pullRequestBadge: function(repoId, pullNumber) {
-            return url.resolve(baseUrl, '/' + repoId + '/pull/' + pullNumber + '/badge');
+        pullRequestBadge: function(signed) {
+            var signed_str = signed ? 'signed' : 'not_signed';
+            return url.resolve(baseUrl, '/pull/badge/' + signed_str);
         },
         claURL: function(user, repo) {
             return url.resolve(baseUrl, '/' + user + '/' + repo);
@@ -58,6 +59,9 @@ module.exports = function() {
         },
         githubPullRequestCommits: function(owner, repo, number){
             return this.githubPullRequest(owner, repo, number) + '/commits';
+        },
+        githubPullRequestComments: function(owner, repo, number){
+            return url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/issues/' + number + '/comments');
         }
     };
 }();

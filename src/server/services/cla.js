@@ -153,16 +153,18 @@ module.exports = function(){
 							done(err);
 							return;
 						}
-						github.direct_call({url: url.githubPullRequests(args.owner, args.repo, 'open'), token: repo.token}, function(err, res){
-							if(res && res.data && !err){
-								res.data.forEach(function(pullRequest){
-									var status_args = args;
-									status_args.number = pullRequest.number;
+						// github.direct_call({url: url.githubPullRequests(args.owner, args.repo, 'open'), token: repo.token}, function(err, res){
+						// 	if(res && res.data && !err){
+						// 		res.data.forEach(function(pullRequest){
+						// 			var status_args = {repo: args.repo, owner: args.owner, signed: true};
+						// 			status_args.number = pullRequest.number;
+						// 			// self.check(status_args, function(err, all_signed){
 
-									status.update(status_args);
-								});
-							}
-						});
+						// 				status.update(status_args);
+						// 			// });
+						// 		});
+						// 	}
+						// });
 
 						done(err, 'done');
 					});

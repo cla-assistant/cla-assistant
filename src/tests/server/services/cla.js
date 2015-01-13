@@ -225,7 +225,9 @@ describe('cla:sign', function(done) {
 
             done(null, {data: [{number: 1}, {number: 2}]});
         });
-        sinon.stub(status, 'update', function(args, done){});
+        sinon.stub(status, 'update', function(args, done){
+            assert(args.signed);
+        });
     });
 
     afterEach(function(){
@@ -273,38 +275,38 @@ describe('cla:sign', function(done) {
         callbacks.end();
     });
 
-    it('should update status of pull request created by user, who signed', function(done){
-        var user_find = sinon.stub(User, 'findOne', function(args, done){
-			var user = {
-				requests: [{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'}],
-				save: function(){}
-			};
-            done('', user);
-        });
+   //  it('should update status of pull request created by user, who signed', function(done){
+   //      var user_find = sinon.stub(User, 'findOne', function(args, done){
+			// var user = {
+			// 	requests: [{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'}],
+			// 	save: function(){}
+			// };
+   //          done('', user);
+   //      });
 
-        cla.sign(test_args, function(error, res) {
-            assert.ifError(error);
-            assert.ok(res);
-            User.findOne.restore();
-            done();
-        });
+   //      cla.sign(test_args, function(error, res) {
+   //          assert.ifError(error);
+   //          assert.ok(res);
+   //          User.findOne.restore();
+   //          done();
+   //      });
 
-        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-        callbacks.end();
-    });
+   //      callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+   //      callbacks.end();
+   //  });
 
-    it('should update status of all open pull requests for the repo', function(done){
-        cla.sign(test_args, function(error, res) {
-            assert.ifError(error);
-            assert.ok(res);
-            assert.equal(status.update.callCount, 2);
-            assert(github.direct_call.called);
-            done();
-        });
+   //  it('should update status of all open pull requests for the repo', function(done){
+   //      cla.sign(test_args, function(error, res) {
+   //          assert.ifError(error);
+   //          assert.ok(res);
+   //          assert.equal(status.update.callCount, 2);
+   //          assert(github.direct_call.called);
+   //          done();
+   //      });
 
-        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-        callbacks.end();
-    });
+   //      callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+   //      callbacks.end();
+   //  });
 
     it('should report error if error occours on DB', function(done){
         CLA.create.restore();
@@ -322,23 +324,23 @@ describe('cla:sign', function(done) {
         callbacks.end();
     });
 
-    it('should handle repos without open pull requests', function(done){
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done){
-            done(null, {});
-        });
+    // it('should handle repos without open pull requests', function(done){
+    //     github.direct_call.restore();
+    //     sinon.stub(github, 'direct_call', function(args, done){
+    //         done(null, {});
+    //     });
 
-        cla.sign(test_args, function(error, res) {
-            assert.ifError(error);
-            assert.ok(res);
-            assert(github.direct_call.called);
-            assert(!status.update.called);
-            done();
-        });
+    //     cla.sign(test_args, function(error, res) {
+    //         assert.ifError(error);
+    //         assert.ok(res);
+    //         assert(github.direct_call.called);
+    //         assert(!status.update.called);
+    //         done();
+    //     });
 
-        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-        callbacks.end();
-    });
+    //     callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+    //     callbacks.end();
+    // });
 });
 
 describe('cla:create', function(done) {

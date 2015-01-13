@@ -1,6 +1,10 @@
 //services
 var github = require('../services/github');
 var cla = require('../services/cla');
+var status = require('../services/status');
+var repoService = require('../services/repo');
+var url = require('../services/url');
+var prService = require('../services/pullRequest');
 
 module.exports = {
 	getGist: function(req, done){
@@ -61,7 +65,24 @@ module.exports = {
     sign: function(req, done) {
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, user_id: req.user.id};
 
-		cla.sign(args, done);
+		cla.sign(args, function(err, signed){
+			repoService.get({repo: args.repo, owner: args.owner}, function(err, repo){
+				github.direct_call({url: url.githubPullRequests(args.owner, args.repo, 'open'), token: repo.token}, function(err, res){
+					if(res && res.data && !err){
+						res.data.forEach(function(pullRequest){
+							var status_args = {repo: args.repo, owner: args.owner};
+							status_args.number = pullRequest.number;
+							cla.check(status_args, function(err, all_signed){
+								status_args.signed = all_signed;
+								status.update(status_args);
+								prService.editComment({repo: args.repo, owner: args.owner, number: status_args.number, signed: all_signed});
+							});
+						});
+					}
+				});
+			});
+			done(err, signed);
+		});
     },
 
     getAll: function(req, done){

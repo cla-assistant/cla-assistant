@@ -67,9 +67,9 @@ describe('webhook pull request', function(test_done) {
   afterEach(function(){
     repoService.getPRCommitters.restore();
 
-    cla.check.restore();
     pullRequest.badgeComment.restore();
     status.update.restore();
+    cla.check.restore();
 	});
 
   it('should update status of pull request if not signed', function(test_done){

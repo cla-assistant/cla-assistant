@@ -56,7 +56,8 @@ module.exports = function(req, res) {
 							req.args.repository.owner.login,
 							req.args.repository.name,
 							req.args.repository.id,
-							req.args.number
+							req.args.number,
+							signed
 						);
 					}
 				});

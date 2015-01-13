@@ -82,9 +82,17 @@ describe('url:githubPullRequestCommits', function(done) {
 });
 
 describe('url:pullRequestBadge', function(done) {
-    it('should by default be http://cla-assistant.io/:repoId/pull/:number/badge', function(done) {
-        assert.equal(url.pullRequestBadge(123, 456),
-                    'http://cla-assistant.io/123/pull/456/badge');
+    it('should by default be http://cla-assistant.io/pull/badge/signed', function(done) {
+        assert.equal(url.pullRequestBadge(true),
+                    'http://cla-assistant.io/pull/badge/signed');
+        done();
+    });
+});
+
+describe('url:githubPullRequestComments', function(done) {
+    it('should by default be http://api.github.com/repos/:owner/:repo/issues/:number/comments', function(done) {
+        assert.equal(url.githubPullRequestComments('owner', 'repo', 1),
+                    'https://api.github.com/repos/owner/repo/issues/1/comments');
         done();
     });
 });

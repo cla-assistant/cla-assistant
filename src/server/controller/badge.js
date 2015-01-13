@@ -11,28 +11,28 @@ var router = express.Router();
 var github = require('../services/github');
 var cla = require('../services/cla');
 
-router.all('/:repoId/pull/:number/badge', function(req, res) {
-    github.call({
-        obj: 'repos',
-        fun: 'one',
-        arg: {
-            id: req.params.repoId
-        }
-    }, function(err, githubRepo) {
-        if(err) {
-            return res.send(err);
-        }
-        var args = {repo: githubRepo.name, owner: githubRepo.owner.login, number: req.params.number};
-        cla.check(args, function(err, signed){
-            if(err) {
-                return res.send(err);
-            }
+router.all('/pull/badge/:signed', function(req, res) {
+    // github.call({
+    //     obj: 'repos',
+    //     fun: 'one',
+    //     arg: {
+    //         id: req.params.repoId
+    //     }
+    // }, function(err, githubRepo) {
+    //     if(err) {
+    //         return res.send(err);
+    //     }
+    //     var args = {repo: githubRepo.name, owner: githubRepo.owner.login, number: req.params.number};
+        // cla.check(args, function(err, signed){
+        //     if(err) {
+        //         return res.send(err);
+        //     }
 
             var tmp = fs.readFileSync('src/server/templates/badge_not_signed.svg', 'utf-8');
             var hash = crypto.createHash('md5').update('pending', 'utf8').digest('hex');
             var badgeText = 'Please sign our CLA!';
 
-            if (signed) {
+            if (req.params.signed === 'signed') {
                 tmp = fs.readFileSync('src/server/templates/badge_signed.svg', 'utf-8');
                 hash = crypto.createHash('md5').update('signed', 'utf8').digest('hex');
             }
@@ -47,8 +47,8 @@ router.all('/:repoId/pull/:number/badge', function(req, res) {
             res.set('Cache-Control', 'no-cache');
             res.set('Etag', hash);
             res.send(svg);
-        });
-    });
+        // });
+    // });
 });
 
 module.exports = router;
