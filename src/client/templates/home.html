@@ -1,4 +1,8 @@
 
+<div ng-if="!user.value.admin" class="center-block">
+	<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px;">Sign in with GitHub</btn>
+</div>
+
 <div class="row main" style="margin-top: 50px;">
 
   	<div class="col-md-2 col-md-offset-2">
@@ -10,16 +14,6 @@
 	    </div>
   	</div>
 
-	<div ng-if="!user.value.admin" class="center-block col-md-7 col-md-offset-1" style="max-width:500px; padding:0 20px;">
-		<div style="display:table; width:100%; height:100%; text-align:center;">
-			<div style="display:table-row;">
-				<div style="display:table-cell; padding:10px 0; vertical-align:middle;">
-				<!-- <img src="/assets/images/review-ninja-500.png" class="img-responsive" alt="Review Ninja" /> -->
-					<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px;">Sign in with GitHub</btn>
-				</div>
-			</div>
-		</div>
-	</div>
 	<div class="col-md-6" ng-if="user.value.admin">
 		<h2>Repositories</h2>
 
@@ -59,15 +53,20 @@
 
 	  	<table  class="col-md-6 table table-hover">
 			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
-				<td class="row">
-						<span class="col-sm-10 octicon clickable" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="navigateToDetails(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
-						<div class="col-sm-2">
-							<i class="fa fa-times action-icon"
-							ng-click="remove(claRepo)" 
-							tooltip-placement="bottom" 
-							tooltip="Remove">
-							</i>
-						</div>
+				<td>
+					<div class="row">
+						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="goTo(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo.uuid === settingsRepo.uuid]">Link CLA</button>
+ 						<div class="col-sm-1 btn_padding">
+ 							<i class="fa fa-times action-icon"
+ 							ng-click="remove(claRepo)" 
+ 							tooltip-placement="bottom" 
+ 							tooltip="Remove">
+ 							</i>
+ 						</div>
+ 					</div>
+        			<div ui-view ng-show="claRepo.uuid === settingsRepo.uuid" class="row settings"></div>
+
 				</td>
 			</tr>
 		</table>

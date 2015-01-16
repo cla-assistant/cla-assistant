@@ -20,6 +20,9 @@ $brand-info: #d0eaea;
 $brand-merged: #6e5494;
 $link-color: #3c3c3d;
 
+// body
+$body-bg: #333;
+
 // typography
 $text-color: $gray-darker;
 $link-color: $gray-darker;
@@ -27,7 +30,7 @@ $link-hover-color: #3c3c3d;
 
 // headings
 $headings-font-weight: 100;
-$headings-color: $gray-darker;
+$headings-color: $gray-lighter;
 
 // forms
 $input-border: $gray-light;
@@ -99,32 +102,20 @@ $breadcrumb-separator: ' ';
 $label-default-bg: $brand-info;
 $label-color: $brand-primary;
 
-// code
-$pre-color: #333;
-
 // import bootstrap
 @import '../../../bower/bootstrap-sass-official/assets/stylesheets/bootstrap.scss';
-
-// define our own styles
-$code-line-number-color: #aaa;
-$code-line-select-color: #8a6d3b;
-$code-font-size: 12px;
 
 // import our files
 @import 'breadcrumb';
 @import 'browser';
 @import 'btn';
-@import 'code';
-@import 'diff';
-@import 'git';
-@import 'git-merge';
 @import 'list-group';
+@import 'navbar';
 @import 'panel';
-@import 'pull-list';
 @import 'table';
 @import 'tabs';
 @import 'well';
-@import 'issues';
+@import 'settings';
 
 
 //
@@ -287,47 +278,4 @@ small {
 
 .clickable {
   cursor: pointer;
-}
-
-// _detial
-.drop_area {
-  border-color: $brand-primary;
-  border-style: dashed;
-  resize: none;
-
-  &.invalid {
-    border-color: $brand-danger;
-    outline-color: $brand-danger;
-  }
-}
-
-.hint {
-  color: $gray;
-}
-
-.modal-dialog {
-  width: 80%;
-  max-width: 1010px;   
-  min-width: 800px;
-  
-  img {
-    width:100%; 
-    border:solid 1px lightgrey; 
-    margin-top: 30px;
-  }
-}
-
-.free_space {
-  margin: 10px 15px;
-}
-
-// diff-match-patch
-.ins, ins {
-  color: black;
-  background: #bbffbb;
-}
-
-.del, del {
-  color: black;
-  background: #ffbbbb;
 }

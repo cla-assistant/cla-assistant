@@ -31,3 +31,21 @@
     opacity: 1;
   }
 }
+
+.btn_padding {
+  padding: 6px 12px;
+}
+
+.btn_tab, 
+.btn_tab:active, .btn_tab.active,
+.btn_tab:focus, .btn_tab.focus,
+.btn_tab:hover, .btn_tab.hover 
+{
+  z-index: 1;
+  background-color: $gray-light;
+  border-bottom-color: $gray-light;
+  border-top-color: darken($brand-info, 12%);
+  border-right-color: darken($brand-info, 12%);
+  border-left-color: darken($brand-info, 12%);
+  outline: none;
+}

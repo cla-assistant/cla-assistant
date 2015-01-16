@@ -14,6 +14,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.query = {};
         $scope.errorMsg = [];
 
+        $scope.settingsRepo = {};
+
         $scope.logAdminIn = function(){
             $window.location.href = '/auth/github?admin=true';
         };
@@ -145,7 +147,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.navigateToDetails = function (claRepo) {
-            $state.go('details', {'user': claRepo.owner, 'repo': claRepo.repo});
+            $scope.settingsRepo = claRepo;
+            $state.go('home.settings', claRepo);
+            // $state.go('home.settings');
+        };
+
+        $scope.goTo = function(claRepo) {
+            $state.go('repo.cla', {user: claRepo.owner, repo: claRepo.repo});
         };
 
         $scope.select = function(repo){

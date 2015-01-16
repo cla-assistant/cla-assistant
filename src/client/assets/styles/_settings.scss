@@ -1,0 +1,60 @@
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: darken($brand-info, 12%);
+  display: flex;
+}
+
+.settings{
+  background-color: $gray-light;
+  position: relative;
+  top: -1px;
+}
+
+.settings h4,
+.settings .h4{
+  color: $text-color;
+}
+
+.drop_area {
+  border-color: $brand-primary;
+  border-style: dashed;
+  resize: none;
+
+  &.invalid {
+    border-color: $brand-danger;
+    outline-color: $brand-danger;
+  }
+}
+
+.hint {
+  color: $gray;
+}
+
+.modal-dialog {
+  width: 80%;
+  max-width: 1010px;   
+  min-width: 800px;
+  
+  img {
+    width:100%; 
+    border:solid 1px lightgrey; 
+    margin-top: 30px;
+  }
+}
+
+.free_space {
+  margin: 10px 15px;
+}
+
+// diff-match-patch
+.ins, ins {
+  color: black;
+  background: #bbffbb;
+}
+
+.del, del {
+  color: black;
+  background: #ffbbbb;
+}

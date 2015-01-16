@@ -104,14 +104,18 @@ module.exports = function(){
 			var self = this;
 
 			this.getRepo(args, function(err, repo){
-				if (err || !repo) {
-					done(err);
+				if (err || !repo || !repo.gist) {
+					done(err, false);
 					return;
 				}
 
 				args.gist = repo.gist;
 
 				self.getGist(repo, function(err, gist){
+					if (err || !gist.history) {
+						done(err, false);
+						return;
+					}
 					args.gist_version = gist.history[0].version;
 
 					if (args.user) {
@@ -153,19 +157,6 @@ module.exports = function(){
 							done(err);
 							return;
 						}
-						// github.direct_call({url: url.githubPullRequests(args.owner, args.repo, 'open'), token: repo.token}, function(err, res){
-						// 	if(res && res.data && !err){
-						// 		res.data.forEach(function(pullRequest){
-						// 			var status_args = {repo: args.repo, owner: args.owner, signed: true};
-						// 			status_args.number = pullRequest.number;
-						// 			// self.check(status_args, function(err, all_signed){
-
-						// 				status.update(status_args);
-						// 			// });
-						// 		});
-						// 	}
-						// });
-
 						done(err, 'done');
 					});
 				});

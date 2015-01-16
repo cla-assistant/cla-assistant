@@ -33,6 +33,16 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
             })
 
             //
+            // Settings view
+            //
+            .state('home.settings', {
+                // url: '/detail/:user/:repo',
+                templateUrl: '/templates/settings.html',
+                controller: 'SettingsCtrl',
+                params: ['user', 'owner', 'repo', 'gist']
+            })
+
+            //
             // Detail view
             //
             .state('details', {

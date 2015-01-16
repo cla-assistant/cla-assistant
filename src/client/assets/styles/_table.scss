@@ -6,7 +6,7 @@ table {
   background: $gray-lighter;
 
   > tbody > tr > td {
-    border-bottom: 10px solid #fff;
+    border-bottom: 10px solid $body-bg;
   }
 }
 
@@ -17,6 +17,9 @@ table {
 }
 
 td .action-icon {
-	text-align: center; 
-	float: right;
+  margin-left: 50%;
+}
+
+td {
+  padding: 10px 25px;
 }

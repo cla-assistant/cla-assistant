@@ -103,6 +103,39 @@ describe('cla:check', function(done) {
         https.request.restore();
 	});
 
+    it('should negative check if repo has no gist', function(done){
+        sinon.stub(CLA, 'findOne', function(args, done){});
+
+        repo_service.get.restore();
+        sinon.stub(repo_service, 'get', function(args, done){
+            done('', {token: 'abc'});
+        });
+
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login'};
+
+        cla.check(args, function(err, result){
+            assert.ifError(err);
+            assert(!result);
+
+            done();
+        });
+    });
+
+    it('should send error if getGist has an error', function(done){
+        sinon.stub(CLA, 'findOne', function(args, done){});
+
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login'};
+
+        cla.check(args, function(err, result){
+            assert(err);
+            assert(!result);
+
+            done();
+        });
+
+        callbacks.error('Error');
+    });
+
 	it('should positive check whether user has already signed', function(done){
         sinon.stub(CLA, 'findOne', function(args, done){
 			assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url/gistId', gist_version: 'xyz'});
@@ -275,39 +308,6 @@ describe('cla:sign', function(done) {
         callbacks.end();
     });
 
-   //  it('should update status of pull request created by user, who signed', function(done){
-   //      var user_find = sinon.stub(User, 'findOne', function(args, done){
-			// var user = {
-			// 	requests: [{repo: {id: 123, name: 'xy_repo'}, sha: 'guid'}],
-			// 	save: function(){}
-			// };
-   //          done('', user);
-   //      });
-
-   //      cla.sign(test_args, function(error, res) {
-   //          assert.ifError(error);
-   //          assert.ok(res);
-   //          User.findOne.restore();
-   //          done();
-   //      });
-
-   //      callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-   //      callbacks.end();
-   //  });
-
-   //  it('should update status of all open pull requests for the repo', function(done){
-   //      cla.sign(test_args, function(error, res) {
-   //          assert.ifError(error);
-   //          assert.ok(res);
-   //          assert.equal(status.update.callCount, 2);
-   //          assert(github.direct_call.called);
-   //          done();
-   //      });
-
-   //      callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-   //      callbacks.end();
-   //  });
-
     it('should report error if error occours on DB', function(done){
         CLA.create.restore();
         sinon.stub(CLA, 'create', function(args, done){
@@ -323,24 +323,6 @@ describe('cla:sign', function(done) {
         callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
         callbacks.end();
     });
-
-    // it('should handle repos without open pull requests', function(done){
-    //     github.direct_call.restore();
-    //     sinon.stub(github, 'direct_call', function(args, done){
-    //         done(null, {});
-    //     });
-
-    //     cla.sign(test_args, function(error, res) {
-    //         assert.ifError(error);
-    //         assert.ok(res);
-    //         assert(github.direct_call.called);
-    //         assert(!status.update.called);
-    //         done();
-    //     });
-
-    //     callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
-    //     callbacks.end();
-    // });
 });
 
 describe('cla:create', function(done) {
