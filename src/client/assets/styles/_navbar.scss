@@ -8,8 +8,18 @@
 }
 
 .navbar-fixed-bottom {
-	border-top: 1px solid #fff;
+	border: transparent;
 	color: $navbar-default-color;
+}
+
+.navbar-top-border {
+	height: 1px;
+	margin: 0px 15px;
+	background: #fff;
+}
+
+.navbar-left:first-child {
+	margin-left: 0px;
 }
 
 @media (min-width: 768px) {

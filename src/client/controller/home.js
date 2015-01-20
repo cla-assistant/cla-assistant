@@ -13,6 +13,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.selected = {};
         $scope.query = {};
         $scope.errorMsg = [];
+        $scope.openSettings = false;
 
         $scope.settingsRepo = {};
 
@@ -147,6 +148,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.navigateToDetails = function (claRepo) {
+            if ($scope.settingsRepo.uuid === claRepo.uuid || !$scope.openSettings) {
+                $scope.openSettings = !$scope.openSettings;
+            }
             $scope.settingsRepo = claRepo;
             $state.go('home.settings', claRepo);
             // $state.go('home.settings');

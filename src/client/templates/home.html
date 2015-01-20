@@ -5,7 +5,7 @@
 
 <div class="row main" style="margin-top: 50px;">
 
-  	<div class="col-md-2 col-md-offset-2">
+  	<div class="col-md-2 col-md-offset-1">
 	    <div ng-show="user.loaded" style="margin-top:30px;">
 	      <img ng-src="{{ user.value.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
 	      <img ng-src="{{ user.value.avatar_url }}?s=200" class="visible-xs visible-sm" width="200px;"/>
@@ -14,7 +14,7 @@
 	    </div>
   	</div>
 
-	<div class="col-md-6" ng-if="user.value.admin">
+	<div class="col-md-8" ng-if="user.value.admin">
 		<h2>Repositories</h2>
 
 		<div class="well well-sm" style="padding-top:9px">
@@ -56,7 +56,7 @@
 				<td>
 					<div class="row">
 						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="goTo(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
-	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo.uuid === settingsRepo.uuid]">Link CLA</button>
+	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo.uuid === settingsRepo.uuid && openSettings]">Link CLA</button>
  						<div class="col-sm-1 btn_padding">
  							<i class="fa fa-times action-icon"
  							ng-click="remove(claRepo)" 
@@ -65,7 +65,7 @@
  							</i>
  						</div>
  					</div>
-        			<div ui-view ng-show="claRepo.uuid === settingsRepo.uuid" class="row settings"></div>
+        			<div ui-view ng-show="claRepo.uuid === settingsRepo.uuid && openSettings" class="row settings"></div>
 
 				</td>
 			</tr>

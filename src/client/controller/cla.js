@@ -13,6 +13,7 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         $scope.signed = false;
         $scope.signedCLA = null;
         $scope.repoExists = false;
+        $scope.params = $stateParams;
 
         function getCLA () {
             return $RPCService.call('cla', 'get', {

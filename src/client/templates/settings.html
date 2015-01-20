@@ -1,16 +1,21 @@
 <!-- <div class="row settings_background"> -->
 	<div class="separator"></div>
-
-	<h4 class="col-sm-2">Gist URL</h4>
-	<form name="claForm" class="col-md-9">
-    	<!-- <textarea type="url" name="gist" ng-model="repo.gist" class="drop_area" style="width:100%; font-size:inherit" required></textarea> -->
-		<input type="url" name="gist" ng-model="claRepo.gist" class="col-sm-9 h4" style="font-size:inherit"></input>
-		<button type="button" class="btn btn-default btn-xs" style="border-radius: 50%; padding: 0px 6px;" ng-click="info()"><span class="fa fa-question"></span> </button>
-    	<span ng-show="!claForm.gist.$valid" class="hint">Please enter a valid gist url here...</span>
-	    <button class="btn btn-primary" style="float:right" ng-click="update()" ng-disabled="!claForm.gist.$valid">Update</button>
-	</form>
-	<!-- <input ng-model="claRepo.gist" class="col-sm-9 h4" style="font-size:inherit"></input> -->
-<!-- 	<div class="col-sm-11" style="padding-right:0">
-	<button class="btn btn-primary" style="float:right" ng-click="update($index)">Update</button>
-	</div>					 -->
-<!-- </div> -->
+	<div style="margin-top:15px; margin-right:10px;">
+		<span class="col-sm-2 form-control-static">
+			CLA gist url  
+			<span class="fa fa-info-circle clickable" ng-click="info()"></span>
+		</span>
+		
+		<form name="claForm" class="col-sm-10 form-horizontal" ng-submit="update()">
+			<div class="form-group">
+				<div class="input-group">
+					<input type="url" name="gist" class="form-control" ng-model="claRepo.gist" required></input>
+					<span class="input-group-btn">
+			    		<button class="btn btn-info" type="submit" ng-disabled="!claForm.gist.$valid">Link</button>
+					</span>
+				</div>
+		    	<span ng-show="!claForm.gist.$valid" class="help-block">Please enter valid gist url here...</span>
+			</div>
+		</form>
+		
+	</div>
