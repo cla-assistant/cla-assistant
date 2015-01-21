@@ -23,7 +23,7 @@
         <a class="navbar-brand" href="/" style="padding-top:13px;">CLA assistant</a>
       </div>
       <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right" >
+        <ul class="nav navbar-nav navbar-right" ng-show="!!user.value.login && user.value.admin">
           <li ng-show="!user.value.login">
             <a href="/auth/github" target="_self">Sign in with GitHub</a>
           </li>

@@ -5,15 +5,16 @@
 // path: /:repoId/:prId
 // *****************************************************
 
-module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce',
-    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce) {
+module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce', '$timeout',
+    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce, $timeout) {
 
-        // $scope.cla = {text: 'dummy text'};
         $scope.cla = null;
         $scope.signed = false;
         $scope.signedCLA = null;
         $scope.repoExists = false;
         $scope.params = $stateParams;
+        $scope.user = {};
+        $scope.redirect = 'https://github.com';
 
         function getCLA () {
             return $RPCService.call('cla', 'get', {
@@ -81,6 +82,15 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             return promise;
         }
 
+        $scope.agree = function(){
+            $window.location.href = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
+        };
+
+        $scope.$on('user', function(event, data){
+            console.log(data);
+            $scope.user = $rootScope.user.value;
+        });
+
         checkRepo(function(exists){
             $scope.repoExists = exists;
 
@@ -89,12 +99,18 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             }
             if ($rootScope.user.value) {
                 checkCLA().then(function(signed){
-                    var promise = !signed.value && exists ? getLastSignature() : null;
-                    if (promise) {
-                        promise.then(function(data){
-                            $scope.signedCLA = data.value;
-                        });
+                    if (signed.value) {
+                        $timeout(function(){
+                            $window.location.href = $scope.redirect;
+                        }, 5000);
                     }
+                    // var promise = !signed.value && exists ? getLastSignature() : null;
+                    // if (promise) {
+                    //     promise.then(function(data){
+                    //         $scope.signedCLA = data.value;
+
+                    //     });
+                    // }
                 });
             }
             if (exists) {
@@ -104,15 +120,5 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
                 });
             }
         });
-
-        $scope.agree = function(){
-            $window.location.href = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
-        };
-
-
-        // $scope.renderHtml = function(html_code)
-        // {
-        //     return $sce.trustAsHtml(html_code);
-        // };
     }
 ]);

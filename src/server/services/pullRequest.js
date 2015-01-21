@@ -5,7 +5,6 @@ var repoService = require('./repo');
 module.exports = {
     badgeComment: function(owner, repo, repoId, pullNumber, signed) {
         var badgeUrl = url.pullRequestBadge(signed);
-        var claUrl = url.claURL(owner, repo);
         var token;
 
         this.getComment({repo: repo, owner: owner, number: pullNumber}, function(err, comment){
@@ -13,6 +12,7 @@ module.exports = {
                 if (res && !err) {
                     token = res.token;
                 }
+                var claUrl = url.claURL(owner, repo, pullNumber);
 
                 var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
                 if (signed) {

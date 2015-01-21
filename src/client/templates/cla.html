@@ -1,7 +1,7 @@
 <div class="row main" style="margin-top: 50px;">
 	<div class="container-fluid">
 
-		<div class="row" ng-hide="admin">
+		<div class="row" ng-hide="signed">
 			<div class="col-md-8 col-md-offset-2" >
 				<h4>Sign the Contributor License Agreement for your contribution to {{params.user}}/{{params.repo}}</h4>
 				<div class="well" style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey; padding: 10px;">
@@ -10,8 +10,7 @@
 <!-- 				<div class="well" style="margin: 50px;">
 				<h1>Contributor License Agreement</h1>
 					<div style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey; padding: 10px;">
- -->						<!-- <%- termsHtml %> -->
-<!-- 						<div ng-bind-html="cla" ng-hide="signedCLA.text && diff"></div>
+ 						<div ng-bind-html="cla" ng-hide="signedCLA.text && diff"></div>
 						<div ng-bind-html="cla" ng-if="signedCLA.text && diff" class="textdiff" semantic-diff left-obj="signedCLA.text" right-obj="cla.text" ></div>
 					</div>
 					<label ng-show="signedCLA.text" ng-init="diff = false">
@@ -20,10 +19,17 @@
 					</label>
 				</div> -->
 				<p class="text-center">
-    				<button class="btn btn-success" ng-show="!signed" ng-click="agree()" style="width:100%">Sign in with GitHub to agree</button>
-					<a href="{{redirect}}" class="btn btn-primary" ng-show="!!redirect && signed">Proceed on GitHub</a>
+    				<button class="btn btn-primary" ng-show="!signed" ng-click="agree()" style="width:100%">Sign in with GitHub to agree</button>
 				</p>
 			</div>
+		</div>
+
+		<div class="row center-block" ng-show="signed" style="margin-top:130px;">
+			<h3>Thank you {{user.login}}</h3>
+			<h4>for signing the Contributor License Agreement</h4>
+			</br>
+			<h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
+			<p ng-repeat="n in [1,2,3]" class="fa fa-circle" ng-class="'counter'+n" style="font-size:10px; margin-left:10px;"></p>
 		</div>
 	</div>
 </div>

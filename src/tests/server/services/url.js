@@ -96,3 +96,17 @@ describe('url:githubPullRequestComments', function(done) {
         done();
     });
 });
+
+describe('url:claURL', function(done) {
+    it('should by default be http://cla-assistant.io/:owner/:repo', function(done) {
+        assert.equal(url.claURL('owner', 'repo'),
+                    'http://cla-assistant.io/owner/repo');
+        done();
+    });
+
+    it('should by be http://cla-assistant.io/:owner/:repo?pullRequest=:number if number provided', function(done) {
+        assert.equal(url.claURL('owner', 'repo', 1),
+                    'http://cla-assistant.io/owner/repo?pullRequest=1');
+        done();
+    });
+});

@@ -46,8 +46,10 @@ module.exports = function() {
             var signed_str = signed ? 'signed' : 'not_signed';
             return url.resolve(baseUrl, '/pull/badge/' + signed_str);
         },
-        claURL: function(user, repo) {
-            return url.resolve(baseUrl, '/' + user + '/' + repo);
+        claURL: function(user, repo, number) {
+            var claUrl = url.resolve(baseUrl, '/' + user + '/' + repo);
+            claUrl = number ? claUrl + '?pullRequest=' + number : claUrl;
+            return claUrl;
         },
         githubPullRequests: function(owner, repo, state){
             var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls');

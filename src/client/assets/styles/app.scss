@@ -279,3 +279,42 @@ small {
 .clickable {
   cursor: pointer;
 }
+
+//_animation
+.counter1 {
+  -webkit-animation: counter 1s 1s 1 ;
+  -moz-animation:    counter 1s 1s 1 ;
+  -o-animation:      counter 1s 1s 1 ;
+  animation:         counter 1s 1s 1 ;
+}
+
+.counter2 {
+  -webkit-animation: counter 1s 3s 1 ;
+  -moz-animation:    counter 1s 3s 1 ;
+  -o-animation:      counter 1s 3s 1 ;
+  animation:         counter 1s 3s 1 ;
+}
+
+.counter3 {
+  -webkit-animation: counter 1s 5s 1 ;
+  -moz-animation:    counter 1s 5s 1 ;
+  -o-animation:      counter 1s 5s 1 ;
+  animation:         counter 1s 5s 1 ;
+}
+
+@-webkit-keyframes counter {
+  0%, 100% { color: $gray-light; }
+  50% { color: $gray-lighter; }
+}
+@-moz-keyframes counter {
+  0%, 100% { color: $gray-light; }
+  50% { color: $gray-lighter; }
+}
+@-o-keyframes counter {
+  0%, 100% { color: $gray-light; }
+  50% { color: $gray-lighter; }
+}
+@keyframes counter {
+  0%, 100% { color: $gray-light; }
+  50% { color: $gray-lighter; }
+}

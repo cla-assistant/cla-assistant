@@ -22,7 +22,7 @@
 	        <div class="form-group">
 	          <div class="input-group">
 	            <div class="form-group has-feedback">
-	              <input type="text" ng-model="query.text" class="form-control" style="height:33px;" ng-focus="query.input=true" ng-blur="finishInput()" />
+	              <input ng-model="query.text" class="form-control" style="height:33px;" ng-focus="query.input=true" ng-blur="finishInput()" />
 	              <i class="fa fa-lg fa-times form-control-feedback" ng-show="query.text" ng-click="query.text=''" style="top:0px;"></i>
 			        <div class="list-group" style="max-height:200px; overflow-y:scroll;" ng-show="query.input">
 			          <a href="" 
