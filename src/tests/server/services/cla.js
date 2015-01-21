@@ -335,13 +335,15 @@ describe('cla:create', function(done) {
             assert(args);
             assert(args.gist_url);
             assert(args.gist_version);
-            done(null, {uuid: args.uuid});
+            assert(args.repo);
+            assert(args.owner);
+            assert(args.created_at);
+            done(null, {repo: args.repo, owner: args.owner});
         });
 
-        var args = {repo: 'myRepo', user: 'login', gist: 'url/gistId', gist_version: 'xyz'};
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login', gist: 'url/gistId', gist_version: 'xyz'};
         cla.create(args, function(err, obj){
             assert.ifError(err);
-            assert.equal(obj.uuid.length, 13);
             done();
         });
     });

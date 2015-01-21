@@ -22,8 +22,7 @@ describe('repo:create', function(done) {
             assert(args);
             assert(args.gist);
             assert(args.owner);
-            assert.equal(args.uuid.length, 13);
-            done(null, {uuid: args.uuid});
+            done(null, {repo: args.repo});
         });
 
         var args = {repo: 'myRepo', user: 'login', owner: 'owner', gist: 'url/gistId', token: 'abc'};

@@ -8,13 +8,6 @@ var github = require('../services/github');
 //services
 var url = require('../services/url');
 
-var guid = function(){
-	return 'xxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
-		var r = Math.floor(Math.random() * 10);
-		return r.toString();
-	});
-};
-
 module.exports = {
     check: function(args, done) {
 		Repo.findOne({repo: args.repo, owner: args.owner}, function(err, repo){
@@ -22,7 +15,7 @@ module.exports = {
         });
     },
     create: function(args, done){
-		Repo.create({uuid: guid(), repo: args.repo, owner: args.owner, gist: args.gist, token: args.token}, function(err, repo){
+		Repo.create({repo: args.repo, owner: args.owner, gist: args.gist, token: args.token}, function(err, repo){
             done(err, repo);
         });
     },

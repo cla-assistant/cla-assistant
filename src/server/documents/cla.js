@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 
 var CLASchema = mongoose.Schema({
-    uuid: Number,
     repo: String,
     owner: String,
     user: String,

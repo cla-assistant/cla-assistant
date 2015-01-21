@@ -195,16 +195,9 @@ module.exports = function(){
 
 		},
 		create: function(args, done){
-			var guid = function(){
-				return 'xxxxxxxxxxxxx'.replace(/[x]/g, function(c) {
-					var r = Math.floor(Math.random() * 10);
-					return r.toString();
-				});
-			};
-
 			var now = new Date();
 
-			CLA.create({uuid: guid(), repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
+			CLA.create({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
 				done(err, res);
 			});
 		}
