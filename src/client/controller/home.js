@@ -59,7 +59,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
                     if (err) {
                         return;
                     }
-                    $scope.repos = data.value;
+                    // $scope.repos = data.value;
+                    data.value.forEach(function(orgRepo){
+                        $scope.repos.push(orgRepo);
+                    });
                 });
                 promises.push(promise);
 

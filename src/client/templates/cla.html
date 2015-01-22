@@ -1,10 +1,10 @@
-<div class="row main" style="margin-top: 50px;">
+<div class="row main" style="margin-top: 70px;">
 	<div class="container-fluid">
 
 		<div class="row" ng-hide="signed">
 			<div class="col-md-8 col-md-offset-2" >
-				<h4>Sign the Contributor License Agreement for your contribution to {{params.user}}/{{params.repo}}</h4>
-				<div class="well" style="height: 400px; overflow-y: scroll; border: 1px solid lightgrey; padding: 10px;">
+				<h4>Please sign the Contributor License Agreement for {{params.user}}/{{params.repo}}</h4>
+				<div class="cla-box">
 					<div ng-bind-html="cla" ng-hide="signedCLA.text && diff"></div>
 				</div>
 <!-- 				<div class="well" style="margin: 50px;">

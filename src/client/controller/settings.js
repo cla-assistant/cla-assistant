@@ -60,6 +60,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
+        $scope.getGistName = function(){
+            return $scope.gist && $scope.gist.files ? $scope.gist.files[Object.keys($scope.gist.files)[0]].filename : '';
+        };
+
         var getRepo = function() {
             if ($rootScope.user.value.admin) {
                 $scope.admin = true;
@@ -74,6 +78,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
         };
 
+        $scope.repo = $scope.$parent.claRepo;
+        if ($scope.repo.gist) {
+            $scope.getGist();
+        }
         // getRepo();
 
         $scope.$on('user', function(event, data){
@@ -97,7 +105,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         // };
 
         $scope.update = function(){
-            $scope.repo = $scope.$parent.claRepo;
 
             $RPC.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
                 getRepo();

@@ -15,6 +15,7 @@
 					</span>
 				</div>
 		    	<span ng-show="!claForm.gist.$valid" class="help-block">Please enter valid gist url here...</span>
+		    	<span ng-show="claForm.gist.$valid" class="help-block">{{getGistName()}} ({{gist.updated_at}})</span>
 			</div>
 		</form>
 		

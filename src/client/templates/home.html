@@ -55,7 +55,7 @@
 	    </div>
 
 	  	<table  class="col-md-6 table table-hover">
-			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active}">
+			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active, 'text-gray': !claRepo.active}">
 				<td>
 					<div class="row">
 						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="goTo(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
@@ -68,7 +68,7 @@
  							</i>
  						</div>
  					</div>
-        			<div ui-view ng-show="claRepo.uuid === settingsRepo.uuid && openSettings" class="row settings"></div>
+        			<div ui-view ng-if="claRepo.uuid === settingsRepo.uuid && openSettings" class="row settings"></div>
 
 				</td>
 			</tr>

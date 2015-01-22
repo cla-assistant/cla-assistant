@@ -4,6 +4,7 @@
 $font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 // colours
+$gray-darkest: #333;
 $gray-darker: #666;
 $gray-dark: #999;
 $gray: #ccc;
@@ -11,26 +12,26 @@ $gray-light: #ececec;
 $gray-lighter: #f9f9f9;
 
 // brand colours
-$brand-primary: #3e9a94;
+$brand-primary: #7bbab4;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
 $brand-warning: #ffa159;
 $brand-danger: #ad3b25;
-$brand-info: #d0eaea;
+$brand-info: #deefef;
 $brand-merged: #6e5494;
 $link-color: #3c3c3d;
 
 // body
-$body-bg: #333;
+$body-bg: #fff;
 
 // typography
-$text-color: $gray-darker;
+$text-color: $gray-darkest;
 $link-color: $gray-darker;
 $link-hover-color: #3c3c3d;
 
 // headings
 $headings-font-weight: 100;
-$headings-color: $gray-lighter;
+$headings-color: $gray-darkest;
 
 // forms
 $input-border: $gray-light;
@@ -62,7 +63,7 @@ $btn-default-border: #ececec;
 $btn-default-color: $brand-primary;
 
 // wells
-$well-bg: $gray-lighter;
+$well-bg: $gray;
 $well-border: transparent;
 
 // list group
@@ -83,9 +84,9 @@ $nav-tabs-active-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-bg: $gray-lighter;
 
 // navbar
-$navbar-default-bg: #333;
-$navbar-default-color: $gray;
-$navbar-default-link-color: $gray;
+$navbar-default-bg: $body-bg;
+$navbar-default-color: $gray-darker;
+$navbar-default-link-color: $gray-dark;
 $navbar-default-link-hover-color: $gray;
 $navbar-default-brand-hover-color: $gray;
 $navbar-default-link-active-color: $gray;
@@ -227,7 +228,7 @@ img.muted {
 }
 
 .text-gray {
-  color: $gray-dark;
+  color: $gray-darker;
 }
 
 // Font Awesome and Octicons
@@ -303,18 +304,29 @@ small {
 }
 
 @-webkit-keyframes counter {
-  0%, 100% { color: $gray-light; }
-  50% { color: $gray-lighter; }
+  0%, 100% { color: $gray-darker; }
+  50% { color: $gray-darkest; }
 }
 @-moz-keyframes counter {
-  0%, 100% { color: $gray-light; }
-  50% { color: $gray-lighter; }
+  0%, 100% { color: $gray-darker; }
+  50% { color: $gray-darkest; }
 }
 @-o-keyframes counter {
-  0%, 100% { color: $gray-light; }
-  50% { color: $gray-lighter; }
+  0%, 100% { color: $gray-darker; }
+  50% { color: $gray-darkest; }
 }
 @keyframes counter {
-  0%, 100% { color: $gray-light; }
-  50% { color: $gray-lighter; }
+  0%, 100% { color: $gray-darker; }
+  50% { color: $gray-darkest; }
 }
+
+// _cla_box
+.cla-box {
+  height: 400px; 
+  overflow-y: scroll; 
+  border: 1px solid $gray-light; 
+  padding: 10px;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
