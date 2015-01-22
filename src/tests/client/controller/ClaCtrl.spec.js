@@ -63,7 +63,7 @@ describe('CLA Controller', function() {
         httpBackend.flush();
         timeout.flush();
 
-        (_window.location.href).should.be.equal('https://github.com');
+        (_window.location.href).should.be.equal('https://github.com/login/myRepo');
         (claController.scope.signed).should.be.ok;
     });
 

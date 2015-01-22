@@ -76,7 +76,7 @@ module.exports = {
     editComment: function(args, done){
         var commentToEdit;
         var badgeUrl = url.pullRequestBadge(args.signed);
-        var claUrl = url.claURL(args.owner, args.repo);
+        var claUrl = url.claURL(args.owner, args.repo, args.number);
         var token;
         this.getComment({repo: args.repo, owner: args.owner, number: args.number}, function(err, comment){
             if (err || !comment) {

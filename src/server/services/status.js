@@ -39,7 +39,7 @@ module.exports = {
                             sha: args.sha,
                             state: status,
                             description: description,
-                            target_url: url.claURL(args.owner, args.repo),
+                            target_url: url.claURL(args.owner, args.repo, args.number),
                             context: 'licence/cla'
                         },
                         token: token

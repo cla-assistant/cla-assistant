@@ -14,7 +14,7 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         $scope.repoExists = false;
         $scope.params = $stateParams;
         $scope.user = {};
-        $scope.redirect = 'https://github.com';
+        $scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
 
         function getCLA () {
             return $RPCService.call('cla', 'get', {
@@ -97,7 +97,7 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             $scope.repoExists = exists;
 
             if ($stateParams.pullRequest) {
-                $scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo + '/pull/' + $stateParams.pullRequest;
+                $scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
             }
             if ($rootScope.user.value) {
                 checkCLA().then(function(signed){
