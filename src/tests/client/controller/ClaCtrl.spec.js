@@ -99,6 +99,35 @@ describe('CLA Controller', function() {
         // (claController.scope.signedCLA.gist_url).should.be.equal('gist_url');
     });
 
+    it('should redirect to accept url on agree', function(){
+        rootScope.user.value = {id: 123, login: 'login'};
+        claController = createCtrl();
+
+        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
+        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
+        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+
+        httpBackend.flush();
+
+        claController.scope.agree();
+        (_window.location.href).should.be.equal('/accept/login/myRepo');
+    });
+
+    it('should redirect to accept url on agree with pullRequest parameter', function(){
+        rootScope.user.value = {id: 123, login: 'login'};
+        stateParams.pullRequest = 1;
+        claController = createCtrl();
+
+        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
+        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
+        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+
+        httpBackend.flush();
+
+        claController.scope.agree();
+        (_window.location.href).should.be.equal('/accept/login/myRepo?pullRequest=1');
+    });
+
     it('should not load cla if repo does not exist', function(){
         claController = createCtrl();
 

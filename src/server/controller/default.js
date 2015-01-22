@@ -16,13 +16,13 @@ router.use('/accept/:owner/:repo', function(req, res) {
     if (req.isAuthenticated()) {
 		cla.sign(req, function(err, data){
 			var redirectUrl = path.join(path.sep, req.args.owner, req.args.repo);
-			redirectUrl = data && data.pullRequest ? redirectUrl + '?pullRequest=' + data.pullRequest : redirectUrl;
+			redirectUrl = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});
 
     } else {
 		req.session.next = req.baseUrl;
-		return res.redirect('/login');
+		return res.redirect('/auth/github');
     }
 });
 

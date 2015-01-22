@@ -83,7 +83,9 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         }
 
         $scope.agree = function(){
-            $window.location.href = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
+            var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
+            acceptUrl = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
+            $window.location.href = acceptUrl;
         };
 
         $scope.$on('user', function(event, data){
