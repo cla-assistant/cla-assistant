@@ -116,6 +116,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                         $scope.repo.active = true;
                     }
                 });
+                $scope.getGist();
             } else {
                 $RPC.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err, data){
                     if (!err) {
@@ -145,3 +146,20 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
     }
 ]);
+
+module.directive('validateGist', [function (){
+   return {
+      require: 'ngModel',
+      link: function(scope, elem, attr, ngModel) {
+          // var blacklist = attr.blacklist.split(',');
+
+          //For DOM -> model validation
+          ngModel.$parsers.unshift(function(value) {
+             var valid = false;
+             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+             ngModel.$setValidity('validateGist', valid);
+             return valid ? value : undefined;
+          });
+      }
+   };
+}]);

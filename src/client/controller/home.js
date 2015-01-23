@@ -102,6 +102,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
 
         $scope.addRepo = function(){
             var newClaRepo = {repo: $scope.selected.name, owner: $scope.selected.owner.login, gist: '', active: false};
+            newClaRepo = mixRepoData(newClaRepo);
             $RPC.call('repo', 'create', {repo: $scope.selected.name, owner: $scope.selected.owner.login}, function(err, data){
                 if (err && err.err.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
@@ -151,7 +152,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.navigateToDetails = function (claRepo) {
-            if ($scope.settingsRepo.uuid === claRepo.uuid || !$scope.openSettings) {
+            if ($scope.settingsRepo._id === claRepo._id || !$scope.openSettings) {
                 $scope.openSettings = !$scope.openSettings;
             }
             $scope.settingsRepo = claRepo;

@@ -59,7 +59,7 @@
 				<td>
 					<div class="row">
 						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="goTo(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
-	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo.uuid === settingsRepo.uuid && openSettings]">Link CLA</button>
+	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo._id === settingsRepo._id && openSettings]">Link CLA</button>
  						<div class="col-sm-1 btn_padding">
  							<i class="fa fa-times action-icon"
  							ng-click="remove(claRepo)" 
@@ -68,7 +68,7 @@
  							</i>
  						</div>
  					</div>
-        			<div ui-view ng-if="claRepo.uuid === settingsRepo.uuid && openSettings" class="row settings"></div>
+        			<div ui-view ng-if="claRepo._id === settingsRepo._id && openSettings" class="row settings"></div>
 
 				</td>
 			</tr>

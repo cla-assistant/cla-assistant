@@ -56,6 +56,7 @@ describe('Home Controller', function() {
     });
 
     it('should create repo entry on addRepo action', function(){
+        homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
         homeCtrl.scope.selected = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
@@ -64,6 +65,7 @@ describe('Home Controller', function() {
 
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
         (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
+        (homeCtrl.scope.claRepos[0].fork).should.be.ok;
     });
 
     it('should remove repo from claRepos list if create failed on backend', function(){

@@ -9,13 +9,13 @@
 		<form name="claForm" class="col-sm-10 form-horizontal" ng-submit="update()">
 			<div class="form-group">
 				<div class="input-group">
-					<input type="url" name="gist" class="form-control" ng-model="claRepo.gist" required></input>
+					<input type="url" name="gist" class="form-control" ng-model="claRepo.gist" validate-gist required></input>
 					<span class="input-group-btn">
 			    		<button class="btn btn-info" type="submit" ng-disabled="!claForm.gist.$valid">Link</button>
 					</span>
 				</div>
 		    	<span ng-show="!claForm.gist.$valid" class="help-block">Please enter valid gist url here...</span>
-		    	<span ng-show="claForm.gist.$valid" class="help-block">{{getGistName()}} ({{gist.updated_at}})</span>
+		    	<span ng-show="claForm.gist.$valid && gist.history.length > 0" class="help-block">{{getGistName()}}, updated {{gist.updated_at | date:'longDate'}}</span>
 			</div>
 		</form>
 		

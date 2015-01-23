@@ -54,9 +54,22 @@ describe('Settings Controller', function() {
             (settingsCtrl.scope.repo).should.not.be.empty;
         });
 
+        it('should get gist on update action if gist url is given', function(){
+            httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'url'}).respond(true);
+            httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
+            httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}}).respond({id: 'gistId'});
+
+            settingsCtrl.scope.update();
+
+            httpBackend.flush();
+            (settingsCtrl.scope.repo.active).should.be.ok;
+            (settingsCtrl.scope.gist.id).should.be.equal('gistId');
+        });
+
         it('should create webhook for the selected repo on update action if gist is given', function(){
             httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'url'}).respond(true);
             httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({});
+            httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}}).respond({id: 'gistId'});
 
             settingsCtrl.scope.update();
 
