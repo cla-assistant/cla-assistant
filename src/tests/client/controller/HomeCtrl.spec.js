@@ -152,7 +152,7 @@ describe('Home Controller', function() {
     });
 
     it('should select repo from the search field', function(){
-        var repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}, claborate: {gist: 'https://gist.github.com/myRepo/2', active: true}};
+        var repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         homeCtrl.scope.select(repo);
 
         (homeCtrl.scope.selected.full_name).should.be.equal(repo.full_name);
@@ -173,6 +173,17 @@ describe('Home Controller', function() {
         (homeCtrl.scope.repos.length).should.be.equal(2);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
         (homeCtrl.scope.claRepos[0].fork).should.be.equal(testDataRepos.data[0].fork);
+    });
+
+    it('should get all users signed this cla', function(){
+        var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+        httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
+        httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+
+        homeCtrl.scope.getUsers(claRepo);
+          httpBackend.flush();
+
+        (homeCtrl.scope.users.length).should.be.equal(1);
     });
 
     it('should handle multiple error messages', function(){

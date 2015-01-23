@@ -58,7 +58,7 @@
 			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active, 'text-gray': !claRepo.active}">
 				<td>
 					<div class="row">
-						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="goTo(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="getReport(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
 	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo._id === settingsRepo._id && openSettings]">Link CLA</button>
  						<div class="col-sm-1 btn_padding">
  							<i class="fa fa-times action-icon"

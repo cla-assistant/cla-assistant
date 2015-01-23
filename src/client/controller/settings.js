@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$window', '$sce', '$modal',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $window, $sce, $modal) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$window', '$sce', '$modal',
+    function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $window, $sce, $modal) {
 
         $scope.repo = {};
         $scope.gist = {};
@@ -31,7 +31,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             if ($scope.gist.history) {
                 args.gist = gistArgs();
             }
-            $RPC.call('cla', 'get', args, function(err, cla) {
+            $RPCService.call('cla', 'get', args, function(err, cla) {
                 if(!err) {
                     $scope.claText = cla.value.raw;
                 }
@@ -39,7 +39,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         }
 
         $scope.getUsers = function(){
-            $RPC.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
+            return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
                 $scope.users = [];
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
@@ -53,7 +53,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getGist = function(){
-            $RPC.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
+            $RPCService.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
                 if (!err && data.value) {
                     $scope.gist = data.value;
                 }
@@ -67,7 +67,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         var getRepo = function() {
             if ($rootScope.user.value.admin) {
                 $scope.admin = true;
-                $RPC.call('repo', 'get', {repo: $stateParams.repo, owner: $stateParams.user}, function(err, data){
+                $RPCService.call('repo', 'get', {repo: $stateParams.repo, owner: $stateParams.user}, function(err, data){
                     if (!err && data.value) {
                         $scope.repo = data.value;
                         getCLA();
@@ -106,19 +106,19 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.update = function(){
 
-            $RPC.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
+            $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
                 getRepo();
             });
 
             if ($scope.repo.gist) {
-                $RPC.call('webhook', 'create', {repo: $scope.repo.repo, owner: $scope.repo.owner}, function(err, data){
+                $RPCService.call('webhook', 'create', {repo: $scope.repo.repo, owner: $scope.repo.owner}, function(err, data){
                     if (!err) {
                         $scope.repo.active = true;
                     }
                 });
                 $scope.getGist();
             } else {
-                $RPC.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err, data){
+                $RPCService.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err, data){
                     if (!err) {
                         $scope.repo.active = false;
                     }

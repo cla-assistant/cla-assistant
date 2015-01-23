@@ -13,6 +13,7 @@ $gray-lighter: #f9f9f9;
 
 // brand colours
 $brand-primary: #7bbab4;
+$brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
 $brand-warning: #ffa159;
@@ -107,10 +108,12 @@ $label-color: $brand-primary;
 @import '../../../bower/bootstrap-sass-official/assets/stylesheets/bootstrap.scss';
 
 // import our files
+@import 'animation';
 @import 'breadcrumb';
 @import 'browser';
 @import 'btn';
 @import 'list-group';
+@import 'modal';
 @import 'navbar';
 @import 'panel';
 @import 'table';
@@ -264,6 +267,10 @@ i.fa-gear {
   transform: rotate(90deg);
 }
 
+a {
+  color: inherit;
+}
+
 small {
   vertical-align: middle;
 }
@@ -281,46 +288,9 @@ small {
   cursor: pointer;
 }
 
-//_animation
-.counter1 {
-  -webkit-animation: counter 1s 1s 1 ;
-  -moz-animation:    counter 1s 1s 1 ;
-  -o-animation:      counter 1s 1s 1 ;
-  animation:         counter 1s 1s 1 ;
-}
 
-.counter2 {
-  -webkit-animation: counter 1s 3s 1 ;
-  -moz-animation:    counter 1s 3s 1 ;
-  -o-animation:      counter 1s 3s 1 ;
-  animation:         counter 1s 3s 1 ;
-}
 
-.counter3 {
-  -webkit-animation: counter 1s 5s 1 ;
-  -moz-animation:    counter 1s 5s 1 ;
-  -o-animation:      counter 1s 5s 1 ;
-  animation:         counter 1s 5s 1 ;
-}
-
-@-webkit-keyframes counter {
-  0%, 100% { color: $gray-darker; }
-  50% { color: $gray-darkest; }
-}
-@-moz-keyframes counter {
-  0%, 100% { color: $gray-darker; }
-  50% { color: $gray-darkest; }
-}
-@-o-keyframes counter {
-  0%, 100% { color: $gray-darker; }
-  50% { color: $gray-darkest; }
-}
-@keyframes counter {
-  0%, 100% { color: $gray-darker; }
-  50% { color: $gray-darkest; }
-}
-
-// _cla_box
+// _cla
 .cla-box {
   height: 400px; 
   overflow-y: scroll; 
@@ -328,5 +298,11 @@ small {
   padding: 10px;
   margin-top: 15px;
   margin-bottom: 10px;
+}
+
+.dots {
+  font-size:10px; 
+  margin-left:10px;
+  color: $gray;
 }
 

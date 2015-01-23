@@ -1,0 +1,38 @@
+<div class="modal-header">
+    <span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+    <div style="margin-top:15px; margin-right:10px;" class="row">
+        <span class="col-sm-2">
+            CLA gist url  
+            <span class="fa fa-info-circle clickable" ng-click="info()"></span>
+        </span>
+        <div class="col-sm-10">
+            <span>{{gist.url}}</span>
+            <span ng-show="gist.history.length > 0" class="help-block">{{getGistName()}}, updated {{gist.updated_at | date:'longDate'}}</span>
+        </div>
+    </div>
+</div>
+<div class="modal-body modal-primary">
+    <div class="row ">
+        <div class="col-sm-12">
+            {{users.length}} contributor signed this CLA
+        </div>
+    </div>
+</div>
+<div class="modal-body modal-primary" style="margin-top: 0">
+<div class="row ">
+        <div class="col-sm-2" style="border-bottom: solid 1px white">GitHub ID</div>
+        <div class="col-sm-3" style="border-bottom: solid 1px white">Name</div>
+        <div class="col-sm-3" style="border-bottom: solid 1px white">E-Mail</div>
+        <div class="col-sm-4" style="border-bottom: solid 1px white">Time signed</div>
+    </div>
+</div>
+<div style="overflow-y:auto; max-height: 400px">
+    <div class="modal-body modal-primary" style="margin-top: 0" ng-repeat="user in users track by $index" ng-class-even="'modal-primary-2nd'">
+        <div class="row ">
+            <a class="col-sm-2" ng-href="{{user.html_url}}" target="space" >{{user.login}}</a>
+            <div class="col-sm-3">{{user.name}}</div>
+            <div class="col-sm-3">{{user.email}}</div>
+            <div class="col-sm-4">{{user.cla.created_at | date: 'medium'}}</div>
+        </div>
+    </div>
+</div>

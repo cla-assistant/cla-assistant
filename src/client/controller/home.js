@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPC', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q',
-    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPC, $RAW, $HUBService, $window, $modal, $timeout, $q) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q',
+    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q) {
 
         $scope.repos = [];
         $scope.claRepos = [];
@@ -14,6 +14,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.query = {};
         $scope.errorMsg = [];
         $scope.openSettings = false;
+        $scope.users = [];
+
 
         $scope.settingsRepo = {};
 
@@ -42,7 +44,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         var updateScopeData = function(){
-            $RPC.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
+            $RPCService.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
                 $scope.claRepos = data.value;
                 $scope.claRepos.forEach(function(claRepo){
                     claRepo.active = claRepo.gist ? true : false;
@@ -103,7 +105,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.addRepo = function(){
             var newClaRepo = {repo: $scope.selected.name, owner: $scope.selected.owner.login, gist: '', active: false};
             newClaRepo = mixRepoData(newClaRepo);
-            $RPC.call('repo', 'create', {repo: $scope.selected.name, owner: $scope.selected.owner.login}, function(err, data){
+            $RPCService.call('repo', 'create', {repo: $scope.selected.name, owner: $scope.selected.owner.login}, function(err, data){
                 if (err && err.err.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 }
@@ -119,28 +121,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             });
         };
 
-        $scope.update = function(index){
-            var claRepo = $scope.claRepos[index];
-            $RPC.call('repo', 'update', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
-            });
-
-            if (claRepo.gist) {
-                $RPC.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = true;
-                    }
-                });
-            } else {
-                $RPC.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = false;
-                    }
-                });
-            }
-        };
-
         $scope.remove = function(claRepo){
-            $RPC.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
+            $RPCService.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
                 if (!err) {
                     var i = $scope.claRepos.indexOf(claRepo);
                     if (i > -1) {
@@ -148,7 +130,42 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
                     }
                 }
             });
-            $RPC.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){});
+            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){});
+        };
+
+        $scope.update = function(index){
+            var claRepo = $scope.claRepos[index];
+            $RPCService.call('repo', 'update', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
+            });
+
+            if (claRepo.gist) {
+                $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
+                    if (!err) {
+                        claRepo.active = true;
+                    }
+                });
+            } else {
+                $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+                    if (!err) {
+                        claRepo.active = false;
+                    }
+                });
+            }
+        };
+
+        $scope.getUsers = function(claRepo){
+            return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}, function(err, data){
+                $scope.users = [];
+                if (!err && data.value) {
+                    data.value.forEach(function(entry){
+                        // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
+                        $HUB.call('user', 'getFrom', {user: entry.user}, function(err, user){
+                            user.value.cla = entry;
+                            $scope.users.push(user.value);
+                        });
+                    });
+                }
+            });
         };
 
         $scope.navigateToDetails = function (claRepo) {
@@ -160,8 +177,22 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             // $state.go('home.settings');
         };
 
-        $scope.goTo = function(claRepo) {
-            $state.go('repo.cla', {user: claRepo.owner, repo: claRepo.repo});
+        var report = function(claRepo) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/report.html',
+                controller: 'ReportCtrl',
+                resolve: {
+                    repo: function(){ return claRepo;},
+                    users: function(){ return $scope.users; }
+                }
+            });
+            // modal.result.then(function(args){});
+        };
+
+        $scope.getReport = function(claRepo){
+            $scope.getUsers(claRepo).then(function(){
+                report(claRepo);
+            });
         };
 
         $scope.select = function(repo){
