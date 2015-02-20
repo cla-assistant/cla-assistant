@@ -22,6 +22,7 @@ var app = express();
 var api = {};
 var webhooks = {};
 
+app.use(require('x-frame-options')());
 app.use(require('body-parser').json());
 app.use(require('cookie-parser')());
 app.use(require('cookie-session')({

@@ -2,7 +2,7 @@
 <div ng-if="!user.value.admin" style="margin-top:180px">
     <div  class="col-lg-2 col-lg-offset-5 col-sm-4 col-sm-offset-4">
     	<img src="https://octodex.github.com/images/original.png" class="img-responsive center-block" style="max-width:400px; width:100%" />
-		<btn class="btn btn-lg btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:100%">Sign in with GitHub</btn>
+		<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:100%">Sign in with GitHub</btn>
     </div>
 </div>
 
@@ -21,24 +21,20 @@
 		<h2>Repositories</h2>
 
 		<div class="well well-sm" style="padding-top:9px">
-	      <form ng-submit="addRepo()">
+	      <form>
 	        <div class="form-group">
 	          <div class="input-group">
 	            <div class="form-group has-feedback">
-	              <input ng-model="query.text" class="form-control" style="height:33px;" ng-focus="query.input=true" ng-blur="finishInput()" />
-	              <i class="fa fa-lg fa-times form-control-feedback" ng-show="query.text" ng-click="query.text=''" style="top:0px;"></i>
-			        <div class="list-group" style="max-height:200px; overflow-y:scroll;" ng-show="query.input">
-			          <a href="" 
-			             class="clickable list-group-item octicon" 
-			             ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]" 
-			             ng-click="select(repo); "
-			             ng-repeat="repo in repos | orderBy: 'full_name' | filter: {full_name: query.text}|notIn:claRepos">
-			            {{ repo.full_name }}
-			          </a>
-			        </div>
+	            	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
+		                <ui-select-match placeholder="">{{$select.selected.full_name}}</ui-select-match>
+		                <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
+		                  	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
+		                  	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+		                </ui-select-choices>
+		            </ui-select>
 	            </div>
 	            <span class="input-group-btn">
-	              <button class="btn btn-info" type="submit" ng-disabled="!query.text">Add Repository</button>
+	              <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add Repository</button>
 	            </span>
 	          </div>
 	          <span class="help-block" style="margin-top:1px;">
@@ -59,7 +55,7 @@
 				<td>
 					<div class="row">
 						<span class="col-sm-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="getReport(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
-	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[claRepo._id === settingsRepo._id && openSettings]">Link CLA</button>
+	              		<button class="btn btn-info col-sm-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings]">Link CLA</button>
  						<div class="col-sm-1 btn_padding">
  							<i class="fa fa-times action-icon"
  							ng-click="remove(claRepo)" 
@@ -68,7 +64,7 @@
  							</i>
  						</div>
  					</div>
-        			<div ui-view ng-if="claRepo._id === settingsRepo._id && openSettings" class="row settings"></div>
+        			<div ui-view ng-if="settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings" class="row settings"></div>
 
 				</td>
 			</tr>

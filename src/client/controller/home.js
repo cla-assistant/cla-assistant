@@ -10,11 +10,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
 
         $scope.repos = [];
         $scope.claRepos = [];
-        $scope.selected = {};
+        $scope.selectedRepo = {};
         $scope.query = {};
         $scope.errorMsg = [];
         $scope.openSettings = false;
         $scope.users = [];
+        $scope.selectedIndex = -1;
 
 
         $scope.settingsRepo = {};
@@ -103,9 +104,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         });
 
         $scope.addRepo = function(){
-            var newClaRepo = {repo: $scope.selected.name, owner: $scope.selected.owner.login, gist: '', active: false};
+            var newClaRepo = {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login, gist: '', active: false};
             newClaRepo = mixRepoData(newClaRepo);
-            $RPCService.call('repo', 'create', {repo: $scope.selected.name, owner: $scope.selected.owner.login}, function(err, data){
+            $RPCService.call('repo', 'create', {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login}, function(err, data){
                 if (err && err.err.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 }
@@ -169,7 +170,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.navigateToDetails = function (claRepo) {
-            if ($scope.settingsRepo._id === claRepo._id || !$scope.openSettings) {
+            if ($scope.settingsRepo.owner === claRepo.owner && $scope.settingsRepo.repo === claRepo.repo || !$scope.openSettings) {
                 $scope.openSettings = !$scope.openSettings;
             }
             $scope.settingsRepo = claRepo;
@@ -193,18 +194,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             $scope.getUsers(claRepo).then(function(){
                 report(claRepo);
             });
-        };
-
-        $scope.select = function(repo){
-            $scope.selected = repo;
-            $scope.query.text = repo.full_name;
-            // $scope.query.input = false;
-        };
-
-        $scope.finishInput = function(){
-            $timeout(function(){
-                $scope.query.input = false;
-            }, 150);
         };
     }
 ]);

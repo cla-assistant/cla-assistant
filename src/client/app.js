@@ -3,7 +3,8 @@ var module = angular.module('app',
      'ui.utils',
      'ui.router',
      'ui.bootstrap',
-     'diff-match-patch']);
+     'ui.select',
+     'ngSanitize']);
 
 var filters = angular.module('cla.filters', []);
 // *************************************************************
@@ -39,7 +40,8 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
                 // url: '/detail/:user/:repo',
                 templateUrl: '/templates/settings.html',
                 controller: 'SettingsCtrl',
-                params: ['user', 'owner', 'repo', 'gist']
+                params: {'user': {}, 'owner': {}, 'repo': {}, 'gist': {}}
+                // params: ['user', 'owner', 'repo', 'gist'] <-- was in older angular version
             })
 
             //
