@@ -23,7 +23,6 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
     function($stateProvider, $urlRouterProvider, $locationProvider) {
 
         $stateProvider
-
             //
             // Home state
             //
@@ -73,8 +72,10 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
 
         $urlRouterProvider.otherwise('/');
 
-        $locationProvider.html5Mode(true);
-
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
     }
 ])
 .run(['$rootScope', '$state', '$stateParams',

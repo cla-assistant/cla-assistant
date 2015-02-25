@@ -79,6 +79,7 @@ module.exports = {
 
         http_req.setHeader('Authorization', 'token ' + args.token);
         http_req.setHeader('User-Agent', 'cla-assistant');
+        http_req.setHeader('Accept', 'application/vnd.github.moondragon+json');
 
         http_req.end();
 

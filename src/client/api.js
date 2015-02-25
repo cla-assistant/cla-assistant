@@ -44,6 +44,7 @@ module.factory('$RAW', ['$q', '$http',
             get: function(url, user_token) {
                 var deferred = $q.defer();
                 var header = {};
+                    header.Accept = 'application/vnd.github.moondragon+json';
                 if (user_token) {
                     header.Authorization = 'token ' + user_token;
                 }
