@@ -47,9 +47,11 @@ describe('Settings Controller', function() {
         });
 
         it('should load gistFile on init ', function(){
+            (settingsCtrl.scope.loading).should.be.ok;
 
             httpBackend.flush();
 
+            (settingsCtrl.scope.loading).should.not.be.ok;
             (settingsCtrl.scope.gist.id).should.be.equal('gistId');
             (settingsCtrl.scope.repo).should.not.be.empty;
         });
@@ -125,6 +127,19 @@ describe('Settings Controller', function() {
           (settingsCtrl.scope.gistIndex).should.be.equal(1);
           (settingsCtrl.scope.repo).should.be.ok;
           (settingsCtrl.scope.claText).should.be.ok;
+      });
+
+      it('should indicate loading gist on getGist', function(){
+          httpBackend.flush();
+
+          httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'url'}}).respond({id: 'gistId'});
+
+          (settingsCtrl.scope.loading).should.not.be.ok;
+          settingsCtrl.scope.getGist();
+
+          (settingsCtrl.scope.loading).should.be.ok;
+          httpBackend.flush();
+          (settingsCtrl.scope.loading).should.not.be.ok;
       });
     });
 

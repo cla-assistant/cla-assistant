@@ -21,18 +21,25 @@ module.exports = {
 	},
 
 	get: function(req, done){
+
 		this.getGist(req, function(err, res){
 			if (err || !res) {
 				done(err);
 				return;
 			}
-			var args = {
-				obj: 'markdown',
-				fun: 'render',
-				arg: {
-					text: res.files[Object.keys(res.files)[0]].content
-				}
-			};
+			try{
+				var args = {
+					obj: 'markdown',
+					fun: 'render',
+					arg: {
+						text: res.files[Object.keys(res.files)[0]].content
+					}
+				};
+			} catch (e){
+				console.log(e);
+				done(e);
+				return;
+			}
 			if (req.user && req.user.token) {
 				args.token = req.user.token;
 			}
