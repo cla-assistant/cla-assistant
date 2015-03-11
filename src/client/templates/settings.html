@@ -18,7 +18,7 @@
 			    	<span ng-show="!claForm.gist.$valid">Please enter valid gist url here...</span>
 					<span ng-show="loading" class="fa fa-spinner fa-spin"></span>
 			    	<span ng-show="claForm.gist.$valid && !loading && gist.history.length > 0" class="fa fa-check">&nbsp;{{getGistName()}}, updated {{gist.updated_at | date:'longDate'}}</span>
-			    	<span ng-show="claForm.gist.$valid && !loading && !gist.history" class="fa fa-exclamation-triangle">&nbsp;Something went wrong :( <br>We can't reach your gist file, please check the url (https://gist.github.com/&lt;your gist id&gt;)</span>
+			    	<span ng-show="claForm.gist.$valid && !loading && !gist.history && gist.linked" class="fa fa-exclamation-triangle">&nbsp;Something went wrong :( <br>We can't reach your gist file, please check the url (https://gist.github.com/&lt;your gist id&gt;)</span>
 				</span>
 			</div>
 		</form>

@@ -60,6 +60,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     $scope.gist = data.value;
                 }
                 $scope.loading = false;
+                $scope.gist.linked = true;
             });
         };
 
