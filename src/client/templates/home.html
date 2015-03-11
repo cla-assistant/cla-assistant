@@ -1,9 +1,64 @@
 
-<div ng-if="!user.value.admin" style="margin-top:180px">
-    <div  class="col-lg-2 col-lg-offset-5 col-xs-4 col-xs-offset-4">
-    	<img src="https://octodex.github.com/images/original.png" class="img-responsive center-block" style="max-width:400px; width:100%" />
-		<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:100%">Sign in with GitHub</btn>
-    </div>
+<div ng-if="!user.value.admin" style="margin-top:55px">
+	<div class="row lp-gray">
+	    <div  class="col-lg-2 col-lg-offset-5 col-xs-4 col-xs-offset-4 lp-section-content">
+	    	<img src="/assets/images/logo.png" class="img-responsive center-block" style="max-width:400px; width:100%" />
+			<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:100%"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+	    </div>
+	</div>
+	<div class="row lp-highlight"> <!-- style="background-color:white; margin-top: 20px;" -->
+	    <h4  class="col-lg-4 col-lg-offset-4 col-xs-4 col-xs-offset-4 lp-section-content lp-highlight">
+			The Contributor License Agreement assistant (CLA assistant) lets you handle the legal side of contributions to your code easily.
+			<br><br>
+			All you need to do is to store your CLA as a GitHub Gist file and link it with your repository in the CLA assistant.
+		</h4>
+	</div>
+	<div class="row lp-premium">
+		<h4 class="lp-section-header">
+			WHAT IT DOES FOR YOU:
+		</h4>
+		<span class="col-lg-4 col-xs-4 lp-section-content">
+			<ul style="margin-left:-40px;">
+				<li>it notifies each contributor to sign the CLA as soon as he creates a pull request</li>
+				<li>it authenticates the signer with his GitHub account</li>
+				<li>it updates the status of the pull request as soon the contributor agrees to your CLA</li>
+				<li>it lets contributor sign your CLA easily doing few clicks</li>
+			</ul>
+			<br><br>
+			If the content of your CLA changes over time you have not to notify all your active contributor to sign the new version of the CLA again. 
+			<br><br>
+			CLA assistant will do it for you!
+		</span>
+	</div>
+	<div class="row">
+		<h4 class="lp-highlight lp-section-header"> <!-- col-lg-3 col-lg-offset-1 col-xs-3 col-xs-offset-1 -->
+			CLEAR & EASY:
+		</h4>
+	    <h4  class="col-lg-4 col-xs-4 lp-section-content">
+	    	Just update the linked Gist file. 
+	    	<br><br>
+	    	Each new pull request will get a comment with request to sign the CLA even if the user has already signed the previous version.
+	    	<br><br>
+			You as repository owner can review the list of users who signed your CLA for each version of it.
+	    	<br><br>
+			More features are coming ...
+		</h4>
+	</div>
+	<div class="row lp-gray">
+		<h4 class="lp-section-header">
+			JUST A FEW CLICKS:
+		</h4>
+	    <div  class="col-lg-4 col-lg-offset-4 col-xs-4 col-xs-offset-4 lp-section-content">
+		</div>
+	</div>
+	<div class="row lp-gray">
+	    <div  class="col-lg-2 col-lg-offset-5 col-xs-4 col-xs-offset-4 lp-section-content" style="text-align:center;">
+			<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:100%"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+			<span style="background:white">
+				<i class="fa fa-3x fa-angle-up"></i>
+			</span>
+	    </div>
+	</div>
 </div>
 
 <div class="row main" style="margin-top: 50px;">

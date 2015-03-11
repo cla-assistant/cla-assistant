@@ -7,12 +7,12 @@ $font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-s
 $gray-darkest: #333;
 $gray-darker: #666;
 $gray-dark: #999;
-$gray: #ccc;
+$gray: #e1e1e1;
 $gray-light: #ececec;
 $gray-lighter: #f9f9f9;
 
 // brand colours
-$brand-primary: #7bbab4;
+$brand-primary: #2ccc99;
 $brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
@@ -27,6 +27,9 @@ $body-bg: #fff;
 
 // typography
 $text-color: $gray-darkest;
+$text-primary: $brand-primary;
+$text-invert: #fff;
+
 $link-color: $gray-darker;
 $link-hover-color: #3c3c3d;
 
@@ -307,4 +310,38 @@ small {
 
 .selectize-input{
   height: 33px;
+}
+
+// _landing-page
+.lp-premium {
+  background-color: $brand-primary;
+  color: $text-invert;
+}
+
+.lp-highlight {
+  color: $text-primary;
+}
+
+.lp-gray {
+  background-color: $gray;
+}
+
+.lp-section-header {
+  @extend .col-lg-3;
+  @extend .col-lg-offset-1;
+  @extend .col-xs-3;
+  @extend .col-xs-offset-1;
+  
+  font-weight:600;
+  text-align:right;
+  padding-right:35px;
+  margin-top:20px;
+
+}
+
+.lp-section-content {
+  margin-top: 20px; 
+  margin-bottom: 40px;
+  font-weight:400;
+  font-size:18px
 }
