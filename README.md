@@ -17,8 +17,6 @@ If the content of your CLA changes over time you have not to notify all your act
 
 You as repository owner can review the list of users who signed your CLA for each version of it. 
 
-More features are coming ...
-
 License
 =======
 
