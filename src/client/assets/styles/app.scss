@@ -332,7 +332,7 @@ small {
   @extend .col-xs-3;
   @extend .col-xs-offset-1;
   
-  font-weight:600;
+  font-weight:500;
   text-align:right;
   padding-right:35px;
   margin-top:20px;
@@ -340,8 +340,11 @@ small {
 }
 
 .lp-section-content {
+  width: 46%;
   margin-top: 20px; 
   margin-bottom: 40px;
-  font-weight:400;
+  font-weight:200;
   font-size:18px
 }
+
+
