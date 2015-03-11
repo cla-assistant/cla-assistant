@@ -161,7 +161,7 @@ module.directive('validateGist', [function (){
           ngModel.$parsers.unshift(function(value) {
              var valid = false;
              // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
-             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)$/) : false;
+             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
              ngModel.$setValidity('validateGist', valid);
              return valid ? value : undefined;
           });
