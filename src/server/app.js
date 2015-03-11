@@ -98,7 +98,7 @@ async.series([
 
         global.models = {};
 
-        async.eachSeries(config.server.documents, function(p, callback) {
+        async.eachSeries(config.server.documents, function(p, cb) {
             glob(p, function(err, file) {
                 if (file && file.length) {
                     file.forEach(function(f) {
@@ -110,7 +110,7 @@ async.series([
                             console.log(ex.stack);
                         }
                     });
-                    callback();
+                    cb();
                 }
             });
         }, callback);
@@ -124,7 +124,7 @@ async.series([
 
         console.log('bootstrap passport'.bold);
 
-        async.eachSeries(config.server.passport, function(p, callback) {
+        async.eachSeries(config.server.passport, function(p, cb) {
             glob(p, function(err, file) {
                 if (file && file.length) {
                     file.forEach(function(f) {
@@ -132,7 +132,7 @@ async.series([
                         require(f);
                     });
                 }
-                callback();
+                cb();
             });
         }, callback);
     },
@@ -145,7 +145,7 @@ async.series([
 
         console.log('bootstrap controller'.bold);
 
-        async.eachSeries(config.server.controller, function(p, callback) {
+        async.eachSeries(config.server.controller, function(p, cb) {
             glob(p, function(err, file) {
                 if (file && file.length) {
                     file.forEach(function(f) {
@@ -158,7 +158,7 @@ async.series([
                         }
                     });
                 }
-                callback();
+                cb();
             });
         }, callback);
     },
@@ -171,7 +171,7 @@ async.series([
 
         console.log('bootstrap api'.bold);
 
-        async.eachSeries(config.server.api, function(p, callback) {
+        async.eachSeries(config.server.api, function(p, cb) {
             glob(p, function(err, file) {
                 if (file && file.length) {
                     file.forEach(function(f) {
@@ -179,7 +179,7 @@ async.series([
                         api[path.basename(f, '.js')] = require(f);
                     });
                 }
-                callback();
+                cb();
             });
         }, callback);
     },
@@ -192,7 +192,7 @@ async.series([
 
         console.log('bootstrap webhooks'.bold);
 
-        async.eachSeries(config.server.webhooks, function(p, callback) {
+        async.eachSeries(config.server.webhooks, function(p, cb) {
             glob(p, function(err, file) {
                 if (file && file.length) {
                     file.forEach(function(f) {
@@ -200,13 +200,16 @@ async.series([
                         webhooks[path.basename(f, '.js')] = require(f);
                     });
                 }
-                callback();
+                cb();
             });
         }, callback);
     }
 
 ], function(err, res) {
+    var log = require('./services/logger');
+
     console.log('\n✓ '.bold.green + 'bootstrapped, '.bold + 'app listening on localhost:' + config.server.localport);
+    log.info('✓ bootstrapped !!! App listening on ' + config.server.http.host + ':' + config.server.http.port);
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,11 +259,11 @@ app.all('/github/webhook/:repo', function(req, res) {
     console.log('event ', event);
     try {
         if (!webhooks[event]) {
-            return res.send(400, 'Unsupported event');
+            return res.status(400).send('Unsupported event');
         }
         webhooks[event](req, res);
     } catch (err) {
-        res.send(500, 'Internal Server Error');
+        res.status(500).send('Internal Server Error');
     }
 });
 

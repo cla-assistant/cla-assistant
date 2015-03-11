@@ -5,5 +5,5 @@ module.exports = function(req, res, next) {
         return next();
     }
 
-    res.send(401, 'Authentication required');
+    res.status(401).send('Authentication required');
 };

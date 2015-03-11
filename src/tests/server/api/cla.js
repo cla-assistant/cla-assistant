@@ -21,23 +21,23 @@ var prService = require('../../../server/services/pullRequest');
 var cla_api = require('../../../server/api/cla');
 
 describe('cla:get', function(done) {
-    it('should get gist and render it with user token', function(done) {
-        sinon.stub(cla, 'getRepo', function(args, done){
+    it('should get gist and render it with user token', function(it_done) {
+        sinon.stub(cla, 'getRepo', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
-            done(null, {gist: 'url', token: 'abc'});
+            cb(null, {gist: 'url', token: 'abc'});
         });
-        sinon.stub(cla, 'getGist', function(repo, done){
+        sinon.stub(cla, 'getGist', function(repo, cb){
             assert.equal(repo.gist.gist_url, 'url');
             var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z', history: [{version: 'xyz'}]};
-            done(null, res);
+            cb(null, res);
         });
-        var githubStub = sinon.stub(github, 'call', function(args, done) {
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
             var res;
             assert.equal(args.obj, 'markdown');
             assert.equal(args.fun, 'render');
             assert.equal(args.token, 'abc');
             res = {status: 200};
-            done(null, res);
+            cb(null, res);
         });
 
         var req = {args: {repo: 'myRepo', owner: 'login'}, user: {token: 'abc'}};
@@ -48,27 +48,27 @@ describe('cla:get', function(done) {
             githubStub.restore();
             cla.getRepo.restore();
             cla.getGist.restore();
-            done();
+            it_done();
         });
     });
 
-    it('should get gist and render it without user token', function(done) {
-        sinon.stub(cla, 'getRepo', function(args, done){
+    it('should get gist and render it without user token', function(it_done) {
+        sinon.stub(cla, 'getRepo', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
-            done(null, {gist: 'url', token: 'abc'});
+            cb(null, {gist: 'url', token: 'abc'});
         });
-        sinon.stub(cla, 'getGist', function(repo, done){
+        sinon.stub(cla, 'getGist', function(repo, cb){
             assert.equal(repo.gist.gist_url, 'url');
             var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z', history: [{version: 'xyz'}]};
-            done(null, res);
+            cb(null, res);
         });
-        var githubStub = sinon.stub(github, 'call', function(args, done) {
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
             var res;
             assert.equal(args.obj, 'markdown');
             assert.equal(args.fun, 'render');
             assert.ifError(args.token);
             res = {status: 200};
-            done(null, res);
+            cb(null, res);
         });
 
         var req = {args: {repo: 'myRepo', owner: 'login'}};
@@ -79,21 +79,21 @@ describe('cla:get', function(done) {
             githubStub.restore();
             cla.getRepo.restore();
             cla.getGist.restore();
-            done();
+            it_done();
         });
     });
 
-    it('should handle wrong gist url', function(done) {
+    it('should handle wrong gist url', function(it_done) {
 
-        var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
+        var repoStub = sinon.stub(Repo, 'findOne', function(args, cb){
             var repo = {repo: 'myRepo', owner: 'login', gist: '123', token: 'abc'};
-            done(null, repo);
+            cb(null, repo);
         });
-        sinon.stub(cla, 'getGist', function(repo, done){
-            done('error');
+        sinon.stub(cla, 'getGist', function(repo, cb){
+            cb('error');
         });
 
-        var githubStub = sinon.stub(github, 'call', function(args, done) {
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
             assert();
         });
 
@@ -104,7 +104,30 @@ describe('cla:get', function(done) {
             githubStub.restore();
             repoStub.restore();
             cla.getGist.restore();
-            done();
+            it_done();
+        });
+
+    });
+
+    it('should handle result with no files', function(it_done) {
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
+            cb(null, {gist: 'url', token: 'abc'});
+        });
+        sinon.stub(cla, 'getGist', function(repo, cb){
+            assert.equal(repo.gist.gist_url, 'url');
+            var res = {url: 'url', updated_at: '2011-06-20T11:34:15Z', history: [{version: 'xyz'}]};
+            cb(null, res);
+        });
+
+        var req = {args: {repo: 'myRepo', owner: 'login'}};
+
+        cla_api.get(req, function(error, res) {
+            assert(cla.getRepo.called);
+
+            cla.getRepo.restore();
+            cla.getGist.restore();
+            it_done();
         });
 
     });
@@ -122,27 +145,27 @@ describe('cla api', function(done) {
             }
         };
 
-        sinon.stub(repo_service, 'get', function(args, done){
+        sinon.stub(repo_service, 'get', function(args, cb){
             assert(args);
-            done(null, {gist: 'url/gistId', token: 'abc'});
+            cb(null, {gist: 'url/gistId', token: 'abc'});
         });
-        sinon.stub(github, 'direct_call', function(args, done){
+        sinon.stub(github, 'direct_call', function(args, cb){
             assert(args.url);
             assert(args.token);
             assert.equal(args.url, url.githubPullRequests('owner', 'myRepo', 'open'));
 
-            done(null, {data: [{number: 1}, {number: 2}]});
+            cb(null, {data: [{number: 1}, {number: 2}]});
         });
 
-        sinon.stub(status, 'update', function(args, done){
+        sinon.stub(status, 'update', function(args, cb){
             assert(args.signed);
         });
-        sinon.stub(cla, 'sign', function(args, done){
+        sinon.stub(cla, 'sign', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3});
-            done(null, 'done');
+            cb(null, 'done');
         });
-        sinon.stub(cla, 'check', function(args, done){
-            done(null, true);
+        sinon.stub(cla, 'check', function(args, cb){
+            cb(null, true);
         });
         sinon.stub(prService, 'editComment', function(){});
     });
@@ -190,8 +213,8 @@ describe('cla api', function(done) {
 
     it('should handle repos without open pull requests', function(done){
         github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done){
-            done(null, {});
+        sinon.stub(github, 'direct_call', function(args, cb){
+            cb(null, {});
         });
 
         cla_api.sign(req, function(error, res) {
@@ -219,14 +242,14 @@ describe('cla api', function(done) {
     });
 
     it('should call cla service on getLastSignature', function(done) {
-        sinon.stub(cla, 'getRepo', function(args, done){
+        sinon.stub(cla, 'getRepo', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'owner'});
-            done(null, {gist: 'url', token: 'abc'});
+            cb(null, {gist: 'url', token: 'abc'});
         });
-        sinon.stub(cla, 'getLastSignature', function(args, done){
+        sinon.stub(cla, 'getLastSignature', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url'});
             console.log('getLastSignature stub called');
-            done(null, {});
+            cb(null, {});
         });
 
         req.args = {repo: 'myRepo', owner: 'owner'};
@@ -242,9 +265,9 @@ describe('cla api', function(done) {
     });
 
     it('should call cla service on check', function(done){
-        sinon.stub(cla, 'check', function(args, done){
+        sinon.stub(cla, 'check', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
-            done(null, true);
+            cb(null, true);
         });
 
         cla_api.check(req, function(err, signed){
@@ -258,9 +281,9 @@ describe('cla api', function(done) {
 
     it('should call cla service on getAll', function(done){
         req.args.gist = 'url/gistId/version2';
-        sinon.stub(cla, 'getAll', function(args, done){
+        sinon.stub(cla, 'getAll', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', gist: 'url/gistId/version2'});
-            done(null, []);
+            cb(null, []);
         });
 
         cla_api.getAll(req, function(err, all){
@@ -274,12 +297,12 @@ describe('cla api', function(done) {
 
     it('should call cla service on getGist', function(done){
         req.args.gist = 'url/gistId/version2';
-        sinon.stub(cla, 'getRepo', function(args, done){
-            done(null, {token: 123, gist: 'url/gistId'});
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            cb(null, {token: 123, gist: 'url/gistId'});
         });
-        sinon.stub(cla, 'getGist', function(args, done){
+        sinon.stub(cla, 'getGist', function(args, cb){
             assert.deepEqual(args, {token: 123, gist: 'url/gistId/version2'});
-            done(null, {});
+            cb(null, {});
         });
 
         cla_api.getGist(req, function(err, all){

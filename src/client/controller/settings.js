@@ -14,6 +14,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.admin = false;
         $scope.users = [];
         $scope.errorMsg = [];
+        $scope.loading = false;
 
         function gistArgs () {
             var args = {gist_url: $scope.repo.gist};
@@ -53,10 +54,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getGist = function(){
+            $scope.loading = true;
             $RPCService.call('cla', 'getGist', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
                 if (!err && data.value) {
                     $scope.gist = data.value;
                 }
+                $scope.loading = false;
+                $scope.gist.linked = true;
             });
         };
 
@@ -156,7 +160,8 @@ module.directive('validateGist', [function (){
           //For DOM -> model validation
           ngModel.$parsers.unshift(function(value) {
              var valid = false;
-             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
              ngModel.$setValidity('validateGist', valid);
              return valid ? value : undefined;
           });
