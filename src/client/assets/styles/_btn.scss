@@ -24,11 +24,8 @@
     }
   }
 
-  &.btn-merged {
-    background-color: #fff;
-    border: 1px solid;
-    color: $brand-merged;
-    opacity: 1;
+  &.btn-info {
+    @include button-variant($gray-darkest, $brand-primary, $brand-primary);
   }
 }
 

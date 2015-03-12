@@ -58,9 +58,16 @@
           <li ng-show="!user.value.login">
             <a href="/auth/github" target="_self">Sign in with GitHub</a>
           </li>
-          <li class="dropdown" ng-show="!!user.value.login">
+          <li ng-show="!!user.value.login">
+
+<!--      <div ng-show="user.loaded" style="margin-top:30px;">
+        <img ng-src="{{ user.value.avatar_url }}?s=200" class="visible-xs visible-sm" width="200px;"/>
+        <h4 style="font-weight:400; margin:5px 0;">{{ user.value.name || user.value.login }}</h4>
+        <h4 ng-show="user.value.name">{{ user.value.login }}</h4>
+      </div> -->
             <a href="" class="dropdown-toggle" data-toggle="dropdown">
-              {{ user.value.login }} <span class="caret"></span>
+              <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
+              &nbsp;{{ user.value.login }} <span class="caret"></span>
             </a>
             <ul class="dropdown-menu" role="menu">
               <li><a href="/logout" target="_self">Sign out</a></li>

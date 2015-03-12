@@ -8,7 +8,7 @@
 module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$window', '$sce', '$modal',
     function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $window, $sce, $modal) {
 
-        $scope.repo = {};
+        // $scope.repo = {};
         $scope.gist = {};
         $scope.gistIndex = 0;
         $scope.admin = false;
@@ -82,15 +82,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
         };
 
-        $scope.repo = $scope.$parent.claRepo;
+        // $scope.repo = $scope.$parent.claRepo;
         if ($scope.repo.gist) {
             $scope.getGist();
         }
-        // getRepo();
-
-        $scope.$on('user', function(event, data){
-            // getRepo();
-        });
 
         $scope.logAdminIn = function(){
             $window.location.href = '/auth/github?admin=true';
@@ -150,6 +145,18 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
     }
 ]);
+
+module.directive('settings', [function(elem, attr){
+    return {
+        templateUrl: '/templates/settings.html',
+        controller: 'SettingsCtrl',
+        transclude: true,
+        scope: {
+            repo: '='
+        }
+        // params: {'user': {}, 'owner': {}, 'repo': {}, 'gist': {}}
+    };
+}]);
 
 module.directive('validateGist', [function (){
    return {

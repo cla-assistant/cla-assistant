@@ -13,7 +13,7 @@ describe('Settings Controller', function() {
         rootScope = $rootScope;
         rootScope.user = {value: {admin: false}};
         stateParams = {user: 'login', repo: 'myRepo'};
-        scope.$parent.claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+        scope.repo = {repo: 'myRepo', owner: 'login', gist: 'url'};
 
         createCtrl = function() {
 
@@ -145,10 +145,10 @@ describe('Settings Controller', function() {
 
     describe('handling errors', function(){
         it('should load gist file only if gist url is given', function(){
-            scope.$parent.claRepo = {repo: 'myRepo', owner: 'login', gist: ''};
+            scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
             settingsCtrl = createCtrl();
 
-            (settingsCtrl.scope.gist).should.be.empty;
+            (!!settingsCtrl.scope.gist.id).should.not.be.ok;
         });
 
         it('should handle error in getGist function', function(){
@@ -157,7 +157,7 @@ describe('Settings Controller', function() {
             // settingsCtrl.scope.getGist();
             httpBackend.flush();
 
-            (settingsCtrl.scope.gist).should.be.empty;
+            (!!settingsCtrl.scope.gist.id).should.not.be.ok;
         });
     });
 

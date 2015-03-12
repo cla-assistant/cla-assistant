@@ -63,66 +63,55 @@
 
 <div class="row main" style="margin-top: 50px;">
 
-  	<div class="col-md-2 col-md-offset-1">
-	    <div ng-show="user.loaded" style="margin-top:30px;">
-	      <img ng-src="{{ user.value.avatar_url }}" class="img-responsive hidden-xs hidden-sm" />
-	      <img ng-src="{{ user.value.avatar_url }}?s=200" class="visible-xs visible-sm" width="200px;"/>
-	      <h4 style="font-weight:400; margin:5px 0;">{{ user.value.name || user.value.login }}</h4>
-	      <h4 ng-show="user.value.name">{{ user.value.login }}</h4>
-	    </div>
-  	</div>
 
-	<div class="col-md-8" ng-if="user.value.admin">
-		<h2>Repositories</h2>
+	<div class="col-md-8 col-md-offset-2" ng-if="user.value.admin">
+		<h2>Contributor License Agreement assistant</h2>
 
 		<div class="well well-sm" style="padding-top:9px">
-	      <form>
-	        <div class="form-group">
-	          <div class="input-group">
-	            <div class="form-group has-feedback">
-	            	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-		                <ui-select-match placeholder="">{{$select.selected.full_name}}</ui-select-match>
-		                <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
-		                  	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
-		                  	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
-		                </ui-select-choices>
-		            </ui-select>
-	            </div>
-	            <span class="input-group-btn">
-	              <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add Repository</button>
-	            </span>
-	          </div>
-	          <span class="help-block" style="margin-top:1px;">
-	            Type <em>username/</em> or <em>organization/</em> to find a repository
-	          </span>
-	          <div ng-repeat="error in errorMsg" class="alert alert-danger" role="alert" ng-show="errorMsg.length > 0">
-				  <span class="fa fa-warning" aria-hidden="true"></span>
-				  <span class="sr-only">Error:</span>
-				  {{ error }}
+			<form>
+				<div class="form-group">
+				  <div class="input-group">
+				    <div class="form-group has-feedback">
+				    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
+				            <ui-select-match placeholder="">{{$select.selected.full_name}}</ui-select-match>
+				            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
+				              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
+				              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+				            </ui-select-choices>
+				        </ui-select>
+				    </div>
+				    <span class="input-group-btn">
+				      <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add Repository</button>
+				    </span>
+				  </div>
+				  <div ng-repeat="error in errorMsg" class="alert alert-danger" role="alert" ng-show="errorMsg.length > 0">
+					  <span class="fa fa-warning" aria-hidden="true"></span>
+					  <span class="sr-only">Error:</span>
+					  {{ error }}
+					</div>
 				</div>
-	        </div>
+			</form>
 
-	      </form>
+		  	<table  class=" table">
+				<tr ng-repeat="claRepo in claRepos | orderBy:'repo' ">
+					<td>
+						<div class="row">
+							<span class="col-xs-11 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="getReport(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
+		              		<!-- <button class="btn btn-new col-xs-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings]">Link CLA</button> -->
+	 						<div class="col-xs-1 btn_padding">
+	 							<i class="fa fa-times action-icon"
+	 							ng-click="remove(claRepo)" 
+	 							tooltip-placement="bottom" 
+	 							tooltip="Remove">
+	 							</i>
+	 						</div>
+	 					</div>
+	        			<!-- <div ui-view ng-if="settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings" class="row settings"></div> -->
+	        			<settings repo="claRepo" class="row settings"></settings>
+
+					</td>
+				</tr>
+			</table>
 	    </div>
-
-	  	<table  class="col-md-6 table table-hover">
-			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' " ng-class="{'text-primary': claRepo.active, 'text-gray': !claRepo.active}">
-				<td>
-					<div class="row">
-						<span class="col-xs-9 octicon clickable btn_padding" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]" ng-click="getReport(claRepo)">&nbsp; {{ claRepo.owner }} / {{ claRepo.repo }}</span>
-	              		<button class="btn btn-info col-xs-2" ng-click="navigateToDetails(claRepo)" ng-class="{true:'btn_tab'}[settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings]">Link CLA</button>
- 						<div class="col-xs-1 btn_padding">
- 							<i class="fa fa-times action-icon"
- 							ng-click="remove(claRepo)" 
- 							tooltip-placement="bottom" 
- 							tooltip="Remove">
- 							</i>
- 						</div>
- 					</div>
-        			<div ui-view ng-if="settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings" class="row settings"></div>
-
-				</td>
-			</tr>
-		</table>
 	</div>
 </div>

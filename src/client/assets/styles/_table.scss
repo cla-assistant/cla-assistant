@@ -3,10 +3,9 @@ table {
 }
 
 .table {
-  background: $gray-lighter;
 
   > tbody > tr > td {
-    border-bottom: 10px solid $body-bg;
+    padding: 0px 25px;
   }
 }
 
@@ -18,8 +17,4 @@ table {
 
 td .action-icon {
   margin-left: 50%;
-}
-
-td {
-  padding: 10px 25px;
 }

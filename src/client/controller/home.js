@@ -18,7 +18,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.selectedIndex = -1;
 
 
-        $scope.settingsRepo = {};
+        // $scope.settingsRepo = {};
 
         $scope.logAdminIn = function(){
             $window.location.href = '/auth/github?admin=true';
@@ -176,14 +176,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             });
         };
 
-        $scope.navigateToDetails = function (claRepo) {
-            if ($scope.settingsRepo.owner === claRepo.owner && $scope.settingsRepo.repo === claRepo.repo || !$scope.openSettings) {
-                $scope.openSettings = !$scope.openSettings;
-            }
-            $scope.settingsRepo = claRepo;
-            $state.go('home.settings', claRepo);
-            // $state.go('home.settings');
-        };
+        // $scope.navigateToDetails = function (claRepo) {
+        //     if ($scope.settingsRepo.owner === claRepo.owner && $scope.settingsRepo.repo === claRepo.repo || !$scope.openSettings) {
+        //         $scope.openSettings = !$scope.openSettings;
+        //     }
+        //     $scope.settingsRepo = claRepo;
+        //     $state.go('home.settings', claRepo);
+        //     // $state.go('home.settings');
+        // };
 
         var report = function(claRepo) {
             var modal = $modal.open({
