@@ -53,7 +53,7 @@
           <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
         </a>
       </div>
-      <div class="navbar-collapse collapse">
+      <div class="">
         <ul class="nav navbar-nav navbar-right" ng-show="!!user.value.login && user.value.admin">
           <li ng-show="!user.value.login">
             <a href="/auth/github" target="_self">Sign in with GitHub</a>
@@ -65,14 +65,12 @@
         <h4 style="font-weight:400; margin:5px 0;">{{ user.value.name || user.value.login }}</h4>
         <h4 ng-show="user.value.name">{{ user.value.login }}</h4>
       </div> -->
-            <a href="" class="dropdown-toggle" data-toggle="dropdown">
+            <a ng-href="{{user.value.html_url}}" target="spcae">
               <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-              &nbsp;{{ user.value.login }} <span class="caret"></span>
+              &nbsp;{{ user.value.login }}
             </a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="/logout" target="_self">Sign out</a></li>
-            </ul>
           </li>
+          <li><a href="/logout" target="_self" class="fa fa-power-off"></a></li>
         </ul>
       </div>
     </div>

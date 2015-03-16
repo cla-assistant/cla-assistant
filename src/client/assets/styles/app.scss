@@ -95,7 +95,7 @@ $navbar-default-link-hover-color: $gray;
 $navbar-default-brand-hover-color: $gray;
 $navbar-default-link-active-color: $gray;
 $navbar-margin-bottom: 0;
-$nav-link-padding: 15px 25px;
+$nav-link-padding: 15px 20px 15px 0px;
 
 // breadcrumb
 $breadcrumb-bg: transparent;
@@ -252,13 +252,8 @@ i.fa-link {
   cursor: pointer;
 }
 
-i.fa-times,
-i.fa-gear {
-  color: $gray;
-
-  &:hover {
-    color: $gray-darker;
-  }
+i.fa-times.action-icon {
+  color: $gray-darker;
 }
 
 .octicon {
@@ -334,8 +329,7 @@ small {
 .lp-section-header {
   @extend .col-lg-3;
   @extend .col-lg-offset-1;
-  @extend .col-xs-3;
-  @extend .col-xs-offset-1;
+  @extend .col-xs-12;
   
   font-weight:500;
   text-align:right;

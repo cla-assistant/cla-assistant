@@ -16,6 +16,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         $scope.openSettings = false;
         $scope.users = [];
         $scope.selectedIndex = -1;
+        $scope.user = {};
 
 
         // $scope.settingsRepo = {};
@@ -107,6 +108,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         getRepos();
 
         $scope.$on('user', function(event, data){
+            $scope.user = $rootScope.user;
             getRepos();
         });
 
@@ -176,15 +178,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             });
         };
 
-        // $scope.navigateToDetails = function (claRepo) {
-        //     if ($scope.settingsRepo.owner === claRepo.owner && $scope.settingsRepo.repo === claRepo.repo || !$scope.openSettings) {
-        //         $scope.openSettings = !$scope.openSettings;
-        //     }
-        //     $scope.settingsRepo = claRepo;
-        //     $state.go('home.settings', claRepo);
-        //     // $state.go('home.settings');
-        // };
-
         var report = function(claRepo) {
             var modal = $modal.open({
                 templateUrl: '/modals/templates/report.html',
@@ -201,6 +194,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
             $scope.getUsers(claRepo).then(function(){
                 report(claRepo);
             });
+        };
+
+        $scope.info = function() {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/info_gist.html',
+                controller: 'InfoCtrl'
+            });
+            // modal.result.then(function(args){});
         };
     }
 ]);

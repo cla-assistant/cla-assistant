@@ -15,6 +15,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.users = [];
         $scope.errorMsg = [];
         $scope.loading = false;
+        $scope.gistValid = true;
 
         function gistArgs () {
             var args = {gist_url: $scope.repo.gist};
@@ -24,20 +25,27 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return args;
         }
 
-        function getCLA () {
-            var args = {
-                repo: $scope.repo.repo,
-                owner: $scope.repo.owner
-            };
-            if ($scope.gist.history) {
-                args.gist = gistArgs();
-            }
-            $RPCService.call('cla', 'get', args, function(err, cla) {
-                if(!err) {
-                    $scope.claText = cla.value.raw;
-                }
-            });
-        }
+        $scope.isValid = function(gist){
+            var valid = false;
+             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+            valid = gist ? !!gist.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
+            return valid ? gist : undefined;
+        };
+
+        // function getCLA () {
+        //     var args = {
+        //         repo: $scope.repo.repo,
+        //         owner: $scope.repo.owner
+        //     };
+        //     if ($scope.gist.history) {
+        //         args.gist = gistArgs();
+        //     }
+        //     $RPCService.call('cla', 'get', args, function(err, cla) {
+        //         if(!err) {
+        //             $scope.claText = cla.value.raw;
+        //         }
+        //     });
+        // }
 
         $scope.getUsers = function(){
             return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
@@ -68,19 +76,23 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return $scope.gist && $scope.gist.files ? $scope.gist.files[Object.keys($scope.gist.files)[0]].filename : '';
         };
 
-        var getRepo = function() {
-            if ($rootScope.user.value.admin) {
-                $scope.admin = true;
-                $RPCService.call('repo', 'get', {repo: $stateParams.repo, owner: $stateParams.user}, function(err, data){
-                    if (!err && data.value) {
-                        $scope.repo = data.value;
-                        getCLA();
-                        $scope.getUsers();
-                        $scope.getGist();
-                    }
-                });
-            }
-        };
+        // var getRepo = function() {
+        //     if ($scope.user.value.admin) {
+        //         $scope.admin = true;
+        //         $RPCService.call('repo', 'get', {repo: $scope.repo.repo, owner: $scope.repo.owner}, function(err, data){
+        //             if (!err && data.value) {
+        //                 var active = $scope.repo.active;
+        //                 $scope.repo = data.value;
+        //                 $scope.repo.active = active;
+        //                 // getCLA();
+        //                 if ($scope.repo.gist) {
+        //                     $scope.getUsers();
+        //                     $scope.getGist();
+        //                 }
+        //             }
+        //         });
+        //     }
+        // };
 
         // $scope.repo = $scope.$parent.claRepo;
         if ($scope.repo.gist) {
@@ -104,18 +116,18 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         // };
 
         $scope.update = function(){
-
-            $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
-                getRepo();
-            });
-
+            console.log($scope.repo.gist);
+            $scope.gistValid = $scope.isValid($scope.repo.gist);
+            if ($scope.repo.gist && !$scope.gistValid) {
+                return;
+            }
             if ($scope.repo.gist) {
                 $RPCService.call('webhook', 'create', {repo: $scope.repo.repo, owner: $scope.repo.owner}, function(err, data){
                     if (!err) {
                         $scope.repo.active = true;
                     }
                 });
-                $scope.getGist();
+                // $scope.getGist();
             } else {
                 $RPCService.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err, data){
                     if (!err) {
@@ -123,6 +135,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     }
                 });
             }
+            $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
+                if ($scope.repo.gist) {
+                    $scope.getUsers();
+                    $scope.getGist();
+                }
+                // getRepo();
+            });
         };
 
         $scope.renderHtml = function(html_code)
@@ -130,19 +149,11 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return $sce.trustAsHtml(html_code);
         };
 
-        $scope.info = function() {
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/info_gist.html',
-                controller: 'InfoCtrl'
-            });
-            // modal.result.then(function(args){});
-        };
-
-        $scope.gistVersion = function(index){
-            $scope.gistIndex = index;
-            getCLA();
-            $scope.getUsers();
-        };
+        // $scope.gistVersion = function(index){
+        //     $scope.gistIndex = index;
+        //     // getCLA();
+        //     $scope.getUsers();
+        // };
     }
 ]);
 
@@ -152,7 +163,8 @@ module.directive('settings', [function(elem, attr){
         controller: 'SettingsCtrl',
         transclude: true,
         scope: {
-            repo: '='
+            repo: '=',
+            user: '='
         }
         // params: {'user': {}, 'owner': {}, 'repo': {}, 'gist': {}}
     };
@@ -166,9 +178,9 @@ module.directive('validateGist', [function (){
 
           //For DOM -> model validation
           ngModel.$parsers.unshift(function(value) {
-             var valid = false;
-             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
-             valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
+             var valid = scope.isValid(value);
+             // // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
              ngModel.$setValidity('validateGist', valid);
              return valid ? value : undefined;
           });
