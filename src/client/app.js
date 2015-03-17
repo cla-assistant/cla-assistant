@@ -4,7 +4,8 @@ var module = angular.module('app',
      'ui.router',
      'ui.bootstrap',
      'ui.select',
-     'ngSanitize']);
+     'ngSanitize',
+     'duScroll']);
 
 var filters = angular.module('cla.filters', []);
 // *************************************************************

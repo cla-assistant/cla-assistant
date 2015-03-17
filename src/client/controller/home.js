@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
-    function ($rootScope, $scope, $state, $stateParams, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
+    function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
 
         $scope.repos = [];
         $scope.claRepos = [];
@@ -205,8 +205,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$state', '$stateParams',
         };
 
         $scope.scrollTo = function(id) {
-            $location.hash(id);
-            $anchorScroll();
+            $document.scrollTopAnimated(0, 800);
+            // $location.hash(id);
+            // $anchorScroll();
         };
     }
 ]);

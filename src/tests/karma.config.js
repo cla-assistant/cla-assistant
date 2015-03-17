@@ -24,6 +24,7 @@ module.exports = function(config) {
             'src/bower/angular-ui-select/dist/select.js',
             'src/bower/angular-ui-utils/ui-utils.min.js',
             'src/bower/angular-sanitize/angular-sanitize.js',
+            'src/bower/angular-scroll/angular-scroll.js',
 
             // TODO: CDN
             'src/bower/angular-mocks/angular-mocks.js',
