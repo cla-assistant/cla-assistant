@@ -16,7 +16,7 @@ module.exports = {
 
                 var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
                 if (signed) {
-                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers has accepted the CLA.';
+                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
                 }
                 if (!comment) {
                     github.call({
@@ -32,7 +32,7 @@ module.exports = {
                     }, function(err, res, meta){
                         console.log(err);
                     });
-                } else  {
+                } else {
                     github.call({
                         obj: 'issues',
                         fun: 'editComment',
