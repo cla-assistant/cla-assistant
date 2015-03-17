@@ -97,6 +97,8 @@ $navbar-default-link-active-color: $gray;
 $navbar-margin-bottom: 0;
 $nav-link-padding: 15px 20px 15px 0px;
 
+$grid-float-breakpoint: 100px;
+
 // breadcrumb
 $breadcrumb-bg: transparent;
 $breadcrumb-color: $brand-primary;
@@ -130,6 +132,15 @@ $label-color: $brand-primary;
 // 52px: navbar height
 // 48px: issues panel header
 //
+
+html {
+  position: absolute;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: $footer-height;
+}
 
 .scaffold {
   background: $gray-lighter;
@@ -327,15 +338,14 @@ small {
 }
 
 .lp-section-header {
-  @extend .col-lg-3;
-  @extend .col-lg-offset-1;
+  @extend .col-sm-3;
+  @extend .col-sm-offset-1;
   @extend .col-xs-12;
   
   font-weight:500;
-  text-align:right;
   padding-right:35px;
   margin-top:20px;
-
+  text-align:right;
 }
 
 .lp-section-content {
@@ -343,6 +353,24 @@ small {
   margin-bottom: 40px;
   font-weight:200;
   font-size:1.6em;
+}
+
+.lp-list {
+  margin-left:-40px;
+  margin-top:50px;
+  line-height: 32px;
+}
+
+.lp-mobile-container {
+  @media (max-width: 767px) {
+    .lp-list {
+      margin-left: 0px;
+    }
+
+    .lp-section-header{
+      text-align: center;
+    }
+  }
 }
 
 

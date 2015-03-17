@@ -46,14 +46,14 @@
 <body ng-controller="RootCtrl">
 
 <!-- the navbar -->
-  <div class="navbar navbar-default navbar-static-top" role="navigation">
+  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs', true:''}[!!user.value.login]" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="padding-top:13px;">
           <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
         </a>
       </div>
-      <div class="">
+      <div class="collapse navbar-collapse" >
         <ul class="nav navbar-nav navbar-right">
           <li ng-show="!user.value.login">
             <a class="text-primary" href="/auth/github" target="_self"><b>Sign in with GitHub</b></a>
@@ -70,7 +70,7 @@
               &nbsp;{{ user.value.login }}
             </a>
           </li>
-          <li><a href="/logout" target="_self" class="fa fa-power-off"></a></li>
+          <li ng-hide="!user.value.login"><a href="/logout" target="_self" class="fa fa-power-off"></a></li>
         </ul>
       </div>
     </div>
@@ -88,17 +88,21 @@
     <div class="navbar-top-border"></div>
     <div class="container-fluid">
       <div class="navbar-text navbar-left">
-        Copyright © 2015 SAP SE or an SAP affiliate company. All rights reserved.
+        © 2015 SAP SE. All rights reserved.
       </div>
       <div class="navbar-text navbar-center">
-                          
-          Made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP </div>
-       <div class="navbar-text navbar-right">
-        <a href="mailto:tools@sap.com" style="margin-right: 10px">
+        <p class="hidden-xs">
+          Made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP 
+        </p>
+        <a href="mailto:tools@sap.com" class="octicon octicon-mail visible-xs"></a>
+      </div>
+      <div class="navbar-text navbar-right">
+        <a href="mailto:tools@sap.com"  class="hidden-xs" style="margin-right: 10px">
           <span class="octicon octicon-mail"></span>
           Email us
-          </a><a href="https://github.com/cla-assistant/cla-assistant/blob/master/LICENSE"> License </a> 
-             </div>
+        </a>
+        <a href="https://github.com/cla-assistant/cla-assistant/blob/master/LICENSE"> License </a> 
+      </div>
     </div> 
   </div>
 

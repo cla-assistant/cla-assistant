@@ -1,5 +1,5 @@
 
-<div ng-if="!user.value.admin" style="margin-top:55px">
+<div ng-if="!user.value.admin" class="navbar-top-space lp-mobile-container">
 
 	<div class="row lp-gray">
 	    <div  class="col-lg-2 col-lg-offset-5 col-xs-12 lp-section-content">
@@ -10,7 +10,7 @@
 	</div>
 	<div class="row lp-highlight" style="min-height: 400px;"> <!-- style="background-color:white; margin-top: 20px;" -->
 		<div >
-	   		<p class="col-lg-4 col-lg-offset-4 col-xs-12 lp-section-content lp-highlight">
+	   		<p class="col-sm-4 col-sm-offset-4 col-xs-12 lp-section-content lp-highlight">
 				The Contributor License Agreement assistant (CLA assistant) lets you handle <b>the legal side of contributions</b> to your code easily.
 				<br><br>
 				All you need to do is to store your CLA as a <b>GitHub Gist</b> file and link it with your repository in the CLA assistant.
@@ -18,29 +18,26 @@
 		</div>
 	</div>
 	<div class="row lp-highlight" >
-		<img src="/assets/images/icons.png" class="center-block" style="margin-bottom: -45px;">
+		<img src="/assets/images/icons.png" class="center-block img-responsive" style="margin-bottom: -45px;">
 	</div>
 	<div class="row lp-premium" style="min-height: 400px;">
 		<h4 class="lp-section-header"style="margin-top:80px;">
 			WHAT IT DOES FOR YOU:
 		</h4>
-		<span class="col-lg-4 col-xs-4 lp-section-content">
-			<ul style="margin-left:-40px; margin-top:50px; line-height: 32px;">
+		<span class="col-sm-4 col-xs-12 lp-section-content">
+			<ul class="lp-list">
 				<li>it notifies each contributor to sign the CLA as soon as he creates a <b>pull request</b></li>
+				<li>it lets contributors <b>sign</b> your CLA easily</li>
 				<li>it <b>authenticates</b> the signer with his GitHub account</li>
 				<li>it <b>updates</b> the status of the pull request as soon the contributor agrees to your CLA</li>
-				<li>it lets contributors <b>sign</b> your CLA easily</li>
-				</ul>
-				<br>
-				More features are coming!
-			
+			</ul>
 		</span>
 	</div>
 	<div class="row" style="min-height: 400px;">
-		<h4 class="lp-highlight lp-section-header"style="margin-top:45px;"> <!-- col-lg-3 col-lg-offset-1 col-xs-3 col-xs-offset-1 -->
+		<h4 class="lp-highlight lp-section-header"style="margin-top:45px;"> <!-- col-sm-3 col-sm-offset-1 col-xs-3 col-xs-offset-1 -->
 			CLEAR & EASY:
 		</h4>
-	    <h4  class="col-lg-4 col-xs-4 lp-section-content"style="margin-top:45px;">
+	    <h4  class="col-sm-4 col-xs-12 lp-section-content"style="margin-top:45px;">
 	    	If the content of your CLA changes over time you don't have to notify all of your active contributors to sign a new version of it again. 
 	    	<br><br>
 			<b>The CLA assistant will do it for you!</b>
@@ -58,13 +55,13 @@
 		<h4 class="lp-section-header"style="margin-top:45px;">
 			JUST A FEW CLICKS:
 		</h4>
-	    <div  class="col-lg-4 col-lg-offset-4 col-xs-12 lp-section-content">
+	    <div  class="col-sm-4 col-sm-offset-4 col-xs-12 lp-section-content">
 		</div>
 	</div>
 	<div class="row lp-gray">
 	    <div  class="col-lg-2 col-lg-offset-5 col-xs-12 lp-section-content" style="text-align:center;">
 			<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
-			<p><img src="/assets/images/button_up.png" <i class="fa fa-3x fa-angle-up" style="width:62px; margin-top:40px;"/i> </p>
+			<p><img src="/assets/images/button_up.png" class="clickable" style="width:62px; margin-top:40px;" ng-click="scrollTo('navbar')"/> </p>
 	    </div>
 	</div>
 </div>
