@@ -19,8 +19,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.user = {};
 
 
-        // $scope.settingsRepo = {};
-
         $scope.logAdminIn = function(){
             $window.location.href = '/auth/github?admin=true';
         };
@@ -57,33 +55,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         var getRepos = function() {
             if ($rootScope.user.value && $rootScope.user.value.admin) {
-                // var promises = [];
-                // var promise = {};
-                // promise = $HUBService.call('repos', 'getAll', {user: $rootScope.user.value.login}, function(err, data){
-                //     if (err) {
-                //         return;
-                //     }
-                //     // $scope.repos = data.value;
-                //     data.value.forEach(function(orgRepo){
-                //         $scope.repos.push(orgRepo);
-                //     });
-                // });
-                // promises.push(promise);
-
-                // $HUB.call('user', 'getOrgs', {}, function(err, data){
-                //     var orgRepos = [];
-                //     data.value.forEach(function(org){
-                //         promise = $HUBService.direct_call(org.repos_url).then(function(data){
-                //             data.value.forEach(function(orgRepo){
-                //                 $scope.repos.push(orgRepo);
-                //             });
-                //         });
-                //     });
-                //     $q.all(promises).then(function(){
-                //         updateScopeData();
-                //     });
-                // });
-
                 $HUBService.direct_call('https://api.github.com/user/repos').then(function(data){
                             data.value.forEach(function(orgRepo){
                                 $scope.repos.push(orgRepo);
@@ -197,17 +168,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.info = function() {
-            var modal = $modal.open({
+            $modal.open({
                 templateUrl: '/modals/templates/info_gist.html',
                 controller: 'InfoCtrl'
             });
-            // modal.result.then(function(args){});
         };
 
         $scope.scrollTo = function(id) {
             $document.scrollTopAnimated(0, 800);
-            // $location.hash(id);
-            // $anchorScroll();
         };
     }
 ]);
