@@ -338,16 +338,24 @@ small {
 }
 
 .lp-section-header {
-  @extend .col-md-3;
-  @extend .col-md-offset-1;
   @extend .col-xs-12;
   
   font-weight:500;
-  padding-right:35px;
   margin-top:20px;
-  text-align:right;
 }
 
+.lp-section-header.left {
+    @extend .col-md-3;
+    @extend .col-md-offset-1;
+    
+    padding-right:35px;
+    text-align:right;
+}
+
+.lp-section-header.center {
+    text-align: center;
+}
+  
 .lp-section-content {
   margin-top: 20px; 
   margin-bottom: 40px;
@@ -372,5 +380,3 @@ small {
     }
   }
 }
-
-
