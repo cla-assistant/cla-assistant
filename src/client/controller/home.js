@@ -44,7 +44,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var updateScopeData = function(){
-            $RPCService.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
+            var repoSet = [];
+            $scope.repos.forEach(function(repo){
+                repoSet.push({owner: repo.owner.login, repo: repo.name});
+            });
+            $RPCService.call('repo', 'getAll', {set: repoSet}, function(err, data){
+            // $RPCService.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
                 $scope.claRepos = data.value;
                 $scope.claRepos.forEach(function(claRepo){
                     claRepo.active = claRepo.gist ? true : false;

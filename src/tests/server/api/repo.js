@@ -102,18 +102,19 @@ describe('repo', function(done) {
 	});
 
 	it('should get all repos for user', function(){
-		var repoStub = sinon.stub(Repo, 'find', function(args, done){
-			if (args.owner === 'login') {
+		sinon.stub(Repo, 'find', function(args, cb){
+			if (args.$or && args.$or[0].owner === 'login') {
 				var r = {owner: 'login', gist: 1234};
-				done(null, [r]);
+				cb(null, [r]);
 				return;
 			}
-			done('no repo found');
+			cb('no repo found');
 		});
 
-		var req = {user: {login: 'login'}, args: {owner: 'login'}};
+		var req = {user: {login: 'login'}, args: {set: [{owner: 'login', repo: 'repo'} ] }};
 
 		repo_api.getAll(req, function(error, res) {
+			Repo.find.restore();
             assert.equal(res.length, 1);
         });
 	});

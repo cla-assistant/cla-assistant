@@ -25,7 +25,7 @@ module.exports = {
         });
     },
     getAll: function(args, done){
-		Repo.find({owner: args.owner}, function(err, repos){
+		Repo.find({$or: args.set}, function(err, repos){
             done(err, repos);
         });
     },
