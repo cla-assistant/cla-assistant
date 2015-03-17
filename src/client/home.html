@@ -46,7 +46,7 @@
 <body ng-controller="RootCtrl">
 
 <!-- the navbar -->
-  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs', true:''}[!!user.value.login]" role="navigation">
+  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="padding-top:13px;">
@@ -91,13 +91,13 @@
         © 2015 SAP SE. All rights reserved.
       </div>
       <div class="navbar-text navbar-center">
-        <p class="hidden-xs">
+        <p class="hidden-xs hidden-sm">
           Made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP 
         </p>
-        <a href="mailto:tools@sap.com" class="octicon octicon-mail visible-xs"></a>
+        <a href="mailto:tools@sap.com" class="octicon octicon-mail visible-xs visible-sm"></a>
       </div>
       <div class="navbar-text navbar-right">
-        <a href="mailto:tools@sap.com"  class="hidden-xs" style="margin-right: 10px">
+        <a href="mailto:tools@sap.com"  class="hidden-xs hidden-sm" style="margin-right: 10px">
           <span class="octicon octicon-mail"></span>
           Email us
         </a>

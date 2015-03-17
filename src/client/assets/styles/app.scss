@@ -338,8 +338,8 @@ small {
 }
 
 .lp-section-header {
-  @extend .col-sm-3;
-  @extend .col-sm-offset-1;
+  @extend .col-md-3;
+  @extend .col-md-offset-1;
   @extend .col-xs-12;
   
   font-weight:500;
@@ -362,7 +362,7 @@ small {
 }
 
 .lp-mobile-container {
-  @media (max-width: 767px) {
+  @media (max-width: 991px) {
     .lp-list {
       margin-left: 0px;
     }
