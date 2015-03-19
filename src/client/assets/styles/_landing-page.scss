@@ -57,7 +57,7 @@
 
 .carousel-control .fa {
   position: absolute;
-  top: 50%;
+  top: 40%;
   z-index: 5;
   display: inline-block;
 }
@@ -69,4 +69,10 @@
 
 .carousel-inner img {
 	@extend .center-block;
+}
+
+.carousel-caption {
+	position: initial;
+	color: $text-color;
+	text-shadow: none;
 }
