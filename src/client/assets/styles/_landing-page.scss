@@ -67,6 +67,10 @@
 	background-image: none;
 }
 
+.carousel-inner {
+	left: 7px;
+}
+
 .carousel-inner img {
 	@extend .center-block;
 }
