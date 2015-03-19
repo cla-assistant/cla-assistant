@@ -117,14 +117,15 @@ $label-color: $brand-primary;
 @import 'breadcrumb';
 @import 'browser';
 @import 'btn';
+@import 'landing-page';
 @import 'list-group';
 @import 'modal';
 @import 'navbar';
 @import 'panel';
+@import 'settings';
 @import 'table';
 @import 'tabs';
 @import 'well';
-@import 'settings';
 
 
 //
@@ -293,9 +294,6 @@ small {
 // Helper classes
 
 .center-block {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
   text-align: center;
 }
 
@@ -324,67 +322,4 @@ small {
   height: 33px;
 }
 
-// _landing-page
-.lp-premium {
-  background-color: $brand-primary;
-  color: $text-invert;
-}
 
-.lp-highlight {
-  color: $text-primary;
-}
-
-.lp-gray {
-  background-color: $gray;
-}
-
-.lp-section-header {
-  @extend .col-xs-12;
-  
-  font-weight:500;
-  margin-top:20px;
-}
-
-.lp-section-header.left {
-    @extend .col-md-3;
-    @extend .col-md-offset-1;
-    
-    padding-right:35px;
-    text-align:right;
-}
-
-.lp-section-header.center {
-    text-align: center;
-}
-  
-.lp-section-content {
-  margin-top: 20px; 
-  margin-bottom: 40px;
-  font-weight:200;
-  font-size:1.6em;
-}
-
-.lp-list {
-  margin-left:-40px;
-  margin-top:50px;
-  line-height: 32px;
-}
-
-.lp-mobile-container {
-  @media (max-width: 991px) {
-    .lp-list {
-      margin-left: 0px;
-    }
-
-    .lp-section-header{
-      text-align: center;
-    }
-  }
-}
-
-.carousel-control .fa {
-  position: absolute;
-  top: 50%;
-  z-index: 5;
-  display: inline-block;
-}

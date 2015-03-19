@@ -18,7 +18,7 @@ try{
 			})
 		},
 		{
-			level: 'warn',
+			level: 'info',
 			stream: new BunyanSlack({
 				webhook_url: config.server.slack_url,
 				channel: '@kharitonov',
