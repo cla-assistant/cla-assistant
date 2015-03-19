@@ -1,5 +1,5 @@
 
-<div ng-if="!user.value.admin" class="navbar-top-space lp-mobile-container">
+<div ng-if="!user.value.admin && !loading" class="navbar-top-space lp-mobile-container">
 
 	<div class="row lp-gray">
 	    <div  class="col-xs-12 lp-section-content">
@@ -55,17 +55,22 @@
 		<h4 class="lp-section-header center" style="margin-top:45px;">
 			JUST A FEW CLICKS:
 		</h4>
-	    <div  class="col-md-6 col-md-offset-3 col-xs-12 lp-section-content">
+	    <div  class="col-md-8 col-md-offset-2 col-xs-12 lp-section-content">
 	    	<div id="carousel-screenshots" class="carousel slide" data-ride="carousel">
 				<ol class="carousel-indicators" style="bottom: -45px;">
 					<li data-target="#carousel-screenshots" data-slide-to="0" class="active"></li>
 					<li data-target="#carousel-screenshots" data-slide-to="1"></li>
 					<li data-target="#carousel-screenshots" data-slide-to="2"></li>
+					<li data-target="#carousel-screenshots" data-slide-to="3"></li>
+					<li data-target="#carousel-screenshots" data-slide-to="4"></li>
+					<li data-target="#carousel-screenshots" data-slide-to="5"></li>
 				</ol>
 
 				<div class="carousel-inner" role="listbox">
 					<div class="item active">
 						<img src="/assets/images/screenshot-1.png" alt="">
+						<div class="carousel-caption">
+				    	</div>
 					</div>
 					<div class="item">
 						<img src="/assets/images/screenshot-2.png" alt="">
@@ -73,16 +78,13 @@
 					<div class="item">
 						<img src="/assets/images/screenshot-3.png" alt="">
 					</div>
-						<div class="item">
+					<div class="item">
 						<img src="/assets/images/screenshot-4.png" alt="">
 					</div>
-						<div class="item">
+					<div class="item">
 						<img src="/assets/images/screenshot-5.png" alt="">
 					</div>
-						<div class="item">
-						<img src="/assets/images/screenshot-6.png" alt="">
-					</div>
-						<div class="item">
+					<div class="item">
 						<img src="/assets/images/screenshot-7.png" alt="">
 					</div>
 				</div>
