@@ -1,13 +1,15 @@
 var url = require('./url');
 var github = require('./github');
 var repoService = require('./repo');
+var log = require('../services/logger');
+
 
 module.exports = {
     badgeComment: function(owner, repo, repoId, pullNumber, signed) {
         var badgeUrl = url.pullRequestBadge(signed);
         var token;
 
-        this.getComment({repo: repo, owner: owner, number: pullNumber}, function(err, comment){
+        this.getComment({repo: repo, owner: owner, number: pullNumber}, function(error, comment){
             repoService.get({repo: repo, owner: owner}, function(err, res){
                 if (res && !err) {
                     token = res.token;
@@ -29,8 +31,10 @@ module.exports = {
                             body: body
                         },
                         token: token
-                    }, function(err, res, meta){
-                        console.log(err);
+                    }, function(e, result, meta){
+                        if (e) {
+                            log.error(e);
+                        }
                     });
                 } else {
                     github.call({
@@ -43,8 +47,10 @@ module.exports = {
                             body: body
                         },
                         token: token
-                    }, function(err, res, meta){
-                        console.log(err);
+                    }, function(e, result, meta){
+                        if (e) {
+                            log.error(e);
+                        }
                     });
                 }
             });
@@ -54,12 +60,12 @@ module.exports = {
     getComment: function(args, done){
         args.url = url.githubPullRequestComments(args.owner, args.repo, args.number);
 
-        repoService.get({repo: args.repo, owner: args.owner}, function(err, res){
-            if (res && !err) {
-                args.token = res.token;
+        repoService.get({repo: args.repo, owner: args.owner}, function(err, result){
+            if (result && !err) {
+                args.token = result.token;
             }
-            github.direct_call(args, function(err, res){
-                if(!err && res && res.data && !res.data.message) {
+            github.direct_call(args, function(e, res){
+                if(!e && res && res.data && !res.data.message) {
                     var CLAAssistantComment;
                     res.data.some(function(comment){
                         if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
@@ -68,7 +74,7 @@ module.exports = {
                         }
                     });
                 }
-                done(err || res.data.message, CLAAssistantComment);
+                done(e || res.data.message, CLAAssistantComment);
             });
         });
     },
@@ -78,8 +84,8 @@ module.exports = {
         var badgeUrl = url.pullRequestBadge(args.signed);
         var claUrl = url.claURL(args.owner, args.repo, args.number);
         var token;
-        this.getComment({repo: args.repo, owner: args.owner, number: args.number}, function(err, comment){
-            if (err || !comment) {
+        this.getComment({repo: args.repo, owner: args.owner, number: args.number}, function(error, comment){
+            if (error || !comment) {
                 return;
             }
 
@@ -102,8 +108,10 @@ module.exports = {
                         body: body
                     },
                     token: token
-                }, function(err, res, meta){
-                    console.log(err);
+                }, function(e, result, meta){
+                    if (e) {
+                        log.error(e);
+                    }
                 });
             });
         });

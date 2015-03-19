@@ -1,5 +1,6 @@
 // module
 var repo = require('../services/repo');
+var log = require('../services/logger');
 
 module.exports = {
 
@@ -11,20 +12,20 @@ module.exports = {
 		repo.create(req.args, done);
 	},
 	get: function(req, done){
-		repo.get(req.args, function(err, repo){
-			if (!repo || err || repo.owner !== req.user.login) {
+		repo.get(req.args, function(err, found_repo){
+			if (!found_repo || err || found_repo.owner !== req.user.login) {
+				log.warn(err);
 				done(err);
 				return;
 			}
-			done(err, repo);
+			done(err, found_repo);
 		});
 	},
 	getAll: function(req, done){
 		repo.getAll(req.args, function(err, repos){
-			// if (!repo || err || repo.owner !== req.user.login) {
-			// 	done(err);
-			// 	return;
-			// }
+			if (err) {
+				log.error(err);
+			}
 			done(err, repos);
 		});
 	},

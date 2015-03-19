@@ -58,7 +58,7 @@ module.exports = {
             uri: process.env.MONGODB || process.env.MONGOLAB_URI
         },
 
-        landingPage: process.env.LANDING_PAGE,
+        slack_url: process.env.SLACK_URL,
 
         static: [
             path.join(__dirname, 'bower'),
