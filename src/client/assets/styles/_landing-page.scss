@@ -1,10 +1,15 @@
 .lp-premium {
-  background-color: $brand-primary;
+  /*background-color: $brand-primary;*/
+  background-image: url('/assets/images/shattered_green.png');
   color: $text-invert;
 }
 
 .lp-highlight {
   color: $text-primary;
+}
+
+.lp-shattered {
+  background-image: url('/assets/images/shattered.png');
 }
 
 .lp-gray {
