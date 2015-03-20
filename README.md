@@ -17,6 +17,10 @@ If the content of your CLA changes over time you have not to notify all your act
 
 You as repository owner can review the list of users who signed your CLA for each version of it. 
 
+Try
+====
+CLA assistant is provided by SAP as a free hosted offering under: https://cla-assistant.io/. Please leave us a GitHub issue if you have feedback.
+
 License
 =======
 
