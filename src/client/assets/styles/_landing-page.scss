@@ -60,6 +60,17 @@
   }
 }
 
+a.lp-signin {
+  color: $text-invert;
+  text-decoration: none;
+  float: right;
+  margin: 20px;
+}
+
+a.lp-signin:hover, a.lp-signin:focus {
+  color: $text-color;
+}
+
 .carousel-control .fa {
   position: absolute;
   top: 40%;

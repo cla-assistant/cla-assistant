@@ -47,7 +47,7 @@
 <body ng-controller="RootCtrl">
 
 <!-- the navbar -->
-  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
+  <div ng-show="user.value.login" id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="padding-top:13px;">
