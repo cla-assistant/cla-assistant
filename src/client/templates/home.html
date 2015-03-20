@@ -2,7 +2,7 @@
 <div ng-if="!user.value.admin && !loading" class="lp-mobile-container">
 
 	<div class="row lp-shattered" style="padding-bottom:50px; box-shadow: -8px 6px 10px -7px;">
-		<a class="lp-signin" href="/auth/github" target="_self"><b>Sign in with GitHub</b></a>
+		<a class="lp-signin clickable" ng-click="logAdminIn()" target="_self"><b>Sign in with GitHub</b></a>
 	    <div  class="col-xs-12 lp-section-content">
 	    	<img src="/assets/images/logo.png" class="img-responsive center-block" style="max-width:300px; width:100%" />
 			<btn class="center-block btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
