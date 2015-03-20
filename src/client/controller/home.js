@@ -59,7 +59,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getRepos = function() {
-            if ($rootScope.user.value && $rootScope.user.value.admin) {
+            if ($rootScope.user && $rootScope.user.value && $rootScope.user.value.admin) {
                 $HUBService.direct_call('https://api.github.com/user/repos').then(function(data){
                             data.value.forEach(function(orgRepo){
                                 $scope.repos.push(orgRepo);

@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var cla = require('./../api/cla');
 var url = require('./../services/url');
-
+var logger = require('./../services/logger');
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Default router
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,13 +26,18 @@ router.use('/accept/:owner/:repo', function(req, res) {
     }
 });
 
-router.all('/login', function(req, res){
-	return res.sendFile('login.html', {root: path.join(__dirname, '..', '..', 'client')});
-	// return res.sendFile('login.html', {root: __dirname + './../../client'});
-});
-
 router.all('/*', function(req, res) {
-    return res.sendFile('home.html', {root: path.join(__dirname, '..', '..', 'client')});
+	var filePath;
+	if (req.user || req.path !== '/') {
+		filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
+	}
+	else {
+		filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
+	}
+	// res.setHeader('Cache-Control', 'must-revalidate, private');
+	// res.setHeader('Expires', '-1');
+	res.setHeader('Last-Modified', (new Date()).toUTCString());
+	res.status(200).sendFile(filePath);
 });
 
 module.exports = router;

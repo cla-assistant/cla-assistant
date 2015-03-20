@@ -47,14 +47,14 @@
 <body ng-controller="RootCtrl">
 
 <!-- the navbar -->
-  <div ng-show="user.value.login" id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
+  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="padding-top:13px;">
           <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
         </a>
       </div>
-      <div class="collapse navbar-collapse" >
+      <div class="collapse navbar-collapse" ng-if="user.value.admin">
         <ul class="nav navbar-nav navbar-right">
           <li ng-show="!user.value.login">
             <a class="text-primary" href="/auth/github" target="_self"><b>Sign in with GitHub</b></a>
