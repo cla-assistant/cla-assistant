@@ -8,7 +8,8 @@
     "licencse",
     "contributor",
     "agreement",
-    "github"
+    "github",
+    "cla"
   ],
   "license": "Apache-2.0",
   "repository": {
