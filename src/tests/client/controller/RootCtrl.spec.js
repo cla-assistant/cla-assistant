@@ -1,6 +1,6 @@
 describe('Root Controller', function() {
 
-    var scope, rootScope, httpBackend, createCtrl, rootCtrl;
+    var scope, rootScope, httpBackend, createCtrl, rootCtrl, timeout;
 
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
@@ -8,6 +8,7 @@ describe('Root Controller', function() {
     beforeEach(angular.mock.inject(function($injector, $rootScope, $controller) {
 
         httpBackend = $injector.get('$httpBackend');
+        timeout = $injector.get('$timeout');
 
         scope = $rootScope.$new();
         rootScope = $rootScope;
@@ -34,6 +35,7 @@ describe('Root Controller', function() {
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
         httpBackend.flush();
+        timeout.flush();
 
         (rootCtrl.scope.user).should.be.ok;
         (rootScope.user.value.login).should.be.equal('login');
@@ -43,6 +45,7 @@ describe('Root Controller', function() {
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
         httpBackend.flush();
+        timeout.flush();
 
         (rootCtrl.scope.user.value.admin).should.not.be.ok;
     });
@@ -51,6 +54,7 @@ describe('Root Controller', function() {
 
         httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.flush();
+        timeout.flush();
 
         (rootCtrl.scope.user.value.admin).should.be.ok;
     });

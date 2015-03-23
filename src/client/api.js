@@ -101,6 +101,29 @@ module.factory('$RPC', ['$RAW', '$log',
 
 module.factory('$HUB', ['$RAW', '$log',
     function($RAW, $log) {
+        function parse_link_header(header) {
+                    console.log('test');
+
+            if (header.length === 0) {
+                throw new Error('input must not be of zero length');
+            }
+
+            // Split parts by comma
+            var parts = header.split(',');
+            var links = {};
+            // Parse each part into a named link
+            parts.forEach( function(p) {
+                var section = p.split(';');
+                if (section.length !== 2) {
+                    throw new Error('section could not be split on ";"');
+                }
+                var url = section[0].replace(/<(.*)>/, '$1').trim();
+                var name = section[1].replace(/rel="(.*)"/, '$1').trim();
+                links[name] = url;
+            });
+
+            return links;
+        }
 
         var exec = function(type, res, args, call) {
             $RAW.call('github', type, args, function(error, value) {
@@ -116,13 +139,21 @@ module.factory('$HUB', ['$RAW', '$log',
 
                 if(meta) {
                     res.meta = meta;
-                    res.hasMore = meta.hasMore;
+                    var links = meta.link ? parse_link_header(meta.link) : null;
 
-                    res.getMore = meta.hasMore ? function() {
+                    res.hasMore = meta.hasMore || (!!links && !!links.next);
+
+                    res.getMore = res.hasMore ? function() {
 
                         res.loaded = false;
                         res.loading = true;
-                        args.arg.page = args.arg.page + 1 || 2;
+
+                        if (links.next) {
+                            args.url = links.next;
+                        }
+                        else {
+                            args.arg.page = args.arg.page + 1 || 2;
+                        }
 
                         exec(type, res, args, call);
 
@@ -183,9 +214,14 @@ module.factory('$HUBService', ['$q', '$HUB',
             var deferred = $q.defer();
             $HUB[type](url, data, function(err, obj) {
                 if(!err) {
-                    deferred.resolve(obj);
+                    if (obj.hasMore) {
+                        obj.getMore();
+                    } else {
+                        return deferred.resolve(obj);
+                    }
+                } else {
+                    return deferred.reject(err);
                 }
-                return deferred.reject(err);
             });
             return deferred.promise;
         };

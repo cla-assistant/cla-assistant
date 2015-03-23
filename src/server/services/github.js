@@ -68,6 +68,7 @@ module.exports = {
                 data = data ? JSON.parse(data) : null;
                 var meta = {};
                 meta.scopes = res.headers['x-oauth-scopes'];
+                meta.link = res.headers.link;
 
                 deferred.resolve({data: data, meta: meta});
 

@@ -10,9 +10,9 @@ var github = require('../../../server/services/github');
 
 describe('github:call', function(done) {
     beforeEach(function(){
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function(args, cb) {
 			assert.deepEqual(args, {obj: 'gists', fun: 'get', token: 'abc'});
-			done();
+			cb();
 		});
     });
 
@@ -20,22 +20,22 @@ describe('github:call', function(done) {
         github.call.restore();
     });
 
-    it('should call github service with user token', function(done){
+    it('should call github service with user token', function(it_done){
 
 
         var req = {user: {id: 1, login: 'login', token: 'abc'}, args: {obj: 'gists', fun: 'get'}};
 
         github_api.call(req, function(error, res) {
-            done();
+            it_done();
         });
 	});
 });
 
 describe('github:call_direct', function(done) {
     beforeEach(function(){
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function(args, cb) {
             assert.deepEqual(args, {url: 'url', token: 'abc'});
-            done();
+            cb();
         });
     });
 
@@ -43,11 +43,11 @@ describe('github:call_direct', function(done) {
         github.call.restore();
     });
 
-    it('should call github service with user token', function(done){
+    it('should call github service with user token', function(it_done){
         var req = {user: {id: 1, login: 'login', token: 'abc'}, args: {url: 'url'}};
 
         github_api.direct_call(req, function(error, res) {
-            done();
+            it_done();
         });
     });
 });

@@ -46,50 +46,50 @@ describe('github:call', function(done) {
         authenticateStub.reset();
     });
 
-    it('should return an error if obj is not set', function(done) {
+    it('should return an error if obj is not set', function(it_done) {
         github.call({}, function(err) {
             assert.equal(err, 'obj required/obj not found');
-            done();
+            it_done();
         });
     });
 
-    it('should return an error if fun is not set', function(done) {
+    it('should return an error if fun is not set', function(it_done) {
         github.call({obj: 'obj'}, function(err) {
             assert.equal(err, 'fun required/fun not found');
-            done();
+            it_done();
         });
     });
 
-    it('should authenticate when token is set', function(done) {
+    it('should authenticate when token is set', function(it_done) {
         callStub.yields(null, {});
         github.call({obj: 'obj', fun: 'fun', token: 'token'}, function(err, res) {
             assert(authenticateStub.calledWith({
                 type: 'oauth',
                 token: 'token'
             }));
-            done();
+            it_done();
         });
     });
 
-    it('should not authenticate when neither token or basicAuth are provided', function(done) {
+    it('should not authenticate when neither token or basicAuth are provided', function(it_done) {
         callStub.yields(null, {});
         github.call({obj: 'obj', fun: 'fun'}, function(err, res) {
             assert(authenticateStub.notCalled);
-            done();
+            it_done();
         });
     });
 
-    it('should call the appropriate function on the github api', function(done) {
+    it('should call the appropriate function on the github api', function(it_done) {
         callStub.yields(null, {});
         github.call({obj: 'obj', fun: 'fun'}, function(err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert.equal(meta, null);
-            done();
+            it_done();
         });
     });
 
-    it('should call the appropriate function on the github api with meta', function(done) {
+    it('should call the appropriate function on the github api with meta', function(it_done) {
         callStub.yields(null, {meta: {link: null, 'x-oauth-scopes': []}});
         github.call({obj: 'obj', fun: 'fun'}, function(err, res, meta) {
             assert.equal(err, null);
@@ -99,11 +99,11 @@ describe('github:call', function(done) {
                 hasMore: false,
                 scopes: []
             });
-            done();
+            it_done();
         });
     });
 
-    it('should call the appropriate function on the github api with meta and link', function(done) {
+    it('should call the appropriate function on the github api with meta and link', function(it_done) {
         callStub.yields(null, {meta: {link: 'link', 'x-oauth-scopes': []}});
         github.call({obj: 'obj', fun: 'fun'}, function(err, res, meta) {
             assert.equal(err, null);
@@ -113,17 +113,17 @@ describe('github:call', function(done) {
                 hasMore: true,
                 scopes: []
             });
-            done();
+            it_done();
         });
     });
 
-    it('should return github error', function(done) {
+    it('should return github error', function(it_done) {
         callStub.yields('github error', null);
         github.call({obj: 'obj', fun: 'fun'}, function(err, res, meta) {
             assert.equal(err, 'github error');
             assert.equal(res, null);
             assert.equal(meta, null);
-            done();
+            it_done();
         });
     });
 });
@@ -160,7 +160,8 @@ describe('github:call_direct', function(done) {
     };
     var res = {
         headers: {
-            'x-oauth-scopes': 'GitHub scopes'
+            'x-oauth-scopes': 'GitHub scopes',
+            'link': 'link urls'
         },
         on: function(fun, callback){
             callbacks[fun] = callback;
@@ -182,58 +183,59 @@ describe('github:call_direct', function(done) {
         https.request.restore();
     });
 
-    it('should call github api directly with user token', function(done){
-        github.direct_call(args, function(error, res) {
-            assert.equal(res.meta.scopes, 'GitHub scopes');
+    it('should call github api directly with user token', function(it_done){
+        github.direct_call(args, function(error, response) {
+            assert.equal(response.meta.scopes, 'GitHub scopes');
+            assert.equal(response.meta.link, 'link urls');
             assert.equal(https_req.header.Authorization, 'token abc');
 
-            done();
+            it_done();
         });
 
         callbacks.data('{}');
         callbacks.end();
     });
 
-    it('should call github api directly with user token using promises', function(done){
-        github.direct_call(args).then(function(res) {
-            assert.equal(res.meta.scopes, 'GitHub scopes');
+    it('should call github api directly with user token using promises', function(it_done){
+        github.direct_call(args).then(function(response) {
+            assert.equal(response.meta.scopes, 'GitHub scopes');
             assert.equal(https_req.header.Authorization, 'token abc');
 
-            done();
+            it_done();
         });
 
         callbacks.data('{}');
         callbacks.end();
     });
 
-    it('should fail with error message', function(done){
-        github.direct_call(args, function(error, res) {
+    it('should fail with error message', function(it_done){
+        github.direct_call(args, function(error, response) {
             assert(error);
             assert.equal(https_req.header.Authorization, 'token abc');
 
-            done();
+            it_done();
         });
 
         callbacks.error('Wrong URL!');
     });
 
-    it('should fail with error message unsing promises', function(done){
-        github.direct_call(args).then(null, function(error, res) {
+    it('should fail with error message unsing promises', function(it_done){
+        github.direct_call(args).then(null, function(error, response) {
             assert(error);
             assert.equal(https_req.header.Authorization, 'token abc');
 
-            done();
+            it_done();
         });
 
         callbacks.error('Wrong URL!');
     });
 
-    xit('should use different method then get if provided', function(done){
+    xit('should use different method then get if provided', function(it_done){
         args.http_method = 'POST';
 
-        github.direct_call(args, function(err, res){
+        github.direct_call(args, function(err, response){
             assert(err);
-            done();
+            it_done();
         });
         callbacks.data('{}');
         callbacks.end();

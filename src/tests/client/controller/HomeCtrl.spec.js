@@ -38,12 +38,28 @@ describe('Home Controller', function() {
 
         // httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
         // httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'getOrgs', arg: {} }).respond(testDataOrgs);
-        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(2);
+        (homeCtrl.scope.claRepos.length).should.be.equal(1);
+        (homeCtrl.scope.user.value.admin).should.be.equal(true);
+    });
+
+    xit('should get more repos if there are more to load', function(){
+        rootScope.user.value.admin = true;
+        rootScope.$broadcast('user');
+
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'})
+            .respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]), {link: "<next_page_url>; rel='next'"});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'next_page_url'}).respond([{id: 456, owner: {login: 'orgOwner'}}]);
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+
+        httpBackend.flush();
+
+        (homeCtrl.scope.repos.length).should.be.equal(3);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
         (homeCtrl.scope.user.value.admin).should.be.equal(true);
     });
@@ -116,7 +132,7 @@ describe('Home Controller', function() {
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
 
@@ -127,7 +143,7 @@ describe('Home Controller', function() {
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
         httpBackend.flush();
 
@@ -159,7 +175,7 @@ describe('Home Controller', function() {
         rootScope.user.value.admin = true;
         rootScope.$broadcast('user');
 
-        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
         httpBackend.flush();

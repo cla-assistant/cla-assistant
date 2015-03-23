@@ -60,6 +60,7 @@
     "grunt-mocha-test": "^0.12.4",
     "grunt-scss-lint": "^0.3.4",
     "karma": "^0.12.28",
+    "karma-chrome-launcher": "^0.1.7",
     "karma-mocha": "^0.1.9",
     "karma-ng-html2js-preprocessor": "~0.1.2",
     "karma-phantomjs-launcher": "0.1.4",

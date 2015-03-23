@@ -59,13 +59,24 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getRepos = function() {
+            var callBack = function(data){
+                data.value.forEach(function(orgRepo){
+                        $scope.repos.push(orgRepo);
+                    });
+                if (data.hasMore) {
+                    data.getMore();
+                } else {
+                    updateScopeData();
+                }
+            };
+
             if ($rootScope.user && $rootScope.user.value && $rootScope.user.value.admin) {
-                $HUBService.direct_call('https://api.github.com/user/repos').then(function(data){
-                            data.value.forEach(function(orgRepo){
-                                $scope.repos.push(orgRepo);
-                            });
-                            updateScopeData();
+                $HUBService.direct_call('https://api.github.com/user/repos?per_page=100').then(function(data){
+                    data.value.forEach(function(orgRepo){
+                            $scope.repos.push(orgRepo);
                         });
+                    updateScopeData();
+                });
             }
         };
 
