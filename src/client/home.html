@@ -58,7 +58,7 @@
       <div class="collapse navbar-collapse" ng-if="user.value.admin">
         <ul class="nav navbar-nav navbar-right">
           <li ng-show="!user.value.login">
-            <a class="text-primary" href="/auth/github" target="_self"><b>Sign in with GitHub</b></a>
+            <a class="text-primary" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
           </li>
           <li ng-show="!!user.value.login">
 

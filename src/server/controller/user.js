@@ -16,12 +16,11 @@ function checkReturnTo(req, res, next) {
     if (returnTo) {
         req.session = req.session || {};
         req.session.returnTo = returnTo;
-        // logger.info('returnTo ', req.session.returnTo);
     }
-    next();
+    passport.authenticate('github', {scope: scope})(req, res, next);
 }
 
-router.get('/auth/github', checkReturnTo, passport.authenticate('github', {scope: scope}));
+router.get('/auth/github', checkReturnTo);
 
 router.get('/auth/github/callback', passport.authenticate('github', { successReturnToOrRedirect: '/' }));
 
