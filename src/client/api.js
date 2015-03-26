@@ -102,8 +102,6 @@ module.factory('$RPC', ['$RAW', '$log',
 module.factory('$HUB', ['$RAW', '$log',
     function($RAW, $log) {
         function parse_link_header(header) {
-                    console.log('test');
-
             if (header.length === 0) {
                 throw new Error('input must not be of zero length');
             }

@@ -2,6 +2,10 @@ var bunyan = require('bunyan');
 var BunyanSlack = require('bunyan-slack');
 var log;
 
+var formatter = function(record, levelName){
+	return {text: '[' + levelName + '] ' + record.msg + ' (source: ' + record.src.file + ' line: ' + record.src.line + ')' };
+};
+
 try{
 	log = bunyan.createLogger({
 		src: true,
@@ -14,7 +18,8 @@ try{
 			stream: new BunyanSlack({
 				webhook_url: config.server.slack_url,
 				channel: '#cla-assistant',
-				username: 'CLA assistant'
+				username: 'CLA assistant',
+				customFormatter: formatter
 			})
 		},
 		{
@@ -22,7 +27,8 @@ try{
 			stream: new BunyanSlack({
 				webhook_url: config.server.slack_url,
 				channel: '@kharitonov',
-				username: 'CLA assistant'
+				username: 'CLA assistant',
+				customFormatter: formatter
 			})
 		}
 

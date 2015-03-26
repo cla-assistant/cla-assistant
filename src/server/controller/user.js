@@ -27,7 +27,11 @@ router.get('/auth/github/callback', passport.authenticate('github', { successRet
 router.get('/logout',
     function(req, res, next) {
         req.logout();
-        res.redirect('/');
+        if (!req.query.noredirect) {
+            res.redirect('/');
+        } else {
+            next();
+        }
     }
 );
 

@@ -10,26 +10,23 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
             // Testing libs
-            // TODO: CDN
+            // CDN
+            'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js',
+
+
             'src/bower/should/should.js',
 
-            // Angular
-            'src/bower/angular/angular.js',
-            'src/bower/jquery/dist/jquery.js',
+            // Bower
             'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-            'src/bower/angular/angular.js',
             'src/bower/angular-route/angular-route.js',
-            'src/bower/angular-ui-router/release/angular-ui-router.js',
-            'src/bower/angular-bootstrap/ui-bootstrap-tpls.min.js',
-            'src/bower/angular-ui-select/dist/select.js',
-            'src/bower/angular-ui-utils/ui-utils.min.js',
             'src/bower/angular-sanitize/angular-sanitize.js',
-            'src/bower/angular-scroll/angular-scroll.js',
-
-            // TODO: CDN
             'src/bower/angular-mocks/angular-mocks.js',
-            'src/bower/angular-bootstrap-switch/dist/angular-bootstrap-switch.js',
-            // 'src/bower/angular-loggly-logger/angular-loggly-logger.js',
 
             // Client code
             'src/client/app.js',

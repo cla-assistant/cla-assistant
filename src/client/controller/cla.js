@@ -5,8 +5,8 @@
 // path: /:repoId/:prId
 // *****************************************************
 
-module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce', '$timeout',
-    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce, $timeout) {
+module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce', '$timeout', '$http',
+    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce, $timeout, $http) {
 
         $scope.cla = null;
         $scope.signed = false;
@@ -89,7 +89,6 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
         };
 
         $scope.$on('user', function(event, data){
-            console.log(data);
             $scope.user = $rootScope.user.value;
         });
 
@@ -102,17 +101,11 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             if ($rootScope.user.value) {
                 checkCLA().then(function(signed){
                     if (signed.value) {
+                        $http.get('/logout?noredirect=true');
                         $timeout(function(){
                             $window.location.href = $scope.redirect;
                         }, 5000);
                     }
-                    // var promise = !signed.value && exists ? getLastSignature() : null;
-                    // if (promise) {
-                    //     promise.then(function(data){
-                    //         $scope.signedCLA = data.value;
-
-                    //     });
-                    // }
                 });
             }
             if (exists) {

@@ -45,15 +45,20 @@ module.exports = {
 			if (req.user && req.user.token) {
 				args.token = req.user.token;
 			}
-			github.call(args, function(error, result) {
-				if (result.statusCode !== 200 && error){
-					if (error) {log.error(error);}
-					done(error);
+			github.call(args, function(error, response) {
+				var callback_error;
+				if (!response || response.statusCode !== 200){
+					callback_error = response && response.message ? response.message : error;
+					if (callback_error) {
+						log.error(callback_error);
+					}
 				}
-				if (result.body) {
-					done(null, {raw: result.body});
+				if (response && response.body) {
+					done(callback_error, {raw: response.body});
+				} else if (response && response.data){
+					done(callback_error, {raw: response.data});
 				} else {
-					done(null, {raw: result.data});
+					done(callback_error);
 				}
 
 			});

@@ -77,7 +77,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         // };
 
         $scope.update = function(){
-            console.log($scope.repo.gist);
             $scope.gistValid = $scope.isValid($scope.repo.gist);
             if ($scope.repo.gist && !$scope.gistValid) {
                 return;

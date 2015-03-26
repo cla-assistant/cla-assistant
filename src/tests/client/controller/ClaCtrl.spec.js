@@ -52,13 +52,14 @@ describe('CLA Controller', function() {
         (claController.scope.claText).should.be.ok;
     });
 
-    it('should check whether user has signed CLA already or not', function(){
+    it('should check whether user has signed CLA already or not and logout user if already signed', function(){
         rootScope.user.value = {id: 123, login: 'login'};
         claController = createCtrl();
 
         httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
         httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
         httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
         timeout.flush();
@@ -75,6 +76,7 @@ describe('CLA Controller', function() {
         httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
         httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
         httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
         timeout.flush();
