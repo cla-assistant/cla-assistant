@@ -74,8 +74,8 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
                     owner: $stateParams.user,
                     gist: {gist_url: data.value.gist_url,
                             gist_version: data.value.gist_version}
-                }).then(function(data){
-                    $scope.signedCLA.text = data.value.raw;
+                }).then(function(cla_data){
+                    $scope.signedCLA.text = cla_data.value.raw;
                 });
             });
 
