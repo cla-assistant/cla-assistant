@@ -58,6 +58,22 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        var getUser = function(){
+
+            return $HUBService.call('user', 'get', {}, function(err, res){
+                if (err) {
+                    return;
+                }
+
+                $scope.user = res;
+                $scope.user.value.admin = false;
+
+                if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                    $scope.user.value.admin = true;
+                }
+            });
+        };
+
         var getRepos = function() {
             var callBack = function(data){
                 data.value.forEach(function(orgRepo){
@@ -70,7 +86,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             };
 
-            if ($rootScope.user && $rootScope.user.value && $rootScope.user.value.admin) {
+            if ($scope.user && $scope.user.value && $scope.user.value.admin) {
                 $HUBService.direct_call('https://api.github.com/user/repos?per_page=100').then(function(data){
                     data.value.forEach(function(orgRepo){
                             $scope.repos.push(orgRepo);
@@ -92,12 +108,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.errorMsg.push(error);
         };
 
-        getRepos();
-
-        $scope.$on('user', function(event, data){
-            $scope.user = $rootScope.user;
+        getUser().then(function(){
             getRepos();
         });
+
+        // $scope.$on('user', function(event, data){
+        //     $scope.user = $rootScope.user;
+        //     getRepos();
+        // });
 
         $scope.addRepo = function(){
             var newClaRepo = {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login, gist: '', active: false};

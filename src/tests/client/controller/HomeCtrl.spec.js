@@ -10,8 +10,6 @@ describe('Home Controller', function() {
         httpBackend = $injector.get('$httpBackend');
 
         scope = $rootScope.$new();
-        rootScope = $rootScope;
-        rootScope.user = {value: {admin: false}};
 
         createCtrl = function() {
 
@@ -22,9 +20,7 @@ describe('Home Controller', function() {
             return ctrl;
         };
 
-        rootScope.user.value = {id: 1, login: 'octocat', admin: false};
         homeCtrl = createCtrl();
-
     }));
 
     afterEach(function() {
@@ -33,11 +29,7 @@ describe('Home Controller', function() {
     });
 
     it('should get user repos if user has admin rights', function() {
-        rootScope.user.value.admin = true;
-        rootScope.$broadcast('user');
-
-        // httpBackend.expect('POST', '/api/github/call', { obj: 'repos', fun: 'getAll', arg: {user: rootScope.user.value.login} }).respond(testDataRepos);
-        // httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'getOrgs', arg: {} }).respond(testDataOrgs);
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
@@ -49,8 +41,6 @@ describe('Home Controller', function() {
     });
 
     xit('should get more repos if there are more to load', function(){
-        rootScope.user.value.admin = true;
-        rootScope.$broadcast('user');
 
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'})
             .respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]), {link: "<next_page_url>; rel='next'"});
@@ -65,13 +55,20 @@ describe('Home Controller', function() {
     });
 
     it('should not load user`s repos if he is not an admin', function(){
-        rootScope.$broadcast('user');
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email'}});
+        httpBackend.flush();
+
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
     });
 
     it('should create repo entry on addRepo action', function(){
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.flush();
+        
         homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
@@ -79,22 +76,32 @@ describe('Home Controller', function() {
         homeCtrl.scope.addRepo();
         httpBackend.flush();
 
-        (homeCtrl.scope.claRepos.length).should.be.equal(1);
-        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
-        (homeCtrl.scope.claRepos[0].fork).should.be.ok;
+        (homeCtrl.scope.claRepos.length).should.be.equal(2);
+        (homeCtrl.scope.claRepos[1].active).should.not.be.ok;
+        (homeCtrl.scope.claRepos[1].fork).should.be.ok;
     });
 
     it('should remove repo from claRepos list if create failed on backend', function(){
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.flush();
+        
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
         homeCtrl.scope.addRepo();
         httpBackend.flush();
 
-        (homeCtrl.scope.claRepos.length).should.be.equal(0);
+        (homeCtrl.scope.claRepos.length).should.be.equal(1);
     });
 
     it('should show error message if create failed', function(){
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.flush();
+        
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
@@ -129,9 +136,7 @@ describe('Home Controller', function() {
     // });
 
     it('should check repos whether they are activated or NOT', function(){
-        rootScope.user.value.admin = true;
-        rootScope.$broadcast('user');
-
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
@@ -140,9 +145,7 @@ describe('Home Controller', function() {
     });
 
     it('should check repos whether they are ACTIVATED or not', function(){
-        rootScope.user.value.admin = true;
-        rootScope.$broadcast('user');
-
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
         httpBackend.flush();
@@ -152,6 +155,11 @@ describe('Home Controller', function() {
     });
 
     it('should delete db entry and webhook on remove', function(){
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.flush();
+
         httpBackend.expect('POST', '/api/repo/remove', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/2' }).respond();
         httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login'}).respond();
 
@@ -172,9 +180,7 @@ describe('Home Controller', function() {
     // });
 
     it('should mix claRepos data with repos data', function(){
-        rootScope.user.value.admin = true;
-        rootScope.$broadcast('user');
-
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
@@ -186,6 +192,11 @@ describe('Home Controller', function() {
     });
 
     it('should get all users signed this cla', function(){
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond({data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}});
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.flush();
+
         var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
         httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
         httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
@@ -196,7 +207,7 @@ describe('Home Controller', function() {
         (homeCtrl.scope.users.length).should.be.equal(1);
     });
 
-    it('should handle multiple error messages', function(){
+    xit('should handle multiple error messages', function(){
     });
 });
 

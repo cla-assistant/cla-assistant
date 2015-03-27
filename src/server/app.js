@@ -28,7 +28,6 @@ app.use(function (req, res, next) {
         next();
         return;
     }
-
     var host = req.headers['x-forwarded-host'] || req.headers.host;
 
     res.setHeader('location', 'https://' + host + req.url);
@@ -52,6 +51,11 @@ app.use(passport.session());
 app.use('/api', require('./middleware/param'));
 app.use('/github', require('./middleware/param'));
 app.use('/accept', require('./middleware/param'));
+
+// app.use(function (err, req, res, next) {
+//     var log = require('./services/logger');
+//     log.info('app error: ', err.stack);
+// });
 
 async.series([
 
