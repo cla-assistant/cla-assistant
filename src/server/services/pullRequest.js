@@ -30,7 +30,10 @@ module.exports = {
                             number: pullNumber,
                             body: body
                         },
-                        token: token
+                        basicAuth: {
+                            user: config.server.github.user,
+                            pass: config.server.github.pass
+                        }
                     }, function(e, result, meta){
                         if (e) {
                             log.error(e);
@@ -46,7 +49,10 @@ module.exports = {
                             id: comment.id,
                             body: body
                         },
-                        token: token
+                        basicAuth: {
+                            user: config.server.github.user,
+                            pass: config.server.github.pass
+                        }
                     }, function(e, result, meta){
                         if (e) {
                             log.error(e);
@@ -89,30 +95,28 @@ module.exports = {
                 return;
             }
 
-            repoService.get({repo: args.repo, owner: args.owner}, function(err, res){
-                if (res && !err) {
-                    token = res.token;
-                }
-                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
-                if (args.signed) {
-                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
-                }
+            var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
+            if (args.signed) {
+                body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
+            }
 
-                github.call({
-                    obj: 'issues',
-                    fun: 'editComment',
-                    arg: {
-                        user: args.owner,
-                        repo: args.repo,
-                        id: comment.id,
-                        body: body
-                    },
-                    token: token
-                }, function(e, result, meta){
-                    if (e) {
-                        log.error(e);
-                    }
-                });
+            github.call({
+                obj: 'issues',
+                fun: 'editComment',
+                arg: {
+                    user: args.owner,
+                    repo: args.repo,
+                    id: comment.id,
+                    body: body
+                },
+                basicAuth: {
+                    user: config.server.github.user,
+                    pass: config.server.github.pass
+                }
+            }, function(e, result, meta){
+                if (e) {
+                    log.error(e);
+                }
             });
         });
         done();

@@ -71,7 +71,19 @@ describe('github:call', function(done) {
         });
     });
 
-    it('should not authenticate when neither token or basicAuth are provided', function(it_done) {
+    it('should authenticate when basic authentication is required', function(it_done) {
+        callStub.yields(null, {});
+        github.call({obj: 'obj', fun: 'fun', basicAuth: {user: 'user', pass: 'pass'}}, function(err, res) {
+            assert(authenticateStub.calledWith({
+                type: 'basic',
+                username: 'user',
+                password: 'pass'
+            }));
+            it_done();
+        });
+    });
+
+    it('should not authenticate when neither token nor basicAuth are provided', function(it_done) {
         callStub.yields(null, {});
         github.call({obj: 'obj', fun: 'fun'}, function(err, res) {
             assert(authenticateStub.notCalled);
