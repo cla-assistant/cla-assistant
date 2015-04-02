@@ -59,6 +59,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getUser = function(){
+            $rootScope.user = {value: {admin: false}};
 
             return $HUBService.call('user', 'get', {}, function(err, res){
                 if (err) {
@@ -71,6 +72,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
+                $rootScope.user = $scope.user;
+                $rootScope.$broadcast('user');
             });
         };
 
