@@ -58,6 +58,10 @@ module.exports = {
             uri: process.env.MONGODB || process.env.MONGOLAB_URI
         },
 
+        slack: {
+            token: process.env.SLACK_TOKEN
+        },
+
         slack_url: process.env.SLACK_URL,
 
         static: [

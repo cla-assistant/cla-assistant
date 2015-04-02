@@ -51,6 +51,7 @@ app.use(passport.session());
 app.use('/api', require('./middleware/param'));
 app.use('/github', require('./middleware/param'));
 app.use('/accept', require('./middleware/param'));
+app.use('/count', require('./middleware/param'));
 
 // app.use(function (err, req, res, next) {
 //     var log = require('./services/logger');
