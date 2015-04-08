@@ -1,19 +1,16 @@
 .lp-premium {
-  /*background-color: $brand-primary;*/
-  background-image: url('/assets/images/shattered_green.png');
+  background-color: $brand-primary;
+  /*background-image: url('/assets/images/shattered_green.png');*/
   color: $text-invert;
 }
 
-.lp-highlight {
-  color: $text-primary;
+.lp-premium-darker {
+  background-color: $brand-primary-darker;
+  color: $text-invert;
 }
 
-.lp-shattered {
-  background-image: url('/assets/images/shattered.png');
-}
-
-.lp-gray {
-  background-color: $gray;
+.lp-white {
+  background-color: $brand-primary-lightest;
 }
 
 .lp-section-header {
@@ -60,6 +57,14 @@
   }
 }
 
+.container-fluid .lp-section{
+  padding: 25px 0px;
+}
+
+img.step-icon{
+  height:170px;
+}
+
 a.lp-signin {
   color: $text-invert;
   text-decoration: none;
@@ -95,4 +100,19 @@ a.lp-signin:hover, a.lp-signin:focus {
 	position: initial;
 	color: $text-color;
 	text-shadow: none;
+}
+
+.animate-show-hide {
+  padding: 25px 0px;
+}
+
+.animate-show-hide {
+  -webkit-transition:all linear 0.3s;
+  transition:all linear 0.3s;
+}
+
+.animate-show-hide.ng-hide {
+  opacity:0;
+  padding: 0;
+  /*display: none;*/
 }

@@ -12,7 +12,15 @@ $gray-light: #ececec;
 $gray-lighter: #f9f9f9;
 
 // brand colours
-$brand-primary: #2ccc99;
+$brand-primary: #77acc3;
+$brand-primary-darker: #4d8fac;
+$brand-primary-darkest: #2c3e50;
+$brand-primary-lighter: #e2f1fc;
+$brand-primary-lightest: #ffffff;
+$brand-accent: #ee524f;
+
+
+
 $brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
@@ -23,7 +31,7 @@ $brand-merged: #6e5494;
 $link-color: #3c3c3d;
 
 // body
-$body-bg: #fff;
+$body-bg: $brand-primary;
 
 // typography
 $text-color: $gray-darkest;
@@ -326,5 +334,3 @@ small {
 .selectize-input{
   height: 33px;
 }
-
-
