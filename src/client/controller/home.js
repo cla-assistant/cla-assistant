@@ -214,6 +214,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.scrollTo = function(id) {
             $document.scrollTopAnimated(0, 800);
         };
+
+        $scope.showStep = function(step){
+            if ($scope.show !== step) {
+                $scope.show = step;
+            }
+        }
     }
 ]);
 

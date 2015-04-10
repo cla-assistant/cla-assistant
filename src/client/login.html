@@ -9,6 +9,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js"></script>
   <script src="/angular-route/angular-route.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
@@ -71,40 +72,71 @@
       <div class="center-block">
         <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
         <!-- <a class="lp-signin clickable" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>     -->
-        <h4>Set up, actiavate and accept CLAs</h4>
+        <h4>Set up, activate and accept CLAs</h4>
       </div>
     </div>
 
-    <div class="row lp-premium lp-section" ng-mouseenter="show=step-1" ng-mouseleave="show=step-0">
-      <img src="/assets/images/icon1.svg" class="col-md-2 col-md-offset-3 step-icon">
-
-      <div class="col-md-12 center-block animate-show-hide ng-hide-animate" ng-show="show == step-1">
-        some text
+    <div class="row lp-premium lp-section">
+      <div class="col-md-9 col-md-offset-2" ng-mouseleave="showStep('step-0')">
+        <div style="height:200px">
+          <img src="/assets/images/icon1.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 icon-animation', false:'col-md-2 col-md-offset-1'}[show == 'step-1']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-1')">
+          <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-1'">
+            <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-1']">
+              
+              <div class="col-md-2" style="margin-top: 75px">
+                Add repository <br/> bla bla bla
+              </div>
+              <img src="/assets/images/screenshot-1.png" class="col-md-10" alt="Add repository" style="float:right;">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
 
-    <div class="row lp-premium" ng-mouseenter="show=step-2" ng-mouseleave="show=step-0">
-      <img src="/assets/images/icon2.svg" class="col-md-2 col-md-offset-7 step-icon">
-
-      <div class="col-md-12 center-block animate-show-hide ng-hide-animate" ng-show="show == step-2">
-        some text
+    <div class="row lp-premium lp-section">
+      <div class="col-md-9 col-md-offset-1" ng-mouseleave="showStep('step-0')">
+        <div style="height:200px">
+          <img src="/assets/images/icon2.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 col-md-offset-10 icon-animation', false:'col-md-2 col-md-offset-8'}[show == 'step-2']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-2')">
+          <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-2'">
+            <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-2']">
+              
+              <div class="col-md-2" style="margin-top: 75px; float:right">
+                Add Gist <br/> bla bla bla
+              </div>
+              <img src="/assets/images/screenshot-2.png" class="col-md-10" alt="Add repository">
+            </div>
+          </div>
+        </div>
       </div>
+<!-- 
+        <img src="/assets/images/icon2.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 col-md-offset-8 icon-animation', false:'col-md-2 col-md-offset-7'}[show == 'step-2']" style="position: absolute; z-index:1">
+        
+        <div class="col-md-9 col-md-offset-1 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-2'">
+          <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-2']">
+
+            <div class="col-md-2" style="margin-top: 75px; float:right;">
+              Add Gist <br/> bla bla bla
+            </div>
+            <img src="/assets/images/screenshot-2.png" class="img-responsive col-md-10" alt="Add repository" >
+          </div>
+        </div>
+      </div> -->
     </div>
 
 
-    <div class="row lp-premium" ng-mouseenter="show=step-3" ng-mouseleave="show=step-0">
+    <div class="row lp-premium lp-section" ng-mouseenter="show = step-3" ng-mouseleave="show = 'step-0'">
       <img src="/assets/images/icon3.svg" class="col-md-2 col-md-offset-3 step-icon">
 
-      <div class="col-md-12 center-block animate-show-hide ng-hide-animate" ng-show="show == step-3">
+      <div class="col-md-12 center-block section-show ng-hide-animate" ng-show = "show == step-3">
         some text
       </div>
     </div>
 
-    <div class="row lp-premium" ng-mouseenter="show=step-2" ng-mouseleave="show=step-0">
+    <div class="row lp-premium lp-section" ng-mouseenter="show = 'step-4'" ng-mouseleave="show = 'step-0'">
       <img src="/assets/images/icon4.svg" class="col-md-2 col-md-offset-7 step-icon">
 
-      <div class="col-md-12 center-block animate-show-hide ng-hide-animate" ng-show="show == step-2">
+      <div class="col-md-12 center-block section-show ng-hide-animate" ng-show = "show == 'step-4'">
         some text
       </div>
     </div>

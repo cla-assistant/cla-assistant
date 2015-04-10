@@ -13,30 +13,13 @@
   background-color: $brand-primary-lightest;
 }
 
-.lp-section-header {
-  @extend .col-xs-12;
-  
-  font-weight:500;
-  margin-top:20px;
+.lp-section {
+  overflow: hidden;
 }
 
-.lp-section-header.left {
-    @extend .col-md-3;
-    @extend .col-md-offset-1;
-    
-    padding-right:35px;
-    text-align:right;
-}
-
-.lp-section-header.center {
-    text-align: center;
-}
-  
-.lp-section-content {
-  margin-top: 20px; 
-  margin-bottom: 40px;
-  font-weight:200;
-  font-size:1.6em;
+.lp-section-round {
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .lp-list {
@@ -76,43 +59,43 @@ a.lp-signin:hover, a.lp-signin:focus {
   color: $text-color;
 }
 
-.carousel-control .fa {
-  position: absolute;
-  top: 40%;
-  z-index: 5;
-  display: inline-block;
+.icon-animation-add, .icon-animation-remove,
+.lp-section-shutter-add, .lp-section-shutter-remove {
+  -webkit-transition:all linear 0.5s;
+  -moz-transition:all linear 0.5s;
+  -o-transition:all linear 0.5s;
+  transition:all linear 0.5s;
 }
 
-.carousel-control.right,
-.carousel-control.left {
-	background-image: none;
+.icon-animation, .icon-animation-add.icon-animation-add-active {
+  height: 100px !important; 
 }
 
-.carousel-inner {
-	left: 7px;
+.icon-animation-remove.icon-animation-remove-active {
 }
 
-.carousel-inner img {
-	@extend .center-block;
+.lp-section-shutter, .lp-section-shutter-add.lp-section-shutter-add-active {
+  margin-top: -25%;
 }
 
-.carousel-caption {
-	position: initial;
-	color: $text-color;
-	text-shadow: none;
+.lp-section-shutter-remove.lp-section-shutter-remove-active {
 }
 
-.animate-show-hide {
+.section-show.ng-hide-add.ng-hide-add-active,
+.section-show.ng-hide-remove.ng-hide-remove-active 
+{
+  -webkit-transition:all linear 0.5s;
+  transition:all linear 0.5s;
+}
+
+.section-show {
+  top:0;
+  height: 550px;
   padding: 25px 0px;
 }
 
-.animate-show-hide {
-  -webkit-transition:all linear 0.3s;
-  transition:all linear 0.3s;
-}
-
-.animate-show-hide.ng-hide {
-  opacity:0;
+.section-show.ng-hide {
+  top: 50%;
   padding: 0;
-  /*display: none;*/
+  height: 2px;
 }
