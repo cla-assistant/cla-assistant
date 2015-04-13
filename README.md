@@ -21,6 +21,8 @@ Try
 ====
 CLA assistant is provided by SAP as a free hosted offering under: https://cla-assistant.io/. Please leave us a GitHub issue if you have feedback.
 
+For SAP open source projects please use the [SAP Individual Contributor License Agreement] (https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
+
 License
 =======
 
