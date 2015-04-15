@@ -57,7 +57,7 @@
   <link href="/assets/styles/app.css" rel="stylesheet">
 </head>
 
-<body ng-controller="HomeCtrl">
+<body ng-controller="HomeCtrl" style="overflow-x:hidden;">
 
   <div class="container-fluid" style="margin-bottom:50px">
     
@@ -76,26 +76,55 @@
       </div>
     </div>
 
+
+
+
+
+
+
+
+
+
+
+
+    <div style="display:block">
+      <!-- <screenshot src="/assets/images/screenshot-1.png" next="next"></screenshot> -->
+      <img src="/assets/images/screenshot-1.png" class="center-block " alt="Add repository" height="1000px" screenshot nextstep="nextstep" step-id="step1">
+      <img src="/assets/images/screenshot-2.png" class="center-block next-step-show" alt="Add repository" style="position:fixed" screenshot ng-show="nextstep.step1 == true">
+      
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
     <div class="row lp-premium lp-section">
-      <div class="col-md-9 col-md-offset-2" ng-mouseleave="showStep('step-0')">
-        <div style="height:200px">
-          <img src="/assets/images/icon1.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 icon-animation', false:'col-md-2 col-md-offset-1'}[show == 'step-1']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-1')">
-          <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-1'">
-            <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-1']">
+      <div class="col-md-6 " ng-mouseleave="showStep('step-0'); animate('step-0')" style="height:200px">
+          <div ng-class="{true:'col-md-1 col-md-offset-10 icon-animation', false:'col-md-2 col-md-offset-8'}[show == 'step-1']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-1')" >
+
+            <img src="/assets/images/icon1.svg" class="img-responsive step-icon" animate>
+          </div>
+          <div class=" lp-premium-darker lp-section-round " ng-class="{true:'col-md-12 section-show ', false:'col-md-4 col-md-offset-8'}[show == 'step-1']">
               
-              <div class="col-md-2" style="margin-top: 75px">
+              <div class="col-md-12" style="float:right; margin-top: 75px" ng-show="show == 'step-1'">
                 Add repository <br/> bla bla bla
               </div>
-              <img src="/assets/images/screenshot-1.png" class="col-md-10" alt="Add repository" style="float:right;">
-            </div>
+              <img src="/assets/images/screenshot-1.png" class="col-md-12" alt="Add repository"  ng-show="show == 'step-1'">
           </div>
-        </div>
       </div>
     </div>
 
 
     <div class="row lp-premium lp-section">
-      <div class="col-md-9 col-md-offset-1" ng-mouseleave="showStep('step-0')">
+      <div class="col-md-9 col-md-offset-1" ng-mouseleave="showStep('step-0'); animate('step-0')">
         <div style="height:200px">
           <img src="/assets/images/icon2.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 col-md-offset-10 icon-animation', false:'col-md-2 col-md-offset-8'}[show == 'step-2']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-2')">
           <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-2'">
@@ -109,22 +138,44 @@
           </div>
         </div>
       </div>
-<!-- 
-        <img src="/assets/images/icon2.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 col-md-offset-8 icon-animation', false:'col-md-2 col-md-offset-7'}[show == 'step-2']" style="position: absolute; z-index:1">
-        
-        <div class="col-md-9 col-md-offset-1 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-2'">
-          <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-2']">
+    </div>
 
-            <div class="col-md-2" style="margin-top: 75px; float:right;">
-              Add Gist <br/> bla bla bla
+    <div class="row lp-premium lp-section">
+      <div class="col-md-9 col-md-offset-2" ng-mouseleave="showStep('step-0'); animate('step-0')">
+        <div style="height:200px">
+          <img src="/assets/images/icon3.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 icon-animation', false:'col-md-2 col-md-offset-1'}[show == 'step-3']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-3')" animate>
+          <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-3'">
+            <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-3']">
+              
+              <div class="col-md-2" style="margin-top: 75px">
+                Add repository <br/> bla bla bla
+              </div>
+              <img src="/assets/images/screenshot-3.png" class="col-md-10" alt="Add repository" style="float:right;">
             </div>
-            <img src="/assets/images/screenshot-2.png" class="img-responsive col-md-10" alt="Add repository" >
           </div>
         </div>
-      </div> -->
+      </div>
     </div>
 
 
+    <div class="row lp-premium lp-section">
+      <div class="col-md-9 col-md-offset-1" ng-mouseleave="showStep('step-0'); animate('step-0')">
+        <div style="height:200px">
+          <img src="/assets/images/icon4.svg" class="img-responsive step-icon" ng-class="{true:'col-md-1 col-md-offset-10 icon-animation', false:'col-md-2 col-md-offset-8'}[show == 'step-4']" style="position: absolute; z-index:1" ng-mouseenter="showStep('step-4')">
+          <div class="col-md-12 lp-premium-darker lp-section-round section-show " ng-show="show == 'step-4'">
+            <div ng-class="{true:'', false:'lp-section-shutter'}[show == 'step-4']">
+              
+              <div class="col-md-2" style="margin-top: 75px; float:right">
+                Add Gist <br/> bla bla bla
+              </div>
+              <img src="/assets/images/screenshot-4.png" class="col-md-10" alt="Add repository">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- 
     <div class="row lp-premium lp-section" ng-mouseenter="show = step-3" ng-mouseleave="show = 'step-0'">
       <img src="/assets/images/icon3.svg" class="col-md-2 col-md-offset-3 step-icon">
 
@@ -140,7 +191,7 @@
         some text
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="navbar-top-border">

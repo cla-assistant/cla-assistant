@@ -17,6 +17,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.users = [];
         $scope.selectedIndex = -1;
         $scope.user = {};
+        $scope.nextstep = {step1: true};
 
 
         $scope.logAdminIn = function(){
@@ -215,13 +216,106 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $document.scrollTopAnimated(0, 800);
         };
 
+
+        $scope.animationRunning = false;
         $scope.showStep = function(step){
-            if ($scope.show !== step) {
+            if ($scope.show !== step && !$scope.animationRunning) {
                 $scope.show = step;
             }
-        }
+            if (step === 'step-0'){
+                $scope.animationRunning = true;
+            }
+        };
     }
-]);
+]).directive('animate', ['$animate', function($animate){
+    return function(scope, element, attrs) {
+      scope.animate = function(step) {
+
+          // $animate.removeClass(element, 'icon-animation').then(function() {
+          //   console.log('animate finished');
+              // $animate.removeClass(element, 'fadeInDown'); // why is it not working?
+
+              setTimeout(function() {
+                  // scope.$apply(function() {
+                      scope.animationRunning = false;
+                  // });
+              }, 100);
+
+          // });
+      };
+    };
+}])
+.directive('screenshot', ['$window', function($window){
+    return {
+        // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
+        scope: {
+            stepId: '@',
+            // src: '@',
+            nextstep: '&'
+        },
+        link: function(scope, element, attrs){
+            var screenshot = element;
+            var inititalScreenshotOffset;
+
+            var positionScreenshot = function(){
+                screenshot.attr('height', $window.innerHeight + 'px');
+                screenshot.parent().css('height', $window.innerHeight + 'px');
+                screenshot.css('margin-left', ($window.innerWidth - screenshot[0].width) / 2 + 'px');
+
+                inititalScreenshotOffset = screenshot.parent()[0].offsetTop;
+
+            };
+
+            angular.element($window).bind('scroll', function() {
+                var threshold = this.pageYOffset - inititalScreenshotOffset;
+                console.log(threshold);
+                // console.log('pageYOffset: ', this.pageYOffset, ' offsetTop: ', offset);
+                if(this.pageYOffset > inititalScreenshotOffset) {
+                    screenshot.css('position', 'fixed');
+                    screenshot.css('bottom', '0px');
+                    // scope.visible = false;
+                //      scope.boolChangeClass = true;
+                } else {
+                    screenshot.css('position', 'inherit');
+                }
+
+                if (threshold > 150) {
+                    if (scope.stepId === 'step1') {
+                        console.log(scope.nextstep());
+                        scope.nextstep().step1 = true;
+                    }
+                } else {
+                    if (scope.stepId === 'step1') {
+                        scope.nextstep().step1 = false;
+                    }
+                }
+
+                scope.$apply();
+
+            });
+
+            angular.element($window).bind('resize', function(){
+                positionScreenshot();
+                scope.$apply();
+            });
+
+            angular.element($window).bind('load', function(){
+                positionScreenshot();
+                scope.$apply();
+            });
+        }
+    };
+}])
+.directive('parallax', ['$window', function($window){
+    return {
+        scope: {
+
+        },
+        link: function(scope, element, attrs){
+
+        }
+    };
+}]);
 
 filters.filter('notIn', function() {
     return function(repos, arr) {
@@ -246,11 +340,3 @@ filters.filter('notIn', function() {
         return notMatched;
     };
 });
-
-angular.module('ui.bootstrap.carousel', ['ui.bootstrap.transition'])
-    .controller('CarouselController', ['$scope', '$timeout', '$transition', '$q', function ($scope, $timeout, $transition, $q) {
-    }]).directive('carousel', [function() {
-        return {
-
-        };
-}]);
