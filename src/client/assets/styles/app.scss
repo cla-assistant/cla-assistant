@@ -4,7 +4,7 @@
 $font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 // colours
-$gray-darkest: #333;
+$gray-darkest: #2c3e50;
 $gray-darker: #666;
 $gray-dark: #999;
 $gray: #e1e1e1;
@@ -12,7 +12,7 @@ $gray-light: #ececec;
 $gray-lighter: #f9f9f9;
 
 // brand colours
-$brand-primary: #77acc3;
+$brand-primary: #fff;
 $brand-primary-darker: #4d8fac;
 $brand-primary-darkest: #2c3e50;
 $brand-primary-lighter: #e2f1fc;
@@ -73,7 +73,8 @@ $component-active-color: #555;
 $btn-info-bg: #d0eaea;
 $btn-info-color: $brand-primary;
 $btn-default-border: #ececec;
-$btn-default-color: $brand-primary;
+$btn-default-color: $brand-primary-darkest;
+$btn-primary-color: $brand-primary-darkest;
 
 // wells
 $well-bg: $gray;

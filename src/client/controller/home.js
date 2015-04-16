@@ -227,27 +227,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             }
         };
     }
-]).directive('animate', ['$animate', function($animate){
-    return function(scope, element, attrs) {
-      scope.animate = function(step) {
-
-          // $animate.removeClass(element, 'icon-animation').then(function() {
-          //   console.log('animate finished');
-              // $animate.removeClass(element, 'fadeInDown'); // why is it not working?
-
-              setTimeout(function() {
-                  // scope.$apply(function() {
-                      scope.animationRunning = false;
-                  // });
-              }, 100);
-
-          // });
-      };
-    };
-}])
+])
 .directive('resize', ['$window', function($window){
     return {
-        // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
         scope: {
             resize: '@'
         },
@@ -259,47 +241,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 if (scope.resize === 'height') {
                     el.css('height', $window.innerHeight + 'px');
                 }
-                // if (scope.resize === 'center') {
-                //     if (el[0].width < $window.innerWidth) {
-                //         el.css('width', $window.innerWidth);
-                //         el.css('margin-left', '');
-                //     } else {
-                //         el.css('height', $window.innerHeight);
-                //         el.css('margin-left', ($window.innerWidth - el[0].width) / 2 + 'px');
-                //     }
-                // }
-
-                // inititalScreenshotOffset = el.parent()[0].offsetTop;
-
             };
-
-            // angular.element($window).bind('scroll', function() {
-            //     var threshold = this.pageYOffset - inititalScreenshotOffset;
-            //     console.log(threshold);
-            //     // console.log('pageYOffset: ', this.pageYOffset, ' offsetTop: ', offset);
-            //     if(this.pageYOffset > inititalScreenshotOffset) {
-            //         el.css('position', 'fixed');
-            //         el.css('bottom', '0px');
-            //         // scope.visible = false;
-            //     //      scope.boolChangeClass = true;
-            //     } else {
-            //         el.css('position', 'inherit');
-            //     }
-
-            //     if (threshold > 150) {
-            //         if (scope.stepId === 'step1') {
-            //             console.log(scope.nextstep());
-            //             scope.nextstep().step1 = true;
-            //         }
-            //     } else {
-            //         if (scope.stepId === 'step1') {
-            //             scope.nextstep().step1 = false;
-            //         }
-            //     }
-
-            //     scope.$apply();
-
-            // });
 
             angular.element($window).bind('resize', function(){
                 positionElement();
@@ -310,6 +252,20 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 positionElement();
                 scope.$apply();
             });
+        }
+    };
+}])
+.directive('feature', ['$window', function($window){
+    return {
+        templateUrl: '/templates/feature.html',
+        scope: {
+            id: '@',
+            iconSrc: '@',
+            title: '@',
+            text: '@'
+        },
+        link: function(scope, element, attrs){
+
         }
     };
 }])
