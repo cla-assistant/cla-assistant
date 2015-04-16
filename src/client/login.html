@@ -30,7 +30,7 @@
   <script src="/modals/info.js"></script>
   <script src="/modals/report.js"></script>
 
-
+<!-- 
   <script type="text/javascript" charset="utf-8" src="/assets/edge_includes/edge.5.0.1.min.js"></script>
   <script type="text/javascript" charset="utf-8" src="/assets/edge_includes/edge.5.0.1.min.js"></script>
   <style>.edgeLoad-EDGE-110781156 { visibility:hidden; }</style>
@@ -43,7 +43,7 @@
       width: "550px",
       height: "400px"
   }, {dom: [ ]}, {dom: [ ]});
-  </script>
+  </script> -->
   <!-- INTERCEPTORS -->
   <!-- <script src="/interceptors/401.js"></script> -->
 
@@ -59,16 +59,56 @@
 
 <body ng-controller="HomeCtrl" style="overflow-x:hidden;">
 
-  <div class="container-fluid" style="margin-bottom:50px">
-    
-    <div class="row lp-premium lp-section" style="padding-top:100px; font-family: 'PT Sans Narrow', sans-serif; font-size: 30px">
-      <div class="center-block">
-          Contributor License Agreement <br> made simple
-      </div>
-      <div id="Stage" class="EDGE-110781156 center-block" style="bottom: -51px"></div>
+  <div style="  position: fixed;
+  z-index: -1;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('/assets/images/background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;">
+    <div style="background:black; opacity:0.5; height:100%; width:100%; position: absolute;"></div>
+  </div>
+
+  <div style="position:relative" resize="height">
+<!-- Header -->
+    <div style="  margin: 25px 70px;
+    height: 100px;
+    border: 1px;
+    border-bottom-style: solid;
+    color: white;
+    position: relative">
+      <a class="navbar-brand" href="/" style="padding-top:13px;">
+        <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
+      </a>
+      <a class="text-invert" href="/auth/github?admin=true" target="_self" style="position:absolute; top:auto; bottom:10px; right:20px;"><b>Sign in</b></a>    
+    </div>
+<!-- Header -->
+      
+    <div class="row lp-premium lp-section" style="padding-top:50px; font-size: 30px;">
+      <div class="center-block" style="font-weight:600;">CLA assistant</div>
+      <div class="center-block">Handle Contribution License Agreements <br> with ease</div>
+      <!-- <div id="Stage" class="EDGE-110781156 center-block" style="bottom: -51px"></div> -->
     </div>
     
-    <div class="row lp-premium-darker lp-section" style="">
+    <div class="row lp-premium lp-section center-block" style="position:absolute; bottom:75px; width: 100%">
+      <div class="center-block">
+        <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+        <!-- <a class="lp-signin clickable" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>     -->
+        <div style="font-size:24px;">Set up, activate and accept CLAs</div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-bottom:50px">
+    
+
+    <div class="row lp-white lp-section" style="padding-top:100px; font-family: 'PT Sans Narrow', sans-serif; font-size: 30px">
+      <div class="center-block" style="height: 150px">
+      </div>
+    </div>
+    
+    <div class="row lp-section" style="height: 250px">
       <div class="center-block">
         <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
         <!-- <a class="lp-signin clickable" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>     -->
@@ -104,7 +144,7 @@
 
 
 
-
+<!-- 
 
     <div class="row lp-premium lp-section">
       <div class="col-md-6 " ng-mouseleave="showStep('step-0'); animate('step-0')" style="height:200px">
@@ -173,25 +213,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-<!-- 
-    <div class="row lp-premium lp-section" ng-mouseenter="show = step-3" ng-mouseleave="show = 'step-0'">
-      <img src="/assets/images/icon3.svg" class="col-md-2 col-md-offset-3 step-icon">
-
-      <div class="col-md-12 center-block section-show ng-hide-animate" ng-show = "show == step-3">
-        some text
-      </div>
-    </div>
-
-    <div class="row lp-premium lp-section" ng-mouseenter="show = 'step-4'" ng-mouseleave="show = 'step-0'">
-      <img src="/assets/images/icon4.svg" class="col-md-2 col-md-offset-7 step-icon">
-
-      <div class="col-md-12 center-block section-show ng-hide-animate" ng-show = "show == 'step-4'">
-        some text
-      </div>
-    </div>
-  </div> -->
+    </div> -->
 
   <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="navbar-top-border">

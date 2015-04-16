@@ -245,6 +245,75 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
       };
     };
 }])
+.directive('resize', ['$window', function($window){
+    return {
+        // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
+        scope: {
+            resize: '@'
+        },
+        link: function(scope, element, attrs){
+            var el = element;
+            var inititalElOffset;
+
+            var positionElement = function(){
+                if (scope.resize === 'height') {
+                    el.css('height', $window.innerHeight + 'px');
+                }
+                // if (scope.resize === 'center') {
+                //     if (el[0].width < $window.innerWidth) {
+                //         el.css('width', $window.innerWidth);
+                //         el.css('margin-left', '');
+                //     } else {
+                //         el.css('height', $window.innerHeight);
+                //         el.css('margin-left', ($window.innerWidth - el[0].width) / 2 + 'px');
+                //     }
+                // }
+
+                // inititalScreenshotOffset = el.parent()[0].offsetTop;
+
+            };
+
+            // angular.element($window).bind('scroll', function() {
+            //     var threshold = this.pageYOffset - inititalScreenshotOffset;
+            //     console.log(threshold);
+            //     // console.log('pageYOffset: ', this.pageYOffset, ' offsetTop: ', offset);
+            //     if(this.pageYOffset > inititalScreenshotOffset) {
+            //         el.css('position', 'fixed');
+            //         el.css('bottom', '0px');
+            //         // scope.visible = false;
+            //     //      scope.boolChangeClass = true;
+            //     } else {
+            //         el.css('position', 'inherit');
+            //     }
+
+            //     if (threshold > 150) {
+            //         if (scope.stepId === 'step1') {
+            //             console.log(scope.nextstep());
+            //             scope.nextstep().step1 = true;
+            //         }
+            //     } else {
+            //         if (scope.stepId === 'step1') {
+            //             scope.nextstep().step1 = false;
+            //         }
+            //     }
+
+            //     scope.$apply();
+
+            // });
+
+            angular.element($window).bind('resize', function(){
+                positionElement();
+                scope.$apply();
+            });
+
+            angular.element($window).bind('load', function(){
+                positionElement();
+                scope.$apply();
+            });
+        }
+    };
+}])
+
 .directive('screenshot', ['$window', function($window){
     return {
         // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
