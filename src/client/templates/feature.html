@@ -1,9 +1,9 @@
-<div class="col-md-2 feature-box" ng-mouseenter="show = id" ng-mouseleave="show = 'feature0'">
+<div class="feature-box" ng-mouseenter="show = id" ng-mouseleave="show = 'feature0'">
     <img src="{{iconSrc}}" class="center-block" style="height:50%; margin: 10px auto;">
-    <div style="position: absolute; bottom:0; background-color:white; color:#2c3e50; width:100%; margin-left:-15px;" class="feature-show" ng-show="show == id">
+    <div style="bottom:0; background-color:white; color:#2c3e50; padding-top: 2em; text-align:center;" class="lp-row feature-show" ng-show="show == id">
       {{text}}
     </div>
-    <div style="position: absolute; width:100%; margin-left:-15px; text-align: center; top: 120px" ng-class="{true: 'feature-title', false:''}[show == id]">
+    <div style="text-align: center; top: 160px" ng-class="{true: 'feature-title', false:''}[show == id]" class="lp-row">
       {{title}}
     </div>
 </div>

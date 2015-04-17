@@ -269,6 +269,80 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
+.directive('slider', ['$window', function($window){
+    return {
+        scope: true,
+        controller: function($scope, $element){
+            var children;
+            var leadingImage;
+            var nextImage;
+            var arrow_left;
+            var arrow_right;
+            var startPoint;
+            var step;
+            var count = 0;
+
+            var centerLeadingImage = function(){
+                startPoint = (this.innerWidth - leadingImage.width()) / 2;
+                leadingImage.css('margin-left', startPoint);
+
+                var top = (leadingImage.height() - arrow_left.height()) / 2;
+                var left = startPoint - arrow_left.width();
+                arrow_left.css('top', top);
+                arrow_left.css('left', left);
+
+                left = startPoint + leadingImage.width();
+                arrow_right.css('top', top);
+                arrow_right.css('left', left);
+            };
+
+            var init = function(){
+                children = $element.children();
+                leadingImage = angular.element(children[2]);
+                nextImage = angular.element(children[3]);
+                arrow_left = angular.element(children[0]);
+                arrow_right = angular.element(children[1]);
+
+                centerLeadingImage();
+                var margin_l = leadingImage.prop('offsetLeft');
+                var margin_n = nextImage.prop('offsetLeft');
+                step = margin_n - margin_l;
+            };
+
+            angular.element($window).bind('load', function(){
+                init();
+                $scope.$apply();
+            });
+            angular.element($window).bind('resize', function(){
+                init();
+                $scope.$apply();
+            });
+
+            $scope.left = function(){
+                var new_margin = leadingImage.prop('offsetLeft');
+                if (count < children.length - 3) {
+                    new_margin -= step;
+                    count++;
+                } else {
+                    new_margin = startPoint;
+                    count = 0;
+                }
+
+                leadingImage.css('margin-left', new_margin);
+            };
+
+            $scope.right = function(){
+                var new_margin = leadingImage.prop('offsetLeft');
+                if (count > 0) {
+                    new_margin += step;
+                    count--;
+                }
+
+                leadingImage.css('margin-left', new_margin);
+            };
+        }
+    };
+}])
 
 .directive('screenshot', ['$window', function($window){
     return {

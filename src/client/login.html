@@ -52,7 +52,7 @@
   <link href="/selectize/dist/css/selectize.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
-  <link href='https://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600' rel='stylesheet' type='text/css'>
   <!-- APP STYLESHEET -->
   <link href="/assets/styles/app.css" rel="stylesheet">
 </head>
@@ -68,31 +68,31 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;">
-    <div style="background:black; opacity:0.5; height:100%; width:100%; position: absolute;"></div>
+    <div style="background:black; opacity:0.5; height:100%;" class="lp-row"></div>
   </div>
 
   <div style="position:relative" resize="height">
 <!-- Header -->
     <div style="  margin: 25px 70px;
-    height: 100px;
+    height: 75px;
     border: 1px;
     border-bottom-style: solid;
     color: white;
     position: relative">
-      <a class="navbar-brand" href="/" style="padding-top:13px;">
-        <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
+      <a class="navbar-brand" href="/" style="padding-left: 10px; padding-top:0">
+        <img src="/assets/images/CLA_logo.svg" class="img-responsive" alt="CLA assistant" style="width:55px" />
       </a>
-      <a class="text-invert" href="/auth/github?admin=true" target="_self" style="position:absolute; top:auto; bottom:10px; right:20px;"><b>Sign in</b></a>    
+      <a class="text-invert" href="/auth/github?admin=true" target="_self" style="position:absolute; top:auto; bottom:15px; right:10px;"><b>Sign in</b></a>    
     </div>
 <!-- Header -->
       
     <div class="row lp-premium lp-section" style="padding-top:50px; font-size: 30px;">
-      <div class="center-block" style="font-weight:600;">CLA assistant</div>
-      <div class="center-block">Handle Contribution License Agreements <br> with ease</div>
-      <!-- <div id="Stage" class="EDGE-110781156 center-block" style="bottom: -51px"></div> -->
+      <img class="center-block img-responsive" src="/assets/images/CLA_text.svg" style="width:200px">
+      <!-- <div class="center-block" style="font-size:42px;font-weight:600;line-height:50px;letter-spacing:3px">CLA assistant</div> -->
+      <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">Handle Contribution License Agreements <br> with ease</div>
     </div>
     
-    <div class="row lp-premium lp-section center-block" style="position:absolute; bottom:100px; width: 100%; font-family: 'PT Sans', sans-serif; font-size: 50px">
+    <div class="row lp-premium lp-section center-block lp-row" style="bottom:100px;">
       <div class="center-block">
         <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
         <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
@@ -102,11 +102,24 @@
   <div style="margin-bottom:50px">
     
 
-    <div class="row lp-white lp-section" style="padding-top:100px; font-family: 'PT Sans Narrow', sans-serif; font-size: 30px">
-      <div class="col-md-offset-3" >
-        <feature id="feature1" icon-src="/assets/images/icon1.svg" title="Feture 1" text="some text"></feature>
-        <feature id="feature2" icon-src="/assets/images/icon2.svg" title="Feture 2" text="some text"></feature>
-        <feature id="feature3" icon-src="/assets/images/icon3.svg" title="Feture 3" text="some text"></feature>
+    <div class="row lp-white lp-section" style="font-size: 25px;">
+      <div class="center-block">
+        <h4> FEATURES</h4>
+        <p>it helps you</p>
+        <p>feature description bla bla</p>
+      </div>
+      <div class="center-block" style="margin: 50px">
+        <div feature id="feature1" icon-src="/assets/images/icon1.svg" title="Feature 1" text="some text" style="display: inline-block;"></div>
+        <div feature id="feature2" icon-src="/assets/images/icon2.svg" title="Feature 2" text="some text" style="display: inline-block;"></div>
+        <div feature id="feature3" icon-src="/assets/images/icon3.svg" title="Feature 3" text="some text" style="display: inline-block;"></div>
+        <div feature id="feature4" icon-src="/assets/images/icon4.svg" title="Feature 4" text="some text" style="display: inline-block;"></div>
+      </div>
+    </div>
+
+    <div class="row lp-premium-darker lp-section">
+      <div class="center-block">
+        <h4>HOW IT WORKS</h4>
+        <p>more description bla bla</p>
       </div>
     </div>
     
@@ -119,7 +132,20 @@
     </div>
 
 
-
+    <div class="lp-white lp-section" style="font-size: 25px; padding-left:0">
+      <div class="center-block">
+        <h4>SCREENSHOTS :)</h4>
+      </div>
+      <div style="width: 10000px; position: relative" slider>
+        <div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:right" ng-click="left();" class="fa fa-angle-left"></div>
+        <div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:left" ng-click="right();" class="fa fa-angle-right"></div>
+        <!-- <div style="" ng-click="right();">right</div> -->
+        <img src="/assets/images/screenshot-1.png" class="img-responsive lp-screenshot" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-2.png" class="img-responsive" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-4.png" class="img-responsive" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-5.png" class="img-responsive" style="max-height:500px; display: inline-block;">
+      </div>
+    </div>
 
 
 
