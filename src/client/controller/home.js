@@ -240,6 +240,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var positionElement = function(){
                 if (scope.resize === 'height') {
                     el.css('height', $window.innerHeight + 'px');
+                } else if (scope.resize === 'max-width'){
+                    el.css('max-width', this.innerWidth - 100);
                 }
             };
 
@@ -269,7 +271,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
-.directive('slider', ['$window', function($window){
+.directive('slider', ['$window', '$timeout', function($window, $timeout){
     return {
         scope: true,
         controller: function($scope, $element){
@@ -281,6 +283,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var startPoint;
             var step;
             var count = 0;
+            $scope.maxWidth = $window.innerWidth - 100;
 
             var centerLeadingImage = function(){
                 startPoint = (this.innerWidth - leadingImage.width()) / 2;
@@ -296,9 +299,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 arrow_right.css('left', left);
             };
 
+            var resize = function(){
+                for (var i = children.length - 1; i >= 0; i--) {
+                    angular.element(children[i]).css('max-width', this.innerWidth - 100);
+                }
+            };
+
             var init = function(){
-                children = $element.children();
-                leadingImage = angular.element(children[2]);
                 nextImage = angular.element(children[3]);
                 arrow_left = angular.element(children[0]);
                 arrow_right = angular.element(children[1]);
@@ -309,13 +316,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 step = margin_n - margin_l;
             };
 
-            angular.element($window).bind('load', function(){
+            angular.element($window).bind('load resize', function(){
+                children = $element.children();
+                leadingImage = angular.element(children[2]);
+                leadingImage.removeClass('lp-screenshot'); //risize without animation
+                resize();
                 init();
-                $scope.$apply();
-            });
-            angular.element($window).bind('resize', function(){
-                init();
-                $scope.$apply();
+                leadingImage.addClass('lp-screenshot'); //animated class for user actions
             });
 
             $scope.left = function(){
