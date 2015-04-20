@@ -15,6 +15,7 @@
 
 .lp-section {
   /*overflow: hidden;*/
+  font-size: 25px;
   padding:50px;
 }
 
@@ -93,8 +94,17 @@ a.lp-signin:hover, a.lp-signin:focus {
 .lp-section-shutter-remove.lp-section-shutter-remove-active {
 }
 
+.lp-textblock
+{
+  color:white;
+  margin-left:100%;
+  position: absolute;
+  width: 100%;
+  opacity: 0;
+}
 
 .section-show-add, .section-show-remove,
+.lp-textblock-animate-add, .lp-textblock-animate-remove,
 {
   -webkit-transition:all linear 0.5s;
   -moz-transition:all linear 0.5s;
@@ -113,6 +123,17 @@ a.lp-signin:hover, a.lp-signin:focus {
   height: 250px;
 }
 
+.lp-textblock-animate, .lp-textblock-animate-add.lp-textblock-animate-add-active {
+  opacity: 1;
+  margin-left: 0 !important;
+}
+
+.lp-textblock-animate-remove.lp-textblock-animate-remove-active {
+  opacity: 0;
+  margin-left: -100% !important;
+}
+
+
 .lp-screenshot {
   margin-left: 0px;
 }
@@ -122,7 +143,7 @@ a.lp-signin:hover, a.lp-signin:focus {
 .next-step-show.ng-hide-add.ng-hide-add-active,
 .next-step-show.ng-hide-remove.ng-hide-remove-active,
 .feature-title-add, .feature-title-remove,
-.lp-screenshot
+.lp-screenshot,
 {
   -webkit-transition:all ease 0.5s;
   transition:all ease 0.5s;

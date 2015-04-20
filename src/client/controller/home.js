@@ -18,6 +18,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.selectedIndex = -1;
         $scope.user = {};
         $scope.nextstep = {step1: true};
+        $scope.active = 0;
 
 
         $scope.logAdminIn = function(){
@@ -271,7 +272,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
-.directive('slider', ['$window', '$timeout', function($window, $timeout){
+.directive('imgSlider', ['$window', '$timeout', function($window, $timeout){
     return {
         scope: true,
         controller: function($scope, $element){
@@ -350,7 +351,25 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
+.directive('textSlider', ['$window', '$timeout', function($window, $timeout){
+    return {
+        scope: {
+            time: '@',
+            active: '='
+        },
+        link: function(scope, element, attrs){
+            var children = element.children();
+            var start = function(){
+                $timeout(function(){
+                    scope.active = scope.active + 1 === children.length ? 0 : scope.active + 1;
+                    start();
+                }, scope.time);
+            };
 
+            start();
+        }
+    };
+}])
 .directive('screenshot', ['$window', function($window){
     return {
         // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
@@ -409,16 +428,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 positionScreenshot();
                 scope.$apply();
             });
-        }
-    };
-}])
-.directive('parallax', ['$window', function($window){
-    return {
-        scope: {
-
-        },
-        link: function(scope, element, attrs){
-
         }
     };
 }]);
