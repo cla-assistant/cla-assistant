@@ -1,11 +1,23 @@
+$navbar-default-bg: $body-bg;
+/*$navbar-default-color: $gray-darkest;
+$navbar-default-link-color: $gray-darkest;
+$navbar-default-link-hover-color: $gray-darker;
+$navbar-default-brand-hover-color: $gray;
+$navbar-default-link-active-color: $gray;*/
+$navbar-margin-bottom: 0;
+$nav-link-padding: 15px 20px 15px 0px;
+
+$grid-float-breakpoint: 100px;
+
+
 $footer-height: 50px;
 
 .navbar a{
-		text-decoration: none;
+	text-decoration: none;
 }
 
-.navbar-static-top {
-	border: transparent;
+.navbar-default .navbar-text {
+  color: $gray-darkest;
 }
 
 .navbar-fixed-bottom {
@@ -19,7 +31,7 @@ $footer-height: 50px;
 .navbar-top-border {
 	height: 1px;
 	margin: 0px 15px;
-	background: $brand-primary;
+	background: $brand-primary-lightest;
 }
 
 .navbar-left:first-child {
@@ -43,4 +55,24 @@ $footer-height: 50px;
 
 .navbar-default {
 	border-color: white;
+}
+
+.nav-justified>li, .nav-justified>.nav-tabs.nav-justified {
+  bottom: -1px;
+}
+
+nav {
+	margin-top: 10px;
+}
+
+nav .nav-justified>li>a {
+  	color: $gray;
+}
+
+.nav-justified>.active>a,
+.nav>li>a:hover, 
+.nav>li>a:focus {
+	color: $gray-darkest;
+	background-color: transparent;
+	border-bottom: solid;
 }

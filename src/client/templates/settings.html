@@ -1,9 +1,53 @@
 <!-- <div class="row settings_background"> -->
-	<div class="separator"></div>
+
+<div class="col-sm-1 btn_padding">
+	<img ng-if="loading" src="/assets/images/link_inactive.svg">
+	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg">
+	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg">
+</div>
+
+<div class="col-sm-5">
+	<!-- <span class="clickable btn_padding"> -->
+		<div class="clickable btn_padding ">
+			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
+			&nbsp; 
+			{{ repo.owner }} / {{ repo.repo }}
+		</div>
+	<!-- </span> -->
+</div>
+
+<div class="col-sm-4">
+	<div ng-if="!loading && gist.id.length > 0" class="text">
+		&nbsp;{{getGistName()}}
+		<!-- , updated {{gist.updated_at | date:'longDate'}} -->
+	</div>
+</div>
+
+<div class="col-sm-1" >
+	<a ng-click="$parent.getReport(repo);" class="clickable">{{contributors.length}}</a>
+</div>
+
+<div class="col-sm-1 btn_padding">
+	<i class="fa fa-trash-o action-icon"
+	style="float:right"
+	ng-click="$parent.remove(repo)" 
+	tooltip-placement="bottom" 
+	tooltip="Remove">
+	</i>
+	<i class="fa fa-pencil action-icon"
+	ng-click="" 
+	tooltip-placement="bottom" 
+	tooltip="Edit">
+	</i>
+</div>
+
+
+<!-- 	<div class="separator"></div>
 	<div style="margin-top:10px;">
-		<!-- <span class="col-xs-2 form-control-static">
+		<span class="col-xs-2 form-control-static">
 			CLA gist url  
-		</span> -->
+		</span>
+		
 		
 		<form name="claForm" class="col-xs-12 form-horizontal" ng-submit="update()">
 			<div class="form-group">
@@ -12,21 +56,12 @@
 					<span class="input-group-btn">
 			    		<button class="btn btn-info" type="submit">Link</button>
 					</span>
-					<!-- <span class="fa fa-info-circle clickable btn" style="position:absolute;" ng-click="info()"></span> -->
 				</div>
 				<span class="help-block">
-			    	<!-- <span ng-show="!claForm.gist.$valid" class="fa">Please enter valid gist url here...</span> -->
-					<span ng-show="loading" class="fa fa-spinner fa-spin"></span>
-			    	<span ng-show="claForm.gist.$valid && !loading && gist.id.length > 0" >
-			    		<i class="fa fa-check text-primary"></i>
-			    		&nbsp;{{getGistName()}}, updated {{gist.updated_at | date:'longDate'}}</span>
-			    	<span ng-show="claForm.gist.$valid && !loading && !gist.id && gist.linked || !gistValid"> 
-			    		<i class="fa fa-times text-danger"></i>
-			    		&nbsp;Something went wrong :( Please double-check your Gist URL 
-			    		<!-- <br>&nbsp;(https://gist.github.com/&lt;gist id&gt;) -->
-			    	</span>
+			    	<span ng-show="!claForm.gist.$valid" class="fa">Please enter valid gist url here...</span>
 				</span>
 			</div>
 		</form>
 		
-	</div>
+	</div> -->
+	<!-- </div> -->

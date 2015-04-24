@@ -9,14 +9,16 @@ $gray-darker: #666;
 $gray-dark: #999;
 $gray: #e1e1e1;
 $gray-light: #ececec;
-$gray-lighter: #f9f9f9;
+$gray-lighter: #f5f5f5;
+
+$white: #fff;
 
 // brand colours
-$brand-primary: #fff;
+$brand-primary-lightest: #ffffff;
+$brand-primary-lighter: #e2f1fc;
+$brand-primary: #77acc3;
 $brand-primary-darker: #4d8fac;
 $brand-primary-darkest: #2c3e50;
-$brand-primary-lighter: #e2f1fc;
-$brand-primary-lightest: #ffffff;
 $brand-accent: #ee524f;
 
 
@@ -31,10 +33,10 @@ $brand-merged: #6e5494;
 $link-color: #3c3c3d;
 
 // body
-$body-bg: $brand-primary;
+$body-bg: $gray-lighter;
 
 // typography
-$text-color: $gray-darkest;
+$text-color: $brand-primary-darkest;
 $text-gray: $gray-darker;
 $text-primary: $brand-primary;
 $text-invert: #fff;
@@ -77,7 +79,7 @@ $btn-default-color: $brand-primary-darkest;
 $btn-primary-color: $brand-primary-darkest;
 
 // wells
-$well-bg: $gray;
+$well-bg: $white;
 $well-border: transparent;
 
 // list group
@@ -98,16 +100,6 @@ $nav-tabs-active-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-bg: $gray-lighter;
 
 // navbar
-$navbar-default-bg: $body-bg;
-$navbar-default-color: $gray-darker;
-$navbar-default-link-color: $gray-dark;
-$navbar-default-link-hover-color: $gray;
-$navbar-default-brand-hover-color: $gray;
-$navbar-default-link-active-color: $gray;
-$navbar-margin-bottom: 0;
-$nav-link-padding: 15px 20px 15px 0px;
-
-$grid-float-breakpoint: 100px;
 
 // breadcrumb
 $breadcrumb-bg: transparent;
@@ -151,6 +143,7 @@ html {
 }
 
 body {
+  padding-top: 140px; //double headers
   margin-bottom: $footer-height;
 }
 

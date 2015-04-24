@@ -15,6 +15,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.errorMsg = [];
         $scope.loading = false;
         $scope.gistValid = true;
+        $scope.contributors = [];
 
         function gistArgs () {
             var args = {gist_url: $scope.repo.gist};
@@ -109,6 +110,11 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         if ($scope.repo.gist) {
             $scope.getGist();
+            $scope.$parent.getUsers($scope.repo).then(function(data){
+                if (data && data.value) {
+                    $scope.contributors = data.value;
+                };
+            });
         }
 
     }

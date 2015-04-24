@@ -1,6 +1,7 @@
 .btn {
   &.btn-info {
-    @include button-variant($gray-darkest, $brand-primary, $brand-primary);
+    @include button-variant($brand-primary-darkest, $brand-primary-lightest, $brand-primary); 
+    /*@color; @background; @border*/
   }
 
   &.disabled,
