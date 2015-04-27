@@ -1,6 +1,10 @@
 .btn {
+  border-radius: 5px;
+}
+
+.btn {
   &.btn-info {
-    @include button-variant($brand-primary-darkest, $brand-primary-lightest, $brand-primary); 
+    @include button-variant($brand-primary-lightest, $brand-primary, $brand-primary); 
     /*@color; @background; @border*/
   }
 

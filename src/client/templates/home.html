@@ -39,9 +39,14 @@
 			  {{ error }}
 	</div>
 </div>
-	<div class="well row" style="background:#77acc3; margin-top: -30px; border-top-right-radius: 0; border-top-left-radius: 0;">
+	<div class="well row" style="background:#ddd; margin-top: -30px; border-top-right-radius: 0; border-top-left-radius: 0; padding: 5px 20px;">
 			      <!-- <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add</button> -->
-		<button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Link Them</button>
+		<div class="col-xs-12">
+			<button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo" style="float: right">
+				<img src="/assets/images/link_inactive.svg" style="height: 18px">
+				Link Them
+			</button>
+		</div>
 	</div>
 
 <!-- ----------ACTIVATED CLAs---------- -->

@@ -7,7 +7,7 @@ $font-family-sans-serif: 'Source Sans Pro', sans-serif;
 $gray-darkest: #2c3e50;
 $gray-darker: #666;
 $gray-dark: #999;
-$gray: #e1e1e1;
+$gray: #ddd;
 $gray-light: #ececec;
 $gray-lighter: #f5f5f5;
 
@@ -143,10 +143,9 @@ html {
 }
 
 body {
-  padding-top: 140px; //double headers
   margin-bottom: $footer-height;
 }
-
+/*
 .scaffold {
   background: $gray-lighter;
 
@@ -178,9 +177,9 @@ body {
       overflow-y: scroll;
     }
   }
-}
+}*/
 
-.star-dropdown {
+/*.star-dropdown {
   margin-bottom: 0;
   max-height: 350px;
   overflow-y: scroll;
@@ -203,7 +202,7 @@ body {
 
 .input-group-btn {
   vertical-align: top;
-}
+}*/
 
 // typography
 
