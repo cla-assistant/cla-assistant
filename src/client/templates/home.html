@@ -1,44 +1,45 @@
 
 
-<!-- ----------ACTIVARE a CLA---------- -->
-<div class="well row">
-	<div class="col-sm-6">
-		<div>Choose a Repository</div>
-	    <div class="form-group has-feedback" style="margin-bottom: 25px;">
-	    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-	            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
-	            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
-	              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
-	              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
-	            </ui-select-choices>
-	        </ui-select>
-	    </div>
-	</div>
-	<div class="col-sm-6" style="border-left: solid 1px;">
-		<div>Choose a CLA in Gist</div>
-	    <div class="form-group has-feedback" style="margin-bottom: 10px;">
-	    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-	            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
-	            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
-	              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
-	              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
-	            </ui-select-choices>
-	        </ui-select>
-	    </div>
-	    <div class="center-block">- or -</div>
-		<div class="form-group" style="margin-top: 10px;">
-			<input type="url" name="gist" class="form-control" ng-class="{'text-primary': repo.active && gist.linked, 'text-danger': (gist.linked && !gist.id) || !gistValid}" ng-model="repo.gist" placeholder="Enter Gist URL" required></input>
-			<span class="help-block">
-		    	<span ng-show="!claForm.gist.$valid" class="fa">...paste a gist url here</span>
-			</span>
+<!-- ----------ACTIVATE a CLA---------- -->
+<div id="activate" style="height:100vH; padding-top: 165px;">
+	<div class="well row">
+		<div class="col-sm-6">
+			<div>Choose a Repository</div>
+		    <div class="form-group has-feedback" style="margin-bottom: 25px;">
+		    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
+		            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
+		            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
+		              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
+		              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+		            </ui-select-choices>
+		        </ui-select>
+		    </div>
+		</div>
+		<div class="col-sm-6" style="border-left: solid 1px;">
+			<div>Choose a CLA in Gist</div>
+		    <div class="form-group has-feedback" style="margin-bottom: 10px;">
+		    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
+		            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
+		            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
+		              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
+		              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+		            </ui-select-choices>
+		        </ui-select>
+		    </div>
+		    <div class="center-block">- or -</div>
+			<div class="form-group" style="margin-top: 10px;">
+				<input type="url" name="gist" class="form-control" ng-class="{'text-primary': repo.active && gist.linked, 'text-danger': (gist.linked && !gist.id) || !gistValid}" ng-model="repo.gist" placeholder="Enter Gist URL" required></input>
+				<span class="help-block">
+			    	<span ng-show="!claForm.gist.$valid" class="fa">...paste a gist url here</span>
+				</span>
+			</div>
+		</div>
+		<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
+				  <span class="fa fa-warning" aria-hidden="true"></span>
+				  <span class="sr-only">Error:</span>
+				  {{ error }}
 		</div>
 	</div>
-	<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
-			  <span class="fa fa-warning" aria-hidden="true"></span>
-			  <span class="sr-only">Error:</span>
-			  {{ error }}
-	</div>
-</div>
 	<div class="well row" style="background:#ddd; margin-top: -30px; border-top-right-radius: 0; border-top-left-radius: 0; padding: 5px 20px;">
 			      <!-- <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add</button> -->
 		<div class="col-xs-12">
@@ -48,10 +49,10 @@
 			</button>
 		</div>
 	</div>
-
+</div>
 <!-- ----------ACTIVATED CLAs---------- -->
 
-<div ng-show="user.value.admin" class="row" style="margin-top: 20px;">
+<div id="activated_cla" ng-show="user.value.admin" class="row" style="height:100vH; padding-top: 215px; margin-top: 20px;">
 	<!-- <h2 class="text-primary">Contributor License Agreement assistant <i class="fa fa-question-circle clickable" style="font-size:18px; color: gray; vertical-align:middle" ng-click="info()"></i></h2> -->
 
 	<div class="well" style="padding-top:30px">

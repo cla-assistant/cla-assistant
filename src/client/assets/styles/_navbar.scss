@@ -72,7 +72,11 @@ nav .nav-justified>li>a {
 .nav-justified>.active>a,
 .nav>li>a:hover, 
 .nav>li>a:focus {
-	color: $gray-darkest;
 	background-color: transparent;
-	border-bottom: solid;
+}
+
+.nav-justified>.active>a,
+.nav>li>a:hover {
+	color: $gray-darkest;
+	border-bottom: solid;	
 }
