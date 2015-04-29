@@ -9,6 +9,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
     function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
 
         $scope.repos = [];
+        $scope.gists = [];
         $scope.claRepos = [];
         $scope.selectedRepo = {};
         $scope.query = {};
@@ -80,16 +81,16 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getRepos = function() {
-            var callBack = function(data){
-                data.value.forEach(function(orgRepo){
-                        $scope.repos.push(orgRepo);
-                    });
-                if (data.hasMore) {
-                    data.getMore();
-                } else {
-                    updateScopeData();
-                }
-            };
+            // var callBack = function(data){
+            //     data.value.forEach(function(orgRepo){
+            //             $scope.repos.push(orgRepo);
+            //         });
+            //     if (data.hasMore) {
+            //         data.getMore();
+            //     } else {
+            //         updateScopeData();
+            //     }
+            // };
 
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
                 $HUBService.direct_call('https://api.github.com/user/repos?per_page=100').then(function(data){
@@ -99,6 +100,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     updateScopeData();
                 });
             }
+        };
+
+        var getGists = function(){
+            $HUBService.direct_call('https://api.github.com/gists?per_page=100').then(function(data){
+                if (data && data.value) {
+                    $scope.gists = data.value;
+                }
+            });
         };
 
         var showErrorMessage = function(text) {
@@ -115,6 +124,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         getUser().then(function(){
             getRepos();
+            getGists();
         });
 
         // $scope.$on('user', function(event, data){
@@ -217,7 +227,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $document.scrollTopAnimated(0, 800);
         };
 
-        $scope.isActive = function (viewLocation) { 
+        $scope.isActive = function (viewLocation) {
             return viewLocation === $location.url();
         };
 

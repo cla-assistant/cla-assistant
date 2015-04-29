@@ -24,6 +24,7 @@ describe('Home Controller', function() {
         githubResponse = {data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}};
         httpBackend.when('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(githubResponse);
         httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+        httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/gists?per_page=100'}).respond(testDataGists.data.concat([{html_url: 'https://gist.github.com/gistId'}]));
         httpBackend.when('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
     }));
@@ -47,7 +48,7 @@ describe('Home Controller', function() {
     xit('should get more repos if there are more to load', function(){
 
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'})
-            .respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]), {link: "<next_page_url>; rel='next'"});
+            .respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]), {link: '<next_page_url>; rel="next"'});
         httpBackend.expect('POST', '/api/github/direct_call', {url: 'next_page_url'}).respond([{id: 456, owner: {login: 'orgOwner'}}]);
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
@@ -170,6 +171,12 @@ describe('Home Controller', function() {
         (homeCtrl.scope.users.length).should.be.equal(1);
     });
 
+    it('should load gist files of the user', function(){
+        httpBackend.flush();
+
+        (homeCtrl.scope.gists.length).should.be.equal(2);
+    });
+
     xit('should handle multiple error messages', function(){
     });
 });
@@ -213,5 +220,52 @@ var testDataOrgs = {data: [
     'url': 'https://api.github.com/orgs/github',
     'repos_url': 'https://api.github.com/orgs/github/repos',
     'avatar_url': 'https://github.com/images/error/octocat_happy.gif'
+  }
+]};
+
+var testDataGists = {data: [
+  {
+    'url': 'https://api.github.com/gists/aa5a315d61ae9438b18d',
+    'forks_url': 'https://api.github.com/gists/aa5a315d61ae9438b18d/forks',
+    'commits_url': 'https://api.github.com/gists/aa5a315d61ae9438b18d/commits',
+    'id': 'aa5a315d61ae9438b18d',
+    'description': 'description of gist',
+    'public': true,
+    'owner': {
+      'login': 'octocat',
+      'id': 1,
+      'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
+      'gravatar_id': '',
+      'url': 'https://api.github.com/users/octocat',
+      'html_url': 'https://github.com/octocat',
+      'followers_url': 'https://api.github.com/users/octocat/followers',
+      'following_url': 'https://api.github.com/users/octocat/following{/other_user}',
+      'gists_url': 'https://api.github.com/users/octocat/gists{/gist_id}',
+      'starred_url': 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
+      'subscriptions_url': 'https://api.github.com/users/octocat/subscriptions',
+      'organizations_url': 'https://api.github.com/users/octocat/orgs',
+      'repos_url': 'https://api.github.com/users/octocat/repos',
+      'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
+      'received_events_url': 'https://api.github.com/users/octocat/received_events',
+      'type': 'User',
+      'site_admin': false
+    },
+    'user': null,
+    'files': {
+      'ring.erl': {
+        'size': 932,
+        'raw_url': 'https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl',
+        'type': 'text/plain',
+        'truncated': false,
+        'language': 'Erlang'
+      }
+    },
+    'comments': 0,
+    'comments_url': 'https://api.github.com/gists/aa5a315d61ae9438b18d/comments/',
+    'html_url': 'https://gist.github.com/aa5a315d61ae9438b18d',
+    'git_pull_url': 'https://gist.github.com/aa5a315d61ae9438b18d.git',
+    'git_push_url': 'https://gist.github.com/aa5a315d61ae9438b18d.git',
+    'created_at': '2010-04-14T02:15:15Z',
+    'updated_at': '2011-06-20T11:34:15Z'
   }
 ]};
