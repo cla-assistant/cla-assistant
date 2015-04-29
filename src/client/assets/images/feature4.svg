@@ -98,7 +98,7 @@
 		<stop  offset="1" style="stop-color:#000000;stop-opacity:0.7"/>
 	</linearGradient>
 	<path fill="url(#SVGID_3_)" d="M481.5,202.5L528,161l-71-95c0,0,8.5,27.5-9.5,54.5l22,63L481.5,202.5z"/>
-	<linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="490.4354" y1="203.9223" x2="476.4951" y2="179.7771">
+	<linearGradient id="SVGID_4_" gradientUnits="userSpaceOnUse" x1="492.7241" y1="202.6009" x2="473.2331" y2="168.8415">
 		<stop  offset="0" style="stop-color:#FFFFFF;stop-opacity:0"/>
 		<stop  offset="0.185" style="stop-color:#FCFCFC;stop-opacity:0.1295"/>
 		<stop  offset="0.318" style="stop-color:#F3F3F3;stop-opacity:0.2226"/>
@@ -110,11 +110,11 @@
 		<stop  offset="0.919" style="stop-color:#333333;stop-opacity:0.6433"/>
 		<stop  offset="1" style="stop-color:#000000;stop-opacity:0.7"/>
 	</linearGradient>
-	<polygon fill="url(#SVGID_4_)" points="469.3,184.5 484.5,207.3 495.8,196 482.5,176.3 	"/>
+	<polygon fill="url(#SVGID_4_)" points="463.9,174.8 484.5,207.3 500,193 477,166.7 	"/>
 	<g>
 		<circle fill="none" stroke="#009245" stroke-width="10" stroke-miterlimit="10" cx="420.7" cy="87.9" r="38.2"/>
 		
-			<rect x="450.4" y="115.8" transform="matrix(0.8587 -0.5125 0.5125 0.8587 -12.5226 256.2094)" fill="#009245" width="15.8" height="70"/>
+			<rect x="448" y="116.5" transform="matrix(0.8587 -0.5125 0.5125 0.8587 -10.636 254.3148)" fill="#009245" width="15.6" height="60"/>
 	</g>
 	<path fill="#009245" d="M517,41.5l-7.4,6.7l-7.5,6.7c14.3,16.3,23,37.6,23,60.9c0,51-41.5,92.4-92.4,92.4
 		c-26.7,0-50.8-11.4-67.7-29.6l-7.5,6.7l-7.4,6.7c20.6,22.2,49.9,36.2,82.5,36.2c62,0,112.4-50.4,112.4-112.4
