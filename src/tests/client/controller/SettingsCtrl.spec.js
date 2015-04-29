@@ -14,6 +14,11 @@ describe('Settings Controller', function() {
         scope.user = {value: {admin: false}};
         stateParams = {user: 'login', repo: 'myRepo'};
         scope.repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'};
+        scope.$parent.getUsers = function(repo){
+          return {then: function(cb){
+            cb({value: [{name: 'user1'}, {name: 'user2'}]});
+          }};
+        };
 
         createCtrl = function() {
 
@@ -54,6 +59,12 @@ describe('Settings Controller', function() {
             (settingsCtrl.scope.loading).should.not.be.ok;
             (settingsCtrl.scope.gist.id).should.be.equal('gistId');
             (settingsCtrl.scope.repo).should.not.be.empty;
+        });
+
+        it('should get number of contributors on init', function(){
+            httpBackend.flush();
+
+            (settingsCtrl.scope.contributors.length).should.be.equal(2);
         });
 
         it('should get gist and create webhook on update action if gist url is given', function(){
