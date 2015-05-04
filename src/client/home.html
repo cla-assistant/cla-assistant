@@ -32,6 +32,7 @@
   <script src="/controller/cla.js"></script>
   <script src="/modals/info.js"></script>
   <script src="/modals/report.js"></script>
+  <script src="/modals/confirm.js"></script>
 
   <!-- INTERCEPTORS -->
   <!-- <script src="/interceptors/401.js"></script> -->
@@ -55,7 +56,7 @@
         <div ng-show="!!user.value.login">
           <a ng-href="{{user.value.html_url}}" target="spcae">
             <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-            &nbsp; Hey, {{ user.value.login }}!
+            &nbsp; Hey, <b>{{ user.value.login }}</b>!
           </a>
         </div>
       </div>

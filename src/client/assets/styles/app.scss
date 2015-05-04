@@ -324,15 +324,30 @@ small {
   color: $gray;
 }
 
+// _activate cla screen
+
 .selectize-input{
   height: 33px;
 }
 
 .content-block {
   height:100vH;
-  padding-top: 165px;
+  padding-top: 200px;
+}
+
+.content-block .row .right-side {
+  border-left: solid 1px;
+  border-color: $gray;
 }
 
 .content-block:last-child {
   margin-bottom:-50px;
+}
+
+.clear-button {
+  border:0px;
+  background-color: transparent;
+  position: absolute;
+  right:30px;
+  color:$gray-darker;
 }

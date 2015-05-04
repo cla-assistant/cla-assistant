@@ -12,6 +12,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.gists = [];
         $scope.claRepos = [];
         $scope.selectedRepo = {};
+        $scope.selectedGist = {};
         $scope.query = {};
         $scope.errorMsg = [];
         $scope.openSettings = false;
@@ -103,9 +104,16 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getGists = function(){
+            $scope.gists = [];
             $HUBService.direct_call('https://api.github.com/gists?per_page=100').then(function(data){
                 if (data && data.value) {
-                    $scope.gists = data.value;
+                    data.value.forEach(function(gist){
+                        var gistFile = {};
+                        gistFile.name = Object.keys(gist.files)[0];
+                        gistFile.name = gist.files[gistFile.name].filename ? gist.files[gistFile.name].filename : gistFile.name;
+                        gistFile.url = gist.html_url;
+                        $scope.gists.push(gistFile);
+                    });
                 }
             });
         };
@@ -122,6 +130,20 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.errorMsg.push(error);
         };
 
+        var confirmAdd = function() {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/confirm.html',
+                controller: 'ConfirmCtrl',
+                resolve: {
+                    selectedGist: function(){ return $scope.selectedGist;},
+                    selectedRepo: function(){ return $scope.selectedRepo;}
+                }
+            });
+            modal.result.then(function(){
+
+            });
+        };
+
         getUser().then(function(){
             getRepos();
             getGists();
@@ -131,9 +153,51 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         //     $scope.user = $rootScope.user;
         //     getRepos();
         // });
+        $scope.clear = function($event) {
+           $event.stopPropagation();
+           // Replace the following line with the proper variable
+           $scope.selectedGist.gist = undefined;
+        };
+
+        $scope.isValid = function(gist){
+            var valid = false;
+             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
+            valid = gist ? !!gist.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
+            // return valid ? gist : undefined;
+            return valid;
+        };
+
+        $scope.updateWebhook = function(claRepo){
+            // $scope.gistValid = $scope.isValid($scope.repo.gist);
+            // if ($scope.repo.gist && !$scope.gistValid) {
+            //     return;
+            // }
+            if (claRepo.gist) {
+                $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
+                    if (!err) {
+                        claRepo.active = true;
+                    }
+                });
+            } else {
+                $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+                    if (!err) {
+                        claRepo.active = false;
+                    }
+                });
+            }
+
+        };
+
+
 
         $scope.addRepo = function(){
-            var newClaRepo = {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login, gist: '', active: false};
+            // confirmAdd();
+            // return;
+        };
+
+        $scope.link = function(){
+
+            var newClaRepo = {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login, gist: $scope.selectedGist.gist.url, active: false};
             newClaRepo = mixRepoData(newClaRepo);
             $RPCService.call('repo', 'create', {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login}, function(err, data){
                 if (err && err.err.match(/.*duplicate key error.*/)) {
@@ -149,6 +213,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     $scope.query.text = '';
                 }
             });
+
+            $scope.updateWebhook(newClaRepo);
         };
 
         $scope.remove = function(claRepo){

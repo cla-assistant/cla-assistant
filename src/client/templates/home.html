@@ -15,24 +15,27 @@
 		        </ui-select>
 		    </div>
 		</div>
-		<div class="col-sm-6" style="border-left: solid 1px;">
+		<div class="col-sm-6 right-side" >
 			<div>Choose a CLA in Gist</div>
 		    <div class="form-group has-feedback" style="margin-bottom: 10px;">
-		    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-		            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
-		            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
-		              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
-		              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+		    	<ui-select ng-model="selectedGist.gist"  theme="selectize">
+		            <ui-select-match placeholder="choose a gist file" allow-clear="true">
+						<button class="fa fa-times clear-button" ng-click="clear($event)" ng-show="$select.selected.name"></button>
+	            		{{$select.selected.name}}
+
+		            </ui-select-match>
+		            <ui-select-choices repeat="gist in gists | filter: $select.search" null-option="emptyGist">
+		              	<span ng-bind-html="gist.name | highlight: $select.search"></span>
 		            </ui-select-choices>
 		        </ui-select>
 		    </div>
 		    <div class="center-block">- or -</div>
-			<div class="form-group" style="margin-top: 10px;">
-				<input type="url" name="gist" class="form-control" ng-class="{'text-primary': repo.active && gist.linked, 'text-danger': (gist.linked && !gist.id) || !gistValid}" ng-model="repo.gist" placeholder="Enter Gist URL" required></input>
-				<span class="help-block">
-			    	<span ng-show="!claForm.gist.$valid" class="fa">...paste a gist url here</span>
-				</span>
-			</div>
+			<!-- <div class="form-group" style="margin-top: 10px;"> -->
+			    <div class="text-body">Paste a Gist URL here</div>
+				<input ng-disabled="selectedGist.gist.name" class="form-control" ng-model="selectedGist.gist.url" placeholder="Enter Gist URL" required></input>
+				<!-- <span class="help-block">
+				</span> -->
+			<!-- </div> -->
 		</div>
 		<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
 				  <span class="fa fa-warning" aria-hidden="true"></span>
@@ -43,8 +46,8 @@
 	<div class="well row" style="background:#ddd; margin-top: -30px; border-top-right-radius: 0; border-top-left-radius: 0; padding: 5px 20px;">
 			      <!-- <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add</button> -->
 		<div class="col-xs-12">
-			<button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo" style="float: right">
-				<img src="/assets/images/link_inactive.svg" style="height: 18px">
+			<button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo || !isValid(selectedGist.gist.url)" style="float: right">
+				<img src="/assets/images/link_button.svg" style="height: 18px">
 				Link Them
 			</button>
 		</div>

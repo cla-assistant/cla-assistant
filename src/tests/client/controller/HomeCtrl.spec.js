@@ -24,7 +24,11 @@ describe('Home Controller', function() {
         githubResponse = {data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}};
         httpBackend.when('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(githubResponse);
         httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
-        httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/gists?per_page=100'}).respond(testDataGists.data.concat([{html_url: 'https://gist.github.com/gistId'}]));
+        httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/gists?per_page=100'}).respond(testDataGists.data.concat(
+            [{
+                html_url: 'https://gist.github.com/gistId',
+                files: {'file.txt': {filename: 'file1'}}
+            }]));
         httpBackend.when('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
 
     }));
@@ -32,6 +36,8 @@ describe('Home Controller', function() {
     afterEach(function() {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
+        homeCtrl.scope.selectedRepo = {};
+        homeCtrl.scope.selectedGist = {};
     });
 
     it('should get user repos and mix claRepos data with repos data if user has admin rights', function() {
@@ -68,28 +74,36 @@ describe('Home Controller', function() {
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
     });
 
-    it('should create repo entry on addRepo action', function(){
+    it('should create repo entry and webhook on link action', function(){
         httpBackend.flush();
 
         homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
+        homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
+
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
+
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
-        homeCtrl.scope.addRepo();
+        homeCtrl.scope.link();
         httpBackend.flush();
 
         (homeCtrl.scope.claRepos.length).should.be.equal(2);
-        (homeCtrl.scope.claRepos[1].active).should.not.be.ok;
+        (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
+        (homeCtrl.scope.claRepos[1].active).should.be.ok;
         (homeCtrl.scope.claRepos[1].fork).should.be.ok;
     });
 
-    it('should remove repo from claRepos list if create failed on backend', function(){
+    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function(){
         httpBackend.flush();
 
+        homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
+
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
-        homeCtrl.scope.addRepo();
+        homeCtrl.scope.link();
         httpBackend.flush();
 
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
@@ -106,6 +120,35 @@ describe('Home Controller', function() {
 
         (homeCtrl.scope.errorMsg[0]).should.be.equal('This repository is already set up.');
     });
+
+    xit('should create webhook on link if gist url is given', function(){
+            // scope.user.value = {id: 123, login: 'login', admin: true};
+        httpBackend.flush();
+
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
+        httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'}).respond(true);
+        // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'});
+        httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
+
+            settingsCtrl.scope.update();
+
+            httpBackend.flush();
+            (settingsCtrl.scope.repo.active).should.be.ok;
+            (settingsCtrl.scope.gist.id).should.be.equal('gistId');
+        });
+
+        xit('should remove webhook for the selected repo on update action if there is NO gist', function(){
+            scope.user.value = {id: 123, login: 'login', admin: true};
+            httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
+            httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
+            // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: ''});
+
+            settingsCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
+            settingsCtrl.scope.update();
+
+            httpBackend.flush();
+            (settingsCtrl.scope.repo.active).should.not.be.ok;
+        });
 
     // xit('should create webhook for the selected repo on update action if gist is given', function(){
 
@@ -175,7 +218,17 @@ describe('Home Controller', function() {
         httpBackend.flush();
 
         (homeCtrl.scope.gists.length).should.be.equal(2);
+        (homeCtrl.scope.gists[0].name).should.be.equal('ring.erl');
+        (homeCtrl.scope.gists[1].name).should.be.equal('file1');
     });
+
+    it('should validate gist url', function(){
+        httpBackend.flush();
+        var valid = homeCtrl.scope.isValid('https://google.com');
+        valid.should.not.be.ok;
+    });
+
+
 
     xit('should handle multiple error messages', function(){
     });

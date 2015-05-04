@@ -7,13 +7,11 @@
 </div>
 
 <div class="col-sm-5">
-	<!-- <span class="clickable btn_padding"> -->
-		<div class="clickable btn_padding ">
-			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
-			&nbsp; 
-			{{ repo.owner }} / {{ repo.repo }}
-		</div>
-	<!-- </span> -->
+	<div class="clickable btn_padding ">
+		<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
+		&nbsp; 
+		{{ repo.owner }} / {{ repo.repo }}
+	</div>
 </div>
 
 <div class="col-sm-4">
@@ -23,7 +21,7 @@
 	</div>
 </div>
 
-<div class="col-sm-1" >
+<div class="col-sm-1" style="text-align:center">
 	<a ng-click="$parent.getReport(repo);" class="clickable">{{contributors.length}}</a>
 </div>
 
@@ -40,28 +38,3 @@
 	tooltip="Edit">
 	</i>
 </div>
-
-
-<!-- 	<div class="separator"></div>
-	<div style="margin-top:10px;">
-		<span class="col-xs-2 form-control-static">
-			CLA gist url  
-		</span>
-		
-		
-		<form name="claForm" class="col-xs-12 form-horizontal" ng-submit="update()">
-			<div class="form-group">
-				<div class="input-group">
-					<input type="url" name="gist" class="form-control" ng-class="{'text-primary': repo.active && gist.linked, 'text-danger': (gist.linked && !gist.id) || !gistValid}" ng-model="repo.gist" placeholder="Enter Gist URL" required></input>
-					<span class="input-group-btn">
-			    		<button class="btn btn-info" type="submit">Link</button>
-					</span>
-				</div>
-				<span class="help-block">
-			    	<span ng-show="!claForm.gist.$valid" class="fa">Please enter valid gist url here...</span>
-				</span>
-			</div>
-		</form>
-		
-	</div> -->
-	<!-- </div> -->
