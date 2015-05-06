@@ -130,6 +130,17 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.errorMsg.push(error);
         };
 
+        var linkSuccess = function(){
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/confirm.html',
+                controller: 'ConfirmCtrl',
+                resolve: {
+                    selectedGist: function(){ return $scope.selectedGist;},
+                    selectedRepo: function(){ return $scope.selectedRepo;}
+                }
+            });
+        }
+
         var confirmAdd = function() {
             var modal = $modal.open({
                 templateUrl: '/modals/templates/confirm.html',
@@ -140,7 +151,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             });
             modal.result.then(function(){
-
+                $scope.link();
             });
         };
 
@@ -167,31 +178,31 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return valid;
         };
 
-        $scope.updateWebhook = function(claRepo){
+        $scope.addWebhook = function(claRepo){
             // $scope.gistValid = $scope.isValid($scope.repo.gist);
             // if ($scope.repo.gist && !$scope.gistValid) {
             //     return;
             // }
             if (claRepo.gist) {
                 $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = true;
-                    }
-                });
-            } else {
-                $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = false;
+                    if (!err && data && data.value) {
+                        claRepo.active = data.value.active;
                     }
                 });
             }
+        };
 
+        $scope.removeWebhook = function(claRepo){
+            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+                if (!err) {
+                    claRepo.active = false;
+                }
+            });
         };
 
 
-
         $scope.addRepo = function(){
-            // confirmAdd();
+            confirmAdd();
             // return;
         };
 
@@ -204,6 +215,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     showErrorMessage('This repository is already set up.');
                 }
                 if (err || !data.value) {
+                    $scope.removeWebhook(newClaRepo);
                     var i = $scope.claRepos.indexOf(newClaRepo);
                     if (i > -1) {
                         $scope.claRepos.splice(i, 1);
@@ -214,7 +226,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             });
 
-            $scope.updateWebhook(newClaRepo);
+            $scope.addWebhook(newClaRepo);
         };
 
         $scope.remove = function(claRepo){
@@ -226,27 +238,20 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     }
                 }
             });
-            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){});
-        };
 
-        $scope.update = function(index){
-            var claRepo = $scope.claRepos[index];
-            $RPCService.call('repo', 'update', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
-            });
-
-            if (claRepo.gist) {
-                $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = true;
-                    }
-                });
-            } else {
+            // if (claRepo.gist) {
+            //     $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
+            //         if (!err) {
+            //             claRepo.active = true;
+            //         }
+            //     });
+            // } else {
                 $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
                     if (!err) {
                         claRepo.active = false;
                     }
                 });
-            }
+            // }
         };
 
         $scope.getUsers = function(claRepo){
@@ -344,7 +349,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         scope: {
             id: '@',
             iconSrc: '@',
-            title: '@',
+            header: '@',
             text: '@'
         },
         link: function(scope, element, attrs){

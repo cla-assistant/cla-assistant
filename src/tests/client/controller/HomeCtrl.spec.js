@@ -78,12 +78,12 @@ describe('Home Controller', function() {
         httpBackend.flush();
 
         homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
+
+        homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
 
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
-        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
-
-        homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({active: true});
 
         homeCtrl.scope.link();
         httpBackend.flush();
@@ -94,17 +94,39 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos[1].fork).should.be.ok;
     });
 
-    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function(){
+    it('should set active flag depending on webhook response', function(){
         httpBackend.flush();
 
+        homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
+
+        homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
 
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
-        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
-        homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({active: false});
 
         homeCtrl.scope.link();
         httpBackend.flush();
+
+        (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
+        (homeCtrl.scope.claRepos[1].active).should.be.not.ok;
+    });
+
+    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function(){
+        httpBackend.flush();
+
+        homeCtrl.scope.repos = [{name: 'myRepo', owner: {login: 'login'}, fork: true}];
+
+        homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
+        homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
+
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
+        httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
+
+        homeCtrl.scope.link();
+        httpBackend.flush();
+
 
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
     });
@@ -112,10 +134,14 @@ describe('Home Controller', function() {
     it('should show error message if create failed', function(){
         httpBackend.flush();
 
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
+        homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
+        
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
+        httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
+        httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
 
-        homeCtrl.scope.addRepo();
+        homeCtrl.scope.link();
         httpBackend.flush();
 
         (homeCtrl.scope.errorMsg[0]).should.be.equal('This repository is already set up.');
