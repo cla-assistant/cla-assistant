@@ -1,18 +1,27 @@
-<div class="modal-header">
-</div>
+<!-- <div class="modal-header">
+</div> -->
 <div class="modal-body modal-primary">
-    <div class="row ">
-        <div class="col-sm-12">
-            Would you lie to link your repo to your CLA in Gist?
-        </div>
-        <div></div>
+    <div class="row" style="text-align: center; font-size:26px;">
+        Would you lie to link this CLA with your repository?
     </div>
-</div>
-<div class="modal-body modal-primary" style="margin-top: 0">
-	<div class="row ">
+
+    <div class="row" style="margin:50px">
+    	<div class="col-sm-12 well">
+    		{{selectedGist.gist.name}}
+    	</div>
     </div>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+
+    <div class="center-block row" style="font-size:18px; margin-top:25px">
+    	Link a CLA and a repository to let CLA assistant:
+		<ul class="col-sm-6 col-sm-offset-3">
+			<li>create a webhook in your repository and listen to pull requests</li>
+			<li>set a status of pull requests</li>
+			<li>comment on pull requests</li>
+		</ul>
+    </div>
+
+    <div style="text-align:right; margin-top:50px">
+	    <button class="btn btn-primary" ng-click="ok()">Yes, let's do this!</button>
+	    <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+    </div>
 </div>

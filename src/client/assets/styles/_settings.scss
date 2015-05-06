@@ -27,17 +27,6 @@
   color: $gray;
 }
 
-.modal-dialog {
-  width: 80%;
-  max-width: 1010px;   
-  min-width: 800px;
-  
-  img {
-    width:100%; 
-    border:solid 1px lightgrey; 
-    margin-top: 30px;
-  }
-}
 
 // diff-match-patch
 .ins, ins {

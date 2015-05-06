@@ -7,11 +7,28 @@
 }
 
 .modal-primary{
-	background-color: $brand-primary; 
-	color: $gray-lighter; 
+	background-color: lightgrey;
+  	color: $gray-darkest;
 }
 
 .modal-primary-2nd{
 	background-color: $brand-primary-2nd; 
 	color: $gray-lighter; 
+}
+
+
+.modal-dialog {
+ /* width: 80%;
+  max-width: 1010px;   
+  min-width: 800px;
+ */ 
+  img {
+    width:100%; 
+    border:solid 1px lightgrey; 
+    margin-top: 30px;
+  }
+}
+
+.confirm-add .modal-dialog{
+	width: 50%;
 }
