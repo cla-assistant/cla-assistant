@@ -1,60 +1,103 @@
-<div class="row main" style="margin-top: 20px;">
-	<div class="col-md-8 col-md-offset-2" ng-show="user.value.admin">
-		<h2 class="text-primary">Contributor License Agreement assistant <i class="fa fa-question-circle clickable" style="font-size:18px; color: gray; vertical-align:middle" ng-click="info()"></i></h2>
 
-		<div class="well well-md" style="padding-top:30px">
-		  	<table  class=" table">
-				<tr>
-					<td>
-						<form>
-							<div class="form-group">
-							  <div class="input-group">
-							    <div class="form-group has-feedback" style="margin-bottom: 25px;">
-							    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-							            <ui-select-match placeholder="Add a repository">{{$select.selected.full_name}}</ui-select-match>
-							            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
-							              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
-							              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
-							            </ui-select-choices>
-							        </ui-select>
-							    </div>
-							    <span class="input-group-btn">
-							      <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add</button>
-							    </span>
-							  </div>
-							  <div ng-repeat="error in errorMsg" class="alert alert-danger" role="alert" ng-show="errorMsg.length > 0">
-								  <span class="fa fa-warning" aria-hidden="true"></span>
-								  <span class="sr-only">Error:</span>
-								  {{ error }}
-								</div>
-							</div>
-						</form>
-					</td>
-				</tr>
-				<tr ng-repeat="claRepo in claRepos | orderBy:'repo' ">
-					<td>
-						<div class="row">
-							<span class="col-xs-11 clickable btn_padding" ng-click="getReport(claRepo)">
-								<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]"></i>
-								&nbsp; 
-								{{ claRepo.owner }} / {{ claRepo.repo }}</span>
-	 						<div class="col-xs-1 btn_padding">
-	 							<i class="fa fa-times action-icon"
-	 							ng-click="remove(claRepo)" 
-	 							tooltip-placement="bottom" 
-	 							tooltip="Remove">
-	 							</i>
-	 						</div>
-	 					</div>
-	        			<!-- <div ui-view ng-if="settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings" class="row settings"></div> -->
-	        			<div class="row">
-	        				
-	        				<settings repo="claRepo" user="user" class="col-xs-12"></settings>
-	        			</div>
 
-					</td>
-				</tr>
-			</table>
-	    </div>
+<!-- ----------ACTIVATE a CLA---------- -->
+<div id="activate" class="content-block">
+	<div class="well row">
+		<div class="col-sm-6">
+			<div>Choose a Repository</div>
+		    <div class="form-group has-feedback" style="margin-bottom: 25px;">
+		    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
+		            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
+		            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
+		              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
+		              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>
+		            </ui-select-choices>
+		        </ui-select>
+		    </div>
+		</div>
+		<div class="col-sm-6 right-side" >
+			<div>Choose a CLA in Gist</div>
+		    <div class="form-group has-feedback" style="margin-bottom: 10px;">
+		    	<ui-select ng-model="selectedGist.gist"  theme="selectize">
+		            <ui-select-match placeholder="choose a gist file" allow-clear="true">
+						<button class="fa fa-times clear-button" ng-click="clear($event)" ng-show="$select.selected.name"></button>
+	            		{{$select.selected.name}}
+
+		            </ui-select-match>
+		            <ui-select-choices repeat="gist in gists | filter: $select.search" null-option="emptyGist">
+		              	<span ng-bind-html="gist.name | highlight: $select.search"></span>
+		            </ui-select-choices>
+		        </ui-select>
+		    </div>
+		    <div class="center-block">- or -</div>
+			<!-- <div class="form-group" style="margin-top: 10px;"> -->
+			    <div class="text-body">Paste a Gist URL here</div>
+				<input ng-disabled="selectedGist.gist.name" class="form-control" ng-model="selectedGist.gist.url" placeholder="Enter Gist URL" required></input>
+				<!-- <span class="help-block">
+				</span> -->
+			<!-- </div> -->
+		</div>
+		<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
+				  <span class="fa fa-warning" aria-hidden="true"></span>
+				  <span class="sr-only">Error:</span>
+				  {{ error }}
+		</div>
 	</div>
+	<div class="well row" style="background:#ddd; margin-top: -30px; border-top-right-radius: 0; border-top-left-radius: 0; padding: 5px 20px;">
+			      <!-- <button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo">Add</button> -->
+		<div class="col-xs-12">
+			<button class="btn btn-info" ng-click="addRepo()" ng-disabled="!selectedRepo.repo || !isValid(selectedGist.gist.url)" style="float: right">
+				<img src="/assets/images/link_button.svg" style="height: 18px">
+				Link Them
+			</button>
+		</div>
+	</div>
+</div>
+<!-- ----------ACTIVATED CLAs---------- -->
+
+<div id="activated_cla" ng-show="user.value.admin" class="row content-block">
+	<!-- <h2 class="text-primary">Contributor License Agreement assistant <i class="fa fa-question-circle clickable" style="font-size:18px; color: gray; vertical-align:middle" ng-click="info()"></i></h2> -->
+
+	<div class="well" style="padding-top:30px">
+	  	<table  class=" table">
+			<!-- <tr>
+				<td>
+				</td>
+			</tr> -->
+			<tr>
+				<td>
+        			<div class="row">
+        				<div class="col-sm-1" style="padding-left:0">
+							Status
+						</div>
+						<div class="col-sm-5">
+							Repository
+						</div>
+						<div class="col-sm-4">
+							CLA
+						</div>
+						<div class="col-sm-1">
+							Contributors
+						</div>
+        			</div>
+				</td>
+			</tr>
+			<tr ng-repeat="claRepo in claRepos | orderBy:'repo' ">
+				<td>
+					<!-- <div class="col-xs-5">
+						<span class="col-xs-11 clickable btn_padding" ng-click="getReport(claRepo)">
+							<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[claRepo.fork]"></i>
+							&nbsp; 
+							{{ claRepo.owner }} / {{ claRepo.repo }}</span>
+ 					</div> -->
+        			<!-- <div ui-view ng-if="settingsRepo.owner === claRepo.owner && settingsRepo.repo === claRepo.repo && openSettings" class="row settings"></div> -->
+        			<div class="row">
+        				<settings repo="claRepo" user="user" class="settings"></settings>
+        			</div>
+					
+
+				</td>
+			</tr>
+		</table>
+    </div>
 </div>

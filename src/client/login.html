@@ -9,6 +9,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js"></script>
   <script src="/angular-route/angular-route.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
@@ -16,7 +17,8 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
   <script src="/angular-sanitize/angular-sanitize.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js"></script>
-  
+
+  <script type="text/javascript" charset="utf-8" src="assets/js/edge.5.0.1.min.js"></script>
   <!-- APP -->
   <script src="/app.js"></script>
   <script src="/api.js"></script>
@@ -30,171 +32,211 @@
   <script src="/modals/info.js"></script>
   <script src="/modals/report.js"></script>
 
-  <!-- INTERCEPTORS -->
-  <!-- <script src="/interceptors/401.js"></script> -->
+  <script>
+   AdobeEdge.loadComposition('assets/js/CLA_sign', 'EDGE-110781156', {
+    scaleToFit: "none",
+    centerStage: "none",
+    minW: "0",
+    maxW: "undefined",
+    width: "550px",
+    height: "400px"
+   }, {dom: [ ]}, {dom: [ ]});
+  </script>
 
   <!-- COMPONENT STYLESHEETS -->
   <link href="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.css" rel="stylesheet">
   <link href="/selectize/dist/css/selectize.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
-
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600' rel='stylesheet' type='text/css'>
   <!-- APP STYLESHEET -->
   <link href="/assets/styles/app.css" rel="stylesheet">
 </head>
 
 <body ng-controller="HomeCtrl">
+<div style="overflow-x:hidden;">
 
-  <div class="container-fluid" style="margin-bottom:50px">
-    <div class="row">
-      <div class="col-md-12">
-        
-        <div class="lp-mobile-container">
+  <div style="  position: fixed;
+  z-index: -1;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('/assets/images/background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;">
+    <div style="background:black; opacity:0.5; height:100%;" class="lp-row"></div>
+  </div>
 
-          <div class="row lp-shattered" style="padding-bottom:50px; box-shadow: -8px 6px 10px -7px;">
-            <a class="lp-signin clickable" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
-              <div  class="col-xs-12 lp-section-content">
-                <img src="/assets/images/logo.png" class="img-responsive center-block" style="max-width:300px; width:100%" />
-              <btn class="center-block btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+  <div style="position:relative" resize="height">
+<!-- Header -->
+    <div style="  margin: 25px 70px;
+    height: 75px;
+    border: 1px;
+    border-bottom-style: solid;
+    color: white;
+    position: relative">
+      <a class="navbar-brand" href="/" style="padding-left: 10px; padding-top:0">
+        <img src="/assets/images/CLA_logo.svg" class="img-responsive" alt="CLA assistant" style="width:55px" />
+      </a>
+      <a class="text-invert" href="/auth/github?admin=true" target="_self" style="position:absolute; top:auto; bottom:15px; right:10px;"><b>Sign in</b></a>    
+    </div>
+<!-- Header -->
+      
+    <div class="row lp-premium lp-section" style="padding-top:50px; font-size: 30px;">
+      <img class="center-block img-responsive" src="/assets/images/CLA_text.svg" style="width:200px">
+      <!-- <div class="center-block" style="font-size:42px;font-weight:600;line-height:50px;letter-spacing:3px">CLA assistant</div> -->
+      <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">Handle Contribution License Agreements with ease.<p> 
+      <br> CLA assistant helps you to clinch the<br>legal side of contributions in GitHub.</p>
+      </div>
 
-              </div>
+    </div>
+    
+    <div class="row lp-premium lp-section center-block lp-row" style="bottom:170px;">
+      <div class="center-block">
+        <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+        <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
+      </div>
+    </div>
+  </div>
+  <div style="margin-bottom:50px">
+    
+
+    <div class="row lp-white lp-section" style="font-size: 25px;">
+      <div class="center-block">
+        <h4> FEATURES</h4>
+        <p>Linking Contributor License Agreements is as easy as can be: <br> CLA assistant</p>
+      </div>
+      <div class="center-block" style="margin: 50px">
+        <div feature id="feature1" icon-src="/assets/images/feature1.svg" header="Authentication" text="Easily sign in with your GitHub account" style="display: inline-block;"></div>
+        <div feature id="feature2" icon-src="/assets/images/feature2.svg" header="Integration" text="CLA assistant integrates into GitHub APIs and informs you about pull requests and status" style="display: inline-block;"></div>
+        <div feature id="feature3" icon-src="/assets/images/feature3.svg" header="Versioning" text="CLA assistant updates the status of pull requests when a contributor signs your CLA" style="display: inline-block;"></div>
+        <div feature id="feature4" icon-src="/assets/images/feature4.svg" header="Review" text="Review and export the list of contributors who signed your CLA for each version and CLAs you signed." style="display: inline-block;"></div>
+      </div>
+    </div>
+
+    <div class="row lp-premium-darker lp-section">
+      <div class="center-block">
+        <p>Signing Contributor License Agreements <br> without the hassle <br></p>
+      </div>
+      <div id="Stage" class="EDGE-110781156 center-block"></div>
+      <div class="center-block" style="font-size:18px">
+        <p>You create a pull request in GitHub
+          <br>You click to accept the CLA of the repo owner.<br>
+          <br>That's really it. We swear.<br>
+        </p>
+      </div>
+    </div>
+
+    
+    <div class="row lp-section" style="height: 400px;">
+      <div class="col-md-4 col-md-offset-4" text-slider active="active" time='5000' style="text-align: center;  margin-top: 3em">
+        <h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 0]">Set up, activate and accept CLAs</h4>
+        <h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 1]">Set up, activate and accept CLAs</h4>
+        <h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 2]">Set up, activate and accept CLAs</h4>
+        <h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 3]">Set up, activate and accept CLAs</h4>
+      </div>
+    </div>
+
+    <div class="row lp-white lp-section">
+      <div class="center-block">
+        <h4>HOW IT WORKS</h4>
+        <p>Link your repository with a CLA stored in Gist</p>
+      </div>
+
+      <div class="row" style="margin-bottom:30px; margin-top: 75px;">
+        <div class="col-md-4">
+          <img src="/assets/images/howto1.svg" style="float: right; height: 150px;">
+        </div>
+        <div class="col-md-4">
+          <div style="font-size: 24px; color:#009245; text-align:left; margin-top:1em;">
+            ADD A REPOSITORY
           </div>
-          <div style="height:1px; width:100%"></div>
-          <div class="row lp-highlight" style="min-height: 400px; padding-top:65px;"> <!-- style="background-color:white; margin-top: 20px;" -->
-            <div >
-                <p class="col-md-4 col-md-offset-4 col-xs-12 lp-section-content lp-highlight">
-                The Contributor License Agreement assistant (CLA assistant) lets you handle <b>the legal side of contributions</b> to your code easily.
-                <br><br>
-                All you need to do is to store your CLA as a <b>GitHub Gist</b> file and link it with your repository in the CLA assistant.
-              </p>
-            </div>
-          </div>
-          <div class="row lp-highlight" >
-            <img src="/assets/images/icons.png" class="center-block img-responsive" style="margin-bottom: -45px;">
-          </div>
-          <div class="row lp-premium" style="min-height: 400px; box-shadow: 0px 1px 8px 0px gray; padding-top: 40px;">
-            <h4 class="lp-section-header left"style="margin-top:80px;">
-              WHAT IT DOES FOR YOU:
-            </h4>
-            <span class="col-md-4 col-xs-12 lp-section-content">
-              <ul class="lp-list">
-                <li>it notifies each contributor to sign the CLA as soon as he creates a <b>pull request</b></li>
-                <li>it lets contributors <b>sign</b> your CLA easily</li>
-                <li>it <b>authenticates</b> the signer with his GitHub account</li>
-                <li>it <b>updates</b> the status of the pull request as soon the contributor agrees to your CLA</li>
-              </ul>
-            </span>
-          </div>
-          <div class="row" style="min-height: 400px;">
-            <h4 class="lp-highlight lp-section-header left"style="margin-top:45px;"> <!-- col-md-3 col-md-offset-1 col-xs-3 col-xs-offset-1 -->
-              CLEAR & EASY:
-            </h4>
-              <h4  class="col-md-4 col-xs-12 lp-section-content"style="margin-top:45px;">
-                If the content of your CLA changes over time you don't have to notify all of your active contributors to sign a new version of it again. 
-                <br><br>
-              <b>The CLA assistant will do it for you!</b>
-              <br><br>
-                Just update the linked Gist file. 
-                <br><br>
-                Each new pull request will get a comment with the request to sign the CLA even if the user has already signed the previous version.
-                <br><br>
-              You as a repository owner can review the list of users who signed your CLA for each version.
-                <br><br>
-              
-            </h4>
-          </div>
-          <div class="row lp-shattered" style="min-height: 400px;">
-            <h4 class="lp-section-header center" style="margin-top:45px;">
-              JUST A FEW CLICKS:
-            </h4>
-              <div  class="col-md-8 col-md-offset-2 col-xs-12 lp-section-content">
-                <div id="carousel-screenshots" class="carousel slide" data-ride="carousel">
-                <ol class="carousel-indicators" style="bottom: -45px;">
-                  <li data-target="#carousel-screenshots" data-slide-to="0" class="active"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="1"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="2"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="3"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="4"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="5"></li>
-                  <li data-target="#carousel-screenshots" data-slide-to="6"></li>
-                </ol>
-
-                <div class="carousel-inner" role="listbox">
-                  <div class="item active">
-                    <img src="/assets/images/screenshot-0.png" alt="">
-                    <div class="carousel-caption">  2 easy steps to activate your CLA
-                    </div>
-                  </div>
-
-                  <div class="item">
-                    <img src="/assets/images/screenshot-1.png" alt="">
-                    <div class="carousel-caption">  First: Add your repository from GitHub
-                      </div>
-                  </div>
-                  <div class="item">
-                    <img src="/assets/images/screenshot-2.png" alt="">
-                    <div class="carousel-caption">  Last: Enter the GIST URL to your CLA file 
-                      </div>
-                  </div>
-                  <div class="item">
-                    <img src="/assets/images/screenshot-3.png" alt="">
-                    <div class="carousel-caption">  3 easy steps to accept the CLA
-                      </div>
-                  </div>
-                  <div class="item">
-                    <img src="/assets/images/screenshot-4.png" alt="">
-                    <div class="carousel-caption"> First: You create a pull request in GitHub
-                      </div>
-                  </div>
-                  <div class="item">
-                    <img src="/assets/images/screenshot-5.png" alt="">
-                    <div class="carousel-caption">   Second: Accept the CLA
-                      </div>
-
-                  </div>
-                  <div class="item">
-                    <img src="/assets/images/screenshot-6.png" alt="">
-                    <div class="carousel-caption">  Last: Thank you! You're all set
-                      </div>
-                  </div>
-                </div>
-
-                <a class="left carousel-control" href="#carousel-screenshots" role="button" data-slide="prev" >
-                  <span class="fa fa-chevron-left" aria-hidden="true"></span>
-                  <span class="sr-only">Previous</span>
-                </a>
-                <a class="right carousel-control" href="#carousel-screenshots" role="button" data-slide="next">
-                  <span class="fa fa-chevron-right" aria-hidden="true"></span>
-                  <span class="sr-only">Next</span>
-                </a>
-              </div> 
-            </div>
-          <div class="">
-              <div  class="col-lg-2 col-lg-offset-5 col-xs-12 lp-section-content" style="text-align:center;">
-              <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; position:center;"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
-              <p><img src="/assets/images/button_up.png" class="clickable" style="width:62px; margin-top:40px;" ng-click="scrollTo('navbar')"/> </p>
-              </div>
-          </div>
+          <div style="font-size: 18px;">
+            Choose a repository from GitHub for that you want contributors to sign
           </div>
         </div>
       </div>
+
+      <div class="row" style="margin-bottom:40px;">
+        <div class="col-md-4 col-md-offset-4">
+          <div style="font-size: 24px; color:#009245; text-align:right; margin-top:1em;">
+            STORE A CLA IN A GIST
+          </div>
+          <div style="font-size: 18px; text-align: right;">
+            Got to Gist.GitHub.com, save a CLA text file there. <br>Copy and paste the URL in CLA assistant. 
+          </div>
+        </div>
+        <div class="col-md-4">
+          <img src="/assets/images/howto2.svg" style="height: 150px;">
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:30px;">
+        <div class="col-md-4">
+          <img src="/assets/images/howto3.svg" style="float: right; height: 150px;">
+        </div>
+        <div class="col-md-4">
+          <div style="font-size: 24px; color:#009245; text-align:left; margin-top:1em;">
+            LINK THEM
+          </div>
+          <div style="font-size: 18px;">
+            Now just link your repository with the CLA you stored.
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:30px;">
+        <div class="col-md-4 col-md-offset-4">
+          <div style="font-size: 24px; color:#009245; text-align:right; margin-top:1em;">
+            YAY!
+          </div>
+          <div style="font-size: 18px; text-align: right;">
+            That's it. <br>CLA assistant will do the rest for you.
+          </div>
+        </div>
+        <div class="col-md-4">
+          <img src="/assets/images/howto4.svg" style="height: 150px;">
+        </div>
+      </div>
     </div>
+
+
+    <div class="row lp-premium lp-section center-block">
+      <div class="center-block">
+        <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+        <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
+      </div>
+    </div>
+<!--     <div class="lp-white lp-section" style="font-size: 25px; padding-left:0">
+      <div class="center-block">
+        <h4>SCREENSHOTS :)</h4>
+      </div>
+      <div style="width: 10000px; position: relative" img-slider>
+        <div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:right" ng-click="right();" class="fa fa-angle-left"></div>
+        <div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:left" ng-click="left();" class="fa fa-angle-right"></div>
+        <img src="/assets/images/screenshot-1.png" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-2.png" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-4.png" style="max-height:500px; display: inline-block;">
+        <img src="/assets/images/screenshot-5.png" style="max-height:500px; display: inline-block;">
+      </div>
+    </div> -->
   </div>
 
   <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="navbar-top-border">
           <div class="container-fluid">
               <div class="navbar-text navbar-left">
-                  <a href="https://github.com/cla-assistant/cla-assistant/blob/master/LICENSE" target="space"> © 2015 SAP SE</a>
+                  <p>© 2015 SAP SE</p>
               </div>
               <div class="navbar-text navbar-center" style="z-index:-1;">
                 <p class="hidden-xs hidden-sm">
-                  made with <span class="octicon octicon-heart"></span> from the GitHub team at SAP 
+                  made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP 
                 </p>
               </div>
               <div class="navbar-text navbar-right">
-                <a href="mailto:tools@sap.com" style="margin-right: 10px">
-                  <span class="octicon octicon-mail"></span> Email us 
+                <a href="http://www.sap.com/corporate-en/about/legal/terms-of-use.html" style="margin-right: 10px">
+                  Terms of Service &amp Privacy Policy
                 </a>
                 <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
                   <span class="octicon octicon-mark-github"></span> Open an issue
@@ -203,7 +245,7 @@
           </div>
       </div>
   </div>
-
+</div>
 </body>
 
 </html>

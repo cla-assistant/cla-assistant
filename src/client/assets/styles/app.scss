@@ -1,18 +1,28 @@
 // overwrite bootstrap styles
 
 // fonts
-$font-family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;
 
 // colours
-$gray-darkest: #333;
+$gray-darkest: #2c3e50;
 $gray-darker: #666;
 $gray-dark: #999;
-$gray: #e1e1e1;
+$gray: #ddd;
 $gray-light: #ececec;
-$gray-lighter: #f9f9f9;
+$gray-lighter: #f5f5f5;
+
+$white: #fff;
 
 // brand colours
-$brand-primary: #2ccc99;
+$brand-primary-lightest: #ffffff;
+$brand-primary-lighter: #e2f1fc;
+$brand-primary: #77acc3;
+$brand-primary-darker: #4d8fac;
+$brand-primary-darkest: #2c3e50;
+$brand-accent: #ee524f;
+
+
+
 $brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
@@ -23,10 +33,10 @@ $brand-merged: #6e5494;
 $link-color: #3c3c3d;
 
 // body
-$body-bg: #fff;
+$body-bg: $gray-lighter;
 
 // typography
-$text-color: $gray-darkest;
+$text-color: $brand-primary-darkest;
 $text-gray: $gray-darker;
 $text-primary: $brand-primary;
 $text-invert: #fff;
@@ -65,10 +75,12 @@ $component-active-color: #555;
 $btn-info-bg: #d0eaea;
 $btn-info-color: $brand-primary;
 $btn-default-border: #ececec;
-$btn-default-color: $brand-primary;
+$btn-default-color: $brand-primary-darkest;
+$btn-primary-bg: $brand-primary-lightest;
+$btn-primary-color: $brand-primary-darkest;
 
 // wells
-$well-bg: $gray;
+$well-bg: $white;
 $well-border: transparent;
 
 // list group
@@ -89,16 +101,6 @@ $nav-tabs-active-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-bg: $gray-lighter;
 
 // navbar
-$navbar-default-bg: $body-bg;
-$navbar-default-color: $gray-darker;
-$navbar-default-link-color: $gray-dark;
-$navbar-default-link-hover-color: $gray;
-$navbar-default-brand-hover-color: $gray;
-$navbar-default-link-active-color: $gray;
-$navbar-margin-bottom: 0;
-$nav-link-padding: 15px 20px 15px 0px;
-
-$grid-float-breakpoint: 100px;
 
 // breadcrumb
 $breadcrumb-bg: transparent;
@@ -144,7 +146,7 @@ html {
 body {
   margin-bottom: $footer-height;
 }
-
+/*
 .scaffold {
   background: $gray-lighter;
 
@@ -176,9 +178,9 @@ body {
       overflow-y: scroll;
     }
   }
-}
+}*/
 
-.star-dropdown {
+/*.star-dropdown {
   margin-bottom: 0;
   max-height: 350px;
   overflow-y: scroll;
@@ -201,7 +203,7 @@ body {
 
 .input-group-btn {
   vertical-align: top;
-}
+}*/
 
 // typography
 
@@ -323,8 +325,30 @@ small {
   color: $gray;
 }
 
+// _activate cla screen
+
 .selectize-input{
   height: 33px;
 }
 
+.content-block {
+  height:100vH;
+  padding-top: 200px;
+}
 
+.content-block .row .right-side {
+  border-left: solid 1px;
+  border-color: $gray;
+}
+
+.content-block:last-child {
+  margin-bottom:-50px;
+}
+
+.clear-button {
+  border:0px;
+  background-color: transparent;
+  position: absolute;
+  right:30px;
+  color:$gray-darker;
+}

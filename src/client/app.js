@@ -5,6 +5,7 @@ var module = angular.module('app',
      'ui.bootstrap',
      'ui.select',
      'ngSanitize',
+     'ngAnimate',
      'duScroll']);
 
 var filters = angular.module('cla.filters', []);

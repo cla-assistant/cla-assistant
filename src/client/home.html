@@ -11,6 +11,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js"></script>
   <script src="/angular-route/angular-route.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
@@ -31,6 +32,7 @@
   <script src="/controller/cla.js"></script>
   <script src="/modals/info.js"></script>
   <script src="/modals/report.js"></script>
+  <script src="/modals/confirm.js"></script>
 
   <!-- INTERCEPTORS -->
   <!-- <script src="/interceptors/401.js"></script> -->
@@ -48,41 +50,48 @@
 <body ng-controller="HomeCtrl">
 
 <!-- the navbar -->
-  <div id="navbar" class="navbar navbar-default navbar-static-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
     <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="/" style="padding-top:13px;">
-          <img src="/assets/images/logo4.png" class="img-responsive" alt="CLA assistant" style="width:88px" />
+      <div class="navbar-header navbar-text">
+        <div ng-show="!!user.value.login">
+          <a ng-href="{{user.value.html_url}}" target="spcae">
+            <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
+            &nbsp; Hey, <b>{{ user.value.login }}</b>!
+          </a>
+        </div>
+      </div>
+      <div class="" ng-if="user.value.admin">
+        <div class="nav navbar-nav navbar-right navbar-text">
+          <a ng-show="!user.value.login" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
+          <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
+        </div>
+      </div>
+      <div class="navbar-center navbar-text" style="z-index:-1">
+        <a href="/">
+          <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px">
         </a>
       </div>
-      <div class="collapse navbar-collapse" ng-if="user.value.admin">
-        <ul class="nav navbar-nav navbar-right">
-          <li ng-show="!user.value.login">
-            <a class="text-primary" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
-          </li>
-          <li ng-show="!!user.value.login">
-
-<!--      <div ng-show="user.loaded" style="margin-top:30px;">
-        <img ng-src="{{ user.value.avatar_url }}?s=200" class="visible-xs visible-sm" width="200px;"/>
-        <h4 style="font-weight:400; margin:5px 0;">{{ user.value.name || user.value.login }}</h4>
-        <h4 ng-show="user.value.name">{{ user.value.login }}</h4>
-      </div> -->
-            <a ng-href="{{user.value.html_url}}" target="spcae">
-              <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-              &nbsp;{{ user.value.login }}
-            </a>
-          </li>
-          <li ng-hide="!user.value.login"><a href="/logout" target="_self" class="fa fa-power-off"></a></li>
-        </ul>
-      </div>
     </div>
+  <!-- </div>
+  <div id="navbar2" class="navbar navbar-default navbar-fixed-top" role="navigation"> -->
+    <nav class="col-md-8 col-md-offset-2" style="margin-top: 25px">
+      <ul class="nav nav-justified">
+        <li du-scrollspy="activate" class="active">
+          <a href="/#activate" du-smooth-scroll>Activate a CLA</a>
+        </li>
+        <li du-scrollspy="activated_cla">
+          <a href="#activated_cla" du-smooth-scroll>Activated CLA's</a>
+        </li>
+        <li du-scrollspy="my_cla">
+          <a href="#my_cla" du-smooth-scroll>My signed CLA's</a>
+        </li>
+      </ul>
+    </nav>
   </div>
 
-  <div class="container-fluid" style="margin-bottom:50px">
+  <div class="container-fluid" style="margin-bottom:50px;">
     <div class="row">
-      <div class="col-md-12">
-        <section ui-view></section>
-      </div>
+        <section ui-view class="col-md-8 col-md-offset-2"></section>
     </div>
   </div>
 
@@ -108,7 +117,6 @@
           </div>
       </div>
   </div>
-
 </body>
 
 </html>

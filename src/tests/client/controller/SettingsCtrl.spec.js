@@ -14,6 +14,11 @@ describe('Settings Controller', function() {
         scope.user = {value: {admin: false}};
         stateParams = {user: 'login', repo: 'myRepo'};
         scope.repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'};
+        scope.$parent.getUsers = function(repo){
+          return {then: function(cb){
+            cb({value: [{name: 'user1'}, {name: 'user2'}]});
+          }};
+        };
 
         createCtrl = function() {
 
@@ -56,34 +61,40 @@ describe('Settings Controller', function() {
             (settingsCtrl.scope.repo).should.not.be.empty;
         });
 
-        it('should get gist and create webhook on update action if gist url is given', function(){
-            scope.user.value = {id: 123, login: 'login', admin: true};
-
-            httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
-            httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'}).respond(true);
-            // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'});
-            httpBackend.expect('POST', '/api/cla/getAll', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond();
-            httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
-
-            settingsCtrl.scope.update();
-
+        it('should get number of contributors on init', function(){
             httpBackend.flush();
-            (settingsCtrl.scope.repo.active).should.be.ok;
-            (settingsCtrl.scope.gist.id).should.be.equal('gistId');
+
+            (settingsCtrl.scope.contributors.length).should.be.equal(2);
         });
 
-        it('should remove webhook for the selected repo on update action if there is NO gist', function(){
-            scope.user.value = {id: 123, login: 'login', admin: true};
-            httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
-            httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
-            // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: ''});
+        // it('should get gist and create webhook on update action if gist url is given', function(){
+        //     scope.user.value = {id: 123, login: 'login', admin: true};
 
-            settingsCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
-            settingsCtrl.scope.update();
+        //     httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
+        //     httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'}).respond(true);
+        //     // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'});
+        //     httpBackend.expect('POST', '/api/cla/getAll', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond();
+        //     httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
 
-            httpBackend.flush();
-            (settingsCtrl.scope.repo.active).should.not.be.ok;
-        });
+        //     settingsCtrl.scope.update();
+
+        //     httpBackend.flush();
+        //     (settingsCtrl.scope.repo.active).should.be.ok;
+        //     (settingsCtrl.scope.gist.id).should.be.equal('gistId');
+        // });
+
+        // it('should remove webhook for the selected repo on update action if there is NO gist', function(){
+        //     scope.user.value = {id: 123, login: 'login', admin: true};
+        //     httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
+        //     httpBackend.expect('POST', '/api/repo/update', { repo: 'myRepo', owner: 'login', gist: ''}).respond(true);
+        //     // httpBackend.expect('POST', '/api/repo/get', {repo: 'myRepo', owner: 'login'}).respond({repo: 'myRepo', owner: 'login', gist: ''});
+
+        //     settingsCtrl.scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
+        //     settingsCtrl.scope.update();
+
+        //     httpBackend.flush();
+        //     (settingsCtrl.scope.repo.active).should.not.be.ok;
+        // });
 
         it('should get all users signed this cla', function(){
             var repo = settingsCtrl.scope.repo;
@@ -155,16 +166,16 @@ describe('Settings Controller', function() {
             (!!settingsCtrl.scope.gist.id).should.not.be.ok;
         });
 
-        it('should not do any http call if gist url is not valid', function(){
-            scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
-            settingsCtrl = createCtrl();
+        // it('should not do any http call if gist url is not valid', function(){
+        //     scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
+        //     settingsCtrl = createCtrl();
 
-            scope.repo.gist = 'https://google.com';
-            settingsCtrl.scope.update();
+        //     scope.repo.gist = 'https://google.com';
+        //     settingsCtrl.scope.update();
 
-            (!!settingsCtrl.scope.repo.active).should.not.be.ok;
-            (!!settingsCtrl.scope.gist.id).should.not.be.ok;
-        });
+        //     (!!settingsCtrl.scope.repo.active).should.not.be.ok;
+        //     (!!settingsCtrl.scope.gist.id).should.not.be.ok;
+        // });
     });
 
 });

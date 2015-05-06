@@ -6,26 +6,21 @@
   display: flex;
 }
 
-.settings{
-  position: relative;
-  top: -1px;
-  display: inherit;
-}
-
 .settings h4,
 .settings .h4{
   color: $text-color;
 }
 
-.drop_area {
-  border-color: $brand-primary;
-  border-style: dashed;
-  resize: none;
-
-  &.invalid {
-    border-color: $brand-danger;
-    outline-color: $brand-danger;
+.settings{
+  img{
+    height:1.5em; min-height:15px;
   }
+  .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top:0.25em
+  }  
 }
 
 .hint {
