@@ -139,7 +139,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     selectedRepo: function(){ return $scope.selectedRepo;}
                 }
             });
-        }
+        };
 
         var confirmAdd = function() {
             var modal = $modal.open({
