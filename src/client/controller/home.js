@@ -134,6 +134,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var modal = $modal.open({
                 templateUrl: '/modals/templates/link-success.html',
                 controller: 'LinkCtrl',
+                windowClass: 'link-success',
+                scope: $scope,
                 resolve: {
                     selectedGist: function(){ return $scope.selectedGist;},
                     selectedRepo: function(){ return $scope.selectedRepo;}
@@ -152,15 +154,15 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             });
             modal.result.then(function(){
+                $scope.linkStatus = null;
+                linkSuccess();
                 $scope.link().then(function(){
-                    linkSuccess();
+                    $scope.linkStatus = 'linked';
                 }, function(){
-                    linkError();
+                    $scope.linkStatus = 'failed';
                 });
             });
         };
-
-        confirmAdd();
 
         getUser().then(function(){
             getRepos();
@@ -181,7 +183,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var valid = false;
              // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
             valid = gist ? !!gist.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
-            // return valid ? gist : undefined;
             return valid;
         };
 
@@ -216,7 +217,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.link = function(){
             var newClaRepo = {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login, gist: $scope.selectedGist.gist.url, active: false};
             newClaRepo = mixRepoData(newClaRepo);
-            var promise1 = $RPCService.call('repo', 'create', {repo: $scope.selectedRepo.repo.name, owner: $scope.selectedRepo.repo.owner.login}, function(err, data){
+            var promise1 = $RPCService.call('repo', 'create', {repo: newClaRepo.repo, owner: newClaRepo.owner, gist: newClaRepo.gist}, function(err, data){
                 if (err && err.err.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 }
@@ -307,17 +308,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.url();
-        };
-
-
-        $scope.animationRunning = false;
-        $scope.showStep = function(step){
-            if ($scope.show !== step && !$scope.animationRunning) {
-                $scope.show = step;
-            }
-            if (step === 'step-0'){
-                $scope.animationRunning = true;
-            }
         };
     }
 ])

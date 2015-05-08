@@ -7,7 +7,7 @@
 }
 
 .modal-primary{
-	background-color: lightgrey;
+	background-color: $gray-lighter;
   	color: $gray-darkest;
 }
 
@@ -17,11 +17,11 @@
 }
 
 
-.modal-dialog {
- /* width: 80%;
+.howto .modal-dialog {
+  width: 80%;
   max-width: 1010px;   
   min-width: 800px;
- */ 
+  
   img {
     width:100%; 
     border:solid 1px lightgrey; 
@@ -30,5 +30,61 @@
 }
 
 .confirm-add .modal-dialog{
-	width: 50%;
+	width: 550px;
+	.icon {
+		width:300px;
+		border:none;
+	}
+
+	p {
+		font-size: 16px;
+		color:$green;
+	}
+
+	ul>li {
+		padding-top: 15px;
+	}
+
+	.modal-body {
+	  padding: 15px 15px;
+	}
+
+	button {
+		margin-left: 10px;
+		font-size: 16px;
+	}
+
+	.btn-cancel{
+		font-weight: 200;
+	}
 }
+
+.link-success .modal-dialog{
+	width: 455px;
+	.icon {
+		width:300px;
+		border:none;
+	}
+
+	p {
+		font-size: 16px;
+	}
+
+	ul>li {
+		padding-top: 15px;
+	}
+
+	.modal-body {
+	  padding: 15px 15px;
+	}
+
+	button {
+		margin-left: 10px;
+		font-size: 16px;
+	}
+
+	.btn-cancel{
+		font-weight: 200;
+	}
+}
+

@@ -13,6 +13,8 @@ $gray-lighter: #f5f5f5;
 
 $white: #fff;
 
+$green: #39b54a;
+
 // brand colours
 $brand-primary-lightest: #ffffff;
 $brand-primary-lighter: #e2f1fc;
@@ -332,7 +334,7 @@ small {
 }
 
 .content-block {
-  height:100vH;
+  /*height:100vH;*/
   padding-top: 200px;
 }
 
@@ -352,3 +354,18 @@ small {
   right:30px;
   color:$gray-darker;
 }
+
+.spin-img {
+    /*position: absolute;*/
+    height: 120px;
+    margin:-60px 0 0 -60px;
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+.spin-img.ng-hide-add-active {
+    display: none !important;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

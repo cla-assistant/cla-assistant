@@ -1,27 +1,30 @@
 <!-- <div class="modal-header">
 </div> -->
 <div class="modal-body modal-primary">
-    <div class="row" style="text-align: center; font-size:26px;">
-        Would you lie to link this CLA with your repository?
+	<div ng-click="cancel()" class="fa fa-times" style="float:right; color:grey; cursor:pointer"></div>
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
+        Would you like to link this CLA<br> with your repository?
     </div>
 
-    <div class="row" style="margin:50px">
-    	<div class="col-sm-12 well">
-    		{{selectedGist.gist.name}}
+    <div class="row" style="margin:50px; margin-bottom: 20px;">
+    	<div class="col-sm-12 well center-block">
+    		<img src="/assets/images/popup_link.svg" class="icon">
+    		<p class="col-sm-6">{{gist.name}}</p>
+    		<p class="col-sm-6">{{repo.full_name}}</p>
     	</div>
     </div>
 
-    <div class="center-block row" style="font-size:18px; margin-top:25px">
+    <div class="center-block row" style="font-size:18px;">
     	Link a CLA and a repository to let CLA assistant:
-		<ul class="col-sm-6 col-sm-offset-3">
+		<ul class="col-sm-8 col-sm-offset-3" style="text-align:left">
 			<li>create a webhook in your repository and listen to pull requests</li>
 			<li>set a status of pull requests</li>
 			<li>comment on pull requests</li>
 		</ul>
     </div>
 
-    <div style="text-align:right; margin-top:50px">
-	    <button class="btn btn-primary" ng-click="ok()">Yes, let's do this!</button>
-	    <button class="btn btn-info" ng-click="cancel()">Cancel</button>
+    <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
+	    <button class="btn btn-cancel" ng-click="cancel()">Cancel</button>
+	    <button class="btn btn-success" ng-click="ok()">Yes, let's do this!</button>
     </div>
 </div>

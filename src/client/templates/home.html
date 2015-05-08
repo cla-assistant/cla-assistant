@@ -1,7 +1,9 @@
 
 
 <!-- ----------ACTIVATE a CLA---------- -->
-<div id="activate" class="content-block">
+<!-- <div id="activate" class="content-block"> -->
+<div id="activated_cla" ng-show="user.value.admin" class="row content-block">
+
 	<div class="well row">
 		<div class="col-sm-6">
 			<div>Choose a Repository</div>
@@ -52,13 +54,12 @@
 			</button>
 		</div>
 	</div>
-</div>
+<!-- </div> -->
 <!-- ----------ACTIVATED CLAs---------- -->
 
-<div id="activated_cla" ng-show="user.value.admin" class="row content-block">
 	<!-- <h2 class="text-primary">Contributor License Agreement assistant <i class="fa fa-question-circle clickable" style="font-size:18px; color: gray; vertical-align:middle" ng-click="info()"></i></h2> -->
 
-	<div class="well" style="padding-top:30px">
+	<div class="well row" style="padding-top:30px">
 	  	<table  class=" table">
 			<!-- <tr>
 				<td>

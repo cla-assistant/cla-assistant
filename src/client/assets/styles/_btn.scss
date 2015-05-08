@@ -7,6 +7,14 @@
     @include button-variant($brand-primary-lightest, $brand-primary, $brand-primary); 
     /*@color; @background; @border*/
   }
+  &.btn-success {
+    @include button-variant($brand-primary-lightest, $green, $green); 
+    /*@color; @background; @border*/
+  }
+  &.btn-cancel {
+    @include button-variant($gray-darker, $gray, $gray); 
+    /*@color; @background; @border*/
+  }
 
   &.disabled,
   &[disabled],

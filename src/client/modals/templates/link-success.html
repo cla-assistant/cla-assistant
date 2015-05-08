@@ -1,19 +1,32 @@
-<div class="modal fade" id="link_success">
-	
-<div class="modal-header">
-</div>
 <div class="modal-body modal-primary">
-    <div class="row ">
-        <div class="col-sm-12">
-            You linked your CLA
+	<div ng-click="cancel()" class="fa fa-times" style="float:right; color:grey; cursor:pointer"></div>
 
-            success!
-        </div>
-        <div></div>
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;" ng-show="linkStatus == 'linked'">
+        You created a new link!
     </div>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">Awesome!</button>
-</div>
 
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;" ng-show="linkStatus == 'failed'">
+        Ups! Something went wrong!
+    </div>
+
+    <div class="row" style="margin:50px; margin-bottom:10px">
+    	<div class="col-sm-12 well center-block">
+    		<img src="/assets/images/link_inactive.svg" class="spin-img" ng-show="!linkStatus" style="margin:10px;">
+    		<img src="/assets/images/howto4.svg" class="icon" ng-show="linkStatus">
+    		<!-- <p class="col-sm-6">{{gist.name}}</p>
+    		<p class="col-sm-6">{{repo.full_name}}</p> -->
+    	</div>
+    </div>
+
+    <div class="center-block row" style="font-size:18px;" ng-show="linkStatus == 'linked'">
+    	<p>Awesome,<br>
+    	<b>{{selectedGist.gist.name}}</b> and <b>{{selectedRepo.repo.full_name}}</b> <br>
+    	are linked now!
+    	</p>
+    </div>
+
+    <div style="text-align:center; margin-top: 30px; margin-bottom: 15px;">
+	    <!-- <button class="btn btn-success" ng-click="ok()">Yes, let's do this!</button> -->
+	    <button class="btn btn-success" ng-click="cancel()" ng-show="linkStatus == 'linked'">Great! Thank you!</button>
+    </div>
 </div>

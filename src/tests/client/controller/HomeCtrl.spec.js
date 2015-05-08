@@ -82,7 +82,7 @@ describe('Home Controller', function() {
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
 
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login', gist: homeCtrl.scope.selectedGist.gist.url}).respond(true);
         httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({active: true});
 
         homeCtrl.scope.link();
@@ -102,7 +102,7 @@ describe('Home Controller', function() {
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
 
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(true);
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login', gist: homeCtrl.scope.selectedGist.gist.url}).respond(true);
         httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond({active: false});
 
         homeCtrl.scope.link();
@@ -120,7 +120,7 @@ describe('Home Controller', function() {
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
 
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(false);
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login', gist: homeCtrl.scope.selectedGist.gist.url}).respond(false);
         httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
         httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
 
@@ -137,7 +137,7 @@ describe('Home Controller', function() {
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
         
-        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login'}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
+        httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login', gist: homeCtrl.scope.selectedGist.gist.url}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
         httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
         httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
 
@@ -250,8 +250,11 @@ describe('Home Controller', function() {
 
     it('should validate gist url', function(){
         httpBackend.flush();
-        var valid = homeCtrl.scope.isValid('https://google.com');
-        valid.should.not.be.ok;
+        var invalidUrls = ['https://google.com', '', undefined];
+
+        invalidUrls.forEach(function(url){
+            homeCtrl.scope.isValid(url).should.not.be.ok;
+        });
     });
 
 
