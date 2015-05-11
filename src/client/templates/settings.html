@@ -1,38 +1,49 @@
 <!-- <div class="row settings_background"> -->
 
-<div class="col-sm-1 btn_padding">
-	<img ng-if="loading" src="/assets/images/link_inactive.svg">
-	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg">
-	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg">
-</div>
-
-<div class="col-sm-5">
-	<div class="clickable btn_padding ">
-		<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
-		&nbsp; 
-		{{ repo.owner }} / {{ repo.repo }}
+<div class="col-sm-3 col-lg-2" style="padding-left:0">
+	<div class="text clickable">
+		<a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
+			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
+			&nbsp; 
+			{{ repo.owner }} / {{ repo.repo }}
+		</a>
 	</div>
 </div>
 
-<div class="col-sm-4">
+<div class="col-sm-3 col-lg-2">
 	<div ng-if="!loading && gist.id.length > 0" class="text">
-		&nbsp;{{getGistName()}}
-		<!-- , updated {{gist.updated_at | date:'longDate'}} -->
+		<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
 	</div>
 </div>
 
-<div class="col-sm-1" style="text-align:center">
+<div class="col-lg-3 hidden-xs hidden-sm hidden-md text">
+	<a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
+</div>
+
+<div class="col-sm-2 col-lg-2 text">
+	{{gist.updated_at | date:'longDate'}}
+</div>
+
+<div class="col-sm-1 col-lg-1" style="text-align:center; text-decoration: underline;">
 	<a ng-click="$parent.getReport(repo);" class="clickable">{{contributors.length}}</a>
 </div>
 
-<div class="col-sm-1 btn_padding">
+<div class="col-sm-1 col-lg-1 center-block">
+	<img ng-if="loading" src="/assets/images/link_inactive.svg">
+	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
+	tooltip="everything is ok!">
+	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom" 
+	tooltip="inactive">
+</div>
+<div class="col-sm-2 col-lg-1 ">
 	<i class="fa fa-trash-o action-icon"
-	style="float:right"
+	style="float:right; font-size:18px"
 	ng-click="$parent.remove(repo)" 
 	tooltip-placement="bottom" 
 	tooltip="Remove">
 	</i>
 	<i class="fa fa-pencil action-icon"
+	style=" font-size:17px"
 	ng-click="" 
 	tooltip-placement="bottom" 
 	tooltip="Edit">
