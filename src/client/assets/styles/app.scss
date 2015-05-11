@@ -18,7 +18,8 @@ $green: #39b54a;
 // brand colours
 $brand-primary-lightest: #ffffff;
 $brand-primary-lighter: #e2f1fc;
-$brand-primary: #77acc3;
+$brand-primary: #0594c6;
+/*$brand-primary: #77acc3;*/
 $brand-primary-darker: #4d8fac;
 $brand-primary-darkest: #2c3e50;
 $brand-accent: #ee524f;
@@ -264,6 +265,14 @@ img.muted {
   color: $gray-darker;
 }
 
+.text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 0px;
+  /*margin-top:0.25em*/
+}  
+
 // Font Awesome and Octicons
 
 i.fa-times,
@@ -274,8 +283,9 @@ i.fa-link {
   cursor: pointer;
 }
 
-i.fa-times.action-icon {
+i.fa.action-icon {
   color: $gray-darker;
+  cursor: pointer;
 }
 
 .octicon {
@@ -310,6 +320,11 @@ small {
   cursor: pointer;
 }
 
+.close-button {
+  float: right;
+  color: $gray-darker;
+  cursor: pointer;
+}
 
 // _cla
 .cla-box {
@@ -335,7 +350,7 @@ small {
 
 .content-block {
   /*height:100vH;*/
-  padding-top: 200px;
+  padding-top: 150px;
 }
 
 .content-block .row .right-side {
@@ -357,8 +372,8 @@ small {
 
 .spin-img {
     /*position: absolute;*/
-    height: 120px;
-    margin:-60px 0 0 -60px;
+    height: 60px;
+    margin:-30px 0 0 -30px;
     -webkit-animation:spin 4s linear infinite;
     -moz-animation:spin 4s linear infinite;
     animation:spin 4s linear infinite;
@@ -369,3 +384,10 @@ small {
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+// _report
+
+.report .row{
+  padding-top: 15px;
+}
+
