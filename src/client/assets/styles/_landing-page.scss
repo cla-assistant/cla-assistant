@@ -77,16 +77,11 @@ a.lp-signin:hover, a.lp-signin:focus {
 .feature-box {
   height: 250px; 
   width: 250px;
-  margin: 0 10px;
+  margin-top: 10px;
+  margin-right: 20px;
   overflow: hidden;
   position: relative;
   border: rgba(211, 211, 211, 0.25) solid 2px;
-}
-
-@media(max-width: 700px){
-  .my-col{
-    width: 225px;
-  }
 }
 
 @media(min-width: 701px) and (max-width: 1314px){
