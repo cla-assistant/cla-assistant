@@ -85,16 +85,24 @@ a.lp-signin:hover, a.lp-signin:focus {
 }
 
 @media(min-width: 701px) and (max-width: 1314px){
-  .my-col{
+  .feature-col{
     width: 550px;
   }
 }
 
 @media(min-width: 1315px){
-  .my-col{
+  .feature-col{
     width: 1100px;
   }
 }
+
+
+@media(max-width: 610px){
+  .col-xs-12 {
+    width: 100%;
+  }
+}
+
 
 .feature-title, .feature-title-add.feature-title-add-active {
   top: 10 !important;
