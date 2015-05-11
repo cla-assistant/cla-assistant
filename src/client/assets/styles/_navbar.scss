@@ -47,6 +47,34 @@ $footer-height: 50px;
 	text-align: center;
 }
 
+@media(min-width: 768px){
+	.navbar-right {
+		margin-left: 0px;
+		margin-right: 0px;
+	}
+}
+
+@media(max-width: 767px) {
+	.navbar-text {
+		margin-bottom: 0px;
+	}
+
+	.navbar-right {
+		width: 295.953px;
+		float: left;
+		margin: 0px;
+	}
+
+	.navbar-center {
+		visibility: hidden;
+	}
+
+	.navbar-left {
+		width: 82.547px;
+		margin: 0px;
+	}
+}
+
 @media (min-width: 992px) {
 	.navbar-top-space {
 		margin-top: 55px;
