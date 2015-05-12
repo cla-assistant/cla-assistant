@@ -230,14 +230,13 @@ a.lp-signin:hover, a.lp-signin:focus {
     right: 50%; /* or left -50% */
     text-align: left;
   }
-
-  .lp-hide-text{
-    display: none;
-  }
 }
 
 @media(max-width: 599px){
   .lp-hide-header{
+    display: none;
+  }
+  .lp-hide-text{
     display: none;
   }
 }
