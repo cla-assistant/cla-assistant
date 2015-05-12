@@ -157,10 +157,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 $scope.linkStatus = null;
                 linkSuccess();
                 $scope.link().then(function(){
-                    $timeout(function() {
-
                     $scope.linkStatus = 'linked';
-                    }, 10000);
                 }, function(){
                     $scope.linkStatus = 'failed';
                 });
