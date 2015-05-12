@@ -223,4 +223,10 @@ a.lp-signin:hover, a.lp-signin:focus {
   }
 }
 
+@media(max-width: 599px){
+  .lp-header{
+    visibility: hidden;
+  }
+}
+
 
