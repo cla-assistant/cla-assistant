@@ -70,7 +70,7 @@
 
   <div style="position:relative" resize="height">
 <!-- Header -->
-    <div style="  margin: 25px 70px;
+    <div class="lp-hide-header" style="  margin: 25px 70px;
     height: 75px;
     border: 1px;
     border-bottom-style: solid;
@@ -86,18 +86,16 @@
     <div class="row lp-premium lp-section" style="padding-top:50px; font-size: 30px;">
       <img class="center-block img-responsive" src="/assets/images/CLA_text.svg" style="width:200px">
       <!-- <div class="center-block" style="font-size:42px;font-weight:600;line-height:50px;letter-spacing:3px">CLA assistant</div> -->
-      <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">Handle Contribution License Agreements with ease.<p> 
-      <br> CLA assistant helps you to clinch the<br>legal side of contributions in GitHub.</p>
+      <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">
+      <p>Handle Contribution License Agreements with ease.</p>
+      <p class="lp-hide-text" style="margin-bottom:1em"><br> CLA assistant helps you to clinch the<br>legal side of contributions in GitHub.</p>
+      <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+        <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
       </div>
 
     </div>
     
-    <div class="row lp-premium lp-section center-block lp-row" style="bottom:170px;">
-      <div class="center-block">
-        <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
-        <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
-      </div>
-    </div>
+   
   </div>
   <div style="margin-bottom:50px">
     
@@ -122,7 +120,7 @@
       <div class="center-block">
         <p>Signing Contributor License Agreements <br> without the hassle <br></p>
       </div>
-      <div id="Stage" class="EDGE-110781156 center-block"></div>
+      <div id="Stage" class="EDGE-110781156 center-block resize-img"></div>
       <div class="center-block" style="font-size:18px">
         <p>You create a pull request in GitHub
           <br>You click to accept the CLA of the repo owner.<br>
@@ -148,56 +146,64 @@
       </div>
 
       <div class="row" style="margin-bottom:30px; margin-top: 75px;">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-          <img src="/assets/images/howto1.svg" style="float: right; height: 150px;">
+        <div class="center-block">
+          <div class="col-xs-12 col-sm-4 col-md-4 ">
+            <img class="float-right " src="/assets/images/howto1.svg" style=" height: 150px;">
+          </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
-          <div style="font-size: 24px; color:#009245; text-align:left; margin-top:1em;">
+          <div class="how-to-align how-to-align-left" style="font-size: 24px; color:#009245; margin-top:1em;">
             ADD A REPOSITORY
           </div>
-          <div style="font-size: 18px;">
+          <div class="how-to-align how-to-align-left" style="font-size: 18px;">
             Choose a repository from GitHub for that you want contributors to sign
           </div>
         </div>
       </div>
 
       <div class="row" style="margin-bottom:40px;">
-        <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8">
-          <img src="/assets/images/howto2.svg" style="height: 150px;">
-        </div>
+        <div class="center-block">
+          <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
+            <img class="float-left" src="/assets/images/howto2.svg" style="height: 150px;">
+          </div>
+        </div>  
         <div class="col-xs-12 col-sm-4  col-sm-pull-4 col-md-4 col-md-pull-4 col-sm-offset-4 col-md-offset-4">
-          <div style="font-size: 24px; color:#009245; text-align:right; margin-top:1em;">
+          <div class="how-to-align how-to-align-right" style="font-size: 24px; color:#009245; margin-top:1em;">
             STORE A CLA IN A GIST
           </div>
-          <div style="font-size: 18px; text-align: right;">
+          <div class="how-to-align how-to-align-right" style="font-size: 18px;">
             Got to Gist.GitHub.com, save a CLA text file there. <br>Copy and paste the URL in CLA assistant. 
           </div>
         </div>
       </div>
 
       <div class="row" style="margin-bottom:30px;">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-          <img src="/assets/images/howto3.svg" style="float: right; height: 150px;">
+        <div class="center-block">
+          <div class="col-xs-12 col-sm-4 col-md-4">
+            <img class="float-right" src="/assets/images/howto3.svg" style="height: 150px;">
+          </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
-          <div style="font-size: 24px; color:#009245; text-align:left; margin-top:1em;">
+          <div class="how-to-align how-to-align-left" style="font-size: 24px; color:#009245; margin-top:1em;">
             LINK THEM
           </div>
-          <div style="font-size: 18px;">
+          <div class="how-to-align how-to-align-left" style="font-size: 18px;">
             Now just link your repository with the CLA you stored.
           </div>
         </div>
       </div>
 
       <div class="row" style="margin-bottom:30px;">
-        <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8">
-          <img src="/assets/images/howto4.svg" style="height: 150px;">
+        <div class="center-block">
+          <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
+            <img class=" float-left" src="/assets/images/howto4.svg" style="height: 150px;">
+          </div>
         </div>
         <div class="col-xs-12 col-sm-4  col-sm-pull-4 col-md-4 col-md-pull-4 col-sm-offset-4 col-md-offset-4">
-          <div style="font-size: 24px; color:#009245; text-align:right; margin-top:1em;">
+          <div class="how-to-align how-to-align-right" style="font-size: 24px; color:#009245; margin-top:1em;">
             YAY!
           </div>
-        <div style="font-size: 18px; text-align: right;">
+        <div class="how-to-align how-to-align-right" style="font-size: 18px; ">
           That's it. <br>CLA assistant will do the rest for you.
         </div>
         </div>
@@ -228,23 +234,29 @@
   <div class="navbar navbar-default navbar-fixed-bottom">
       <div class="navbar-top-border">
           <div class="container-fluid">
-              <div class="navbar-text navbar-left">
-                <p>© 2015 SAP SE</p>
+              <div class="center-block">
+                <div class="navbar-text navbar-left">
+                  <p style="margin-bottom: 0px">© 2015 SAP SE</p>
+                </div>
               </div>
               <div class="navbar-text navbar-center" style="z-index:-1;">
                 <p class="hidden-xs hidden-sm">
                   made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP 
                 </p>
               </div>
-              <div class="navbar-text navbar-right">
-                <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
-                  <span class="octicon octicon-mark-github"></span> Open an issue
-                </a> 
+              <div class="center-block">
+                <div class="navbar-text navbar-right">
+                  <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+                    <span class="octicon octicon-mark-github"></span> Open an issue
+                  </a> 
+                </div>
               </div>
-              <div class="navbar-text navbar-right">
-                <a href="http://www.sap.com/corporate-en/about/legal/terms-of-use.html" style="margin-right: 10px">
-                  Terms of Service &amp Privacy Policy
-                </a>
+              <div class="center-block">
+                <div class="navbar-text navbar-right">
+                  <a href="http://www.sap.com/corporate-en/about/legal/terms-of-use.html" style="margin-right: 10px">
+                    Terms of Service &amp Privacy Policy
+                  </a>
+                </div>
               </div>
           </div>
       </div>

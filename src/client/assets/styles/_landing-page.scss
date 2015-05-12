@@ -6,7 +6,7 @@
 
 .lp-premium-darker {
   background-color: lightgrey;
-  color: $text-invert;
+  color: $brand-primary-darkest;
 }
 
 .lp-white {
@@ -189,3 +189,55 @@ a.lp-signin:hover, a.lp-signin:focus {
 .next-step-show.ng-hide {
   opacity: 0;
 }
+
+@media(min-width: 768px){
+  .how-to-align-left{
+    text-align: left;
+  }
+
+  .how-to-align-right{
+    text-align: right;
+  }
+
+  .float-left{
+    float: left;
+  }
+
+  .float-right{
+    float: right;
+  }
+
+  .lp-resize{
+    height: auto;
+  }
+}
+
+@media(max-width: 767px){
+  .how-to-align{
+    text-align: center;
+  }
+
+  .float-right-to-center{
+    float: right;
+    position: relative;
+    left: -50%; /* or right 50% */
+    text-align: left;
+  }
+
+  .float-left-to-center{
+    float: left;
+    position: relative;
+    right: 50%; /* or left -50% */
+    text-align: left;
+  }
+}
+
+@media(max-width: 599px){
+  .lp-hide-header{
+    display: none;
+  }
+  .lp-hide-text{
+    display: none;
+  }
+}
+
