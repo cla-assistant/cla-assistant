@@ -17,7 +17,7 @@ var Composition = Edge.Composition, Symbol = Edge.Symbol; // aliases for commonl
          // insert code here
          // Play the timeline at a label or specific time. For example:
          // sym.play(500); or sym.play("myLabel");
-         sym.play('start');
+         sym.play('mouseover');
 
       });
       //Edge binding end
@@ -27,11 +27,12 @@ var Composition = Edge.Composition, Symbol = Edge.Symbol; // aliases for commonl
          sym.stop('start');
 
       });
-
-      Symbol.bindTriggerAction(compId, symbolName, "Default Timeline", 0, function(sym, e) {
-         // insert code here
-      });
       //Edge binding end
+
+      Symbol.bindElementAction(compId, symbolName, "${CLA_screen-32}", "mouseover", function(sym, e) {
+         sym.play('MoveRay');
+
+      });
 
    })("stage");
    //Edge symbol end:'stage'

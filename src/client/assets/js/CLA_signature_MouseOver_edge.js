@@ -6,7 +6,7 @@
     var im='assets/images/CLA_sign/',
         aud='media/',
         vid='media/',
-        js='assets/js/',
+        js='assetes/js/',
         fonts = {
         },
         opts = {
@@ -16,6 +16,8 @@
         resources = [
         ],
         scripts = [
+            // js+"EdgeCommons.js",
+            // "http://cdn.edgecommons.org/an/1.4.0/js/min/EdgeCommons.js"
         ],
         symbols = {
             "stage": {
@@ -85,6 +87,7 @@
                     duration: 1000,
                     autoPlay: true,
                     labels: {
+                        "Label 2": 0,
                         "Label 1": 1000
                     },
                     data: [
@@ -381,6 +384,98 @@
                             '1px'
                         ],
                         [
+                            "eid117",
+                            "border-bottom-left-radius",
+                            126,
+                            0,
+                            "linear",
+                            "${Rectangle4}",
+                            [8.8,8.8],
+                            [8.8,8.8],
+                            {valueTemplate: '@@0@@% @@1@@%'}
+                        ],
+                        [
+                            "eid270",
+                            "width",
+                            639,
+                            0,
+                            "linear",
+                            "${CLA_screen-32}",
+                            '481px',
+                            '481px'
+                        ],
+                        [
+                            "eid97",
+                            "border-top-left-radius",
+                            126,
+                            0,
+                            "linear",
+                            "${Rectangle4}",
+                            [8.8,8.8],
+                            [8.8,8.8],
+                            {valueTemplate: '@@0@@% @@1@@%'}
+                        ],
+                        [
+                            "eid211",
+                            "display",
+                            92,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'block',
+                            'none'
+                        ],
+                        [
+                            "eid212",
+                            "display",
+                            126,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'none',
+                            'none'
+                        ],
+                        [
+                            "eid213",
+                            "display",
+                            208,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'none',
+                            'none'
+                        ],
+                        [
+                            "eid246",
+                            "display",
+                            220,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'none',
+                            'block'
+                        ],
+                        [
+                            "eid261",
+                            "display",
+                            250,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'block',
+                            'none'
+                        ],
+                        [
+                            "eid259",
+                            "display",
+                            522,
+                            0,
+                            "linear",
+                            "${Rectangle3}",
+                            'none',
+                            'none'
+                        ],
+                        [
                             "eid139",
                             "height",
                             0,
@@ -519,98 +614,6 @@
                             "${Rectangle4}",
                             '62px',
                             '68px'
-                        ],
-                        [
-                            "eid270",
-                            "width",
-                            639,
-                            0,
-                            "linear",
-                            "${CLA_screen-32}",
-                            '481px',
-                            '481px'
-                        ],
-                        [
-                            "eid97",
-                            "border-top-left-radius",
-                            126,
-                            0,
-                            "linear",
-                            "${Rectangle4}",
-                            [8.8,8.8],
-                            [8.8,8.8],
-                            {valueTemplate: '@@0@@% @@1@@%'}
-                        ],
-                        [
-                            "eid211",
-                            "display",
-                            92,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'block',
-                            'none'
-                        ],
-                        [
-                            "eid212",
-                            "display",
-                            126,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'none',
-                            'none'
-                        ],
-                        [
-                            "eid213",
-                            "display",
-                            208,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'none',
-                            'none'
-                        ],
-                        [
-                            "eid246",
-                            "display",
-                            220,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'none',
-                            'block'
-                        ],
-                        [
-                            "eid261",
-                            "display",
-                            250,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'block',
-                            'none'
-                        ],
-                        [
-                            "eid259",
-                            "display",
-                            522,
-                            0,
-                            "linear",
-                            "${Rectangle3}",
-                            'none',
-                            'none'
-                        ],
-                        [
-                            "eid117",
-                            "border-bottom-left-radius",
-                            126,
-                            0,
-                            "linear",
-                            "${Rectangle4}",
-                            [8.8,8.8],
-                            [8.8,8.8],
-                            {valueTemplate: '@@0@@% @@1@@%'}
                         ],
                         [
                             "eid157",
@@ -1389,5 +1392,5 @@
 
     AdobeEdge.registerCompositionDefn(compId, symbols, fonts, scripts, resources, opts);
 
-    if (!window.edge_authoring_mode) AdobeEdge.getComposition(compId).load("assets/js/CLA_sign_edgeActions.js");
+    if (!window.edge_authoring_mode) AdobeEdge.getComposition(compId).load("assets/js/CLA_signature_MouseOver_edgeActions.js");
 })("EDGE-110781156");
