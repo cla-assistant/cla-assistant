@@ -172,6 +172,21 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        $scope.confirmRemove = function(claRepo){
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/confirm_remove.html',
+                controller: 'ConfirmCtrl',
+                windowClass: 'confirm-add',
+                resolve: {
+                    selectedGist: function(){ return {};},
+                    selectedRepo: function(){ return claRepo;}
+                }
+            });
+            modal.result.then(function(repo){
+                $scope.remove(repo);
+            });    
+        };
+
         getUser().then(function(){
             getRepos();
             getGists();
@@ -255,19 +270,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             });
 
-            // if (claRepo.gist) {
-            //     $RPCService.call('webhook', 'create', {repo: claRepo.repo, owner: claRepo.owner}, function(err, data){
-            //         if (!err) {
-            //             claRepo.active = true;
-            //         }
-            //     });
-            // } else {
-                $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
-                    if (!err) {
-                        claRepo.active = false;
-                    }
-                });
-            // }
+            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+                if (!err) {
+                    claRepo.active = false;
+                }
+            });
         };
 
         $scope.getUsers = function(claRepo){
