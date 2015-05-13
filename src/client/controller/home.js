@@ -141,6 +141,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     selectedRepo: function(){ return $scope.selectedRepo;}
                 }
             });
+
+            modal.result.then(function(){
+                $scope.selectedRepo = {};
+                $scope.selectedGist = {};
+            }, function(){
+                $scope.selectedRepo = {};
+                $scope.selectedGist = {};
+            });
         };
 
         var confirmAdd = function() {
