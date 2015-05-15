@@ -30,7 +30,7 @@ $brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
 $brand-warning: #ffa159;
-$brand-danger: #ff3333;
+$brand-danger: #ee524f;
 $brand-info: #deefef;
 $brand-merged: #6e5494;
 $link-color: #3c3c3d;
@@ -351,15 +351,12 @@ small {
 .content-block {
   /*height:100vH;*/
   padding-top: 150px;
+  margin-bottom: 50px;
 }
 
 .content-block .row .right-side {
   border-left: solid 1px;
   border-color: $gray;
-}
-
-.content-block:last-child {
-  margin-bottom:-50px;
 }
 
 .clear-button {
@@ -442,9 +439,9 @@ small {
 
 /* The element to apply the animation to */
 .nervous {
-  -webkit-animation:shake 0.1s linear 5s infinite;
-  -moz-animation:shake 0.1s linear 5s infinite;
-  animation:shake 0.1s linear 5s infinite;
+  -webkit-animation:shake 0.1s linear infinite;
+  -moz-animation:shake 0.1s linear infinite;
+  animation:shake 0.1s linear infinite;
 }
 
 .nervous-drop {

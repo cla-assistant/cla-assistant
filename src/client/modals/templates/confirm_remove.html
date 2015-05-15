@@ -11,7 +11,7 @@
     	<div class="col-sm-12 well center-block" style="position: relative; left: 0; top: 0;">
             <!-- <div id="Stage" class="EDGE-216448673"></div> -->
             <div>
-                <img src="/assets/images/nervous_remove/nervous-36.svg" class="nervous" style="position: relative;">
+                <img src="/assets/images/nervous_remove/nervous-36.svg" ng-class="{'nervous':isNervous}" style="position: relative;">
                 <img src="/assets/images/nervous_remove/nervous_eye1-37.svg" class="eye-move2">
                 <img src="/assets/images/nervous_remove/nervous_eye2-39.svg" class="eye-move">
                 <img src="/assets/images/nervous_remove/nervous_drop-38.svg" class="nervous-drop">
@@ -30,6 +30,6 @@
 
     <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
 	    <button class="btn btn-cancel" ng-click="cancel()">Keep it</button>
-	    <button class="btn btn-error" ng-click="ok()">Remove anyway!</button>
+	    <button class="btn btn-danger" ng-click="ok()" ng-mouseenter="isNervous=true" ng-mouseleave="isNervous=false">Remove anyway!</button>
     </div>
 </div>
