@@ -349,8 +349,11 @@ small {
 }
 
 .selectize-dropdown .optgroup-header {
-  text-align: center;
-  font-style: italic;
+  color: $gray-dark;
+}
+
+.selectize-dropdown [data-selectable] {
+  margin-left: 20px;
 }
 
 .content-block {
