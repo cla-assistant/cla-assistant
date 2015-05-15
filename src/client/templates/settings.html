@@ -24,7 +24,7 @@
 	{{gist.updated_at | date:'longDate'}}
 </div>
 
-<div class="col-sm-1 col-lg-1" style="text-align:center; text-decoration: underline;">
+<div class="col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
 	<a ng-click="$parent.getReport(repo);" class="clickable">{{contributors.length}}</a>
 </div>
 
@@ -35,17 +35,17 @@
 	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom" 
 	tooltip="inactive">
 </div>
-<div class="col-sm-2 col-lg-1 ">
+<div class="col-sm-1 ">
 	<i class="fa fa-trash-o action-icon"
 	style="float:right; font-size:18px"
 	ng-click="$parent.confirmRemove(repo)" 
 	tooltip-placement="bottom" 
 	tooltip="Remove">
 	</i>
-	<i class="fa fa-pencil action-icon"
+	<!-- <i class="fa fa-pencil action-icon"
 	style=" font-size:17px"
 	ng-click="" 
 	tooltip-placement="bottom" 
 	tooltip="Edit">
-	</i>
+	</i> -->
 </div>

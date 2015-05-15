@@ -30,12 +30,6 @@
                 content: {
                     dom: [
                         {
-                            id: 'CLA_svg_new2',
-                            type: 'image',
-                            rect: ['23px', '1px', '481px', '397px', 'auto', 'auto'],
-                            fill: ["rgba(0,0,0,0)",im+"CLA_svg_new2.svg",'0px','0px']
-                        },
-                        {
                             id: 'CLA_screen-32',
                             type: 'image',
                             rect: ['24px', '1px', '481px', '398px', 'auto', 'auto'],
