@@ -132,7 +132,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         var linkSuccess = function(){
             var modal = $modal.open({
-                templateUrl: '/modals/templates/link-success.html',
+                templateUrl: '/modals/templates/linkSuccess.html',
                 controller: 'LinkCtrl',
                 windowClass: 'link-success',
                 scope: $scope,
@@ -145,15 +145,17 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             modal.result.then(function(){
                 $scope.selectedRepo = {};
                 $scope.selectedGist = {};
+                $scope.newLink = false;
             }, function(){
                 $scope.selectedRepo = {};
                 $scope.selectedGist = {};
+                $scope.newLink = false;
             });
         };
 
         var confirmAdd = function() {
             var modal = $modal.open({
-                templateUrl: '/modals/templates/confirm.html',
+                templateUrl: '/modals/templates/confirmLink.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
@@ -174,7 +176,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         $scope.confirmRemove = function(claRepo){
             var modal = $modal.open({
-                templateUrl: '/modals/templates/confirm_remove.html',
+                templateUrl: '/modals/templates/confirmRemove.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
