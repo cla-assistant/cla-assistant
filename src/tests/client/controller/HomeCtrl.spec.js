@@ -243,9 +243,10 @@ describe('Home Controller', function() {
     it('should load gist files of the user', function(){
         httpBackend.flush();
 
-        (homeCtrl.scope.gists.length).should.be.equal(2);
-        (homeCtrl.scope.gists[0].name).should.be.equal('ring.erl');
-        (homeCtrl.scope.gists[1].name).should.be.equal('file1');
+        (homeCtrl.scope.gists.length).should.be.equal(3);
+        (homeCtrl.scope.gists[0].name).should.be.equal('SAP individual CLA');
+        (homeCtrl.scope.gists[1].name).should.be.equal('ring.erl');
+        (homeCtrl.scope.gists[2].name).should.be.equal('file1');
     });
 
     it('should validate gist url', function(){
@@ -257,7 +258,15 @@ describe('Home Controller', function() {
         });
     });
 
-
+    it('should identify default gist url from all gists', function(){
+        httpBackend.flush();
+        
+        sapClaGist = {name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'};
+        (homeCtrl.scope.groupDefaultCla(sapClaGist)).should.be.equal('Default CLAs');
+        
+        anyOtherGist = {name: 'any name', url: 'https://gist.github.com/gitID'};
+        (homeCtrl.scope.groupDefaultCla(anyOtherGist)).should.not.be.equal('Default CLAs');
+    });
 
     xit('should handle multiple error messages', function(){
     });

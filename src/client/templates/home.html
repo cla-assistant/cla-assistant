@@ -30,7 +30,7 @@
 	            		{{$select.selected.name}}
 
 		            </ui-select-match>
-		            <ui-select-choices repeat="gist in gists | filter: $select.search" null-option="emptyGist">
+		            <ui-select-choices group-by="groupDefaultCla" repeat="gist in gists | filter: $select.search" null-option="emptyGist">
 		              	<span ng-bind-html="gist.name | highlight: $select.search"></span>
 		            </ui-select-choices>
 		        </ui-select>

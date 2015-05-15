@@ -104,7 +104,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getGists = function(){
-            $scope.gists = [];
+            $scope.gists = [{name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'}];
             $HUBService.direct_call('https://api.github.com/gists?per_page=100').then(function(data){
                 if (data && data.value) {
                     data.value.forEach(function(gist){
@@ -325,6 +325,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.url();
+        };
+
+        $scope.groupDefaultCla = function(gist){
+            if (gist.url === 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8') {
+                return 'Default CLAs';
+            }
+
+            return 'My Gist Files';
         };
     }
 ])
