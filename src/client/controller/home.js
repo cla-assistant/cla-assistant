@@ -27,7 +27,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $window.location.href = '/auth/github?admin=true';
         };
 
-
         $scope.isNotClaRepo = function(repo){
             var match = false;
             $scope.claRepos.some(function(claRepo){
@@ -118,6 +117,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        // var validateLinkedRepos = function(){
+
+        // };
+
         var showErrorMessage = function(text) {
             var error = text;
             $timeout(function(){
@@ -137,8 +140,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 windowClass: 'link-success',
                 scope: $scope,
                 resolve: {
-                    selectedGist: function(){ return $scope.selectedGist;},
-                    selectedRepo: function(){ return $scope.selectedRepo;}
+                    selectedGist: function(){ return $scope.selectedGist; },
+                    selectedRepo: function(){ return $scope.selectedRepo; }
                 }
             });
 
@@ -159,8 +162,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
-                    selectedGist: function(){ return $scope.selectedGist;},
-                    selectedRepo: function(){ return $scope.selectedRepo;}
+                    selectedGist: function(){ return $scope.selectedGist; },
+                    selectedRepo: function(){ return $scope.selectedRepo; }
                 }
             });
             modal.result.then(function(){
@@ -180,13 +183,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
-                    selectedGist: function(){ return {};},
-                    selectedRepo: function(){ return claRepo;}
+                    selectedGist: function(){ return {}; },
+                    selectedRepo: function(){ return claRepo; }
                 }
             });
             modal.result.then(function(repo){
                 $scope.remove(repo);
-            });    
+            });
         };
 
         getUser().then(function(){
@@ -285,7 +288,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 if (!err && data.value) {
                     data.value.forEach(function(entry){
                         // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
-                        $HUB.call('user', 'getFrom', {user: entry.user}, function(err, user){
+                        $HUB.call('user', 'getFrom', {user: entry.user}, function (error, user){
                             user.value.cla = entry;
                             $scope.users.push(user.value);
                         });
@@ -298,8 +301,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var modal = $modal.open({
                 templateUrl: '/modals/templates/report.html',
                 controller: 'ReportCtrl',
+                windowClass: 'report',
                 resolve: {
-                    repo: function(){ return claRepo;},
+                    repo: function(){ return claRepo; },
                     users: function(){ return $scope.users; }
                 }
             });
@@ -315,7 +319,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.info = function() {
             $modal.open({
                 templateUrl: '/modals/templates/info_gist.html',
-                controller: 'InfoCtrl'
+                controller: 'InfoCtrl',
+                windowClass: 'howto'
             });
         };
 
@@ -379,85 +384,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
-.directive('imgSlider', ['$window', '$timeout', function($window, $timeout){
-    return {
-        scope: true,
-        controller: function($scope, $element){
-            var children;
-            var leadingImage;
-            var nextImage;
-            var arrow_left;
-            var arrow_right;
-            var startPoint;
-            var step;
-            var count = 0;
-            $scope.maxWidth = $window.innerWidth - 100;
-
-            var centerLeadingImage = function(){
-                startPoint = (this.innerWidth - leadingImage.width()) / 2;
-                leadingImage.css('margin-left', startPoint);
-
-                var top = (leadingImage.height() - arrow_left.height()) / 2;
-                var left = startPoint - arrow_left.width();
-                arrow_left.css('top', top);
-                arrow_left.css('left', left);
-
-                left = startPoint + leadingImage.width();
-                arrow_right.css('top', top);
-                arrow_right.css('left', left);
-            };
-
-            var resize = function(){
-                for (var i = children.length - 1; i >= 0; i--) {
-                    angular.element(children[i]).css('max-width', this.innerWidth - 100);
-                }
-            };
-
-            var init = function(){
-                nextImage = angular.element(children[3]);
-                arrow_left = angular.element(children[0]);
-                arrow_right = angular.element(children[1]);
-
-                centerLeadingImage();
-                var margin_l = leadingImage.prop('offsetLeft');
-                var margin_n = nextImage.prop('offsetLeft');
-                step = margin_n - margin_l;
-            };
-
-            angular.element($window).bind('load resize', function(){
-                children = $element.children();
-                leadingImage = angular.element(children[2]);
-                leadingImage.removeClass('lp-screenshot'); //risize without animation
-                resize();
-                init();
-                leadingImage.addClass('lp-screenshot'); //animated class for user actions
-            });
-
-            $scope.left = function(){
-                var new_margin = leadingImage.prop('offsetLeft');
-                if (count < children.length - 3) {
-                    new_margin -= step;
-                    count++;
-                } else {
-                    new_margin = startPoint;
-                    count = 0;
-                }
-
-                leadingImage.css('margin-left', new_margin);
-            };
-
-            $scope.right = function(){
-                var new_margin = leadingImage.prop('offsetLeft');
-                if (count > 0) {
-                    new_margin += step;
-                    count--;
-                }
-
-                leadingImage.css('margin-left', new_margin);
-            };
-        }
-    };
-}])
 .directive('textSlider', ['$window', '$timeout', function($window, $timeout){
     return {
         scope: {
@@ -474,67 +400,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             };
 
             start();
-        }
-    };
-}])
-.directive('screenshot', ['$window', function($window){
-    return {
-        // template: '<img src="{{src}}" class="center-block " alt="Add repository" height="1000px">',
-        scope: {
-            stepId: '@',
-            // src: '@',
-            nextstep: '&'
-        },
-        link: function(scope, element, attrs){
-            var screenshot = element;
-            var inititalScreenshotOffset;
-
-            var positionScreenshot = function(){
-                screenshot.attr('height', $window.innerHeight + 'px');
-                screenshot.parent().css('height', $window.innerHeight + 'px');
-                screenshot.css('margin-left', ($window.innerWidth - screenshot[0].width) / 2 + 'px');
-
-                inititalScreenshotOffset = screenshot.parent()[0].offsetTop;
-
-            };
-
-            angular.element($window).bind('scroll', function() {
-                var threshold = this.pageYOffset - inititalScreenshotOffset;
-                console.log(threshold);
-                // console.log('pageYOffset: ', this.pageYOffset, ' offsetTop: ', offset);
-                if(this.pageYOffset > inititalScreenshotOffset) {
-                    screenshot.css('position', 'fixed');
-                    screenshot.css('bottom', '0px');
-                    // scope.visible = false;
-                //      scope.boolChangeClass = true;
-                } else {
-                    screenshot.css('position', 'inherit');
-                }
-
-                if (threshold > 150) {
-                    if (scope.stepId === 'step1') {
-                        console.log(scope.nextstep());
-                        scope.nextstep().step1 = true;
-                    }
-                } else {
-                    if (scope.stepId === 'step1') {
-                        scope.nextstep().step1 = false;
-                    }
-                }
-
-                scope.$apply();
-
-            });
-
-            angular.element($window).bind('resize', function(){
-                positionScreenshot();
-                scope.$apply();
-            });
-
-            angular.element($window).bind('load', function(){
-                positionScreenshot();
-                scope.$apply();
-            });
         }
     };
 }]);

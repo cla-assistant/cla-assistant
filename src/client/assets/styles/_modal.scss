@@ -25,7 +25,7 @@
 }
 
 .modal-body {
-	padding: 15px 35px;
+	padding: 15px 15px;
 }
 
 .modal-primary{
@@ -38,21 +38,7 @@
 	color: $gray-lighter; 
 }
 
-
-.howto .modal-dialog {
-  width: 80%;
-  max-width: 1010px;   
-  min-width: 800px;
-  
-  img {
-    width:100%; 
-    border:solid 1px lightgrey; 
-    margin-top: 30px;
-  }
-}
-
-.confirm-add .modal-dialog{
-	width: 550px;
+.modal-dialog {
 	.icon {
 		width:300px;
 		border:none;
@@ -60,15 +46,10 @@
 
 	p {
 		font-size: 16px;
-		color:$green;
 	}
 
 	ul>li {
 		padding-top: 15px;
-	}
-
-	.modal-body {
-	  padding: 15px 15px;
 	}
 
 	button {
@@ -78,35 +59,33 @@
 
 	.btn-cancel{
 		font-weight: 200;
+	}
+}
+
+.confirm-add .modal-dialog{
+	width: 550px;
+
+	p {
+		color:$green;
 	}
 }
 
 .link-success .modal-dialog{
 	width: 455px;
-	.icon {
-		width:300px;
-		border:none;
-	}
-
-	p {
-		font-size: 16px;
-	}
-
-	ul>li {
-		padding-top: 15px;
-	}
-
-	.modal-body {
-	  padding: 15px 15px;
-	}
-
-	button {
-		margin-left: 10px;
-		font-size: 16px;
-	}
-
-	.btn-cancel{
-		font-weight: 200;
-	}
 }
 
+.howto .modal-body .free-space {
+	padding: 35px 15px 0px 15px;
+}
+
+.howto .modal-body .free-space:last-child {
+	padding-bottom: 20px;
+}
+
+.report .modal-body{
+	padding: 15px 35px;
+
+	.close-button{
+		margin-right: -15px;
+	}
+}

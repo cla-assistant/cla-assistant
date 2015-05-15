@@ -16,6 +16,11 @@ module.controller('ReportCtrl',
                 }
             });
         };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+
         getGist();
     }
 );

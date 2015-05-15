@@ -1,54 +1,31 @@
-<div class="modal-header">
-    <h3 class="modal-title">How to set up a CLA in Gist</h3>
-</div>
-<!--<div class="modal-body row free_space">
-    <h4>First of all, what's the deal again?</h4>
-    <p>  
-    The Contributor License Agreement assistant (CLA assistant) lets you handle the legal side of contributions to your code easily. All you need to do is to store your CLA as a GitHub Gist file and link it with your repository in the CLA assistant.
-    </p>
-</div>-->
-<div class="modal-body row free_space">
-	<h4>What is GitHub Gist?</h4>
-    <p>  
-    Gist is a simple way to share text files, snippets and pastes with others. All Gists are Git repositories, so they are automatically versioned, forkable and usable from Git.</p>
-</div>
-
-<div class="modal-body row free_space">
-    <h4>How can I create a Gist file?</h4>
-    <div>
-    	<ul>
-    		<li>Go to <a href="http://gist.github.com" class="text-primary">gist.github.com</a> and sign in with your GitHub account</li>
-    		<li>Enter a prefered file name and content of your contributor license agreement</li>
-    		<li>Choose whether you want to keep it private or make it public (for more information about this, see: <a href="https://help.github.com/articles/about-gists/" class="text-primary">github documentation</a> ).</li>
-    	</ul>
-
-    	<!--<div style="text-align: center">
-    		<img ng-if="show1" ng-init="show1=false" src="../../assets/images/gist_tutorial.gif">
-    		<button ng-show="!show1" ng-click="show1 = !show1" class="btn btn-default free_space">Show screencast</button>
-    		<button ng-show="show1" ng-click="show1 = !show1" class="btn btn-default free_space">Hide screencast</button>
-    	</div>-->
+<div class="modal-body modal-primary">
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
+        Are you really sure to remove the<br>link of this CLA and repository?
     </div>
-</div>
 
-<div class="modal-body row free_space">
-    <h4>How can I use Gist for CLA assistant?</h4>
-    <div>  
-    	All you need to do is to copy and paste (or drag and drop) the URL of your Gist into CLA assistant, add a repository and link both.
-        <br><br>
-    	<!--<div style="text-align: center">
-        	<img ng-show="show2" ng-init="show2=false" src="../../assets/images/gist_tutorial_2.gif">
-    		<button ng-show="!show2" ng-click="show2 = !show2" class="btn btn-default free_space">Show screencast</button>
-    		<button ng-show="show2" ng-click="show2 = !show2" class="btn btn-default free_space">Hide screencast</button>
-        </div>-->
+    <div class="free-space">
+    	<h4>What is GitHub Gist?</h4>
+        <p>  
+        Gist is a simple way to share text files, snippets and pastes with others. All Gists are Git repositories, so they are automatically versioned, forkable and usable from Git.</p>
     </div>
-</div>
 
-<div class="modal-body row free_space">
-    <h4>What happens if I edit the Gist file?</h4>
-    <div>  
-    	CLA assistant always shows you the current version of your Gist file. Users who accept your contributor license agreement, sign only the current version. If you change the content of your CLA, each contributor has to accept the new version of the CLA for new pull requests. 
+    <div class="free-space">
+        <h4>How can I create a Gist file?</h4>
+        <div>
+        	<ul>
+        		<li>Go to <a href="http://gist.github.com" class="text-primary">gist.github.com</a> and sign in with your GitHub account</li>
+        		<li>Enter a prefered file name and content of your contributor license agreement</li>
+        		<li>Choose whether you want to keep it private or make it public (for more information about this, see: <a href="https://help.github.com/articles/about-gists/" class="text-primary">github documentation</a> ).</li>
+        	</ul>
+        </div>
     </div>
-</div>
 
-<div class="modal-footer">
+    <div class="free-space">
+        <h4>What happens if I edit the Gist file?</h4>
+        <div>  
+        	CLA assistant always shows you the current version of your Gist file. Users who accept your contributor license agreement, sign only the current version. If you change the content of your CLA, each contributor has to accept the new version of the CLA on a new pull request. 
+        </div>
+    </div>
+
 </div>

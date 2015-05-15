@@ -1,8 +1,6 @@
 <div class="modal-body modal-primary fade in">
-    <div class="row">
-        <div ng-click="cancel()" class="fa fa-times close-button"></div>
-    </div>
-    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div style="text-align: center; font-size:26px; margin-top: 20px;">
         Contributors who signed my CLA
     </div>
 
@@ -36,10 +34,6 @@
 </div>
 
 <div class="modal-body modal-primary">
-    <div class="row ">
-        <div class="col-sm-12">
-            <span ng-show="users.length == 1"><b>{{users.length}}</b> contributor signed this CLA</span>
-            <span ng-show="users.length != 1"><b>{{users.length}}</b> contributors signed this CLA</span>
-        </div>
-    </div>
+    <span ng-show="users.length == 1"><b>{{users.length}}</b> contributor signed this CLA</span>
+    <span ng-show="users.length != 1"><b>{{users.length}}</b> contributors signed this CLA</span>
 </div>

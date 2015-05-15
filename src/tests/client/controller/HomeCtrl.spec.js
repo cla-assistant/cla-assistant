@@ -260,11 +260,11 @@ describe('Home Controller', function() {
 
     it('should identify default gist url from all gists', function(){
         httpBackend.flush();
-        
-        sapClaGist = {name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'};
+
+        var sapClaGist = {name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'};
         (homeCtrl.scope.groupDefaultCla(sapClaGist)).should.be.equal('Default CLAs');
-        
-        anyOtherGist = {name: 'any name', url: 'https://gist.github.com/gitID'};
+
+        var anyOtherGist = {name: 'any name', url: 'https://gist.github.com/gitID'};
         (homeCtrl.scope.groupDefaultCla(anyOtherGist)).should.not.be.equal('Default CLAs');
     });
 
