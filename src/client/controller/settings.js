@@ -32,19 +32,19 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return valid ? gist : undefined;
         };
 
-        $scope.getUsers = function(){
-            return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
-                $scope.users = [];
-                if (!err && data.value) {
-                    data.value.forEach(function(entry){
-                        // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
-                        $HUB.call('user', 'getFrom', {user: entry.user}, function(e, user){
-                            $scope.users.push(user.value);
-                        });
-                    });
-                }
-            });
-        };
+        // $scope.getUsers = function(){
+        //     return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
+        //         $scope.users = [];
+        //         if (!err && data.value) {
+        //             data.value.forEach(function(entry){
+        //                 // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
+        //                 $HUB.call('user', 'getFrom', {user: entry.user}, function(e, user){
+        //                     $scope.users.push(user.value);
+        //                 });
+        //             });
+        //         }
+        //     });
+        // };
 
         $scope.getGist = function(){
             $scope.loading = true;
@@ -97,8 +97,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
             $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
                 if ($scope.repo.gist) {
-                    $scope.getUsers();
+                    // $scope.getUsers();
                     $scope.getGist();
+                    $scope.$parent.getSignatures($scope.repo).then(function(signatures){
+                        if (signatures && signatures.value) {
+                            $scope.contributors = signatures.value;
+                        }
+                    });
                 }
             });
         };
@@ -110,10 +115,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         if ($scope.repo.gist) {
             $scope.getGist();
-            $scope.$parent.getUsers($scope.repo).then(function(data){
-                if (data && data.value) {
-                    $scope.contributors = data.value;
-                };
+            $scope.$parent.getSignatures($scope.repo).then(function(signatures){
+                if (signatures && signatures.value) {
+                    $scope.contributors = signatures.value;
+                }
             });
         }
 

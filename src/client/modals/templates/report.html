@@ -1,4 +1,11 @@
-<div class="modal-body modal-primary fade in">
+<div class="modal-body modal-primary" ng-hide="users.length > 0" style="min-height: 400px;">
+    <div class="row">
+        <div class="col-sm-12 center-block" >
+            <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin:10px; margin-top:150px">
+        </div>
+    </div>
+</div>
+<div class="modal-body modal-primary" ng-show="users.length > 0">
     <div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div style="text-align: center; font-size:26px; margin-top: 20px;">
         Contributors who signed my CLA
@@ -33,7 +40,7 @@
     </div>
 </div>
 
-<div class="modal-body modal-primary">
+<div class="modal-body modal-primary" ng-show="users.length > 0">
     <span ng-show="users.length == 1"><b>{{users.length}}</b> contributor signed this CLA</span>
     <span ng-show="users.length != 1"><b>{{users.length}}</b> contributors signed this CLA</span>
 </div>

@@ -192,6 +192,36 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        var report = function(claRepo) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/report.html',
+                controller: 'ReportCtrl',
+                windowClass: 'report',
+                scope: $scope,
+                resolve: {
+                    repo: function(){ return claRepo; }
+                }
+            });
+            // modal.result.then(function(args){});
+        };
+
+        $scope.getReport = function(claRepo){
+            $scope.users = [];
+
+            $scope.getUsers(claRepo).then(function(){
+
+            });
+            report(claRepo);
+        };
+
+        $scope.info = function() {
+            $modal.open({
+                templateUrl: '/modals/templates/info_gist.html',
+                controller: 'InfoCtrl',
+                windowClass: 'howto'
+            });
+        };
+
         getUser().then(function(){
             getRepos();
             getGists();
@@ -282,45 +312,26 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        $scope.getSignatures = function(claRepo){
+            return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
+        };
+
+        var getGithubUserData = function(login){
+            return $HUBService.call('user', 'getFrom', {user: login});
+        };
+
         $scope.getUsers = function(claRepo){
-            return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}, function(err, data){
+            return $scope.getSignatures(claRepo).then(function(data){
                 $scope.users = [];
-                if (!err && data.value) {
-                    data.value.forEach(function(entry){
-                        // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
-                        $HUB.call('user', 'getFrom', {user: entry.user}, function (error, user){
-                            user.value.cla = entry;
+                if (data && data.value) {
+                    data.value.forEach(function(signature){
+                        getGithubUserData(signature.user).then(function(user){
+                            user.value.cla = signature;
                             $scope.users.push(user.value);
+
                         });
                     });
                 }
-            });
-        };
-
-        var report = function(claRepo) {
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/report.html',
-                controller: 'ReportCtrl',
-                windowClass: 'report',
-                resolve: {
-                    repo: function(){ return claRepo; },
-                    users: function(){ return $scope.users; }
-                }
-            });
-            // modal.result.then(function(args){});
-        };
-
-        $scope.getReport = function(claRepo){
-            $scope.getUsers(claRepo).then(function(){
-                report(claRepo);
-            });
-        };
-
-        $scope.info = function() {
-            $modal.open({
-                templateUrl: '/modals/templates/info_gist.html',
-                controller: 'InfoCtrl',
-                windowClass: 'howto'
             });
         };
 

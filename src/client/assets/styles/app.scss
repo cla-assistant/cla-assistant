@@ -149,64 +149,6 @@ html {
 body {
   margin-bottom: $footer-height;
 }
-/*
-.scaffold {
-  background: $gray-lighter;
-
-  > .pull {
-    background: $body-bg;
-    min-height: 100vh;
-    min-height: calc(100vh - 52px);
-    padding: 0 30px;
-  }
-
-  > .sidebar {
-    background: $gray-lighter;
-    max-height: 100vh;
-    max-height: calc(100vh - 52px);
-    overflow-x: hidden;
-    overflow-y: hidden;
-    padding: 0;
-
-    .ui-scrollfix {
-      position: fixed;
-      top: 0;
-      width: inherit;
-    }
-
-    .issues {
-      height: 100vh;
-      height: calc(100vh - 100px);
-      overflow-x: hidden;
-      overflow-y: scroll;
-    }
-  }
-}*/
-
-/*.star-dropdown {
-  margin-bottom: 0;
-  max-height: 350px;
-  overflow-y: scroll;
-  padding-bottom: 0;
-
-  > li > a:hover {
-    background-color: transparent !important;
-    cursor: default;
-  }
-
-  .divider {
-    margin-bottom: 0;
-  }
-
-  .star-dropdown-item {
-    border-bottom: 1px solid $gray-light;
-    padding: 5px 0;
-  }
-}
-
-.input-group-btn {
-  vertical-align: top;
-}*/
 
 // typography
 

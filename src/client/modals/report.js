@@ -1,7 +1,6 @@
 module.controller('ReportCtrl',
-    function($scope, $modalInstance, $window, repo, users, $state, $RPCService) {
+    function($scope, $modalInstance, $window, repo, $state, $RPCService) {
 		$scope.claRepo = repo;
-		$scope.users = users;
 		$scope.gist = null;
 
 		//TODO: Code duplication!!! To be improved!
