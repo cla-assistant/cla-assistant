@@ -78,22 +78,26 @@ module.exports = {
 		});
 	},
 
-    sign: function(req, done) {
+  getAll: function(req, done){
+		cla.getAll(req.args, done);
+	},
+
+	sign: function(req, done) {
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login, user_id: req.user.id};
 
 		cla.sign(args, function(err, signed){
-			if (err) {log.error(err);}
+			if (err) {log.error(err); }
 			repoService.get({repo: args.repo, owner: args.owner}, function(e, repo){
-				if (e) {log.error(e);}
+				if (e) {log.error(e); }
 				github.direct_call({url: url.githubPullRequests(args.owner, args.repo, 'open'), token: repo.token}, function(error, res){
-					if (error) {log.error(error);}
+					if (error) {log.error(error); }
 
 					if(res && res.data && !error){
 						res.data.forEach(function(pullRequest){
 							var status_args = {repo: args.repo, owner: args.owner};
 							status_args.number = pullRequest.number;
 							cla.check(status_args, function(cla_err, all_signed){
-								if (cla_err) {log.error(cla_err);}
+								if (cla_err) {log.error(cla_err); }
 								status_args.signed = all_signed;
 								status.update(status_args);
 								prService.editComment({repo: args.repo, owner: args.owner, number: status_args.number, signed: all_signed});
@@ -104,15 +108,11 @@ module.exports = {
 			});
 			done(err, signed);
 		});
-    },
+  },
 
-    getAll: function(req, done){
-		cla.getAll(req.args, done);
-	},
-
-    check: function(req, done){
+  check: function(req, done){
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login};
 
 		cla.check(args, done);
-    }
+  }
 };

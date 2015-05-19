@@ -30,6 +30,10 @@ describe('Home Controller', function() {
                 files: {'file.txt': {filename: 'file1'}}
             }]));
         httpBackend.when('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.when('GET', '/static/cla-assistant.json').respond({ 'default-cla': [{
+          'name': 'first default cla',
+          'url': 'https://gist.github.com/gistId'
+        }]});
 
     }));
 
@@ -136,7 +140,7 @@ describe('Home Controller', function() {
 
         homeCtrl.scope.selectedGist.gist = {url: 'https://gist.github.com/gistId'};
         homeCtrl.scope.selectedRepo.repo = {id: 123, name: 'myRepo', full_name: 'login/myRepo', owner: {login: 'login'}};
-        
+
         httpBackend.expect('POST', '/api/repo/create', { repo: 'myRepo', owner: 'login', gist: homeCtrl.scope.selectedGist.gist.url}).respond(500, {err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'});
         httpBackend.expect('POST', '/api/webhook/create', { repo: 'myRepo', owner: 'login' }).respond(null, {active: true});
         httpBackend.expect('POST', '/api/webhook/remove', { repo: 'myRepo', user: 'login' }).respond({});
@@ -244,7 +248,7 @@ describe('Home Controller', function() {
         httpBackend.flush();
 
         (homeCtrl.scope.gists.length).should.be.equal(3);
-        (homeCtrl.scope.gists[0].name).should.be.equal('SAP individual CLA');
+        (homeCtrl.scope.gists[0].name).should.be.equal('first default cla');
         (homeCtrl.scope.gists[1].name).should.be.equal('ring.erl');
         (homeCtrl.scope.gists[2].name).should.be.equal('file1');
     });
@@ -261,14 +265,18 @@ describe('Home Controller', function() {
     it('should identify default gist url from all gists', function(){
         httpBackend.flush();
 
-        var sapClaGist = {name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'};
+        var sapClaGist = {name: 'first default cla', url: 'https://gist.github.com/gistId'};
         (homeCtrl.scope.groupDefaultCla(sapClaGist)).should.be.equal('Default CLAs');
 
         var anyOtherGist = {name: 'any name', url: 'https://gist.github.com/gitID'};
         (homeCtrl.scope.groupDefaultCla(anyOtherGist)).should.not.be.equal('Default CLAs');
     });
 
-    xit('should handle multiple error messages', function(){
+    it('should load default cla files', function(){
+        httpBackend.flush();
+
+        homeCtrl.scope.defaultClas.length.should.be.equal(1);
+        homeCtrl.scope.defaultClas[0].name.should.be.equal('first default cla');
     });
 });
 

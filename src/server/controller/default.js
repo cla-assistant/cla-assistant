@@ -26,6 +26,20 @@ router.use('/accept/:owner/:repo', function(req, res) {
     }
 });
 
+router.all('/static/*', function(req, res) {
+	var filePath;
+	if (req.user && req.path === '/static/cla-assistant.json') {
+		filePath = path.join(__dirname, '..', '..', '..', 'cla-assistant.json');
+	}
+	else {
+		filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
+	}
+	// res.setHeader('Cache-Control', 'must-revalidate, private');
+	// res.setHeader('Expires', '-1');
+	res.setHeader('Last-Modified', (new Date()).toUTCString());
+	res.status(200).sendFile(filePath);
+});
+
 router.all('/*', function(req, res) {
 	var filePath;
 	if (req.user || req.path !== '/') {

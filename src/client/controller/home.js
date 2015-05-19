@@ -21,6 +21,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.user = {};
         $scope.nextstep = {step1: true};
         $scope.active = 0;
+        $scope.defaultClas = [];
+        var githubGists = 'https://api.github.com/gists?per_page=100';
+        var githubUserRepos = 'https://api.github.com/user/repos?per_page=100';
 
 
         $scope.logAdminIn = function(){
@@ -93,7 +96,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             // };
 
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
-                $HUBService.direct_call('https://api.github.com/user/repos?per_page=100').then(function(data){
+                $HUBService.direct_call(githubUserRepos).then(function(data){
                     data.value.forEach(function(orgRepo){
                             $scope.repos.push(orgRepo);
                         });
@@ -103,8 +106,15 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getGists = function(){
-            $scope.gists = [{name: 'SAP individual CLA', url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'}];
-            $HUBService.direct_call('https://api.github.com/gists?per_page=100').then(function(data){
+            $scope.gists = [];
+            if (!$scope.defaultClas.length) {
+              $scope.getDefaultClaFiles().then(function(data){
+                $scope.gists = $scope.gists.concat($scope.defaultClas);
+              });
+            }
+            $scope.gists = $scope.defaultClas.concat([]);
+
+            $HUBService.direct_call(githubGists).then(function(data){
                 if (data && data.value) {
                     data.value.forEach(function(gist){
                         var gistFile = {};
@@ -219,6 +229,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 templateUrl: '/modals/templates/info_gist.html',
                 controller: 'InfoCtrl',
                 windowClass: 'howto'
+            });
+        };
+
+        $scope.getDefaultClaFiles = function(){
+            return $RAW.get('/static/cla-assistant.json').then(function(data){
+              $scope.defaultClas = data['default-cla'];
             });
         };
 
@@ -344,11 +360,16 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.groupDefaultCla = function(gist){
-            if (gist.url === 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8') {
-                return 'Default CLAs';
-            }
+            var found = false;
 
-            return 'My Gist Files';
+            $scope.defaultClas.some(function(defCla){
+              if (gist.url === defCla.url) {
+                found = true;
+                return found;
+              }
+            });
+
+            return found ? 'Default CLAs' : 'My Gist Files';
         };
     }
 ])
