@@ -19,14 +19,13 @@ module.exports = function(config) {
             'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js',
-
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-sanitize.min.js',
 
             'src/bower/should/should.js',
 
             // Bower
             'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-            'src/bower/angular-route/angular-route.js',
-            'src/bower/angular-sanitize/angular-sanitize.js',
             'src/bower/angular-mocks/angular-mocks.js',
 
             // Client code

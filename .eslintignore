@@ -1,3 +1,4 @@
 node_modules/**
 src/bower/**
 src/client/assets/js/**
+src/client/app.min.*

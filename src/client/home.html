@@ -7,42 +7,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <base href="/">
   <!-- COMPONENT SCRIPTS -->
-  <script src=""></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-  <script src="/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js"></script>
-  <script src="/angular-route/angular-route.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
-  <script src="/angular-sanitize/angular-sanitize.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-sanitize.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js"></script>
-  
   <script type="text/javascript" charset="utf-8" src="assets/js/edge.5.0.1.min.js"></script>
-  
-  <!-- APP -->
-  <script src="/app.js"></script>
-  <script src="/api.js"></script>
 
-  <!-- CONTROLLERS -->
-  <script src="/controller/root.js"></script>
-  <script src="/controller/home.js"></script>
-  <script src="/controller/detail.js"></script>
-  <script src="/controller/settings.js"></script>
-  <script src="/controller/cla.js"></script>
-  <script src="/modals/info.js"></script>
-  <script src="/modals/report.js"></script>
-  <script src="/modals/confirm.js"></script>
-  <script src="/modals/link.js"></script>
+  <!-- APP -->
+  <script src="app.min.js"></script>
 
   <!-- INTERCEPTORS -->
   <!-- <script src="/interceptors/401.js"></script> -->
 
   <!-- COMPONENT STYLESHEETS -->
   <link href="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.css" rel="stylesheet">
-  <link href="/selectize/dist/css/selectize.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
 
@@ -75,19 +60,6 @@
         </a>
       </div>
     </div>
-<!--     <nav class="col-md-8 col-md-offset-2" style="margin-top: 25px">
-      <ul class="nav nav-justified">
-        <li du-scrollspy="activate" class="active">
-          <a href="/#activate" du-smooth-scroll>Activate a CLA</a>
-        </li>
-        <li du-scrollspy="activated_cla">
-          <a href="#activated_cla" du-smooth-scroll>Activated CLA's</a>
-        </li>
-        <li du-scrollspy="my_cla">
-          <a href="#my_cla" du-smooth-scroll>My signed CLA's</a>
-        </li>
-      </ul>
-    </nav> -->
   </div>
 
   <div class="container-fluid" style="margin-bottom:50px;">
@@ -104,7 +76,7 @@
               </div>
               <div class="navbar-text navbar-center" style="z-index:-1;">
                 <p class="hidden-xs hidden-sm">
-                  made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP 
+                  made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP
                 </p>
               </div>
               <div class="navbar-text navbar-right">
@@ -113,7 +85,7 @@
                 </a>
                 <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
                   <span class="octicon octicon-mark-github"></span> Open an issue
-                </a> 
+                </a>
               </div>
           </div>
       </div>

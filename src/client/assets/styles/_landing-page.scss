@@ -1,3 +1,47 @@
+.lp-background-main {
+  position: fixed;
+  z-index: -1;
+  bottom: 0;
+  height: 100vH;
+  width: 100%;
+  background-image: url('/assets/images/background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.lp-background-overlay {
+  background:black;
+  opacity:0.5;
+  height:100%;
+}
+
+.lp-header {
+  margin: 25px 70px;
+  height: 75px;
+  border: 1px;
+  border-bottom-style: solid;
+  color: white;
+  position: relative;
+
+  .navbar-brand {
+    padding-left: 10px;
+    padding-top:0
+  }
+
+  .lp-signin-link {
+    position:absolute;
+    top:auto;
+    bottom:15px;
+    right:10px;
+  }
+}
+
+.lp-start-view {
+  position: relative;
+  height: 100vH;
+}
+
 .lp-premium {
   /*background-color: $brand-primary;*/
   /*background-image: url('/assets/images/shattered_green.png');*/
@@ -75,7 +119,7 @@ a.lp-signin:hover, a.lp-signin:focus {
   transition:all linear 0.5s;
 }*/
 .feature-box {
-  height: 250px; 
+  height: 250px;
   width: 250px;
   margin-top: 10px;
   margin-right: 20px;
@@ -233,11 +277,10 @@ a.lp-signin:hover, a.lp-signin:focus {
 }
 
 @media(max-width: 599px){
-  .lp-hide-header{
+  .lp-header{
     display: none;
   }
   .lp-hide-text{
     display: none;
   }
 }
-

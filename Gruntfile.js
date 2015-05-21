@@ -1,4 +1,10 @@
 module.exports = function(grunt) {
+    var appJsFiles = [
+      'src/client/app.js',
+      'src/client/api.js',
+      'src/client/controller/**/*.js',
+      'src/client/modals/**/*.js'
+    ];
 
     var config = {
 
@@ -55,7 +61,20 @@ module.exports = function(grunt) {
         },
 
         watch: {
+            uglify: {tasks: ['uglify'], files: appJsFiles},
             karma: {tasks: ['eslint', 'mochaTest', 'karma'], files: 'src/**/*.js'}
+        },
+
+        uglify: {
+          options: {
+            sourceMap: true,
+            mangle: false
+          },
+          target: {
+            files: {
+              'src/client/app.min.js': appJsFiles
+            }
+          }
         }
     };
 
@@ -67,5 +86,5 @@ module.exports = function(grunt) {
 
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul', 'coveralls']);
-    grunt.registerTask('default', ['eslint', 'mochaTest', 'karma', 'watch']);
+    grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest', 'karma', 'watch']);
 };
