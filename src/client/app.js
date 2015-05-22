@@ -45,15 +45,6 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
             })
 
             //
-            // Detail view
-            //
-            .state('details', {
-                url: '/detail/:user/:repo',
-                templateUrl: '/templates/detail.html',
-                controller: 'DetailCtrl'
-            })
-
-            //
             // Repo state (abstract)
             //
             .state('repo', {

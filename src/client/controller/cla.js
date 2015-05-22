@@ -5,8 +5,8 @@
 // path: /:repoId/:prId
 // *****************************************************
 
-module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateParams', '$RAW', '$RPCService', '$modal', '$sce', '$timeout', '$http',
-    function($window, $rootScope, $scope, $stateParams, $RAW, $RPCService, $modal, $sce, $timeout, $http) {
+module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$modal', '$sce', '$timeout', '$http', '$q',
+    function($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $modal, $sce, $timeout, $http, $q) {
 
         $scope.cla = null;
         $scope.signed = false;
@@ -46,6 +46,22 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
                 callback(exists.value);
             });
         }
+
+        var getUser = function(){
+            return $HUBService.call('user', 'get', {}, function(err, res){
+                if (err) {
+                    return;
+                }
+
+                $scope.user = res;
+                $scope.user.value.admin = false;
+
+                if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                    $scope.user.value.admin = true;
+                }
+            });
+        };
+
 
         // function getDiff(){
         //     return $RPCService.call('cla', 'get', {
@@ -88,32 +104,32 @@ module.controller( 'ClaController', ['$window', '$rootScope', '$scope', '$stateP
             $window.location.href = acceptUrl;
         };
 
-        $scope.$on('user', function(event, data){
-            $scope.user = $rootScope.user.value;
-        });
+        var userPromise = getUser();
 
-        checkRepo(function(exists){
+        var repoPromise = checkRepo(function(exists){
             $scope.repoExists = exists;
-
-            if ($stateParams.pullRequest) {
-                $scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
-            }
-            if ($rootScope.user.value) {
-                checkCLA().then(function(signed){
-                    if (signed.value) {
-                        $http.get('/logout?noredirect=true');
-                        $timeout(function(){
-                            $window.location.href = $scope.redirect;
-                        }, 5000);
-                    }
-                });
-            }
-            if (exists) {
+            if ($scope.repoExists) {
                 getCLA().then(function(data){
                     $scope.cla = $sce.trustAsHtml(data.value.raw);
                     $scope.cla.text = data.value.raw;
                 });
             }
+        });
+
+        $q.all([userPromise, repoPromise]).then(function(){
+          if ($stateParams.pullRequest) {
+              $scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
+          }
+          if ($scope.user && $scope.user.value && $scope.repoExists) {
+              checkCLA().then(function(signed){
+                  if (signed.value) {
+                      $http.get('/logout?noredirect=true');
+                      $timeout(function(){
+                          $window.location.href = $scope.redirect;
+                      }, 5000);
+                  }
+              });
+          }
         });
     }
 ]);

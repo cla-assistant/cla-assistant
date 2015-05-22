@@ -167,6 +167,11 @@ h4 {
   font-size: 1.6em;
 }
 
+h4{
+  margin: 25px 0;
+  padding-left: 0;
+}
+
 .text-body {
   color: $text-color;
 }
@@ -213,7 +218,7 @@ img.muted {
   text-overflow: ellipsis;
   padding-right: 0px;
   /*margin-top:0.25em*/
-}  
+}
 
 // Font Awesome and Octicons
 
@@ -270,16 +275,16 @@ small {
 
 // _cla
 .cla-box {
-  height: 400px; 
-  overflow-y: scroll; 
-  border: 1px solid $gray-light; 
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid $gray-light;
   padding: 10px;
   margin-top: 15px;
   margin-bottom: 10px;
 }
 
 .dots {
-  font-size:10px; 
+  font-size:10px;
   margin-left:10px;
   color: $gray;
 }
@@ -332,17 +337,17 @@ small {
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
-@-moz-keyframes shake { 
-  90% { -moz-transform: rotate(-1deg);} 
-  100% { -moz-transform: rotate(1deg); } 
+@-moz-keyframes shake {
+  90% { -moz-transform: rotate(-1deg);}
+  100% { -moz-transform: rotate(1deg); }
 }
-@-webkit-keyframes shake { 
-  90% { -webkit-transform: rotate(-1deg);} 
-  100% { -webkit-transform: rotate(1deg); } 
+@-webkit-keyframes shake {
+  90% { -webkit-transform: rotate(-1deg);}
+  100% { -webkit-transform: rotate(1deg); }
 }
-@keyframes shake { 
-  90% { -webkit-transform: rotate(-1deg); transform:rotate(-1deg);} 
-  100% { -webkit-transform: rotate(1deg); transform:rotate(1deg);} 
+@keyframes shake {
+  90% { -webkit-transform: rotate(-1deg); transform:rotate(-1deg);}
+  100% { -webkit-transform: rotate(1deg); transform:rotate(1deg);}
 }
 
 // _remove_cla
@@ -395,16 +400,16 @@ small {
 }
 
 .nervous-drop {
-  position: absolute; 
-  left: 19px; 
+  position: absolute;
+  left: 19px;
   top: 19px;
   -webkit-animation:fall 0.7s linear 0.2s infinite;
   animation:fall 0.7s linear 0.2s infinite;
 }
 
 .nervous-drop2 {
-  position: absolute; 
-  left: 19px; 
+  position: absolute;
+  left: 19px;
   top: 19px;
   margin-top: 40px;
   -webkit-animation:fall 0.7s linear infinite;
@@ -412,16 +417,16 @@ small {
 }
 
 .eye-move {
-  position: absolute; 
-  left: 19px; 
+  position: absolute;
+  left: 19px;
   top: 19px;
   -webkit-animation:eye-move 0.7s ease-in infinite;
   animation:eye-move 0.7s ease-in infinite;
 }
 
 .eye-move2 {
-  position: absolute; 
-  left: 19px; 
+  position: absolute;
+  left: 19px;
   top: 19px;
   -webkit-animation:eye-move2 0.7s ease-in 0.1s infinite;
   animation:eye-move2 0.7s ease-in 0.1s infinite;
@@ -432,4 +437,3 @@ small {
 .report .row{
   padding-top: 15px;
 }
-

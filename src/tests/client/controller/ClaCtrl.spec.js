@@ -1,12 +1,13 @@
 angular.module('app');
 describe('CLA Controller', function() {
 
-    var scope, rootScope, stateParams, httpBackend, createCtrl, claController, _window, timeout;
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
     beforeEach(angular.mock.module(function($provide){
         $provide.value('$window', {location: {href: 'dummy'}});
     }));
+
+    var scope, stateParams, httpBackend, createCtrl, claController, _window, timeout, user, repoExists, claSigned, claText;
 
     beforeEach(angular.mock.inject(function($injector, $rootScope, $controller, $window, $timeout) {
 
@@ -20,11 +21,18 @@ describe('CLA Controller', function() {
         });
 
         scope = $rootScope.$new();
-        rootScope = $rootScope;
-        rootScope.user = {};
         stateParams = {user: 'login', repo: 'myRepo'};
 
+        user = {data: {id: 123, login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}};
+        repoExists = true;
+        claSigned = true;
+        claText = {raw: '<p>cla text</p>'};
+
         createCtrl = function() {
+            httpBackend.when('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(user);
+            httpBackend.when('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(repoExists);
+            httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(claSigned);
+            httpBackend.when('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond(claText);
 
             var ctrl = $controller('ClaController', {
                 $scope: scope,
@@ -33,7 +41,6 @@ describe('CLA Controller', function() {
             ctrl.scope = scope;
             return ctrl;
         };
-
     }));
 
     afterEach(function() {
@@ -42,23 +49,34 @@ describe('CLA Controller', function() {
     });
 
     it('should get CLA text', function() {
-        scope.user = null;
-        claController = createCtrl();
+        user.data = null;
+        claSigned = false;
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        claController = createCtrl();
         httpBackend.flush();
 
         (claController.scope.claText).should.be.ok;
     });
 
-    it('should check whether user has signed CLA already or not and logout user if already signed', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
+    it('should not check CLA if user not logged', function(){
+        var claCheckWasCalled = false;
+
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(500, 'Authentication required');
+        httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(function(){
+          claCheckWasCalled = true;
+          return false;
+        });
+
+        httpBackend.flush();
+
+        (claCheckWasCalled).should.not.be.ok;
+    });
+
+    it('should check whether user has signed CLA already or not and logout user if already signed', function(){
+        claController = createCtrl();
+
         httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
@@ -69,13 +87,9 @@ describe('CLA Controller', function() {
     });
 
     it('should redirect to pullRequest if given', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
         stateParams.pullRequest = 1;
-        claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        claController = createCtrl();
         httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
@@ -86,28 +100,18 @@ describe('CLA Controller', function() {
     });
 
     it('should check whether user has signed CLA already or NOT', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
+        claSigned = false;
         claController = createCtrl();
-
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
-        // httpBackend.expect('POST', '/api/cla/getLastSignature', {repo: stateParams.repo, owner: stateParams.user}).respond({id: 123, gist_url: 'gist_url', gist_version: 'gist_version'});
-        // httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user, gist: {gist_url: 'gist_url', gist_version: 'gist_version'}}).respond({raw: '<p>cla text</p>'});
 
         httpBackend.flush();
 
         (claController.scope.signed).should.not.be.ok;
-        // (claController.scope.signedCLA.gist_url).should.be.equal('gist_url');
     });
 
     it('should redirect to accept url on agree', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
-        claController = createCtrl();
+        claSigned = false;
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        claController = createCtrl();
 
         httpBackend.flush();
 
@@ -116,13 +120,13 @@ describe('CLA Controller', function() {
     });
 
     it('should redirect to accept url on agree with pullRequest parameter', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
         stateParams.pullRequest = 1;
+        claSigned = false;
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        // httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
+        // httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
+        // httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
 
         httpBackend.flush();
 
@@ -139,15 +143,18 @@ describe('CLA Controller', function() {
         (claController.scope.repoExists).should.not.be.ok;
     });
 
-    it('should check whether user has signed cla even if repo does not exist? ', function(){
-        rootScope.user.value = {id: 123, login: 'login'};
+    it('should not check whether user has signed cla if repo does not exist', function(){
+        repoExists = false;
+        var claCheckWasCalled = false;
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
+        httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(function(){
+          claCheckWasCalled = true;
+          return false;
+        });
         httpBackend.flush();
 
-        (claController.scope.signed).should.not.be.ok;
+        (claCheckWasCalled).should.not.be.ok;
     });
 
     it('should generate redirect url if pull request number is given', function(){
@@ -155,35 +162,19 @@ describe('CLA Controller', function() {
         stateParams.pullRequest = 1;
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
         httpBackend.flush();
 
         (claController.scope.redirect).should.be.ok;
     });
 
     it('should redirect to github mainpage if pull request number is not given', function(){
-        scope.user = null;
-        // stateParams.pullRequest = 1;
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(true);
-        httpBackend.expect('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond({raw: '<p>cla text</p>'});
+        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
         httpBackend.flush();
 
         (claController.scope.redirect).should.be.ok;
-    });    
-
-    it('should get user from rootScope', function(){
-        claController = createCtrl();
-
-        rootScope.user.value = {id: 123, login: 'login', admin: true};
-        rootScope.$broadcast('user');
-
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.expect('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
-        httpBackend.flush();
-
-        (claController.scope.user.login).should.be.equal(rootScope.user.value.login);
     });
+
 });
