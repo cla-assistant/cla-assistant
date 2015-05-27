@@ -32,6 +32,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return valid ? gist : undefined;
         };
 
+        $scope.open_error = function(){
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/error_modal.html',
+                controller: 'ErrorCtrl'
+            });
+        };
+
         // $scope.getUsers = function(){
         //     return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
         //         $scope.users = [];

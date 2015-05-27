@@ -20,6 +20,21 @@ $footer-height: 50px;
   color: $gray-darkest;
 }
 
+.navbar-home-right{
+	float: right;
+}
+
+.navbar-home-left{
+	float: left;
+	width: 150px;
+	margin-top: 15px;
+}
+
+.navbar-home-text{
+	margin-top: 15px;
+}
+
+
 .navbar-fixed-bottom {
 	position: absolute;
   	bottom: 0;
@@ -50,30 +65,26 @@ $footer-height: 50px;
 	text-align: center;
 }
 
-@media(min-width: 768px){
-	.navbar-right {
-		margin-left: 0px;
-		margin-right: 0px;
-	}
-}
 
 @media(max-width: 767px) {
 	.navbar-text {
 		margin: 0px;
 	}
 
-	.navbar-right {
-		text-align: center;
-	}
-
-	.navbar-center {
-		margin: 0px;
+	.navbar-text-hide {
 		visibility: hidden;
 	}
 
 	.navbar-left {
 		text-align: center;
 		margin: 0px;
+	}
+}
+
+@media(min-width: 768px){
+	.navbar-right {
+		margin-left: 0px;
+		margin-right: 0px;
 	}
 }
 
