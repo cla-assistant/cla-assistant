@@ -243,14 +243,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             getGists();
         });
 
-        // $scope.$on('user', function(event, data){
-        //     $scope.user = $rootScope.user;
-        //     getRepos();
-        // });
-        $scope.clear = function($event) {
+        $scope.clear = function($event, obj) {
            $event.stopPropagation();
-           // Replace the following line with the proper variable
-           $scope.selectedGist.gist = undefined;
+           if (obj === 'repo') {
+              $scope.selectedRepo.repo = undefined;
+           } else if (obj === 'gist') {
+              $scope.selectedGist.gist = undefined;
+           }
         };
 
         $scope.isValid = function(gist){

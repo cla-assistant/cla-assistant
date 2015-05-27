@@ -278,6 +278,27 @@ describe('Home Controller', function() {
         homeCtrl.scope.defaultClas.length.should.be.equal(1);
         homeCtrl.scope.defaultClas[0].name.should.be.equal('first default cla');
     });
+
+    it('should clear selected repo on clear function', function(){
+        httpBackend.flush();
+        var ev = {stopPropagation: function(){}};
+        homeCtrl.scope.selectedRepo.repo = {name: 'any test repo'};
+
+        homeCtrl.scope.clear(ev, 'repo');
+
+        (!homeCtrl.scope.selectedRepo.repo).should.be.ok;
+    });
+
+    it('should clear selected cla on clear function', function(){
+        httpBackend.flush();
+        var ev = {stopPropagation: function(){}};
+        homeCtrl.scope.selectedGist.gist = {url: 'any_test_url'};
+
+        homeCtrl.scope.clear(ev, 'gist');
+
+        (!homeCtrl.scope.selectedGist.gist).should.be.ok;
+    });
+
 });
 
 var testDataRepos = {data: [
