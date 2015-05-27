@@ -39,31 +39,31 @@
 
 <!-- the navbar -->
   <div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
-    <div class="container-fluid" style="height: 60px; margin: 0px;">
-      <div class="navbar-header navbar-home-left navbar-home-text" style="margin-left: 0px">
+    <div class="container-fluid" style="height: 60px;">
+      <div class="navbar-header navbar-text">
         <div ng-show="!!user.value.login">
           <a ng-href="{{user.value.html_url}}" target="spcae">
             <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-            <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
+            &nbsp; Hey, <b>{{ user.value.login }}</b>!
           </a>
         </div>
       </div>
       <div class="" ng-if="user.value.admin">
-        <div class="nav navbar-nav navbar-home-right navbar-text" style="margin-top: 15px;">
+        <div class="nav navbar-nav navbar-right navbar-text">
           <a ng-show="!user.value.login" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
           <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
         </div>
       </div>
-      <div class="navbar-center navbar-home-text" style="z-index:-1">
+      <div class="navbar-center navbar-text" style="z-index:-1">
         <a href="/">
-          <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
+          <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px">
         </a>
       </div>
     </div>
   </div>
 
   <div class="container-fluid" style="margin-bottom:50px;">
-    <div style="margin-left:15px; margin-right: 15px">
+    <div class="row">
         <section ui-view class="col-md-8 col-md-offset-2"></section>
     </div>
   </div>
@@ -72,26 +72,20 @@
       <div class="navbar-top-border">
           <div class="container-fluid">
                <div class="navbar-text navbar-left">
-                  <p style="margin-bottom:0px">© 2015 SAP SE</p>
+                  <p>© 2015 SAP SE</p>
               </div>
               <div class="navbar-text navbar-center" style="z-index:-1;">
-                <p class="hidden-xs hidden-sm" style="margin-bottom: 0px;">
+                <p class="hidden-xs hidden-sm">
                   made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP
                 </p>
               </div>
-             <div class="center-block">
-                <div class="navbar-text navbar-right">
-                  <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
-                    <span class="octicon octicon-mark-github"></span> Open an issue
-                  </a>
-                </div>
-              </div>
-              <div class="center-block">
-                <div class="navbar-text navbar-right">
-                  <a href="http://www.sap.com/corporate-en/about/legal/terms-of-use.html" style="margin-right: 10px">
-                    Terms of Service &amp Privacy Policy
-                  </a>
-                </div>
+              <div class="navbar-text navbar-right">
+                <a href="http://www.sap.com/corporate-en/about/legal/terms-of-use.html" style="margin-right: 10px">
+                  Terms of Service &amp Privacy Policy
+                </a>
+                <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+                  <span class="octicon octicon-mark-github"></span> Open an issue
+                </a>
               </div>
           </div>
       </div>

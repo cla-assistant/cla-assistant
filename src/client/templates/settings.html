@@ -1,6 +1,6 @@
 <!-- <div class="row settings_background"> -->
 
-<div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
+<div class="col-sm-3 col-lg-2" style="padding-left:0">
 	<div class="text clickable">
 		<a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
 			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
@@ -10,32 +10,32 @@
 	</div>
 </div>
 
-<div class="col-xs-12 col-sm-3 col-lg-2">
+<div class="col-sm-3 col-lg-2">
 	<div ng-if="!loading && gist.id.length > 0" class="text">
 		<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
 	</div>
 </div>
 
-<div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md text">
+<div class="col-lg-3 hidden-xs hidden-sm hidden-md text">
 	<a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
 </div>
 
-<div class="col-xs-12 col-sm-2 col-lg-2 text">
+<div class="col-sm-2 col-lg-2 text">
 	{{gist.updated_at | date:'longDate'}}
 </div>
 
-<div class="col-xs-4 col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
+<div class="col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
 	<a ng-click="$parent.getReport(repo);" class="clickable">{{contributors.length}}</a>
 </div>
 
-<div class="col-xs-4 col-sm-1 col-lg-1 center-block">
+<div class="col-sm-1 col-lg-1 center-block">
 	<img ng-if="loading" src="/assets/images/link_inactive.svg">
-	<a href="" ng-click="open_error();"><img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
-	tooltip="everything is ok!"></a>
+	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
+	tooltip="everything is ok!">
 	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom" 
 	tooltip="inactive">
 </div>
-<div class="col-xs-4 col-sm-1 ">
+<div class="col-sm-1 ">
 	<i class="fa fa-trash-o action-icon"
 	style="float:right; font-size:18px"
 	ng-click="$parent.confirmRemove(repo)" 
