@@ -22,6 +22,8 @@ module.exports = function(config) {
             'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-sanitize.min.js',
 
+            'http://cdnjs.cloudflare.com/ajax/libs/sinon.js/1.7.3/sinon-min.js',
+
             'src/bower/should/should.js',
 
             // Bower

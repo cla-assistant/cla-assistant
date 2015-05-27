@@ -29,7 +29,7 @@
     padding-top:0
   }
 
-  .lp-signin-link {
+  .lp-signin {
     position:absolute;
     top:auto;
     bottom:15px;
@@ -43,8 +43,6 @@
 }
 
 .lp-premium {
-  /*background-color: $brand-primary;*/
-  /*background-image: url('/assets/images/shattered_green.png');*/
   color: $text-invert;
 }
 
@@ -63,28 +61,10 @@
   padding:50px;
 }
 
-.lp-section-round {
-  border-radius: 10px;
-  overflow: hidden;
-  height: 200px;
-}
-
 .lp-list {
   margin-left:-40px;
   margin-top:50px;
   line-height: 32px;
-}
-
-.lp-mobile-container {
-  @media (max-width: 991px) {
-    .lp-list {
-      margin-left: 0px;
-    }
-
-    .lp-section-header{
-      text-align: center;
-    }
-  }
 }
 
 .container-fluid .lp-section{
@@ -100,14 +80,14 @@ img.step-icon{
   height:170px;
 }
 
-a.lp-signin {
-  color: $text-invert;
-  text-decoration: none;
-  float: right;
-  margin: 20px;
-}
-
-a.lp-signin:hover, a.lp-signin:focus {
+// a.lp-signin {
+//   color: $text-invert;
+//   text-decoration: none;
+//   float: right;
+//   margin: 20px;
+// }
+//
+a .lp-signin:hover, a .lp-signin:focus {
   color: $text-color;
 }
 
