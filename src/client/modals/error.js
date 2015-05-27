@@ -1,4 +1,4 @@
-module.controller('ErrorCtrl',a
+module.controller('ErrorCtrl',
 	function($scope, $modalInstance, $window, $timeout, $state, $RPCService) {
 
 		$scope.ok = function () {
