@@ -30,8 +30,8 @@
 
 <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
 	<img ng-if="loading" src="/assets/images/link_inactive.svg">
-	<a href="" ng-click="open_error();"><img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
-	tooltip="everything is ok!"></a>
+	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
+	tooltip="everything is ok!">
 	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom" 
 	tooltip="inactive">
 </div>
