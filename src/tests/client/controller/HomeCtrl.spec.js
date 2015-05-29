@@ -233,16 +233,16 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos.length).should.be.equal(0);
     });
 
-    it('should get all users signed this cla', function(){
-        var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
-        httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
-        httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
-
-        homeCtrl.scope.getUsers(claRepo);
-          httpBackend.flush();
-
-        (homeCtrl.scope.users.length).should.be.equal(1);
-    });
+    // it('should get all users signed this cla', function(){
+    //     var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+    //     httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
+    //     httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+    //
+    //     homeCtrl.scope.getUsers(claRepo);
+    //       httpBackend.flush();
+    //
+    //     (homeCtrl.scope.users.length).should.be.equal(1);
+    // });
 
     it('should load gist files of the user', function(){
         httpBackend.flush();
