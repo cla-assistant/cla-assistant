@@ -112,7 +112,7 @@ describe('Settings Controller', function() {
             httpBackend.flush();
 
             httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.owner, gist: {gist_url: repo.gist}}).respond([{user: 'login', gist_version: '57a7f021a713b1c5a6a199b54cc514735d2d462f', created_at: '2010-04-16T02:15:15Z'}]);
-            httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+            httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name', html_url: 'url'});
 
             settingsCtrl.scope.getContributors();
             httpBackend.flush();
@@ -181,6 +181,21 @@ describe('Settings Controller', function() {
           httpBackend.flush();
 
           settingsCtrl.scope.contributors.length.should.be.equal(1);
+      });
+
+      it('should not call report modal if there are no signatures', function(){
+          var modalCalled = false;
+          httpBackend.expect('POST', '/api/cla/getAll', {repo: scope.repo.repo, owner: scope.repo.owner, gist: {gist_url: scope.repo.gist}}).respond([]);
+
+          httpBackend.flush();
+          sinon.stub(modal, 'open', function(){
+              modalCalled = true;
+              return;
+          });
+
+          settingsCtrl.scope.getReport();
+
+          modalCalled.should.not.be.ok;
       });
     });
 

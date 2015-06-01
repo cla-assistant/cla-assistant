@@ -1,22 +1,21 @@
-<div class="modal-body modal-primary" ng-hide="users.length > 0" style="min-height: 400px;">
+<div class="modal-body modal-primary" ng-hide="contributors.length > 0" style="min-height: 400px;">
     <div class="row">
         <div class="col-sm-12 center-block" >
             <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin:10px; margin-top:150px">
         </div>
     </div>
 </div>
-<div class="modal-body modal-primary" ng-show="users.length > 0">
+<div class="modal-body modal-primary" ng-show="contributors.length > 0">
     <div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div style="text-align: center; font-size:26px; margin-top: 20px;">
         Contributors who signed my CLA
     </div>
 
-    <div class="">
-      <button class="btn btn-info" ng-click="export()">Export List</button>
-      <button type="button" ng-csv="getArray()" csv-header="['Field A', 'Field B', 'Field C']" filename="cla-assistant.csv">Export</button>
+    <div class="export-button">
+      <button type="button" class="btn btn-info" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export List</button>
     </div>
 
-    <div class="well report" style="margin-top:50px; max-height: 500px; overflow-y:scroll">
+    <div class="well report" style="max-height: 500px; overflow-y:scroll">
 
         <div class="row" style="position: relative; padding-top: 0; padding-bottom: 25px;">
             <div class="col-sm-6" style="text-align:right">
@@ -29,23 +28,24 @@
                 <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claRepo.owner }} / {{ claRepo.repo }}</div>
             </div>
         </div>
-        <div class="row" ng-init="reverse=false; column='login'" style="margin-top:10px">
-            <div class="col-sm-offset-1 col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'login'; reverse = !reverse;">Contributor
-                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='login'"></span>
+        <div class="row" ng-init="reverse=false; column='user_name'" style="margin-top:10px">
+            <div class="col-sm-offset-1 col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'user_name'; reverse = !reverse;">Contributor
+                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='user_name'"></span>
             </div>
-            <div class="col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'cla.created_at'; reverse = !reverse;">Date
-                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='cla.created_at'"></span>
+            <div class="col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'signed_at'; reverse = !reverse;">Date
+                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='signed_at'"></span>
             </div>
         </div>
 
-        <div class="row" ng-repeat="user in users | orderBy:column:reverse track by $index">
-            <a class="col-sm-offset-1 col-sm-5" ng-href="{{user.html_url}}" target="space" >{{user.login}}</a>
-            <div class="col-sm-5">{{user.cla.created_at | date: 'medium'}}</div>
+        <div class="row" ng-repeat="contributor in contributors | orderBy:column:reverse track by $index">
+            <!-- <a class="col-sm-offset-1 col-sm-5" ng-href="{{contributor.html_url}}" target="space" >{{contributor.user_name}}</a> -->
+            <div class="col-sm-offset-1 col-sm-5">{{contributor.user_name}}</div>
+            <div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
         </div>
     </div>
 </div>
 
-<div class="modal-body modal-primary" ng-show="users.length > 0">
-    <span ng-show="users.length == 1"><b>{{users.length}}</b> contributor signed this CLA</span>
-    <span ng-show="users.length != 1"><b>{{users.length}}</b> contributors signed this CLA</span>
+<div class="modal-body modal-primary" ng-show="contributors.length > 0">
+    <span ng-show="contributors.length == 1"><b>{{contributors.length}}</b> contributor signed this CLA</span>
+    <span ng-show="contributors.length != 1"><b>{{contributors.length}}</b> contributors signed this CLA</span>
 </div>

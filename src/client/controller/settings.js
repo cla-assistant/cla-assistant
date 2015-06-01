@@ -17,6 +17,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.signatures = [];
         $scope.contributors = [];
 
+        $scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At'];
+
         function gistArgs () {
             var args = {gist_url: $scope.repo.gist};
             if ($scope.gist.history && $scope.gist.history.length > 0) {
@@ -50,7 +52,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.getContributors = function(){
             return $scope.getSignatures($scope.repo).then(function(data){
                 $scope.contributors = [];
-                if (data && data.value) {
+                if (data && data.value && data.value.length > 0) {
                     data.value.forEach(function(signature){
                         var contributor = {};
                         contributor.user_name = signature.user;
@@ -61,10 +63,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                         contributor.gist_version = signature.gist_version;
                         contributor.signed_at = signature.created_at;
 
-                        getGithubUserData(signature.user).then(function(user){
-                            user.value.cla = signature;
-                            // $scope.contributors.push(user.value);
                             $scope.contributors.push(contributor);
+                        getGithubUserData(signature.user).then(function(user){
+                            contributor.html_url = user.html_url;
+                            // $scope.contributors.push(user.value);
 
                         });
                     });
@@ -159,8 +161,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getReport = function(){
-            $scope.getContributors($scope.repo);
-            report($scope.repo);
+            if ($scope.signatures.length > 0) {
+                $scope.getContributors($scope.repo);
+                report($scope.repo);
+            }
         };
 
         if ($scope.repo.gist) {
