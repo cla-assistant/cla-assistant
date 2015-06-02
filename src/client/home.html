@@ -39,27 +39,24 @@
 <body>
 
 <!-- the navbar -->
-  <div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
-    <div class="container-fluid" style="height: 60px; margin: 0px;">
-      <div class="navbar-header navbar-home-left navbar-home-text" style="margin-left: 0px">
-        <div ng-show="!!user.value.login">
-          <a ng-href="{{user.value.html_url}}" target="spcae">
-            <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-            <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
-          </a>
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-home-left">
+            <div ng-show="!!user.value.login">
+              <a ng-href="{{user.value.html_url}}" target="spcae">
+                <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
+                <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
+              </a>
+            </div>
         </div>
-      </div>
-      <div class="" ng-if="user.value.admin">
-        <div class="nav navbar-nav navbar-home-right navbar-text" style="margin-top: 15px;">
-          <a ng-show="!user.value.login" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
-          <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
+        <div class="nav navbar-home-right">
+            <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
         </div>
-      </div>
-      <div class="navbar-center navbar-home-text" style="z-index:-1">
-        <a href="/">
-          <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
-        </a>
-      </div>
+        <div class="navbar-center" style="">
+            <a href="/">
+              <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
+            </a>
+        </div>
     </div>
   </div>
 

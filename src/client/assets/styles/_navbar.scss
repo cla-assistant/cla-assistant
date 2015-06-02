@@ -16,8 +16,20 @@ $footer-height: 50px;
 	text-decoration: none;
 }
 
+
+.navbar-default {
+	border-color: white;
+
+	.container-fluid{
+		height: 60px;
+		margin: 0px;
+		padding-top: 15px;
+	}
+}
+
 .navbar-default .navbar-text {
-  color: $gray-darkest;
+  	color: $gray-darkest;
+	margin: 0;
 }
 
 .navbar-home-right{
@@ -26,11 +38,7 @@ $footer-height: 50px;
 
 .navbar-home-left{
 	float: left;
-	margin-top: 15px;
-}
-
-.navbar-home-text{
-	margin-top: 15px;
+	margin-left: 0px
 }
 
 .navbar-fixed-bottom {
@@ -61,12 +69,21 @@ $footer-height: 50px;
 	margin-right: auto;
 	width: 100%;
 	text-align: center;
+	z-index:-1
 }
 
 @media(max-width: 767px) {
 	.navbar-text {
 		margin: 0px;
 	}
+	.navbar-default .container-fluid{
+			padding-top: 0px;
+	}
+
+	.navbar-fixed-top .container-fluid{
+			padding: 15px;
+	}
+
 
 	.navbar-text-hide{
 		visibility: hidden;
@@ -84,10 +101,6 @@ $footer-height: 50px;
 	}
 }
 
-.navbar-default {
-	border-color: white;
-}
-
 .nav-justified>li, .nav-justified>.nav-tabs.nav-justified {
   bottom: -1px;
 }
@@ -101,7 +114,7 @@ nav .nav-justified>li>a {
 }
 
 .nav-justified>.active>a,
-.nav>li>a:hover, 
+.nav>li>a:hover,
 .nav>li>a:focus {
 	background-color: transparent;
 }
@@ -109,5 +122,5 @@ nav .nav-justified>li>a {
 .nav-justified>.active>a,
 .nav>li>a:hover {
 	color: $gray-darkest;
-	border-bottom: solid;	
+	border-bottom: solid;
 }
