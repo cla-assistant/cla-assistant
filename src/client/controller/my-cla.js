@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('MyClaCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
-    function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
+module.controller('MyClaCtrl', ['$rootScope', '$scope', '$filter', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
+    function ($rootScope, $scope, $filter, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
 
 
       $scope.repos = [];
@@ -15,6 +15,8 @@ module.controller('MyClaCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$R
       $scope.users = [];
       $scope.user = {};
       $scope.defaultClas = [];
+
+      var orderBy = $filter('orderBy');
 
       var githubUserRepos = 'https://api.github.com/user/repos?per_page=100';
 
@@ -73,6 +75,10 @@ module.controller('MyClaCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$R
           getRepos();
           getSignedCLA();
       });
+
+      $scope.order = function(predicate, reverse){
+        $scope.claRepos = orderBy($scope.claRepos, predicate, reverse);
+      };
 
       $scope.getSignatures = function(claRepo){
           return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});

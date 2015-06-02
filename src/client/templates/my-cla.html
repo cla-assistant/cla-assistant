@@ -32,13 +32,13 @@
 				<td>
 					<div>
 						<div class="col-sm-3" style="padding-left: 0;">
-							Repository
+							<a href=""  ng-click="reverse=!reverse; order('repo', reverse)">Repository</a>
 						</div>
 						<div class="col-sm-3">
 							CLA
 						</div>
 						<div class="col-sm-3">
-							Date of Signature
+							<a href="" ng-click="reverse=!reverse; order('created_at', reverse)">Date of Signature</a>
 						</div>
 						<div class="col-sm-3" style="text-align:center;">
 							Version-Status
@@ -46,7 +46,7 @@
 					</div>
 				</td>
 			</tr>
-			<tr ng-repeat="claRepo in claRepos| orderBy:'repo' ">
+			<tr ng-repeat="claRepo in claRepos">
 				<td>
 					<div class="row">
 						<div class="col-xs-12 col-sm-3" style="padding-left: 0;">
