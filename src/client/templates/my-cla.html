@@ -1,0 +1,71 @@
+<!-- the navbar -->
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]" role="navigation">
+    <div class="container-fluid" style="height: 60px; margin: 0px;">
+      <div class="navbar-header navbar-home-left navbar-home-text" style="margin-left: 0px">
+        <div ng-show="!!user.value.login">
+          <a ng-href="{{user.value.html_url}}" target="spcae">
+            <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
+            <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
+          </a>
+        </div>
+      </div>
+      <div class="" ng-if="user.value.admin">
+        <div class="nav navbar-nav navbar-home-right navbar-text" style="margin-top: 15px;">
+          <a ng-show="!user.value.login" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
+          <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
+        </div>
+      </div>
+      <div class="navbar-center navbar-home-text" style="z-index:-1">
+        <a href="/">
+          <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
+        </a>
+      </div>
+    </div>
+  </div>
+<div class="row main" style="margin-top: 70px;">
+	<div class="row">
+		<h4 class="col-xs-12" style="margin: 25px; padding-left: 0;">Signed Contributor Agreements</h4>
+	</div>
+	<div class="well row" style="padding-top: 25px;">
+		<table class="table">
+			<tr>
+				<td>
+					<div>
+						<div class="col-sm-3" style="padding-left: 0;">
+							Repository
+						</div>
+						<div class="col-sm-3">
+							CLA
+						</div>
+						<div class="col-sm-3">
+							Date of Signature
+						</div>
+						<div class="col-sm-3" style="text-align:center;">
+							Version-Status
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr ng-repeat="claRepo in claRepos| orderBy:'repo' ">
+				<td>
+					<div class="row">
+						<div class="col-xs-12 col-sm-3" style="padding-left: 0;">
+							<a ng-href="https://github.com/{{ claRepo.owner }}/{{ claRepo.repo }}" target="space">
+								{{ claRepo.owner }} / {{ claRepo.repo }}
+							</a>
+						</div>
+						<div class="col-xs-12 col-sm-3 text">
+							<a ng-href="{{claRepo.gist_url}}" target="space">{{claRepo.gist_url}}</a>
+						</div>
+						<div class="col-xs-12 col-sm-3">
+							{{claRepo.created_at | date:'longDate'}}
+						</div>
+						<div class="col-xs-12 col-sm-3" style="text-align:center;">
+							ICON
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

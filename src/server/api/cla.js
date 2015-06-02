@@ -65,6 +65,10 @@ module.exports = {
 		});
 	},
 
+	getSignedCLA: function(req, done){
+		cla.getSignedCLA(req.args, done);
+	},
+
 	getLastSignature: function(req, done){
 		cla.getRepo(req.args, function(err, repo){
 			if (err || !repo) {

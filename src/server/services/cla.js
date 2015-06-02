@@ -163,6 +163,13 @@ module.exports = function(){
 			});
 		},
 
+		getSignedCLA: function(args, done){
+			CLA.find({user: args.user}, function(err, clas){
+				done(err, clas);
+				return;
+			});
+		},
+
 		getAll: function(args, done) {
 			var self = this;
 			var valid = [];

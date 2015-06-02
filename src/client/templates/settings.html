@@ -4,7 +4,7 @@
 	<div class="text clickable">
 		<a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
 			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i>
-			&nbsp; 
+			&nbsp;
 			{{ repo.owner }} / {{ repo.repo }}
 		</a>
 	</div>
@@ -30,22 +30,22 @@
 
 <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
 	<img ng-if="loading" src="/assets/images/link_inactive.svg">
-	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom" 
+	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" tooltip-placement="bottom"
 	tooltip="everything is ok!">
-	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom" 
+	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom"
 	tooltip="inactive">
 </div>
 <div class="col-xs-4 col-sm-1 ">
 	<i class="fa fa-trash-o action-icon"
 	style="float:right; font-size:18px"
-	ng-click="$parent.confirmRemove(repo)" 
-	tooltip-placement="bottom" 
+	ng-click="$parent.confirmRemove(repo)"
+	tooltip-placement="bottom"
 	tooltip="Remove">
 	</i>
 	<!-- <i class="fa fa-pencil action-icon"
 	style=" font-size:17px"
-	ng-click="" 
-	tooltip-placement="bottom" 
+	ng-click=""
+	tooltip-placement="bottom"
 	tooltip="Edit">
 	</i> -->
 </div>

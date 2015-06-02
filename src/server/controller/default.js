@@ -42,7 +42,9 @@ router.all('/static/*', function(req, res) {
 
 router.all('/*', function(req, res) {
 	var filePath;
+	//if (req.user || (req.path !== '/' && req.path !== '/my-cla')) {
 	if (req.user || req.path !== '/') {
+	console.log(req.path);
 		filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
 	}
 	else {

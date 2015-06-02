@@ -35,6 +35,7 @@ var res = {
         callbacks[fun] = callback;
     }
 };
+
 describe('cla:get', function(done) {
     afterEach(function(){
         CLA.findOne.restore();
@@ -349,6 +350,21 @@ describe('cla:create', function(done) {
     });
 });
 
+describe('cla:getSignedCLA', function(done) {
+      it('should get all clas signed by the user', function(done){
+        sinon.stub(CLA, 'find', function(args, done){
+          assert.deepEqual(args, {user: 'login'});
+          done(null, true);
+        });
+
+      var args = {user: 'login'};
+      cla.getSignedCLA(args, function(){
+          CLA.find.restore();
+          done();
+      });
+    });
+});
+
 describe('cla:getAll', function(done) {
     beforeEach(function(){
         sinon.stub(repo_service, 'get', function(args, done){
@@ -432,6 +448,9 @@ describe('cla:getAll', function(done) {
         });
     });
 });
+
+
+
 
 describe('cla:getGist', function(done) {
     it('should extract valid gist ID', function(done){

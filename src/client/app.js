@@ -45,6 +45,22 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
             })
 
             //
+            // My-CLA state
+            //
+            .state('cla', {
+                abstract: true,
+                url: '/my-cla',
+                template: '<section ui-view></section>'
+            })
+
+
+            .state('cla.myCla', {
+                url: '',
+                templateUrl: '/templates/my-cla.html',
+                controller: 'MyClaCtrl'
+            })
+
+            //
             // Repo state (abstract)
             //
             .state('repo', {

@@ -133,7 +133,7 @@ describe('cla:get', function(done) {
 
     });
 
-    describe('in case of failing gihub api', function(desc_done){
+    describe('in case of failing github api', function(desc_done){
         var githubError;
         var githubResponse;
         var req = {args: {repo: 'myRepo', owner: 'login'}, user: {token: 'abc'}};
@@ -330,6 +330,23 @@ describe('cla api', function(done) {
             cla.getLastSignature.restore();
             cla.getRepo.restore();
             it_done();
+        });
+    });
+
+    it('should call cla service on getSignedCLA', function(it_done){
+        sinon.stub(cla, 'getSignedCLA', function(args, cb){
+            assert.deepEqual(args, {user: 'login'});
+            cb(null, {});
+        });
+
+        req.args = {user: 'login'};
+
+        cla_api.getSignedCLA(req, function(err, obj){
+          assert.ifError(err);
+          assert(cla.getSignedCLA.called);
+
+          cla.getSignedCLA.restore();
+          it_done();
         });
     });
 
