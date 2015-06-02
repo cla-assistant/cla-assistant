@@ -233,16 +233,16 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos.length).should.be.equal(0);
     });
 
-    it('should get all users signed this cla', function(){
-        var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
-        httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
-        httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
-
-        homeCtrl.scope.getUsers(claRepo);
-          httpBackend.flush();
-
-        (homeCtrl.scope.users.length).should.be.equal(1);
-    });
+    // it('should get all users signed this cla', function(){
+    //     var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
+    //     httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
+    //     httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+    //
+    //     homeCtrl.scope.getUsers(claRepo);
+    //       httpBackend.flush();
+    //
+    //     (homeCtrl.scope.users.length).should.be.equal(1);
+    // });
 
     it('should load gist files of the user', function(){
         httpBackend.flush();
@@ -278,6 +278,27 @@ describe('Home Controller', function() {
         homeCtrl.scope.defaultClas.length.should.be.equal(1);
         homeCtrl.scope.defaultClas[0].name.should.be.equal('first default cla');
     });
+
+    it('should clear selected repo on clear function', function(){
+        httpBackend.flush();
+        var ev = {stopPropagation: function(){}};
+        homeCtrl.scope.selectedRepo.repo = {name: 'any test repo'};
+
+        homeCtrl.scope.clear(ev, 'repo');
+
+        (!homeCtrl.scope.selectedRepo.repo).should.be.ok;
+    });
+
+    it('should clear selected cla on clear function', function(){
+        httpBackend.flush();
+        var ev = {stopPropagation: function(){}};
+        homeCtrl.scope.selectedGist.gist = {url: 'any_test_url'};
+
+        homeCtrl.scope.clear(ev, 'gist');
+
+        (!homeCtrl.scope.selectedGist.gist).should.be.ok;
+    });
+
 });
 
 var testDataRepos = {data: [

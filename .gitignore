@@ -10,6 +10,8 @@ test
 coverage
 src/client/assets/styles/app.css
 src/client/assets/styles/app.css.map
+src/client/app.min.js
+src/client/app.min.js.map
 .sass-cache
 .cfenv
 log

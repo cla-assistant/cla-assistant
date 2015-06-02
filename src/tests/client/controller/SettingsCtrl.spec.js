@@ -1,24 +1,25 @@
 describe('Settings Controller', function() {
 
-    var scope, rootScope, httpBackend, createCtrl, HUB, settingsCtrl, stateParams;
+    var scope, rootScope, httpBackend, createCtrl, HUB, settingsCtrl, stateParams, modal;
 
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
-    beforeEach(angular.mock.inject(function($injector, $rootScope, $controller) {
+    beforeEach(angular.mock.inject(function($injector, $rootScope, $controller, $modal) {
 
         httpBackend = $injector.get('$httpBackend');
 
         scope = $rootScope.$new();
         rootScope = $rootScope;
+        modal = $modal;
         scope.user = {value: {admin: false}};
         stateParams = {user: 'login', repo: 'myRepo'};
         scope.repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'};
-        scope.$parent.getSignatures = function(repo){
-          return {then: function(cb){
-            cb({value: [{user: 'user1'}, {user: 'user2'}]});
-          }};
-        };
+        // scope.$parent.getSignatures = function(repo){
+        //   return {then: function(cb){
+        //     cb({value: [{user: 'user1'}, {user: 'user2'}]});
+        //   }};
+        // };
 
         createCtrl = function() {
 
@@ -32,6 +33,8 @@ describe('Settings Controller', function() {
         };
 
         scope.user.value = {id: 1, login: 'octocat', admin: false};
+        httpBackend.when('POST', '/api/cla/getAll', {repo: scope.repo.repo, owner: scope.repo.owner, gist: {gist_url: scope.repo.gist}}).respond([{user: 'login'}, {user: 'user2'}]);
+
     }));
 
     afterEach(function() {
@@ -42,7 +45,7 @@ describe('Settings Controller', function() {
     describe('normaly', function(){
         beforeEach(function(){
           settingsCtrl = createCtrl();
-          httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
+          httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond(testData);
         });
 
         it('should check whethter the user has admin rights or NOT', function(){
@@ -57,14 +60,22 @@ describe('Settings Controller', function() {
             httpBackend.flush();
 
             (settingsCtrl.scope.loading).should.not.be.ok;
-            (settingsCtrl.scope.gist.id).should.be.equal('gistId');
+            (settingsCtrl.scope.gist.url).should.be.equal(testData.url);
             (settingsCtrl.scope.repo).should.not.be.empty;
+        });
+
+        it('should get gist file name', function(){
+            httpBackend.flush();
+
+            var gistName = '';
+            gistName = settingsCtrl.scope.getGistName();
+            (gistName).should.be.equal('ring.erl');
         });
 
         it('should get number of contributors on init', function(){
             httpBackend.flush();
 
-            (settingsCtrl.scope.contributors.length).should.be.equal(2);
+            (settingsCtrl.scope.signatures.length).should.be.equal(2);
         });
 
         // it('should get gist and create webhook on update action if gist url is given', function(){
@@ -96,16 +107,25 @@ describe('Settings Controller', function() {
         //     (settingsCtrl.scope.repo.active).should.not.be.ok;
         // });
 
-        // it('should get all users signed this cla', function(){
-        //     var repo = settingsCtrl.scope.repo;
-        //     httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.owner, gist: {gist_url: repo.gist}}).respond([{user: 'login'}]);
-        //     httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+        it('should get all contributors signed this cla', function(){
+            var repo = settingsCtrl.scope.repo;
+            httpBackend.flush();
 
-        //     settingsCtrl.scope.getUsers();
-        //       httpBackend.flush();
+            httpBackend.expect('POST', '/api/cla/getAll', {repo: repo.repo, owner: repo.owner, gist: {gist_url: repo.gist}}).respond([{user: 'login', gist_version: '57a7f021a713b1c5a6a199b54cc514735d2d462f', created_at: '2010-04-16T02:15:15Z'}]);
+            httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name', html_url: 'url'});
 
-        //     (settingsCtrl.scope.users.length).should.be.equal(1);
-        // });
+            settingsCtrl.scope.getContributors();
+            httpBackend.flush();
+
+            (settingsCtrl.scope.contributors.length).should.be.equal(1);
+            (settingsCtrl.scope.contributors[0].user_name).should.be.equal('login');
+            (settingsCtrl.scope.contributors[0].repo_owner).should.be.equal(repo.owner);
+            (settingsCtrl.scope.contributors[0].repo_name).should.be.equal(repo.repo);
+            (settingsCtrl.scope.contributors[0].gist_name).should.be.equal('ring.erl');
+            (settingsCtrl.scope.contributors[0].gist_url).should.be.equal(testData.url);
+            (settingsCtrl.scope.contributors[0].gist_version).should.be.equal(testData.history[0].version);
+            (settingsCtrl.scope.contributors[0].signed_at).should.be.equal('2010-04-16T02:15:15Z');
+        });
 
         it('should get gist from github on getGist function', function(){
             httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
@@ -138,7 +158,8 @@ describe('Settings Controller', function() {
       it('should indicate loading gist on getGist', function(){
           httpBackend.flush();
 
-          httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({id: 'gistId'});
+          settingsCtrl.scope.gist = {};
+          httpBackend.expect('POST', '/api/cla/getGist', {repo: 'myRepo', owner: 'login', gist: {gist_url: 'https://gist.github.com/gistId'}}).respond({url: 'https://gist.github.com/gistId'});
 
           (settingsCtrl.scope.loading).should.not.be.ok;
           settingsCtrl.scope.getGist();
@@ -147,6 +168,35 @@ describe('Settings Controller', function() {
           httpBackend.flush();
           (settingsCtrl.scope.loading).should.not.be.ok;
       });
+
+      it('should prepare array of contributors for export', function(){
+          httpBackend.flush();
+          sinon.stub(modal, 'open', function(){
+            return;
+          });
+          httpBackend.expect('POST', '/api/cla/getAll', {repo: scope.repo.repo, owner: scope.repo.owner, gist: {gist_url: scope.repo.gist}}).respond([{user: 'login'}]);
+          httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
+
+          settingsCtrl.scope.getReport();
+          httpBackend.flush();
+
+          settingsCtrl.scope.contributors.length.should.be.equal(1);
+      });
+
+      it('should not call report modal if there are no signatures', function(){
+          var modalCalled = false;
+          httpBackend.expect('POST', '/api/cla/getAll', {repo: scope.repo.repo, owner: scope.repo.owner, gist: {gist_url: scope.repo.gist}}).respond([]);
+
+          httpBackend.flush();
+          sinon.stub(modal, 'open', function(){
+              modalCalled = true;
+              return;
+          });
+
+          settingsCtrl.scope.getReport();
+
+          modalCalled.should.not.be.ok;
+      });
     });
 
     describe('handling errors', function(){
@@ -154,7 +204,7 @@ describe('Settings Controller', function() {
             scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
             settingsCtrl = createCtrl();
 
-            (!!settingsCtrl.scope.gist.id).should.not.be.ok;
+            (!!settingsCtrl.scope.gist.url).should.not.be.ok;
         });
 
         it('should handle error in getGist function', function(){
@@ -163,7 +213,7 @@ describe('Settings Controller', function() {
             // settingsCtrl.scope.getGist();
             httpBackend.flush();
 
-            (!!settingsCtrl.scope.gist.id).should.not.be.ok;
+            (!!settingsCtrl.scope.gist.url).should.not.be.ok;
         });
 
         // it('should not do any http call if gist url is not valid', function(){

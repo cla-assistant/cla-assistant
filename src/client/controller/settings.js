@@ -5,17 +5,19 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$window', '$sce', '$modal',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $window, $sce, $modal) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$HUBService', '$window', '$sce', '$modal',
+    function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $HUBService, $window, $sce, $modal) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
         $scope.admin = false;
-        $scope.users = [];
         $scope.errorMsg = [];
         $scope.loading = false;
         $scope.gistValid = true;
+        $scope.signatures = [];
         $scope.contributors = [];
+
+        $scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At'];
 
         function gistArgs () {
             var args = {gist_url: $scope.repo.gist};
@@ -39,19 +41,38 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        // $scope.getUsers = function(){
-        //     return $RPCService.call('cla', 'getAll', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: gistArgs()}, function(err, data){
-        //         $scope.users = [];
-        //         if (!err && data.value) {
-        //             data.value.forEach(function(entry){
-        //                 // $HUB.call('user', 'get', {user: entry.user}, function(err, user){
-        //                 $HUB.call('user', 'getFrom', {user: entry.user}, function(e, user){
-        //                     $scope.users.push(user.value);
-        //                 });
-        //             });
-        //         }
-        //     });
-        // };
+        $scope.getSignatures = function(claRepo){
+            return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
+        };
+
+        var getGithubUserData = function(login){
+            return $HUBService.call('user', 'getFrom', {user: login});
+        };
+
+        $scope.getContributors = function(){
+            return $scope.getSignatures($scope.repo).then(function(data){
+                $scope.contributors = [];
+                if (data && data.value && data.value.length > 0) {
+                    data.value.forEach(function(signature){
+                        var contributor = {};
+                        contributor.user_name = signature.user;
+                        contributor.repo_owner = $scope.repo.owner;
+                        contributor.repo_name = $scope.repo.repo;
+                        contributor.gist_name = $scope.getGistName();
+                        contributor.gist_url = $scope.gist.url;
+                        contributor.gist_version = signature.gist_version;
+                        contributor.signed_at = signature.created_at;
+
+                            $scope.contributors.push(contributor);
+                        getGithubUserData(signature.user).then(function(user){
+                            contributor.html_url = user.html_url;
+                            // $scope.contributors.push(user.value);
+
+                        });
+                    });
+                }
+            });
+        };
 
         $scope.getGist = function(){
             $scope.loading = true;
@@ -65,7 +86,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getGistName = function(){
-            return $scope.gist && $scope.gist.files ? $scope.gist.files[Object.keys($scope.gist.files)[0]].filename : '';
+            var fileName = '';
+            if ($scope.gist && $scope.gist.files) {
+                fileName = Object.keys($scope.gist.files)[0];
+                fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
+            }
+            return fileName;
         };
 
         $scope.logAdminIn = function(){
@@ -106,8 +132,9 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                 if ($scope.repo.gist) {
                     // $scope.getUsers();
                     $scope.getGist();
-                    $scope.$parent.getSignatures($scope.repo).then(function(signatures){
+                    $scope.getSignatures($scope.repo).then(function(signatures){
                         if (signatures && signatures.value) {
+                            $scope.signatures = signatures.value;
                             $scope.contributors = signatures.value;
                         }
                     });
@@ -120,15 +147,35 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return $sce.trustAsHtml(html_code);
         };
 
+        var report = function(claRepo) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/report.html',
+                controller: 'ReportCtrl',
+                windowClass: 'report',
+                scope: $scope,
+                resolve: {
+                    repo: function(){ return claRepo; }
+                }
+            });
+            // modal.result.then(function(args){});
+        };
+
+        $scope.getReport = function(){
+            if ($scope.signatures.length > 0) {
+                $scope.getContributors($scope.repo);
+                report($scope.repo);
+            }
+        };
+
         if ($scope.repo.gist) {
             $scope.getGist();
-            $scope.$parent.getSignatures($scope.repo).then(function(signatures){
+            $scope.getSignatures($scope.repo).then(function(signatures){
                 if (signatures && signatures.value) {
+                    $scope.signatures = signatures.value;
                     $scope.contributors = signatures.value;
                 }
             });
         }
-
     }
 ]);
 

@@ -34,8 +34,8 @@
 }
 
 .modal-primary-2nd{
-	background-color: $brand-primary-2nd; 
-	color: $gray-lighter; 
+	background-color: $brand-primary-2nd;
+	color: $gray-lighter;
 }
 
 .modal-dialog {
@@ -88,4 +88,9 @@
 	.close-button{
 		margin-right: -15px;
 	}
+
+    .export-button{
+        text-align: right;
+        margin: 30px 0px;
+    }
 }

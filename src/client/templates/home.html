@@ -26,7 +26,7 @@
 		    <div class="form-group has-feedback" style="margin-bottom: 10px;">
 		    	<ui-select ng-model="selectedGist.gist"  theme="selectize">
 		            <ui-select-match placeholder="choose a gist file" allow-clear="true">
-						<button class="fa fa-times clear-button" ng-click="clear($event)" ng-show="$select.selected.name"></button>
+									<button class="fa fa-times clear-button" ng-click="clear($event, 'gist')" ng-show="$select.selected.name"></button>
 	            		{{$select.selected.name}}
 
 		            </ui-select-match>
@@ -47,7 +47,9 @@
 			<div></div>
 		    <div class="form-group has-feedback">
 		    	<ui-select ng-model="selectedRepo.repo"  theme="selectize">
-		            <ui-select-match placeholder="choose a repository">{{$select.selected.full_name}}</ui-select-match>
+		            <ui-select-match placeholder="choose a repository">
+									<button class="fa fa-times clear-button" ng-click="clear($event, 'repo')" ng-show="$select.selected.name"></button>
+									{{$select.selected.full_name}}</ui-select-match>
 		            <ui-select-choices repeat="repo in repos | filter: $select.search |notIn:claRepos">
 		              	<span class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"/>
 		              	<span ng-bind-html="repo.full_name | highlight: $select.search"></span>

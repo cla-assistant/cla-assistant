@@ -202,28 +202,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-        var report = function(claRepo) {
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/report.html',
-                controller: 'ReportCtrl',
-                windowClass: 'report',
-                scope: $scope,
-                resolve: {
-                    repo: function(){ return claRepo; }
-                }
-            });
-            // modal.result.then(function(args){});
-        };
-
-        $scope.getReport = function(claRepo){
-            $scope.users = [];
-
-            $scope.getUsers(claRepo).then(function(){
-
-            });
-            report(claRepo);
-        };
-
         $scope.info = function() {
             $modal.open({
                 templateUrl: '/modals/templates/info_gist.html',
@@ -243,14 +221,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             getGists();
         });
 
-        // $scope.$on('user', function(event, data){
-        //     $scope.user = $rootScope.user;
-        //     getRepos();
-        // });
-        $scope.clear = function($event) {
+        $scope.clear = function($event, obj) {
            $event.stopPropagation();
-           // Replace the following line with the proper variable
-           $scope.selectedGist.gist = undefined;
+           if (obj === 'repo') {
+              $scope.selectedRepo.repo = undefined;
+           } else if (obj === 'gist') {
+              $scope.selectedGist.gist = undefined;
+           }
         };
 
         $scope.isValid = function(gist){
@@ -328,28 +305,28 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-        $scope.getSignatures = function(claRepo){
-            return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
-        };
-
-        var getGithubUserData = function(login){
-            return $HUBService.call('user', 'getFrom', {user: login});
-        };
-
-        $scope.getUsers = function(claRepo){
-            return $scope.getSignatures(claRepo).then(function(data){
-                $scope.users = [];
-                if (data && data.value) {
-                    data.value.forEach(function(signature){
-                        getGithubUserData(signature.user).then(function(user){
-                            user.value.cla = signature;
-                            $scope.users.push(user.value);
-
-                        });
-                    });
-                }
-            });
-        };
+        // $scope.getSignatures = function(claRepo){
+        //     return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
+        // };
+        //
+        // var getGithubUserData = function(login){
+        //     return $HUBService.call('user', 'getFrom', {user: login});
+        // };
+        //
+        // $scope.getUsers = function(claRepo){
+        //     return $scope.getSignatures(claRepo).then(function(data){
+        //         $scope.users = [];
+        //         if (data && data.value) {
+        //             data.value.forEach(function(signature){
+        //                 getGithubUserData(signature.user).then(function(user){
+        //                     user.value.cla = signature;
+        //                     $scope.users.push(user.value);
+        //
+        //                 });
+        //             });
+        //         }
+        //     });
+        // };
 
         $scope.scrollTo = function(id) {
             $document.scrollTopAnimated(0, 800);
