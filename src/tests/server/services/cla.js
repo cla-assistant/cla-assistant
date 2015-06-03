@@ -191,7 +191,7 @@ describe('cla:check', function(done) {
         callbacks.end();
     });
 
-    it('should negative check for pull request if pull request number given', function(done){
+    it('should negative check for pull request if pull request number given', function(it_done){
         sinon.stub(CLA, 'findOne', function(args, done){
             if(args.user === 'login'){
                 done(null, {id: 123, gist_url: 'url/gistId', created_at: '2012-06-20T11:34:15Z', gist_version: 'xyz'});
@@ -205,7 +205,30 @@ describe('cla:check', function(done) {
         cla.check(args, function(err, result){
             assert.ifError(err);
             assert(!result);
-            done();
+            it_done();
+        });
+
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
+    });
+
+    it('should return map of committers who has signed and who has not signed cla', function(it_done){
+        sinon.stub(CLA, 'findOne', function(args, done){
+            if(args.user === 'login'){
+                done(null, {id: 123, user: 'login', gist_url: 'url/gistId', created_at: '2012-06-20T11:34:15Z', gist_version: 'xyz'});
+            } else {
+                done(null, null);
+            }
+        });
+
+        var args = {repo: 'myRepo', owner: 'owner', number: 1};
+
+        cla.check(args, function(err, signed, map){
+            assert.ifError(err);
+            assert(!signed);
+            assert.equal(map.not_signed[0], 'login2');
+            assert.equal(map.signed[0], 'login');
+            it_done();
         });
 
         callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');

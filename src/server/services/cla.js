@@ -19,15 +19,25 @@ module.exports = function(){
 		var deferred = q.defer();
 		var all_signed = true;
 		var promises = [];
-		users.some(function(user){
+		var user_map = {signed: [], not_signed: []};
+		users.forEach(function(user){
 			args.user = user.name;
+			user_map.not_signed.push(args.user);
+
 			promises.push(claService.get(args, function(err, cla){
-					all_signed = !!cla === false ? false : all_signed;
-				})
-			);
+				if (!cla) {
+					all_signed = false;
+				} else {
+					var i = user_map.not_signed.indexOf(cla.user);
+					if (i >= 0) {
+						user_map.not_signed.splice(i, 1);
+					}
+					user_map.signed.push(cla.user);
+				}
+			}));
 		});
 		q.all(promises).then(function(){
-			deferred.resolve(all_signed);
+			deferred.resolve({signed: all_signed, user_map: user_map});
 		});
 		return deferred.promise;
 	};
@@ -125,8 +135,8 @@ module.exports = function(){
 					}
 					else if (args.number) {
 						repoService.getPRCommitters(args, function(err, committers){
-							checkAll(committers, args).then(function(all_signed){
-								done(null, all_signed);
+							checkAll(committers, args).then(function(result){
+								done(null, result.signed, result.user_map);
 							});
 						});
 					}
