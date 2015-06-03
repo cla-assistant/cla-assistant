@@ -1,9 +1,5 @@
-<div class="modal-body modal-primary" style="height:575px">
+<div class="modal-body modal-primary" style="height:500px">
 	<div ng-click="cancel()" class="fa fa-times" style="float:right; color:grey; cursor:pointer"></div>
-
-    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;" ng-show="linkStatus == 'linked'">
-        You created a new link!
-    </div>
 
     <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;" ng-show="linkStatus == 'failed'">
         Oops! Something went wrong!
@@ -19,14 +15,13 @@
     </div>
 
     <div class="center-block row" style="font-size:18px;" ng-show="linkStatus == 'linked'">
-    	<p>Awesome,<br>
-    	<b>{{selectedGist.gist.name}}</b> and <b>{{selectedRepo.repo.full_name}}</b> <br>
-    	are linked now!
+    	<p><b>{{selectedGist.gist.name}}</b> and <b>{{selectedRepo.repo.full_name}}</b> <br>
+    	are now linked
     	</p>
     </div>
 
-    <div style="text-align:center; margin-top: 30px; margin-bottom: 15px;">
+    <div style="text-align:center; margin-top: 30px;">
 	    <!-- <button class="btn btn-success" ng-click="ok()">Yes, let's do this!</button> -->
-	    <button class="btn btn-success" ng-click="cancel()" ng-show="linkStatus == 'linked'">Great! Thank you!</button>
+	    <button class="btn btn-success" ng-click="cancel()" ng-show="linkStatus == 'linked'">Great, thanks!</button>
     </div>
 </div>

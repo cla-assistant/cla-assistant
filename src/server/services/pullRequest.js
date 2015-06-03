@@ -16,9 +16,9 @@ module.exports = {
                 }
                 var claUrl = url.claURL(owner, repo, pullNumber);
 
-                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
+                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All contributors must sign the CLA before a pull request can be merged.';
                 if (signed) {
-                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
+                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All contributors have signed the CLA.';
                 }
                 if (!comment) {
                     github.call({

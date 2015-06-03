@@ -8,11 +8,11 @@
 <div class="modal-body modal-primary" ng-show="contributors.length > 0">
     <div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div style="text-align: center; font-size:26px; margin-top: 20px;">
-        Contributors who signed my CLA
+        Contributors who signed {{getGistName()}}
     </div>
 
     <div class="export-button">
-      <button type="button" class="btn btn-info" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export List</button>
+      <button type="button" class="btn btn-info" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export list</button>
     </div>
 
     <div class="well report" style="max-height: 500px; overflow-y:scroll">
