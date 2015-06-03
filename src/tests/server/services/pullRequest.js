@@ -37,12 +37,13 @@ describe('pullRequest:badgeComment', function(done) {
   it('should create comment with cla-assistant user', function(it_done){
     direct_call_data = [];
     sinon.stub(github, 'call', function(args, git_done){
-      assert.equal(args.fun, 'createComment');
-      assert(!args.token);
-      assert.equal(args.basicAuth.user, 'cla-assistant');
-      assert.equal(args.basicAuth.pass, 'secret_pass');
-      git_done(null, 'res', 'meta');
-      it_done();
+		assert.equal(args.fun, 'createComment');
+		assert(!args.token);
+		assert.equal(args.basicAuth.user, 'cla-assistant');
+		assert.equal(args.basicAuth.pass, 'secret_pass');
+		assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
+		git_done(null, 'res', 'meta');
+		it_done();
     });
 
     pullRequest.badgeComment('login', 'myRepo', 123, 1);
@@ -52,12 +53,43 @@ describe('pullRequest:badgeComment', function(done) {
     direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function(args, git_done){
 			assert.equal(args.fun, 'editComment');
-      assert.equal(args.basicAuth.user, 'cla-assistant');
+			assert.equal(args.basicAuth.user, 'cla-assistant');
+			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
 		});
 
 		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+	});
+
+	it('should write a list of signed and not signed users on create', function(it_done){
+		direct_call_data = [];
+		sinon.stub(github, 'call', function(args, git_done){
+			assert.equal(args.fun, 'createComment');
+			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
+			assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
+			assert(args.arg.body.indexOf(':x: user2') >= 0);
+			git_done(null, 'res', 'meta');
+			it_done();
+		});
+
+		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {signed: ['user1'], not_signed: ['user2']});
+	});
+
+	it('should write a list of signed and not signed users on edit', function(it_done){
+		direct_call_data = testDataComments_withCLAComment;
+		sinon.stub(github, 'call', function(args, git_done){
+			assert.equal(args.fun, 'editComment');
+			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
+			assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
+			assert(args.arg.body.indexOf(':x: user2') >= 0);
+			git_done(null, 'res', 'meta');
+			it_done();
+		});
+
+		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {signed: ['user1'], not_signed: ['user2']});
 	});
 });
 
@@ -159,6 +191,26 @@ describe('pullRequest:editComment', function(done) {
       it_done();
     });
   });
+
+	it('should write a list of signed and not signed users on edit if not signed', function(it_done){
+		var args = {repo: 'myRepo', owner: 'owner', number: 1, signed: false, user_map: {signed: ['user1'], not_signed: ['user2']}};
+
+		github.call.restore();
+		sinon.stub(github, 'call', function(args, git_done){
+			assert.equal(args.fun, 'editComment');
+			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
+			assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
+			assert(args.arg.body.indexOf(':x: user2') >= 0);
+			git_done(null, 'res', 'meta');
+		});
+
+		pullRequest.editComment(args, function(){
+			assert(github.call.called);
+
+			it_done();
+		});
+	});
 
 	it('should edit comment if signed', function(it_done){
 		var args = {repo: 'myRepo', owner: 'owner', number: 1, signed: true};

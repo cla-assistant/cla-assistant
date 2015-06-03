@@ -281,6 +281,27 @@ describe('cla api', function(done) {
         });
     });
 
+    it('should comment with user_map if it is given', function(it_done){
+        cla.check.restore();
+        prService.editComment.restore();
+
+        sinon.stub(cla, 'check', function(args, cb){
+            cb(null, true, {signed: [], not_signed: []});
+        });
+        sinon.stub(prService, 'editComment', function(args){
+            assert(args.user_map.signed);
+        });
+
+        cla_api.sign(req, function(error, res) {
+            assert.ifError(error);
+            assert.ok(res);
+            assert(github.direct_call.called);
+            assert(status.update.called);
+            assert(prService.editComment.called);
+            it_done();
+        });
+    });
+
     it('should handle repos without open pull requests', function(it_done){
         github.direct_call.restore();
         sinon.stub(github, 'direct_call', function(args, cb){

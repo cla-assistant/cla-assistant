@@ -100,11 +100,11 @@ module.exports = {
 						res.data.forEach(function(pullRequest){
 							var status_args = {repo: args.repo, owner: args.owner};
 							status_args.number = pullRequest.number;
-							cla.check(status_args, function(cla_err, all_signed){
+							cla.check(status_args, function(cla_err, all_signed, user_map){
 								if (cla_err) {log.error(cla_err); }
 								status_args.signed = all_signed;
 								status.update(status_args);
-								prService.editComment({repo: args.repo, owner: args.owner, number: status_args.number, signed: all_signed});
+								prService.editComment({repo: args.repo, owner: args.owner, number: status_args.number, signed: all_signed, user_map: user_map});
 							});
 						});
 					}

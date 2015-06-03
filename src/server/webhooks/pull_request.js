@@ -47,7 +47,7 @@ module.exports = function(req, res) {
 
 		repoService.getPRCommitters(args, function(err, committers){
 			if(!err && committers && committers.length > 0){
-				cla.check(args, function(err, signed){
+				cla.check(args, function(err, signed, user_map){
 					args.signed = signed;
 					status.update(args);
 					if (!signed) {
@@ -57,7 +57,8 @@ module.exports = function(req, res) {
 							req.args.repository.name,
 							req.args.repository.id,
 							req.args.number,
-							signed
+							signed,
+							user_map
 						);
 					}
 				});

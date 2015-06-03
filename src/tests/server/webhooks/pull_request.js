@@ -72,14 +72,30 @@ describe('webhook pull request', function(test_done) {
     cla.check.restore();
 	});
 
-  it('should update status of pull request if not signed', function(test_done){
+  it('should update status of pull request if not signed', function(it_done){
     pull_request(test_req, res);
     assert(pullRequest.badgeComment.called);
 
-    test_done();
+    it_done();
   });
 
-  it('should update status of pull request if signed', function(test_done){
+  it('should provide user_map to badgeComment', function(it_done){
+      cla.check.restore();
+      pullRequest.badgeComment.restore();
+
+      sinon.stub(cla, 'check', function(args, done){
+          done(null, false, {not_signed: ['test_user']});
+      });
+      sinon.stub(pullRequest, 'badgeComment', function(owner, repo, repoId, prNumber, signed, user_map){
+          assert(user_map.not_signed);
+      });
+
+      pull_request(test_req, res);
+      assert(pullRequest.badgeComment.called);
+      it_done();
+  });
+
+  it('should update status of pull request if signed', function(it_done){
     cla.check.restore();
     sinon.stub(cla, 'check', function(args, done){
       done(null, true);
@@ -88,18 +104,18 @@ describe('webhook pull request', function(test_done) {
     pull_request(test_req, res);
     assert(!pullRequest.badgeComment.called);
     assert(status.update.called);
-    test_done();
+    it_done();
   });
 
-	it('should update status of pull request if not signed and new user', function(test_done){
+	it('should update status of pull request if not signed and new user', function(it_done){
 		test_user = null;
 
 		pull_request(test_req, res);
 		assert(cla.check.called);
-		test_done();
+		it_done();
 	});
 
-  it('should do nothing if the pull request has no committers', function(test_done){
+  it('should do nothing if the pull request has no committers', function(it_done){
     repoService.getPRCommitters.restore();
     sinon.stub(repoService, 'getPRCommitters', function(args, done){
       done(null, []);
@@ -109,7 +125,7 @@ describe('webhook pull request', function(test_done) {
 
     assert(!cla.check.called);
 
-    test_done();
+    it_done();
   });
 });
 

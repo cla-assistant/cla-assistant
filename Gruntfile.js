@@ -62,6 +62,7 @@ module.exports = function(grunt) {
 
         watch: {
             uglify: {tasks: ['uglify'], files: appJsFiles},
+            mocha: {tasks: ['eslint', 'mochaTest'], files: 'src/**/*.js'},
             karma: {tasks: ['eslint', 'mochaTest', 'karma'], files: 'src/**/*.js'}
         },
 

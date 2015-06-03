@@ -3,9 +3,26 @@ var github = require('./github');
 var repoService = require('./repo');
 var log = require('../services/logger');
 
+var commitText = function(signed, badgeUrl, claUrl, user_map){
+    if (signed) {
+        return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
+    }
+
+    var text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>';
+    if (user_map && user_map.not_signed) {
+        text += '**' + user_map.signed.length + '** out of **' + (user_map.signed.length + user_map.not_signed.length) + '** committers have signed the CLA.<br/>';
+        user_map.signed.forEach(function(signee){
+            text += '<br/>:white_check_mark: ' + signee;
+        });
+        user_map.not_signed.forEach(function(signee){
+            text += '<br/>:x: ' + signee;
+        });
+    }
+    return text;
+};
 
 module.exports = {
-    badgeComment: function(owner, repo, repoId, pullNumber, signed) {
+    badgeComment: function(owner, repo, repoId, pullNumber, signed, user_map) {
         var badgeUrl = url.pullRequestBadge(signed);
         var token;
 
@@ -16,10 +33,8 @@ module.exports = {
                 }
                 var claUrl = url.claURL(owner, repo, pullNumber);
 
-                var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
-                if (signed) {
-                    body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
-                }
+                var body = commitText(signed, badgeUrl, claUrl, user_map);
+
                 if (!comment) {
                     github.call({
                         obj: 'issues',
@@ -95,10 +110,8 @@ module.exports = {
                 return;
             }
 
-            var body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.';
-            if (args.signed) {
-                body = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
-            }
+            var user_map = args.user_map ? args.user_map : null;
+            var body = commitText(args.signed, badgeUrl, claUrl, user_map);
 
             github.call({
                 obj: 'issues',
