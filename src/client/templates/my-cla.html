@@ -30,15 +30,17 @@
 		<table class="table">
 			<tr>
 				<td>
-					<div>
+					<div ng-init="reverse=true; show_repo=false; show_created_at=false">
 						<div class="col-sm-3" style="padding-left: 0;">
-							<a href=""  ng-click="reverse=!reverse; order('repo', reverse)">Repository</a>
+							<a href=""  ng-click="reverse=!reverse; order(['owner', 'repo'], reverse); show_repo=true; show_created_at=false">Repository</a>
+              &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_repo==true"></span>
 						</div>
 						<div class="col-sm-3">
 							CLA
 						</div>
 						<div class="col-sm-3">
-							<a href="" ng-click="reverse=!reverse; order('created_at', reverse)">Date of Signature</a>
+							<a href="" ng-click="reverse=!reverse; order('created_at', reverse); show_created_at=true; show_repo=false">Date of Signature</a>
+              &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
 						</div>
 						<div class="col-sm-3" style="text-align:center;">
 							Version-Status
