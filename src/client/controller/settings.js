@@ -62,7 +62,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                         contributor.gist_url = $scope.gist.url;
                         contributor.gist_version = signature.gist_version;
                         contributor.signed_at = signature.created_at;
-
                             $scope.contributors.push(contributor);
                         getGithubUserData(signature.user).then(function(user){
                             contributor.html_url = user.html_url;

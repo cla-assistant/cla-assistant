@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="" ng-if="user.value.admin">
-        <div class="nav navbar-nav navbar-home-right navbar-text" style="margin-top: 15px;">
+        <div class="nav navbar-nav navbar-home-right navbar-text">
           <a ng-show="!user.value.login" href="/auth/github?admin=true" target="_self"><b>Sign in with GitHub</b></a>
           <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px"></a>
         </div>
@@ -24,7 +24,7 @@
   </div>
 <div class="row main" style="margin-top: 70px;">
 	<div class="row">
-		<h4 class="col-xs-12" style="margin: 25px; padding-left: 0;">Signed Contributor Agreements</h4>
+		<h4 class="col-xs-12" style="margin: 25px; padding-left: 0;">Signed Contributor License Agreements</h4>
 	</div>
 	<div class="well row" style="padding-top: 25px;">
 		<table class="table">
@@ -55,7 +55,7 @@
 							</a>
 						</div>
 						<div class="col-xs-12 col-sm-3 text">
-							<a ng-href="{{claRepo.gist_url}}" target="space">{{claRepo.gist_url}}</a>
+							<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
 						</div>
 						<div class="col-xs-12 col-sm-3">
 							{{claRepo.created_at | date:'longDate'}}
@@ -65,6 +65,7 @@
 						</div>
 					</div>
 				</td>
+        {{claRepo.gist.url}}
 			</tr>
 		</table>
 	</div>

@@ -5,24 +5,34 @@
 // path: /
 // *****************************************************
 
-module.controller('MyClaCtrl', ['$rootScope', '$scope', '$filter', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
-    function ($rootScope, $scope, $filter, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
+module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService',
+    function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService) {
 
 
       $scope.repos = [];
+      $scope.gist = {};
+      $scope.gists = [];
       $scope.claRepos = [];
-      $scope.signedCLAs= [];
+      $scope.signedCLAs = [];
       $scope.users = [];
       $scope.user = {};
       $scope.defaultClas = [];
 
       var orderBy = $filter('orderBy');
-
+      var githubGists = 'https://api.github.com/gists?per_page=100';
       var githubUserRepos = 'https://api.github.com/user/repos?per_page=100';
 
       $scope.logAdminIn = function(){
           $window.location.href = '/auth/github?admin=true';
       };
+
+      function gistArgs (repo) {
+          var args = {gist_url: repo.gist_url};
+          if ($scope.gist.history && $scope.gist.history.length > 0) {
+              args.gist_version = $scope.gist.history[$scope.gistIndex].version;
+          }
+          return args;
+      }
 
       var getUser = function(){
           $scope.user = {value: {admin: false}};
@@ -43,36 +53,36 @@ module.controller('MyClaCtrl', ['$rootScope', '$scope', '$filter', '$document', 
           });
       };
 
-      var getRepos = function() {
-          // var callBack = function(data){
-          //     data.value.forEach(function(orgRepo){
-          //             $scope.repos.push(orgRepo);
-          //         });
-          //     if (data.hasMore) {
-          //         data.getMore();
-          //     } else {
-          //         updateScopeData();
-          //     }
-          // };
-
-          if ($scope.user && $scope.user.value && $scope.user.value.admin) {
-              $HUBService.direct_call(githubUserRepos).then(function(data){
-                  data.value.forEach(function(orgRepo){
-                          $scope.repos.push(orgRepo);
-                      });
-                  updateScopeData();
-              });
-          }
-      };
-
       var getSignedCLA = function(){
         return $RPCService.call('cla', 'getSignedCLA', {user: $scope.user.value.login}, function(err, data){
           $scope.claRepos = data.value;
+          for(var i = 0; i < $scope.claRepos.length; i++){
+            $scope.getGist($scope.claRepos[i]);
+          }
         });
       };
 
+      $scope.getGist = function(repo){
+        $scope.loading = true;
+          $RPCService.call('cla', 'getGist', {repo: repo.repo, owner: repo.owner, gist: gistArgs(repo)}, function(err, data){
+              if (!err && data.value) {
+                  $scope.gist = data.value;
+              }
+              $scope.loading = false;
+              $scope.gist.linked = true;
+          });
+      };
+
+      $scope.getGistName = function(){
+          var fileName = '';
+          if ($scope.gist && $scope.gist.files) {
+              fileName = Object.keys($scope.gist.files)[0];
+              fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
+          }
+          return fileName;
+      };
+
       getUser().then(function(){
-          getRepos();
           getSignedCLA();
       });
 
@@ -80,41 +90,8 @@ module.controller('MyClaCtrl', ['$rootScope', '$scope', '$filter', '$document', 
         $scope.claRepos = orderBy($scope.claRepos, predicate, reverse);
       };
 
-      $scope.getSignatures = function(claRepo){
-          return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
-      };
-
-      var updateScopeData = function(){
-          var repoSet = [];
-          $scope.repos.forEach(function(repo){
-              repoSet.push({owner: repo.owner.login, repo: repo.name});
-          });
-          $RPCService.call('repo', 'getAll', {set: repoSet}, function(err, data){
-          // $RPCService.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
-          //    $scope.claRepos = data.value;
-          //    $scope.claRepos.forEach(function(claRepo){
-          //        claRepo = mixRepoData(claRepo);
-          //    });
-          });
-      };
-
-      var mixRepoData = function(claRepo){
-          $scope.repos.some(function(repo){
-              if (claRepo.repo === repo.name && claRepo.owner === repo.owner.login) {
-                  claRepo.fork = repo.fork;
-                  return true;
-              }
-          });
-          return claRepo;
-      };
-
-      $scope.isNotClaRepo = function(repo){
-          var match = false;
-          $scope.claRepos.some(function(claRepo){
-              match = claRepo.repo === repo.name && claRepo.owner === repo.owner.login ? true : false;
-              return match;
-          });
-          return !match;
+      var getGithubUserData = function(login){
+          return $HUBService.call('user', 'getFrom', {user: login});
       };
 
       $scope.getDefaultClaFiles = function(){
@@ -123,9 +100,6 @@ module.controller('MyClaCtrl', ['$rootScope', '$scope', '$filter', '$document', 
           });
       };
 
-      var getGithubUserData = function(login){
-          return $HUBService.call('user', 'getFrom', {user: login});
-      };
 
       $scope.getUsers = function(claRepo){
           return $scope.getSignatures(claRepo).then(function(data){
