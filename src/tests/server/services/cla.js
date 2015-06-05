@@ -375,13 +375,36 @@ describe('cla:create', function(done) {
 
 describe('cla:getSignedCLA', function(done) {
       it('should get all clas signed by the user', function(done){
-        sinon.stub(CLA, 'find', function(args, done){
+        sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           assert.deepEqual(args, {user: 'login'});
-          done(null, true);
+          assert.deepEqual(selectionCriteria, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*'});
+          assert.deepEqual(sortCriteria, {sort: {'created_at': -1}});
+          done(null, []);
         });
 
       var args = {user: 'login'};
       cla.getSignedCLA(args, function(){
+          CLA.find.restore();
+          done();
+      });
+    });
+
+    it('should select last cla per Repo', function(done){
+      sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
+        assert.deepEqual(args, {user: 'login'});
+        var listOfAllCla = [
+          {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
+          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1'},
+          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2'},
+          {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1'}
+        ];
+
+        done(null, listOfAllCla);
+      });
+
+      var args = {user: 'login'};
+      cla.getSignedCLA(args, function(err, clas){
+          assert.equal(clas.length, 3);
           CLA.find.restore();
           done();
       });
