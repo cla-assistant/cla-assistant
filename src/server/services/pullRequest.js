@@ -9,7 +9,13 @@ var commitText = function(signed, badgeUrl, claUrl, user_map){
     }
 
     var text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>';
-    if (user_map && user_map.not_signed) {
+    var committersCount = 1;
+
+    if (user_map && user_map.not_signed && user_map.signed) {
+        committersCount = user_map.signed.length + user_map.not_signed.length;
+    }
+
+    if (committersCount > 1) {
         text += '**' + user_map.signed.length + '** out of **' + (user_map.signed.length + user_map.not_signed.length) + '** committers have signed the CLA.<br/>';
         user_map.signed.forEach(function(signee){
             text += '<br/>:white_check_mark: ' + signee;
@@ -17,6 +23,8 @@ var commitText = function(signed, badgeUrl, claUrl, user_map){
         user_map.not_signed.forEach(function(signee){
             text += '<br/>:x: ' + signee;
         });
+    } else {
+        text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>You should sign our Contributor License Agreement in order to get your pull request merged.<br/>';
     }
     return text;
 };

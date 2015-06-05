@@ -34,27 +34,27 @@ describe('pullRequest:badgeComment', function(done) {
     Repo.findOne.restore();
   });
 
-  it('should create comment with cla-assistant user', function(it_done){
-    direct_call_data = [];
-    sinon.stub(github, 'call', function(args, git_done){
-		assert.equal(args.fun, 'createComment');
-		assert(!args.token);
-		assert.equal(args.basicAuth.user, 'cla-assistant');
-		assert.equal(args.basicAuth.pass, 'secret_pass');
-		assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
-		git_done(null, 'res', 'meta');
-		it_done();
-    });
+	it('should create comment with cla-assistant user', function(it_done){
+		direct_call_data = [];
+		sinon.stub(github, 'call', function(args, git_done){
+			assert.equal(args.fun, 'createComment');
+			assert(!args.token);
+			assert.equal(args.basicAuth.user, 'cla-assistant');
+			assert.equal(args.basicAuth.pass, 'secret_pass');
+			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
+			git_done(null, 'res', 'meta');
+			it_done();
+		});
 
-    pullRequest.badgeComment('login', 'myRepo', 123, 1);
-  });
+		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+	});
 
-  it('should edit comment with cla-assistant user', function(it_done){
-    direct_call_data = testDataComments_withCLAComment;
+	it('should edit comment with cla-assistant user', function(it_done){
+		direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function(args, git_done){
 			assert.equal(args.fun, 'editComment');
 			assert.equal(args.basicAuth.user, 'cla-assistant');
-			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
+			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
 		});
@@ -75,6 +75,20 @@ describe('pullRequest:badgeComment', function(done) {
 		});
 
 		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {signed: ['user1'], not_signed: ['user2']});
+	});
+
+	it('should NOT write a list of signed and not signed users on create if there is only one committer', function(it_done){
+		direct_call_data = [];
+		sinon.stub(github, 'call', function(args, git_done){
+			assert.equal(args.fun, 'createComment');
+			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('**0** out of **1**') < 0);
+			assert(args.arg.body.indexOf(':x: user2') < 0);
+			git_done(null, 'res', 'meta');
+			it_done();
+		});
+
+		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {signed: [], not_signed: ['user2']});
 	});
 
 	it('should write a list of signed and not signed users on edit', function(it_done){
