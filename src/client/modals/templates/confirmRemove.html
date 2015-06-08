@@ -3,7 +3,7 @@
 <div class="modal-body modal-primary">
 	<div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
-        Are you really sure to remove the<br>link of this CLA and repository?
+        Are you sure you want to unlink?
     </div>
 
     <div class="row" style="margin:50px; margin-bottom: 20px;">
@@ -20,15 +20,15 @@
     </div>
 
     <div class="center-block row" style="font-size:18px;">
-    	Removing this link will:
+    	Unlinking will...
 		<ul class="col-sm-9 col-sm-offset-2" style="text-align:left">
-			<li>delete the webhook in your repository in GitHub</li>
-			<li>leave you unable to review the list of contributors who has already signed your CLA</li>
+			<li>Remove the CLA assistant webhook in your repository</li>
+			<li>Remove the link to your list of contributors</li>
 		</ul>
     </div>
 
     <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
 	    <button class="btn btn-cancel" ng-click="cancel()">Keep it</button>
-	    <button class="btn btn-danger" ng-click="ok()" ng-mouseenter="isNervous=true" ng-mouseleave="isNervous=false">Remove anyway!</button>
+	    <button class="btn btn-danger" ng-click="ok()" ng-mouseenter="isNervous=true" ng-mouseleave="isNervous=false">Unlink anyway</button>
     </div>
 </div>

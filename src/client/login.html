@@ -21,7 +21,7 @@
   <style> .edgeLoad-EDGE-110781156 { visibility:hidden; }</style>
 
   <!-- APP -->
-  <script src="app.min.js" type="text/javascript"></script>
+
 
   <script>
    AdobeEdge.loadComposition('assets/js/CLA_signature_MouseOver', 'EDGE-110781156', {
@@ -62,8 +62,8 @@
     <div class="row lp-premium lp-section">
       <img class="center-block img-responsive" src="/assets/images/CLA_text.svg" style="width:200px">
       <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">
-      <p>Handle Contribution License Agreements with ease.</p>
-      <p class="lp-hide-text" style="margin-bottom:1em"><br> CLA assistant helps you navigate the <br>legal aspect of GitHub contributions.</p>
+      <p>Easily handle Contributor License Agreements (CLA's)</p>
+
       <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
         <!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
       </div>
@@ -77,15 +77,14 @@
 
     <div class="row lp-white lp-section" style="font-size: 25px;">
       <div class="center-block">
-        <h4> FEATURES</h4>
-        <p>Linking Contributor License Agreements is as easy as can be: <br> CLA assistant</p>
+        <h4>FEATURES</h4>
       </div>
       <div class="center-block">
         <div class="feature-col center-block">
-          <div feature id="feature1" icon-src="/assets/images/feature1.svg" header="Authentication" text="Easily sign in with your GitHub account" style="display: inline-block; "></div>
-          <div feature id="feature2" icon-src="/assets/images/feature2.svg" header="Integration" text="CLA assistant integrates into GitHub APIs and informs you about pull requests and status" style="display: inline-block;"></div>
-          <div feature id="feature3" icon-src="/assets/images/feature3.svg" header="Versioning" text="CLA assistant updates the status of pull requests when a contributor signs your CLA" style="display: inline-block;"></div>
-          <div feature id="feature4" icon-src="/assets/images/feature4.svg" header="Review" text="Review and export the list of contributors who signed your CLA for each version and CLAs you signed." style="display: inline-block;"></div>
+          <div feature id="feature1" icon-src="/assets/images/feature1.svg" header="Authentication" text="Sign in with your GitHub account" style="display: inline-block; "></div>
+          <div feature id="feature2" icon-src="/assets/images/feature2.svg" header="Integration" text="CLA assistant notifies you about new contributions via GitHub pull requests" style="display: inline-block;"></div>
+          <div feature id="feature3" icon-src="/assets/images/feature3.svg" header="Status updates" text="CLA assistant updates the status of pull requests when a contributor signs your CLA" style="display: inline-block;"></div>
+          <div feature id="feature4" icon-src="/assets/images/feature4.svg" header="Review" text="Review and export the list of contributors who have signed your CLA" style="display: inline-block;"></div>
         </div>
       </div>
     </div>
@@ -93,14 +92,15 @@
 
     <div class="row lp-premium-darker lp-section">
       <div class="center-block">
-        <p>Signing Contributor License Agreements <br> without the hassle <br></p>
+        <p>Hassle-free CLA signing<br></p>
       </div>
       <div id="Stage" class="EDGE-110781156 center-block resize-img"></div>
       <div class="center-block" style="font-size:18px">
-        <p>You create a pull request in GitHub
-          <br>You click to accept the CLA of the repo owner.<br>
-          <br>That's really it. We swear.<br>
-        </p>
+        <ol style="padding: 0; list-style-position: inside;">
+          <li>Create a pull request</li>
+          <li>Click to accept the repository's CLA</li>
+        </ol>
+        <p>That's it, for real!</p>
         <!--<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px"><span class="octicon octicon-mark-github"></span>&nbsp;My signed CLAs</btn> -->
       </div>
     </div>
@@ -118,7 +118,7 @@
     <div class="row lp-white lp-section">
       <div class="center-block">
         <h4>HOW IT WORKS</h4>
-        <p>Link your repository with a CLA stored in Gist</p>
+        <p>Put your CLA into a <a href="https://gist.github.com" target="_blank">Gist</a>, and link it to a repository</p>
       </div>
 
       <div class="row" style="margin-bottom:30px; margin-top: 75px;">
@@ -129,10 +129,10 @@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
           <div class="how-to-align how-to-align-left" style="font-size: 24px; color:#009245; margin-top:1em;">
-            STORE A CLA IN A GIST
+            SAVE YOUR CLA IN A GIST
           </div>
           <div class="how-to-align how-to-align-left" style="font-size: 18px;">
-            Go to Gist.GitHub.com, save a CLA text file there. <br>Choose the creted file or copy and paste the URL in CLA assistant.
+            At <a href="https://gist.github.com" target="_blank">gist.github.com</a> enter a title and text for your CLA, and create your Gist.
           </div>
         </div>
       </div>
@@ -145,10 +145,10 @@
         </div>
         <div class="col-xs-12 col-sm-4  col-sm-pull-4 col-md-4 col-md-pull-4 col-sm-offset-4 col-md-offset-4">
           <div class="how-to-align how-to-align-right" style="font-size: 24px; color:#009245; margin-top:1em;">
-            ADD A REPOSITORY
+            SELECT A REPOSITORY
           </div>
           <div class="how-to-align how-to-align-right" style="font-size: 18px;">
-            Choose a repository from GitHub for that you want contributors to sign
+            Select a repository where you need to manage contributions with a CLA.
           </div>
         </div>
       </div>
@@ -164,7 +164,7 @@
             LINK THEM
           </div>
           <div class="how-to-align how-to-align-left" style="font-size: 18px;">
-            Now just link your repository with the CLA you stored.
+            Now just link that repository to your CLA.
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@
               </div>
               <div class="navbar-text navbar-center" style="z-index:-1;">
                 <p class="hidden-xs hidden-sm">
-                  made with <span class="octicon octicon-heart"></span> from the GitHub Team at SAP
+                  Made with <span class="octicon octicon-heart"></span> from the GitHub team at SAP
                 </p>
               </div>
               <div class="center-block">

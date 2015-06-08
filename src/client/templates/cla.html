@@ -3,7 +3,7 @@
 
 		<div class="row content-block" ng-hide="signed">
 			<div class="col-md-8 col-md-offset-2" >
-				<h4>Please sign the Contributor License Agreement for {{params.user}}/{{params.repo}}</h4>
+				<h4>Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
 				<div class="cla-box well">
 					<div ng-bind-html="cla" ng-hide="signedCLA.text && diff"></div>
 				</div>
@@ -26,7 +26,7 @@
 
 		<div class="row center-block content-block" ng-show="signed">
 			<h3>Thank you {{user.login}}</h3>
-			<h4>for signing the Contributor License Agreement</h4>
+			<h4>for signing the CLA!</h4>
 			</br>
 			<h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
 			<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
