@@ -206,6 +206,27 @@ a .lp-signin:hover, a .lp-signin:focus {
   height: 1px;
 }
 
+.feature-text {
+    bottom:0;
+    background-color:white;
+    color:#2c3e50;
+    text-align:center;
+    font-size:20px;
+    padding-top: 3em;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.feature-header {
+    text-align: center;
+    top: 160px;
+}
+
+.feature-img {
+    height:50%;
+    margin: 30px auto;
+}
+
 .next-step-show {
   opacity: 1;
 }
