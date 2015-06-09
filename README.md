@@ -15,13 +15,24 @@ All you need to do is to store your CLA as a GitHub Gist file and link it with y
 
 If the content of your CLA changes over time you have not to notify all your active contributor to sign the new version of the CLA again. CLA assistant will do it for you! Just update the linked Gist file. Each new pull request will get a comment with request to sign the CLA even if the user has already signed the previous version.
 
-You as repository owner can review the list of users who signed your CLA for each version of it. 
+You as repository owner can review the list of users who signed your CLA for each version of it.
 
 Try
 ====
 CLA assistant is provided by SAP as a free hosted offering under: https://cla-assistant.io/. Please leave us a GitHub issue if you have feedback.
 
 For SAP open source projects please use the [SAP Individual Contributor License Agreement] (https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
+
+FAQ
+===
+### Where is the list of signees stored?
+We store all the data in a MongoDB hosted by [mongolab](https://mongolab.com/).
+
+### Where can I see the list of signees? Is there a way to import/export the signee data?
+You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
+
+### Who can I contact for help?
+In case of problems or any further questions, please open an issue in GitHub. We always appreciate helpful tips and support for the project.
 
 License
 =======
