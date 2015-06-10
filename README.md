@@ -23,17 +23,6 @@ CLA assistant is provided by SAP as a free hosted offering under: https://cla-as
 
 For SAP open source projects please use the [SAP Individual Contributor License Agreement] (https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
 
-FAQ
-===
-#### Where is the list of signees stored?
-We store all the data in a MongoDB hosted by [mongolab](https://mongolab.com/).
-
-#### Where can I see the list of signees? Is there a way to import/export the signee data?
-You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
-
-#### Who can I contact for help?
-In case of problems or any further questions, please open an issue in GitHub. We always appreciate helpful tips and support for the project.
-
 License
 =======
 
@@ -52,6 +41,17 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+FAQ
+===
+#### Where is the list of signees stored?
+We store all the data in a MongoDB hosted by [mongolab](https://mongolab.com/).
+
+#### Where can I see the list of signees? Is there a way to import/export the signee data?
+You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
+
+#### Who can I contact for help?
+In case of problems or any further questions, please open an issue in GitHub. We always appreciate helpful tips and support for the project.
 
 Credits
 =======
