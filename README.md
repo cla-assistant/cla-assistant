@@ -25,13 +25,13 @@ For SAP open source projects please use the [SAP Individual Contributor License 
 
 FAQ
 ===
-### Where is the list of signees stored?
+#### Where is the list of signees stored?
 We store all the data in a MongoDB hosted by [mongolab](https://mongolab.com/).
 
-### Where can I see the list of signees? Is there a way to import/export the signee data?
+#### Where can I see the list of signees? Is there a way to import/export the signee data?
 You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
 
-### Who can I contact for help?
+#### Who can I contact for help?
 In case of problems or any further questions, please open an issue in GitHub. We always appreciate helpful tips and support for the project.
 
 License
