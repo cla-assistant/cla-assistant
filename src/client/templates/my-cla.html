@@ -28,47 +28,51 @@
 	</div>
 	<div class="well row" style="padding-top: 25px;">
 		<table class="table">
-			<tr>
-				<td>
-					<div ng-init="reverse=true; show_repo=false; show_created_at=false">
-						<div class="col-sm-3" style="padding-left: 0;">
-							<a href=""  ng-click="reverse=!reverse; order(['owner', 'repo'], reverse); show_repo=true; show_created_at=false">Repository</a>
-              &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_repo==true"></span>
-						</div>
-						<div class="col-sm-3">
-							CLA
-						</div>
-						<div class="col-sm-3">
-							<a href="" ng-click="reverse=!reverse; order('created_at', reverse); show_created_at=true; show_repo=false">Date of Signature</a>
-              &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
-						</div>
-						<div class="col-sm-3" style="text-align:center;">
-							Version-Status
-						</div>
-					</div>
-				</td>
-			</tr>
-			<tr ng-repeat="claRepo in claRepos">
-				<td>
-					<div class="row">
-						<div class="col-xs-12 col-sm-3" style="padding-left: 0;">
-							<a ng-href="https://github.com/{{ claRepo.owner }}/{{ claRepo.repo }}" target="space">
-								{{ claRepo.owner }} / {{ claRepo.repo }}
-							</a>
-						</div>
-						<div class="col-xs-12 col-sm-3 text">
-							<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
-						</div>
-						<div class="col-xs-12 col-sm-3">
-							{{claRepo.created_at | date:'longDate'}}
-						</div>
-						<div class="col-xs-12 col-sm-3" style="text-align:center;">
-							ICON
-						</div>
-					</div>
-				</td>
-        {{claRepo.gist.url}}
-			</tr>
+      <tbody>
+  			<tr>
+  				<td>
+            <div class="row">
+    					<div ng-init="reverse=true; show_repo=false; show_created_at=false">
+    						<div class="col-sm-3 clickable" ng-click="reverse=!reverse; order(['owner', 'repo'], reverse); show_repo=true; show_created_at=false" style="padding-left: 0;">
+    							Repository
+                  &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_repo==true"></span>
+
+    						</div>
+    						<div class="col-sm-3">
+    							CLA
+    						</div>
+    						<div class="col-sm-3">
+    							<span class="clickable" ng-click="reverse=!reverse; order('created_at', reverse); show_created_at=true; show_repo=false">Date of Signature</span>
+                  &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
+    						</div>
+    						<div class="col-sm-3" style="text-align:center;">
+    							Version-Status
+    						</div>
+    					</div>
+            </div>
+  				</td>
+  			</tr>
+  			<tr ng-repeat="claRepo in claRepos">
+  				<td>
+  					<div class="row">
+  						<div class="col-xs-12 col-sm-3" style="padding-left: 0;">
+  							<a ng-href="https://github.com/{{ claRepo.owner }}/{{ claRepo.repo }}" target="space">
+  								{{ claRepo.owner }} / {{ claRepo.repo }}
+  							</a>
+  						</div>
+  						<div class="col-xs-12 col-sm-3 text">
+  							<a ng-click="getClaView(claRepo)" class="clickable" target="space">{{getGistName(claRepo.gistObj)}}</a>
+  						</div>
+  						<div class="col-xs-12 col-sm-3">
+  							{{claRepo.created_at | date:'longDate'}}
+  						</div>
+  						<div class="col-xs-12 col-sm-3" style="text-align:center;">
+  							ICON
+  						</div>
+  					</div>
+  				</td>
+  			</tr>
+      </tbody>
 		</table>
 	</div>
 </div>
