@@ -57,7 +57,7 @@
 							</a>
 						</div>
 						<div class="col-xs-12 col-sm-3 text">
-							<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+							<a ng-click="getClaView(claRepo)" class="clickable" target="space">{{getGistName(claRepo.gistObj)}}</a>
 						</div>
 						<div class="col-xs-12 col-sm-3">
 							{{claRepo.created_at | date:'longDate'}}
@@ -67,7 +67,6 @@
 						</div>
 					</div>
 				</td>
-        {{claRepo.gist.url}}
 			</tr>
 		</table>
 	</div>

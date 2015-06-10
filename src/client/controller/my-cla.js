@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService',
-    function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService) {
+module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService', '$modal',
+    function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService, $modal) {
 
 
       $scope.repos = [];
@@ -63,21 +63,18 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getGist = function(repo){
-        $scope.loading = true;
           $RPCService.call('cla', 'getGist', {repo: repo.repo, owner: repo.owner, gist: gistArgs(repo)}, function(err, data){
               if (!err && data.value) {
-                  $scope.gist = data.value;
+                  repo.gistObj = data.value;
               }
-              $scope.loading = false;
-              $scope.gist.linked = true;
           });
       };
 
-      $scope.getGistName = function(){
+      $scope.getGistName = function(gistObj){
           var fileName = '';
-          if ($scope.gist && $scope.gist.files) {
-              fileName = Object.keys($scope.gist.files)[0];
-              fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
+          if (gistObj && gistObj.files) {
+              fileName = Object.keys(gistObj.files)[0];
+              fileName = gistObj.files[fileName].filename ? gistObj.files[fileName].filename : fileName;
           }
           return fileName;
       };
@@ -100,20 +97,17 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           });
       };
 
-
-      $scope.getUsers = function(claRepo){
-          return $scope.getSignatures(claRepo).then(function(data){
-              $scope.users = [];
-              if (data && data.value) {
-                  data.value.forEach(function(signature){
-                      getGithubUserData(signature.user).then(function(user){
-                          user.value.cla = signature;
-                          $scope.users.push(user.value);
-
-                      });
-                  });
+      $scope.getClaView = function(claRepo) {
+          var modal = $modal.open({
+              templateUrl: '/modals/templates/claView.html',
+              controller: 'ClaViewCtrl',
+              scope: $scope,
+              resolve: {
+                  cla: function(){ return claRepo; }
               }
           });
       };
+
+
     }
   ]);
