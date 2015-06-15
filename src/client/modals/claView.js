@@ -15,7 +15,11 @@ module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, 
 		function getCLA () {
 				return $RPCService.call('cla', 'get', {
 						repo: $scope.claObj.repo,
-						owner: $scope.claObj.owner
+						owner: $scope.claObj.owner,
+						gist: {
+							gist_url: $scope.claObj.gist_url,
+							gist_version: $scope.claObj.gist_version
+						}
 				}, function(err, cla) {
 						if(!err) {
 								$scope.claText = cla.value.raw;

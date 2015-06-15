@@ -377,7 +377,7 @@ describe('cla:getSignedCLA', function(done) {
       it('should get all clas signed by the user', function(done){
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           assert.deepEqual(args, {user: 'login'});
-          assert.deepEqual(selectionCriteria, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*'});
+          assert.deepEqual(selectionCriteria, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'});
           assert.deepEqual(sortCriteria, {sort: {'created_at': -1}});
           done(null, []);
         });

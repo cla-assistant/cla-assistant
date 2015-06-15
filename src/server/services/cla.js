@@ -174,7 +174,7 @@ module.exports = function(){
 		},
 
 		getSignedCLA: function(args, done){
-			CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+			CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
 				var repoList = [];
 				var uniqueClaList = [];
 				clas.forEach(function(cla){

@@ -10,7 +10,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
 
       $scope.repos = [];
-      $scope.gist = {};
       $scope.gists = [];
       $scope.claRepos = [];
       $scope.signedCLAs = [];
@@ -28,8 +27,9 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
       function gistArgs (repo) {
           var args = {gist_url: repo.gist_url};
-          if ($scope.gist.history && $scope.gist.history.length > 0) {
-              args.gist_version = $scope.gist.history[$scope.gistIndex].version;
+          // console.log(repo);
+          if (repo.gist_version) {
+              args.gist_version = repo.gist_version;
           }
           return args;
       }
@@ -58,6 +58,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           $scope.claRepos = data.value;
           for(var i = 0; i < $scope.claRepos.length; i++){
             $scope.getGist($scope.claRepos[i]);
+            $scope.getVersionStatus($scope.claRepos[i]);
           }
         });
       };
@@ -108,6 +109,48 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           });
       };
 
+      $scope.getGistVersion = function(gistObj){
+          var fileVersion = '';
+          if (gistObj && gistObj.files) {
+              fileVersion = Object.keys(gistObj.files)[0];
+              fileVersion = gistObj.files[fileVersion].updated_at ? gistObj.files[fileVersion].updated_at : fileVersion;
+          }
+          return fileVersion;
+      };
 
+      $scope.getVersionView = function() {
+          var modal = $modal.open({
+              templateUrl: '/modals/templates/versionView.html',
+              controller: 'VersionViewCtrl',
+              scope: $scope
+          });
+      };
+
+      function checkCLA(claRepo) {
+          return $RPCService.call('cla', 'check', {
+              repo: claRepo.repo,
+              owner: claRepo.owner
+          }, function(err, signed){
+            console.log(signed.value);
+              if (!err && signed.value && signed) {
+                  claRepo.signed = true;
+              }else {
+                  claRepo.signed = false;
+              }
+          });
+      }
+
+      $scope.getVersionStatus = function(claRepo) {
+        // getLatestGist(claRepo);
+        checkCLA(claRepo).then(function(){
+          if (claRepo.signed && claRepo.created_at >= claRepo.gistObj.updated_at) {
+              claRepo.stat = true;
+              console.log(claRepo.stat);
+          }else{
+              claRepo.stat = false;
+              console.log(claRepo.stat);
+          }
+        });
+      };
     }
-  ]);
+]);
