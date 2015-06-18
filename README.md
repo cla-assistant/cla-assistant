@@ -76,36 +76,36 @@ takes place)
 
 You also need to [register an application on
 GitHub](https://github.com/settings/applications/new). The callback is
-`http://localhost:5000/auth/github/callback`, name and homepage you can fill
+`http://<HOST>:<PORT>/auth/github/callback`, name and homepage you can fill
 out as you desire.
 
 And set the `GITHUB_CLIENT` and `GITHUB_SECRET` accordingly in the `.env` file.
 
 The following are the environment variables you have to configure to run a private instance:
 
-HOST: This should not include http://, only the hostname your CLA assistant instance should be accessible under.
+`HOST`: This should not include http://, only the hostname your CLA assistant instance should be accessible under.
 
-PORT: The local port to bind to. Defaults to 5000.
+`PORT`: The local port to bind to. Defaults to 5000.
 
-PROTOCOL: Valid options are "http" or "https".
+`PROTOCOL`: Valid options are "http" or "https".
 
-GITHUB_CLIENT: From your registered application in GitHub.
+`GITHUB_CLIENT`: From your registered application in GitHub.
 
-GITHUB_SECRET: From your registered application in GitHub.
+`GITHUB_SECRET`: From your registered application in GitHub.
 
-GITHUB_USER: For CLA assistant to comment on pull requests, it requires a GitHub account.
+`GITHUB_USER`: For CLA assistant to comment on pull requests, it requires a GitHub account.
 
-GITHUB_PASS: To access the GitHub account to comment on pull requests, CLA assistant needs an API Token. It can be generated here https://github.com/settings/tokens/new. The Only scope required is repo_public.
+`GITHUB_PASS`: To access the GitHub account to comment on pull requests, CLA assistant needs an API Token. It can be generated here https://github.com/settings/tokens/new. The Only scope required is repo_public.
 
-MONGODB: This has to be in form of a mongodb url, e.g. mongodb://<user>:<password>@<host>:<port>/<dbname>.
+`MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
 
 > **Hint:** For further reading on setting up MongoDB, go to
 > http://docs.mongodb.org/manual/tutorial/getting-started/
 > http://docs.mongodb.org/manual/reference/method/db.createUser
 
-SLACK_URL: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
+`SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
 
-SLACL_TOKEN: Optional.
+`SLACK_TOKEN`: Optional.
 
 Run grunt in order to build the application
 
@@ -117,19 +117,19 @@ For development cases you can run default grunt task in a separate comand line s
 
 Then source the environment file,
 
-	source .env
+    source .env
 
 Now you can start the application run
 
-	npm start
+    npm start
 
 If you want to autorestart the server on file changes install `nodemon`
 
-	npm install nodemon
+    npm install nodemon
 
 Then it can be started with
 
-	nodemon app.js
+    nodemon app.js
 
 
 Credits
