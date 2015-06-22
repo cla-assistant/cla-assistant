@@ -67,7 +67,7 @@
   							{{claRepo.created_at | date:'longDate'}}
   						</div>
   						<div  class="col-xs-12 col-sm-3 center-block clickable">
-                  <img ng-if="!claRepo.stat" src="/assets/images/link_inactive.svg" style="height:1.5em; min-height:15px;" ng-click="getVersionView()">
+                  <img ng-if="!claRepo.stat" src="/assets/images/link_inactive.svg" style="height:1.5em; min-height:15px;" ng-click="getVersionView(claRepo)">
                   <img ng-if="claRepo.stat" src="/assets/images/link_active.svg" style="height:1.5em; min-height:15px;" tooltip-placement="bottom" tooltip="everything is ok!">
           	  </div>
   					</div>

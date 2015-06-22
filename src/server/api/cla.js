@@ -9,17 +9,21 @@ var log = require('../services/logger');
 
 module.exports = {
 	getGist: function(req, done){
-		cla.getRepo(req.args, function(err, repo){
-			if (err || !repo) {
-				log.warn(err);
-				done(err);
-				return;
-			}
-			var gist_args = {gist_url: repo.gist};
-			gist_args = req.args.gist ? req.args.gist : gist_args;
-
-			cla.getGist({token: repo.token, gist: gist_args}, done);
-		});
+		if(req.user && req.user.token && req.args.gist){
+			cla.getGist({token: req.user.token, gist: req.args.gist}, done);
+		}else{
+			cla.getRepo(req.args, function(err, repo){
+				if (err || !repo) {
+					log.warn(err);
+					done(err);
+					return;
+				}
+				var gist_args = {gist_url: repo.gist};
+				gist_args = req.args.gist ? req.args.gist : gist_args;
+				var token = req.user && req.user.token ? req.user.token : repo.token;
+				cla.getGist({token: token, gist: gist_args}, done);
+			});
+		}
 	},
 
 	get: function(req, done){

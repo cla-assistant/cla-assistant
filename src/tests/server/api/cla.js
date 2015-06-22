@@ -25,7 +25,7 @@ describe('cla:get', function(done) {
     it('should get gist and render it with user token', function(it_done) {
         sinon.stub(cla, 'getRepo', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
-            cb(null, {gist: 'url', token: 'abc'});
+            cb(null, {gist: 'url', token: 'repo_token'});
         });
         sinon.stub(cla, 'getGist', function(repo, cb){
             assert.equal(repo.gist.gist_url, 'url');
@@ -36,12 +36,12 @@ describe('cla:get', function(done) {
             var res;
             assert.equal(args.obj, 'markdown');
             assert.equal(args.fun, 'render');
-            assert.equal(args.token, 'abc');
+            assert.equal(args.token, 'user_token');
             res = {statusCode: 200, data: {}};
             cb(null, res);
         });
 
-        var req = {args: {repo: 'myRepo', owner: 'login'}, user: {token: 'abc'}};
+        var req = {args: {repo: 'myRepo', owner: 'login'}, user: {token: 'user_token'}};
 
         cla_api.get(req, function(error, res) {
             assert(cla.getRepo.called);
@@ -419,6 +419,69 @@ describe('cla api', function(done) {
             cla.getRepo.restore();
             cla.getGist.restore();
             it_done();
+        });
+    });
+
+    it('should call cla service using user token, not repo token', function(it_done){
+        req.args.gist = 'url/gistId/version2';
+        req.user.token = 'user_token';
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            cb(null, {token: 'repo_token', gist: 'url/gistId'});
+        });
+        sinon.stub(cla, 'getGist', function(args, cb){
+            assert.deepEqual(args, {token: 'user_token', gist: 'url/gistId/version2'});
+            cb(null, {});
+        });
+
+        cla_api.getGist(req, function(err, all){
+            assert.ifError(err);
+            assert(cla.getGist.called);
+
+            cla.getRepo.restore();
+            cla.getGist.restore();
+            it_done();
+        });
+    });
+
+    it('should call cla service getGist with user token even if repo is not linked anymore', function(it_done){
+        req.args.gist = {gist_url: 'url/gistId', gist_version: 'version2'};
+        req.user.token = 'user_token';
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            cb('There is no repo.', null);
+        });
+        sinon.stub(cla, 'getGist', function(args, cb){
+            assert.deepEqual(args, {token: 'user_token', gist: {gist_url: 'url/gistId', gist_version: 'version2'}});
+            cb(null, {});
+        });
+
+        cla_api.getGist(req, function(err, all){
+            assert.ifError(err);
+            assert(cla.getGist.called);
+
+            cla.getRepo.restore();
+            cla.getGist.restore();
+            it_done();
+        });
+    });
+
+    it('should fail calling cla service getGist with user token even if repo is not linked anymore when no gist is provided', function(it_done){
+        req.args.gist = undefined;
+        req.user.token = 'user_token';
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            cb('There is no repo.', null);
+        });
+        sinon.stub(cla, 'getGist', function(args, cb){
+            cb(null, {});
+        });
+
+        cla_api.getGist(req, function(err, all){
+            assert(err);
+            assert(!cla.getGist.called);
+
+            cla.getRepo.restore();
+            cla.getGist.restore();
+            it_done();
+            req.args.gist = 'url/gistId/version2';
         });
     });
 

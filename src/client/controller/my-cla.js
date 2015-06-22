@@ -25,15 +25,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           $window.location.href = '/auth/github?admin=true';
       };
 
-      function gistArgs (repo) {
-          var args = {gist_url: repo.gist_url};
-          // console.log(repo);
-          if (repo.gist_version) {
-              args.gist_version = repo.gist_version;
-          }
-          return args;
-      }
-
       var getUser = function(){
           $scope.user = {value: {admin: false}};
 
@@ -54,7 +45,9 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       var getSignedCLA = function(){
-        return $RPCService.call('cla', 'getSignedCLA', {user: $scope.user.value.login}, function(err, data){
+        return $RPCService.call('cla', 'getSignedCLA', {
+          user: $scope.user.value.login
+          }, function(err, data){
           $scope.claRepos = data.value;
           for(var i = 0; i < $scope.claRepos.length; i++){
             $scope.getGist($scope.claRepos[i]);
@@ -64,7 +57,14 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getGist = function(repo){
-          $RPCService.call('cla', 'getGist', {repo: repo.repo, owner: repo.owner, gist: gistArgs(repo)}, function(err, data){
+          $RPCService.call('cla', 'getGist', {
+            repo: repo.repo,
+            owner: repo.owner,
+            gist: {
+              gist_url: repo.gist_url,
+              gist_version: repo.gist_version
+            }
+            }, function(err, data){
               if (!err && data.value) {
                   repo.gistObj = data.value;
               }
@@ -118,24 +118,51 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           return fileVersion;
       };
 
-      $scope.getVersionView = function() {
+      $scope.getVersionView = function(claRepo) {
+        if ($scope.newCLA) {
+            $scope.noCLA = false;
+
+            if($scope.newCLA.html_url !== claRepo.gist_url){
+              $scope.showCLA = true;
+            } else {
+              $scope.showCLA = false;
+            }
+        } else {
+            $scope.noCLA = true;
+        }
           var modal = $modal.open({
               templateUrl: '/modals/templates/versionView.html',
               controller: 'VersionViewCtrl',
-              scope: $scope
+              scope: $scope,
+              resolve: {
+                  cla: function(){ return claRepo; },
+                  noCLA: function(){ return $scope.noCLA; },
+                  showCLA: function(){ return $scope.showCLA; }
+              }
           });
       };
+
+      function getLinkedGist(claRepo) {
+          return $RPCService.call('cla', 'getGist', {
+            repo: claRepo.repo,
+            owner: claRepo.owner
+          }, function (err, data){
+              if(!err && data.value){
+                $scope.newCLA = data.value;
+              }
+          });
+      }
 
       function checkCLA(claRepo) {
           return $RPCService.call('cla', 'check', {
               repo: claRepo.repo,
               owner: claRepo.owner
           }, function(err, signed){
-            console.log(signed.value);
               if (!err && signed.value && signed) {
                   claRepo.signed = true;
               }else {
                   claRepo.signed = false;
+                  getLinkedGist(claRepo);
               }
           });
       }
@@ -143,12 +170,10 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       $scope.getVersionStatus = function(claRepo) {
         // getLatestGist(claRepo);
         checkCLA(claRepo).then(function(){
-          if (claRepo.signed && claRepo.created_at >= claRepo.gistObj.updated_at) {
+          if (claRepo.signed) {
               claRepo.stat = true;
-              console.log(claRepo.stat);
           }else{
               claRepo.stat = false;
-              console.log(claRepo.stat);
           }
         });
       };

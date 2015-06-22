@@ -30,6 +30,7 @@ module.exports = function(config) {
             // Bower
             'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
             'src/bower/angular-mocks/angular-mocks.js',
+            'src/bower/angular-diff-match-patch/angular-diff-match-patch.js',
 
             // Client code
             'src/client/app.js',
