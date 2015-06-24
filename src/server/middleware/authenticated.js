@@ -1,7 +1,8 @@
 
 module.exports = function(req, res, next) {
+    var freeApi = ['/api/cla/get', '/api/repo/check'];
 
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated() || freeApi.indexOf(req.originalUrl) > -1) {
         return next();
     }
 

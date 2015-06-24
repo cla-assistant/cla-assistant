@@ -7,7 +7,7 @@ globals:
     $: false
     angular: false
     chunk: true
-    config: false
+    config: true
     filters: true
     ga: false
     io: false

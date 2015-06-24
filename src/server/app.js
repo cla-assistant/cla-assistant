@@ -1,5 +1,5 @@
+require('colors');
 var async = require('async');
-var colors = require('colors');
 var express = require('express');
 var glob = require('glob');
 var merge = require('merge');
@@ -234,28 +234,6 @@ async.series([
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Handle api calls
 //////////////////////////////////////////////////////////////////////////////////////////////////
-app.all('/api/cla/get', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    api.cla.get(req, function(err, obj) {
-        if(err) {
-            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
-            // return res.send(err.code > 0 ? err.code : 500, JSON.stringify(err.text || err));
-        }
-        obj ? res.send(JSON.stringify(obj)) : res.send();
-    });
-});
-
-app.all('/api/repo/check', function(req, res) {
-    res.set('Content-Type', 'application/json');
-    api.repo.check(req, function(err, obj) {
-        if(err) {
-            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
-            // return res.send(err.code > 0 ? err.code : 500, JSON.stringify(err.text || err));
-        }
-        obj ? res.send(JSON.stringify(obj)) : res.send();
-    });
-});
-
 app.use('/api', require('./middleware/authenticated'));
 
 app.all('/api/:obj/:fun', function(req, res) {
@@ -263,7 +241,6 @@ app.all('/api/:obj/:fun', function(req, res) {
     api[req.params.obj][req.params.fun](req, function(err, obj) {
         if(err) {
             return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
-            // return res.send(err.code > 0 ? err.code : 500, JSON.stringify(err.text || err));
         }
         obj ? res.send(JSON.stringify(obj)) : res.send();
     });
