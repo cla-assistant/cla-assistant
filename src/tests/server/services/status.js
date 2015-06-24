@@ -1,98 +1,18 @@
+/*global describe, it, beforeEach, afterEach*/
+
 // unit test
 var assert = require('assert');
 var sinon = require('sinon');
 
-//api
-var github_api = require('../../../server/api/github');
-
 // services
 var github = require('../../../server/services/github');
 var url = require('../../../server/services/url');
-var repo = require('../../../server/services/repo');
 //model
 var Repo = require('../../../server/documents/repo').Repo;
-var CLA = require('../../../server/documents/cla').CLA;
 
 // service under test
 var status = require('../../../server/services/status');
 
-describe('status:update', function(done) {
-	beforeEach(function(){
-		sinon.stub(Repo, 'findOne', function(args, done){
-			done(null, {token: 'abc'});
-        });
-
-        sinon.stub(github, 'direct_call', function(args, done){
-			assert.equal(args.url, url.githubPullRequest('octocat', 'Hello-World', 1));
-			assert(args.token);
-			done(null, {data: testData});
-        });
-
-		sinon.stub(github, 'call', function(args, git_done){
-			assert.equal(args.token, 'abc');
-		});
-	});
-
-	afterEach(function(){
-		Repo.findOne.restore();
-		github.call.restore();
-		github.direct_call.restore();
-	});
-
-	it('should create comment with admin token', function(done){
-
-		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: true};
-
-		status.update(args);
-
-		assert(github.direct_call.called);
-		assert(github.call.called);
-		done();
-	});
-
-	it('should create status pending if not signed', function(done){
-		github.call.restore();
-		sinon.stub(github, 'call', function(args, git_done){
-			assert.equal(args.arg.state, 'pending');
-		});
-
-		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
-
-		status.update(args);
-
-		assert(github.direct_call.called);
-		assert(github.call.called);
-		done();
-	});
-
-	it('should not update status if no pull request found', function(done){
-		github.direct_call.restore();
-		sinon.stub(github, 'direct_call', function(args, done){
-			done('error', {data: null});
-		});
-		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
-
-		status.update(args);
-
-		assert(github.direct_call.called);
-		assert(!github.call.called);
-		done();
-	});
-
-	it('should not update status if no pull request found', function(done){
-		github.direct_call.restore();
-		sinon.stub(github, 'direct_call', function(args, done){
-			done('', {data: {message: 'Not found'}});
-		});
-		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
-
-		status.update(args);
-
-		assert(github.direct_call.called);
-		assert(!github.call.called);
-		done();
-	});
-});
 
 var testData = {
   'id': 1,
@@ -317,3 +237,81 @@ var testData = {
   'deletions': 3,
   'changed_files': 5
 };
+
+describe('status:update', function() {
+	beforeEach(function(){
+		sinon.stub(Repo, 'findOne', function(args, done){
+			done(null, {token: 'abc'});
+        });
+
+        sinon.stub(github, 'direct_call', function(args, done){
+			assert.equal(args.url, url.githubPullRequest('octocat', 'Hello-World', 1));
+			assert(args.token);
+			done(null, {data: testData});
+        });
+
+		sinon.stub(github, 'call', function(args){
+			assert.equal(args.token, 'abc');
+		});
+	});
+
+	afterEach(function(){
+		Repo.findOne.restore();
+		github.call.restore();
+		github.direct_call.restore();
+	});
+
+	it('should create comment with admin token', function(done){
+
+		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: true};
+
+		status.update(args);
+
+		assert(github.direct_call.called);
+		assert(github.call.called);
+		done();
+	});
+
+	it('should create status pending if not signed', function(done){
+		github.call.restore();
+		sinon.stub(github, 'call', function(args){
+			assert.equal(args.arg.state, 'pending');
+		});
+
+		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
+
+		status.update(args);
+
+		assert(github.direct_call.called);
+		assert(github.call.called);
+		done();
+	});
+
+	it('should not update status if no pull request found', function(it_done){
+		github.direct_call.restore();
+		sinon.stub(github, 'direct_call', function(args, done){
+			done('error', {data: null});
+		});
+		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
+
+		status.update(args);
+
+		assert(github.direct_call.called);
+		assert(!github.call.called);
+		it_done();
+	});
+
+	it('should not update status if no pull request found', function(it_done){
+		github.direct_call.restore();
+		sinon.stub(github, 'direct_call', function(args, done){
+			done('', {data: {message: 'Not found'}});
+		});
+		var args = {owner: 'octocat', repo: 'Hello-World', number: 1, signed: false};
+
+		status.update(args);
+
+		assert(github.direct_call.called);
+		assert(!github.call.called);
+		it_done();
+	});
+});

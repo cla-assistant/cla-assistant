@@ -1,3 +1,4 @@
+/*global describe, it, beforeEach, afterEach*/
 
 // unit test
 var assert = require('assert');
@@ -14,8 +15,8 @@ var Repo = require('../../../server/documents/repo').Repo;
 var webhook_api = require('../../../server/api/webhook');
 
 
-describe('webhook:call', function(done) {
-    it('should call github service with user token', function(done){
+describe('webhook:call', function() {
+    it('should call github service with user token', function(it_done){
         var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
             var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
             done(null, repo);
@@ -40,16 +41,16 @@ describe('webhook:call', function(done) {
 
         var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', owner: 'login'}};
 
-        webhook_api.create(req, function(error, res) {
+        webhook_api.create(req, function() {
             githubStub.restore();
             repoStub.restore();
-            done();
+            it_done();
         });
     });
 });
 
-describe('webhook:remove', function(done) {
-	it('should call github service with user token', function(done){
+describe('webhook:remove', function() {
+	it('should call github service with user token', function(it_done){
 		var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
             var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
             done(null, repo);
@@ -76,14 +77,14 @@ describe('webhook:remove', function(done) {
 
 		var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', user: 'login'}};
 
-		webhook_api.remove(req, function(error, res) {
+		webhook_api.remove(req, function() {
             githubStub.restore();
             repoStub.restore();
-            done();
+            it_done();
         });
 	});
 
-    it('should report error if could not delete hook', function(done){
+    it('should report error if could not delete hook', function(it_done){
         var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
             var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
             done(null, repo);
@@ -101,11 +102,11 @@ describe('webhook:remove', function(done) {
 
         var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', user: 'login'}};
 
-        webhook_api.remove(req, function(error, res) {
+        webhook_api.remove(req, function(error) {
             assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
             githubStub.restore();
             repoStub.restore();
-            done();
+            it_done();
         });
     });
 });

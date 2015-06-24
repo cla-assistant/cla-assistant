@@ -1,6 +1,7 @@
+/*global describe, it, beforeEach, afterEach*/
+
 // unit test
 var assert = require('assert');
-var sinon = require('sinon');
 
 // config
 global.config = require('../../../config');

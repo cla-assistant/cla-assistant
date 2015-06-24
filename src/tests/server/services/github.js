@@ -1,13 +1,9 @@
+/*global describe, it, beforeEach, afterEach*/
+
 // unit test
 var rewire = require('rewire');
 var assert = require('assert');
 var sinon = require('sinon');
-
-// modules
-var GitHubApi = require('github');
-
-//api
-var github_api = require('../../../server/api/github');
 
 // config
 global.config = require('../../../config');
@@ -18,7 +14,7 @@ var github = rewire('../../../server/services/github');
 var callStub = sinon.stub();
 var authenticateStub = sinon.stub();
 
-describe('github:call', function(done) {
+describe('github:call', function() {
     function GitHubApiMock(args) {
 
         assert.deepEqual(args, {
@@ -62,7 +58,7 @@ describe('github:call', function(done) {
 
     it('should authenticate when token is set', function(it_done) {
         callStub.yields(null, {});
-        github.call({obj: 'obj', fun: 'fun', token: 'token'}, function(err, res) {
+        github.call({obj: 'obj', fun: 'fun', token: 'token'}, function() {
             assert(authenticateStub.calledWith({
                 type: 'oauth',
                 token: 'token'
@@ -73,7 +69,7 @@ describe('github:call', function(done) {
 
     it('should authenticate when basic authentication is required', function(it_done) {
         callStub.yields(null, {});
-        github.call({obj: 'obj', fun: 'fun', basicAuth: {user: 'user', pass: 'pass'}}, function(err, res) {
+        github.call({obj: 'obj', fun: 'fun', basicAuth: {user: 'user', pass: 'pass'}}, function() {
             assert(authenticateStub.calledWith({
                 type: 'basic',
                 username: 'user',
@@ -85,7 +81,7 @@ describe('github:call', function(done) {
 
     it('should not authenticate when neither token nor basicAuth are provided', function(it_done) {
         callStub.yields(null, {});
-        github.call({obj: 'obj', fun: 'fun'}, function(err, res) {
+        github.call({obj: 'obj', fun: 'fun'}, function() {
             assert(authenticateStub.notCalled);
             it_done();
         });
@@ -153,7 +149,7 @@ describe('github:call', function(done) {
 
 // });
 
-describe('github:call_direct', function(done) {
+describe('github:call_direct', function() {
     var https = require('https');
 
     var callbacks = {};
@@ -221,7 +217,7 @@ describe('github:call_direct', function(done) {
     });
 
     it('should fail with error message', function(it_done){
-        github.direct_call(args, function(error, response) {
+        github.direct_call(args, function(error) {
             assert(error);
             assert.equal(https_req.header.Authorization, 'token abc');
 
@@ -232,7 +228,7 @@ describe('github:call_direct', function(done) {
     });
 
     it('should fail with error message unsing promises', function(it_done){
-        github.direct_call(args).then(null, function(error, response) {
+        github.direct_call(args).then(null, function(error) {
             assert(error);
             assert.equal(https_req.header.Authorization, 'token abc');
 
@@ -245,7 +241,7 @@ describe('github:call_direct', function(done) {
     xit('should use different method then get if provided', function(it_done){
         args.http_method = 'POST';
 
-        github.direct_call(args, function(err, response){
+        github.direct_call(args, function(err){
             assert(err);
             it_done();
         });

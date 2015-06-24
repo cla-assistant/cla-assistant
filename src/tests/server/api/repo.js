@@ -1,3 +1,5 @@
+/*global describe, it, beforeEach, afterEach*/
+
 // unit test
 var assert = require('assert');
 var sinon = require('sinon');
@@ -13,8 +15,8 @@ var Repo = require('../../../server/documents/repo').Repo;
 var repo_api = require('../../../server/api/repo');
 
 
-describe('repo', function(done) {
-	it('should create repo via service', function(done){
+describe('repo', function() {
+	it('should create repo via service', function(it_done){
 		var repoCreateStub = sinon.stub(repo, 'create', function(args, done) {
 			assert.deepEqual(args, {repo: 'myRepo', owner: 'login', gist: 1234, token: 'abc'});
 			done();
@@ -22,13 +24,13 @@ describe('repo', function(done) {
 
 		var req = {args: {repo: 'myRepo', owner: 'login', gist: 1234}, user: {token: 'abc'}};
 
-		repo_api.create(req, function(error, res) {
+		repo_api.create(req, function() {
             repoCreateStub.restore();
-            done();
+            it_done();
         });
 	});
 
-	it('should check via repo service', function(done){
+	it('should check via repo service', function(it_done){
         var repoStub = sinon.stub(repo, 'check', function(args, done) {
 			assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
 			done();
@@ -36,44 +38,44 @@ describe('repo', function(done) {
 
 		var req = {args: {repo: 'myRepo', owner: 'login'}};
 
-		repo_api.check(req, function(error, res) {
+		repo_api.check(req, function() {
             repoStub.restore();
-            done();
+            it_done();
         });
 	});
 
-	it('should update via repo service', function(done){
+	it('should update via repo service', function(it_done){
         var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
-			var r = {owner: 'login', gist: 1234, save: function(done){
+			var r = {owner: 'login', gist: 1234, save: function(cb){
 				assert.equal(this.gist, 'url');
-				done(null, this);
+				cb(null, this);
 			}};
 			done(null, r);
 		});
 
 		var req = {args: {repo: 'myRepo', owner: 'login', gist: 'url'}};
 
-		repo_api.update(req, function(error, res) {
+		repo_api.update(req, function() {
             repoStub.restore();
-            done();
+            it_done();
         });
 	});
 
-	it('should remove via repo service', function(done){
-		var repoStub = sinon.stub(Repo, 'remove', function(args, done){
-			var r = {exec: function(done){
-				done(null);
+	it('should remove via repo service', function(it_done){
+		var repoStub = sinon.stub(Repo, 'remove', function(){
+			var r = {exec: function(cb){
+				cb(null);
 			}};
 			return r;
 		});
 
 		var req = {args: {repo: 'myRepo', owner: 'login', gist: 'url'}};
 
-		repo_api.remove(req, function(error, res) {
+		repo_api.remove(req, function() {
             assert.equal(repoStub.called, 1);
             repoStub.restore();
 
-            done();
+            it_done();
         });
 	});
 

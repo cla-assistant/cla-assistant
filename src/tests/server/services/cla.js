@@ -6,14 +6,13 @@ var sinon = require('sinon');
 //model
 var CLA = require('../../../server/documents/cla').CLA;
 var User = require('../../../server/documents/user').User;
-var Repo = require('../../../server/documents/repo').Repo;
 
 var https = require('https');
 
 //services
 var github = require('../../../server/services/github');
 var repo_service = require('../../../server/services/repo');
-var status = require('../../../server/services/status');
+var statusService = require('../../../server/services/status');
 var url = require('../../../server/services/url');
 
 // service under test
@@ -281,7 +280,7 @@ describe('cla:sign', function() {
 
             done(null, {data: [{number: 1}, {number: 2}]});
         });
-        sinon.stub(status, 'update', function(args){
+        sinon.stub(statusService, 'update', function(args){
             assert(args.signed);
         });
     });
@@ -291,7 +290,7 @@ describe('cla:sign', function() {
         CLA.create.restore();
         repo_service.get.restore();
         github.direct_call.restore();
-        status.update.restore();
+        statusService.update.restore();
         https.request.restore();
     });
 
@@ -305,7 +304,7 @@ describe('cla:sign', function() {
             done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo', owner: {login: 'owner'}} }], save: function(){}});
         });
 
-        cla.sign(test_args, function(error) {
+        cla.sign(test_args, function() {
             // assert(res.pullRequest);
             assert(CLA.create.called);
 
@@ -402,6 +401,7 @@ describe('cla:getSignedCLA', function() {
 
       var args = {user: 'login'};
       cla.getSignedCLA(args, function(err, clas){
+          assert.ifError(err);
           assert.equal(clas.length, 3);
           CLA.find.restore();
           it_done();
