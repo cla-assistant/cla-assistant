@@ -1,3 +1,4 @@
+/*global describe, it, xit, beforeEach, afterEach*/
 // unit test
 var assert = require('assert');
 var sinon = require('sinon');
@@ -36,7 +37,7 @@ var res = {
     }
 };
 
-describe('cla:get', function(done) {
+describe('cla:get', function() {
     afterEach(function(){
         CLA.findOne.restore();
     });
@@ -54,7 +55,7 @@ describe('cla:get', function(done) {
     });
 });
 
-describe('cla:getLastSignature', function(done) {
+describe('cla:getLastSignature', function() {
     afterEach(function(){
         CLA.findOne.restore();
     });
@@ -72,7 +73,7 @@ describe('cla:getLastSignature', function(done) {
     });
 });
 
-describe('cla:check', function(done) {
+describe('cla:check', function() {
     beforeEach(function(){
         sinon.stub(repo_service, 'get', function(args, done){
             // assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login'});
@@ -236,7 +237,7 @@ describe('cla:check', function(done) {
     });
 });
 
-describe('cla:sign', function(done) {
+describe('cla:sign', function() {
     var test_args;
 
     beforeEach(function(){
@@ -349,7 +350,7 @@ describe('cla:sign', function(done) {
     });
 });
 
-describe('cla:create', function(done) {
+describe('cla:create', function() {
     afterEach(function(){
         CLA.create.restore();
     });
@@ -373,7 +374,7 @@ describe('cla:create', function(done) {
     });
 });
 
-describe('cla:getSignedCLA', function(done) {
+describe('cla:getSignedCLA', function() {
       it('should get all clas signed by the user', function(done){
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           assert.deepEqual(args, {user: 'login'});
@@ -411,7 +412,7 @@ describe('cla:getSignedCLA', function(done) {
     });
 });
 
-describe('cla:getAll', function(done) {
+describe('cla:getAll', function() {
     beforeEach(function(){
         sinon.stub(repo_service, 'get', function(args, done){
             assert.equal(args.repo, 'myRepo');
@@ -498,7 +499,7 @@ describe('cla:getAll', function(done) {
 
 
 
-describe('cla:getGist', function(done) {
+describe('cla:getGist', function() {
     it('should extract valid gist ID', function(done){
         sinon.stub(https, 'request', function(options, done) {
             assert.equal(options.path, '/gists/gistId/versionId');

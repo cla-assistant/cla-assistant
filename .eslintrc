@@ -15,9 +15,6 @@ globals:
     module: true
     moment: false
     server: true
-    describe: true
-    it: true
-    xit: true
 
 rules:
     camelcase: 0
