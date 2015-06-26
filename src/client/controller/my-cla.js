@@ -122,7 +122,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         if (claRepo.newCLA) {
             claRepo.noCLA = false;
 
-            if($scope.newCLA.html_url !== claRepo.gist_url){
+            if(claRepo.newCLA.html_url !== claRepo.gist_url){
               claRepo.showCLA = true;
             } else {
               claRepo.showCLA = false;
