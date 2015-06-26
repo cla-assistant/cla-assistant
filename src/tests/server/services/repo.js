@@ -1,3 +1,5 @@
+/*global describe, it, beforeEach, afterEach*/
+
 // unit test
 var assert = require('assert');
 var sinon = require('sinon');
@@ -11,100 +13,6 @@ var url = require('../../../server/services/url');
 
 // service under test
 var repo = require('../../../server/services/repo');
-
-describe('repo:create', function(done) {
-    afterEach(function(){
-        Repo.create.restore();
-    });
-
-    it('should create repo entry ', function(done){
-        sinon.stub(Repo, 'create', function(args, done){
-            assert(args);
-            assert(args.gist);
-            assert(args.owner);
-            done(null, {repo: args.repo});
-        });
-
-        var args = {repo: 'myRepo', user: 'login', owner: 'owner', gist: 'url/gistId', token: 'abc'};
-        repo.create(args, function(err, obj){
-            assert.ifError(err);
-            done();
-        });
-    });
-});
-
-describe('repo:check', function(done) {
-    afterEach(function(){
-        Repo.findOne.restore();
-    });
-
-    it('should check repo entry', function(done){
-        sinon.stub(Repo, 'findOne', function(args, done){
-            assert(args);
-            assert(args.repo);
-            assert(args.owner);
-            done(null, {});
-        });
-
-        var args = {repo: 'myRepo', owner: 'owner'};
-        repo.check(args, function(err, obj){
-            assert.ifError(err);
-            assert(obj);
-            done();
-        });
-    });
-});
-
-describe('repo:addPullRequest', function(done) {
-    var test_repo;
-
-    beforeEach(function(){
-		test_repo = {token: 'abc', save: function(){}};
-
-		sinon.stub(Repo, 'findOne', function(args, done){
-			done(null, test_repo);
-		});
-		sinon.stub(github, 'direct_call', function(args, done){
-			assert(args.token);
-			assert.equal(args.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
-			done(null, {data: testData_commits});
-		});
-    });
-
-    afterEach(function(){
-        Repo.findOne.restore();
-        github.direct_call.restore();
-    });
-
-    it('should get list of committers for a pull request', function(done){
-		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
-
-		repo.getPRCommitters(args, function(err, data){
-			assert.equal(data.length, 2);
-			assert.equal(data[0].name, 'octocat');
-			assert(Repo.findOne.called);
-			assert(github.direct_call.called);
-		});
-
-		done();
-    });
-
-    it('should handle error', function(done){
-		github.direct_call.restore();
-		sinon.stub(github, 'direct_call', function(args, done){
-			done(null, {data: {message: 'Any Error message'}});
-		});
-		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
-
-		repo.getPRCommitters(args, function(err, data){
-			assert(err);
-			assert(Repo.findOne.called);
-			assert(github.direct_call.called);
-		});
-
-		done();
-    });
-});
 
 
 var testData_commits = [
@@ -316,3 +224,98 @@ var testData_commits = [
     ]
   }
 ];
+
+describe('repo:create', function() {
+    afterEach(function(){
+        Repo.create.restore();
+    });
+
+    it('should create repo entry ', function(it_done){
+        sinon.stub(Repo, 'create', function(args, done){
+            assert(args);
+            assert(args.gist);
+            assert(args.owner);
+            done(null, {repo: args.repo});
+        });
+
+        var args = {repo: 'myRepo', user: 'login', owner: 'owner', gist: 'url/gistId', token: 'abc'};
+        repo.create(args, function(err){
+            assert.ifError(err);
+            it_done();
+        });
+    });
+});
+
+describe('repo:check', function() {
+    afterEach(function(){
+        Repo.findOne.restore();
+    });
+
+    it('should check repo entry', function(it_done){
+        sinon.stub(Repo, 'findOne', function(args, done){
+            assert(args);
+            assert(args.repo);
+            assert(args.owner);
+            done(null, {});
+        });
+
+        var args = {repo: 'myRepo', owner: 'owner'};
+        repo.check(args, function(err, obj){
+            assert.ifError(err);
+            assert(obj);
+            it_done();
+        });
+    });
+});
+
+describe('repo:addPullRequest', function() {
+    var test_repo;
+
+    beforeEach(function(){
+		test_repo = {token: 'abc', save: function(){}};
+
+		sinon.stub(Repo, 'findOne', function(args, done){
+			done(null, test_repo);
+		});
+		sinon.stub(github, 'direct_call', function(args, done){
+			assert(args.token);
+			assert.equal(args.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
+			done(null, {data: testData_commits});
+		});
+    });
+
+    afterEach(function(){
+        Repo.findOne.restore();
+        github.direct_call.restore();
+    });
+
+    it('should get list of committers for a pull request', function(it_done){
+		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
+
+		repo.getPRCommitters(args, function(err, data){
+			assert.ifError(err);
+            assert.equal(data.length, 2);
+			assert.equal(data[0].name, 'octocat');
+			assert(Repo.findOne.called);
+			assert(github.direct_call.called);
+		});
+
+		it_done();
+    });
+
+    it('should handle error', function(it_done){
+		github.direct_call.restore();
+		sinon.stub(github, 'direct_call', function(args, done){
+			done(null, {data: {message: 'Any Error message'}});
+		});
+		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
+
+		repo.getPRCommitters(args, function(err){
+			assert(err);
+			assert(Repo.findOne.called);
+			assert(github.direct_call.called);
+		});
+
+		it_done();
+    });
+});

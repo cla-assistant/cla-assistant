@@ -7,7 +7,7 @@ globals:
     $: false
     angular: false
     chunk: true
-    config: false
+    config: true
     filters: true
     ga: false
     io: false
@@ -28,7 +28,7 @@ rules:
     no-undef: 1
     no-underscore-dangle: 0
     no-unused-expressions: 1
-    no-unused-vars: 0
+    no-unused-vars: 1
     no-use-before-define: [1, nofunc]
     quotes: [1, single]
     semi: 2
