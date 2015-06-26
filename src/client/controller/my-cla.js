@@ -119,16 +119,16 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getVersionView = function(claRepo) {
-        if ($scope.newCLA) {
-            $scope.noCLA = false;
+        if (claRepo.newCLA) {
+            claRepo.noCLA = false;
 
             if($scope.newCLA.html_url !== claRepo.gist_url){
-              $scope.showCLA = true;
+              claRepo.showCLA = true;
             } else {
-              $scope.showCLA = false;
+              claRepo.showCLA = false;
             }
         } else {
-            $scope.noCLA = true;
+            claRepo.noCLA = true;
         }
           var modal = $modal.open({
               templateUrl: '/modals/templates/versionView.html',
@@ -136,8 +136,8 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
               scope: $scope,
               resolve: {
                   cla: function(){ return claRepo; },
-                  noCLA: function(){ return $scope.noCLA; },
-                  showCLA: function(){ return $scope.showCLA; }
+                  noCLA: function(){ return claRepo.noCLA; },
+                  showCLA: function(){ return claRepo.showCLA; }
               }
           });
       };
@@ -148,7 +148,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
             owner: claRepo.owner
           }, function (err, data){
               if(!err && data.value){
-                $scope.newCLA = data.value;
+                claRepo.newCLA = data.value;
               }
           });
       }
