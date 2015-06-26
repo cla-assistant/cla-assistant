@@ -317,12 +317,8 @@ describe('cla:sign', function() {
         callbacks.end();
     });
 
-<<<<<<< HEAD
-    it('should do nothing if user has already signed', function(done){
 
-=======
-    it('should do nothing if user has allready signed', function(it_done){
->>>>>>> origin/master
+    it('should do nothing if user has already signed', function(it_done){
         test_args.user = 'signedUser';
 
         cla.sign(test_args, function() {
@@ -375,16 +371,12 @@ describe('cla:create', function() {
     });
 });
 
-<<<<<<< HEAD
 describe('cla:getSignedCLA', function(done) {
       it('should get all clas signed by the user but only one per repo (linked or not)', function(done){
         sinon.stub(repo_service, 'all', function(done){
           done(null, [{repo: 'repo1', gist_url: 'gist_url'}, {repo: 'repo2', gist_url: 'gist_url'}]);
         });
-=======
-describe('cla:getSignedCLA', function() {
-      it('should get all clas signed by the user', function(it_done){
->>>>>>> origin/master
+
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           var listOfAllCla = [
             {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
@@ -395,7 +387,6 @@ describe('cla:getSignedCLA', function() {
           done(null, listOfAllCla);
         });
 
-<<<<<<< HEAD
         var args = {user: 'login'};
         cla.getSignedCLA(args, function(err, clas){
             assert.ifError(err);
@@ -434,34 +425,6 @@ describe('cla:getSignedCLA', function() {
             repo_service.all.restore();
             done();
         });
-=======
-      var args = {user: 'login'};
-      cla.getSignedCLA(args, function(){
-          CLA.find.restore();
-          it_done();
-      });
-    });
-
-    it('should select last cla per Repo', function(it_done){
-      sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
-        assert.deepEqual(args, {user: 'login'});
-        var listOfAllCla = [
-          {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2'},
-          {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1'}
-        ];
-
-        done(null, listOfAllCla);
-      });
-
-      var args = {user: 'login'};
-      cla.getSignedCLA(args, function(err, clas){
-          assert.ifError(err);
-          assert.equal(clas.length, 3);
-          CLA.find.restore();
-          it_done();
->>>>>>> origin/master
       });
 });
 
