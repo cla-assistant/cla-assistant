@@ -9,6 +9,12 @@ var github = require('../services/github');
 var url = require('../services/url');
 
 module.exports = {
+    all: function(done) {
+      Repo.find({}, function(err, repos){
+        done(err, repos);
+      });
+    },
+
     check: function(args, done) {
 		Repo.findOne({repo: args.repo, owner: args.owner}, function(err, repo){
             done(err, !!repo);

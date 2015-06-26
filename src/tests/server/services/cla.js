@@ -319,7 +319,7 @@ describe('cla:sign', function(done) {
         callbacks.end();
     });
 
-    it('should do nothing if user has allready signed', function(done){
+    it('should do nothing if user has already signed', function(done){
 
         test_args.user = 'signedUser';
 
@@ -374,41 +374,59 @@ describe('cla:create', function(done) {
 });
 
 describe('cla:getSignedCLA', function(done) {
-      it('should get all clas signed by the user', function(done){
+      it('should get all clas signed by the user but only one per repo (linked or not)', function(done){
+        sinon.stub(repo_service, 'all', function(done){
+          done(null, [{repo: 'repo1', gist_url: 'gist_url'}, {repo: 'repo2', gist_url: 'gist_url'}]);
+        });
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
-          assert.deepEqual(args, {user: 'login'});
-          assert.deepEqual(selectionCriteria, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'});
-          assert.deepEqual(sortCriteria, {sort: {'created_at': -1}});
-          done(null, []);
+          var listOfAllCla = [
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1'},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2'},
+            {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1'}
+          ];
+          done(null, listOfAllCla);
         });
 
-      var args = {user: 'login'};
-      cla.getSignedCLA(args, function(){
-          CLA.find.restore();
-          done();
-      });
-    });
-
-    it('should select last cla per Repo', function(done){
-      sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
-        assert.deepEqual(args, {user: 'login'});
-        var listOfAllCla = [
-          {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-          {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2'},
-          {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1'}
-        ];
-
-        done(null, listOfAllCla);
+        var args = {user: 'login'};
+        cla.getSignedCLA(args, function(err, clas){
+            assert.ifError(err);
+            assert.equal(clas.length, 3);
+            assert.equal(clas[2].repo, 'repo3');
+            CLA.find.restore();
+            repo_service.all.restore();
+            done();
+        });
       });
 
-      var args = {user: 'login'};
-      cla.getSignedCLA(args, function(err, clas){
-          assert.equal(clas.length, 3);
-          CLA.find.restore();
-          done();
+      it('should select cla for the actual linked gist per repo even if it is signed earlier than others', function(done){
+        sinon.stub(repo_service, 'all', function(done){
+          done(null, [{repo: 'repo1', gist_url: 'gist_url2'}, {repo: 'repo2', gist_url: 'gist_url'}, {repo: 'repo3', gist_url: 'gist_url'}]);
+        });
+        sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
+          var listOfAllCla = [
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z'},
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z'},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z'}
+          ];
+          if (args.$or) {
+            done(null, [{repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z'},
+                        {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z'}]);
+          }else{
+            done(null, listOfAllCla);
+          }
+        });
+
+        var args = {user: 'login'};
+        cla.getSignedCLA(args, function(err, clas){
+            assert.ifError(err);
+            assert.equal(clas[0].gist_url, 'gist_url2');
+            assert.equal(CLA.find.callCount, 2);
+            CLA.find.restore();
+            repo_service.all.restore();
+            done();
+        });
       });
-    });
 });
 
 describe('cla:getAll', function(done) {

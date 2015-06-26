@@ -88,13 +88,19 @@ module.exports = function(){
 			});
 		},
 		getRepo: function(args, done) {
+			var deferred = q.defer();
 			repoService.get(args, function(err, repo){
-				done(err, repo);
+				if (!err && repo) {
+					deferred.resolve(repo);
+				}
+				if(typeof done === 'function'){
+					done(err, repo);
+				}
 			});
+			return deferred.promise;
 		},
 
 		get: function(args, done) {
-
 			var deferred = q.defer();
 			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version}, function(err, cla){
 				deferred.resolve();
@@ -103,10 +109,18 @@ module.exports = function(){
 			return deferred.promise;
 		},
 
+		//Get last signature of the user for given repository and gist url
 		getLastSignature: function(args, done) {
-			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'gist_url': '*', 'gist_version': '*'}, {select: {'created_at': -1}}, function(err, cla){
-				done(err, cla);
+			var deferred = q.defer();
+			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {select: {'created_at': -1}}, function(err, cla){
+				if (!err && cla) {
+					deferred.resolve(cla);
+				}
+				if(typeof done === 'function'){
+					done(err, cla);
+				}
 			});
+			return deferred.promise;
 		},
 
 
@@ -173,19 +187,74 @@ module.exports = function(){
 			});
 		},
 
+		//Get list of signed CLAs for all repos the user has contributed to
 		getSignedCLA: function(args, done){
-			CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+			var selector = [];
+			repoService.all(function(err, repos){
+				repos.forEach(function(repo){
+					selector.push({
+						user: args.user,
+						repo: repo.repo,
+						gist_url: repo.gist
+					});
+				});
 				var repoList = [];
 				var uniqueClaList = [];
-				clas.forEach(function(cla){
-					if (repoList.indexOf(cla.repo) < 0) {
-							repoList.push(cla.repo);
-							uniqueClaList.push(cla);
-					}
+				CLA.find({$or: selector}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+					clas.forEach(function(cla){
+						if(repoList.indexOf(cla.repo) < 0){
+								repoList.push(cla.repo);
+								uniqueClaList.push(cla);
+						}
+					});
+					CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+						clas.forEach(function(cla){
+							if(repoList.indexOf(cla.repo) < 0){
+									repoList.push(cla.repo);
+									uniqueClaList.push(cla);
+							}
+						});
+						done(err, uniqueClaList);
+					});
 				});
-				done(err, uniqueClaList);
-				return;
 			});
+
+
+
+
+
+
+
+			// var that = this;
+			// var deferred = q.defer();
+			// CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+			// 	var repoList = [];
+			// 	var uniqueClaList = [];
+			// 	var promises = [];
+			// 		clas.forEach(function(cla){
+			// 			if(repoList.indexOf(cla.repo) < 0){
+			// 				var promise = that.getRepo({repo: cla.repo,	owner: cla.owner});
+			// 				promise.then(function(repo){
+			// 						var claPromise = that.getLastSignature({repo: repo.repo, owner: repo.owner, user: args.user, gist_url: repo.gist});
+			// 						claPromise.then(function(repoCLA){
+			// 								repoList.push(repoCLA.repo);
+			// 								uniqueClaList.push(repoCLA);
+			// 								console.log('claPromise ', repoCLA);
+			// 						});
+			// 						promises.push(claPromise);
+			// 				}, function(){
+			// 						repoList.push(cla.repo);
+			// 						uniqueClaList.push(cla);
+			// 				});
+			// 				promises.push(promise);
+			// 			}
+			// 		});
+			// 		q.all(promises).then(function(data){
+			// 							console.log('resolve promises, ', data);
+			// 							console.log('resolve, ', uniqueClaList);
+			// 			done(null, uniqueClaList);
+			// 		});
+			// });
 		},
 
 		getAll: function(args, done) {
