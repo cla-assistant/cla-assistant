@@ -1,3 +1,6 @@
+/*jshiint expr:true*/
+/*global angular, sinon, describe, xit, it, beforeEach, afterEach*/
+
 angular.module('app');
 describe('CLA Controller', function() {
     var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, repoExists, claSigned, claText, _HUBService;

@@ -1,6 +1,52 @@
+/*jshiint expr:true*/
+/*global angular, sinon, describe, xit, it, beforeEach, afterEach*/
+
 describe('Settings Controller', function() {
 
-    var scope, rootScope, httpBackend, createCtrl, HUB, settingsCtrl, stateParams, modal;
+    var scope, httpBackend, createCtrl, settingsCtrl, stateParams, modal;
+
+    var testData = {
+      'url': 'https://api.github.com/gists/10a5479e1ab38ec63566',
+      'owner': {
+        'login': 'octocat'
+      },
+      'user': null,
+      'files': {
+        'ring.erl': {
+          'content': 'contents of gist'
+        }
+      },
+      'created_at': '2010-04-14T02:15:15Z',
+      'updated_at': '2014-05-14T02:15:15Z',
+      'history': [
+        {
+          'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d462f',
+          'version': '57a7f021a713b1c5a6a199b54cc514735d2d462f',
+          'user': {
+            'login': 'octocat'
+          },
+          'change_status': {
+            'deletions': 2,
+            'additions': 18,
+            'total': 20
+          },
+          'committed_at': '2014-05-14T02:15:15Z'
+        },
+        {
+          'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d4123',
+          'version': '57a7f021a713b1c5a6a199b54cc514735d2d4123',
+          'user': {
+            'login': 'octocat'
+          },
+          'change_status': {
+            'deletions': 0,
+            'additions': 180,
+            'total': 180
+          },
+          'committed_at': '2010-04-14T02:15:15Z'
+        }
+      ]
+    };
 
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
@@ -10,19 +56,12 @@ describe('Settings Controller', function() {
         httpBackend = $injector.get('$httpBackend');
 
         scope = $rootScope.$new();
-        rootScope = $rootScope;
         modal = $modal;
         scope.user = {value: {admin: false}};
         stateParams = {user: 'login', repo: 'myRepo'};
         scope.repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/gistId'};
-        // scope.$parent.getSignatures = function(repo){
-        //   return {then: function(cb){
-        //     cb({value: [{user: 'user1'}, {user: 'user2'}]});
-        //   }};
-        // };
 
         createCtrl = function() {
-
             var ctrl = $controller('SettingsCtrl', {
                 $scope: scope,
                 $stateParams: stateParams
@@ -215,60 +254,6 @@ describe('Settings Controller', function() {
 
             (!!settingsCtrl.scope.gist.url).should.not.be.ok;
         });
-
-        // it('should not do any http call if gist url is not valid', function(){
-        //     scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
-        //     settingsCtrl = createCtrl();
-
-        //     scope.repo.gist = 'https://google.com';
-        //     settingsCtrl.scope.update();
-
-        //     (!!settingsCtrl.scope.repo.active).should.not.be.ok;
-        //     (!!settingsCtrl.scope.gist.id).should.not.be.ok;
-        // });
     });
 
 });
-
-var testData = {
-  'url': 'https://api.github.com/gists/10a5479e1ab38ec63566',
-  'owner': {
-    'login': 'octocat'
-  },
-  'user': null,
-  'files': {
-    'ring.erl': {
-      'content': 'contents of gist'
-    }
-  },
-  'created_at': '2010-04-14T02:15:15Z',
-  'updated_at': '2014-05-14T02:15:15Z',
-  'history': [
-    {
-      'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d462f',
-      'version': '57a7f021a713b1c5a6a199b54cc514735d2d462f',
-      'user': {
-        'login': 'octocat'
-      },
-      'change_status': {
-        'deletions': 2,
-        'additions': 18,
-        'total': 20
-      },
-      'committed_at': '2014-05-14T02:15:15Z'
-    },
-    {
-      'url': 'https://api.github.com/gists/9cea613eaae831f8aa62/57a7f021a713b1c5a6a199b54cc514735d2d4123',
-      'version': '57a7f021a713b1c5a6a199b54cc514735d2d4123',
-      'user': {
-        'login': 'octocat'
-      },
-      'change_status': {
-        'deletions': 0,
-        'additions': 180,
-        'total': 180
-      },
-      'committed_at': '2010-04-14T02:15:15Z'
-    }
-  ]
-};
