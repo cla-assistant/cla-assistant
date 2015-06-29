@@ -371,8 +371,8 @@ describe('cla:create', function() {
     });
 });
 
-describe('cla:getSignedCLA', function(done) {
-      it('should get all clas signed by the user but only one per repo (linked or not)', function(done){
+describe('cla:getSignedCLA', function() {
+      it('should get all clas signed by the user but only one per repo (linked or not)', function(it_done){
         sinon.stub(repo_service, 'all', function(done){
           done(null, [{repo: 'repo1', gist_url: 'gist_url'}, {repo: 'repo2', gist_url: 'gist_url'}]);
         });
@@ -394,11 +394,11 @@ describe('cla:getSignedCLA', function(done) {
             assert.equal(clas[2].repo, 'repo3');
             CLA.find.restore();
             repo_service.all.restore();
-            done();
+            it_done();
         });
       });
 
-      it('should select cla for the actual linked gist per repo even if it is signed earlier than others', function(done){
+      it('should select cla for the actual linked gist per repo even if it is signed earlier than others', function(it_done){
         sinon.stub(repo_service, 'all', function(done){
           done(null, [{repo: 'repo1', gist_url: 'gist_url2'}, {repo: 'repo2', gist_url: 'gist_url'}, {repo: 'repo3', gist_url: 'gist_url'}]);
         });
@@ -423,7 +423,7 @@ describe('cla:getSignedCLA', function(done) {
             assert.equal(CLA.find.callCount, 2);
             CLA.find.restore();
             repo_service.all.restore();
-            done();
+            it_done();
         });
       });
 });
