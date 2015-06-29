@@ -69,10 +69,14 @@ module.exports = {
 		});
 	},
 
+
+	//Get list of signed CLAs for all repos the authenticated user has contributed to
+	//Prameters: none (user should be taken)
 	getSignedCLA: function(req, done){
 		cla.getSignedCLA(req.args, done);
 	},
 
+	//Get users last signature for given repository (if repo is currently linked)
 	getLastSignature: function(req, done){
 		cla.getRepo(req.args, function(err, repo){
 			if (err || !repo) {
