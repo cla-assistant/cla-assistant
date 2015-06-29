@@ -1,6 +1,9 @@
+/*global describe, it, beforeEach, afterEach*/
+/*jshiint expr:true*/
+
 describe('Home Controller', function() {
 
-    var scope, rootScope, httpBackend, createCtrl, HUB, homeCtrl, githubResponse;
+    var scope, httpBackend, createCtrl, homeCtrl, githubResponse;
 
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
