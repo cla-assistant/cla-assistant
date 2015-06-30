@@ -87,8 +87,8 @@ img.step-icon{
 //   margin: 20px;
 // }
 //
-a .lp-signin:hover, a .lp-signin:focus {
-  color: $text-color;
+a.lp-signin:hover, a.lp-signin:focus {
+  color: $text-invert;
 }
 
 /*.feature-title-add, .feature-title-remove,
