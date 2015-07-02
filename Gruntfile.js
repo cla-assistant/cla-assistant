@@ -82,7 +82,6 @@ module.exports = function(grunt) {
     };
 
     // Initialize configuration
-    grunt.loadNpmTasks('grunt-autowatch');
     grunt.initConfig(config);
 
     require('load-grunt-tasks')(grunt);
