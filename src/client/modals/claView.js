@@ -20,12 +20,12 @@ module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, 
 							gist_url: $scope.claObj.gist_url,
 							gist_version: $scope.claObj.gist_version
 						}
-				}, function(err, cla) {
+				}, function(err, gist) {
 						if(!err) {
-								$scope.claText = cla.value.raw;
+								$scope.claText = gist.value.raw;
 						}
 				});
-		};
+		}
 
 		getCLA().then(function(data){
 			$scope.cla = $sce.trustAsHtml(data.value.raw);
@@ -39,7 +39,7 @@ module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, 
     };
 
 })
-.directive('clacontent', ['$window', function($window){
+.directive('clacontent', [function(){
     return {
         link: function(scope, element, attrs){
 						scope.$watch(attrs.clacontent, function(content){
@@ -49,7 +49,7 @@ module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, 
 										if (linkIcons.hasOwnProperty(index)){
 											angular.element(linkIcons[index]).removeClass('octicon octicon-link');
 										}
-									};
+									}
 								}
 						});
         }

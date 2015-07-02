@@ -1,16 +1,13 @@
 // models
 require('../documents/cla');
-require('../documents/user');
+// require('../documents/user');
 var https = require('https');
 var q = require('q');
-var User = require('mongoose').model('User');
 var CLA = require('mongoose').model('CLA');
 
 //services
-var github = require('../services/github');
-var url = require('../services/url');
 var repoService = require('../services/repo');
-var status = require('../services/status');
+var logger = require('../services/logger');
 
 module.exports = function(){
 	var claService;
@@ -25,6 +22,9 @@ module.exports = function(){
 			user_map.not_signed.push(args.user);
 
 			promises.push(claService.get(args, function(err, cla){
+				if (err) {
+					logger.warn(err);
+				}
 				if (!cla) {
 					all_signed = false;
 				} else {
@@ -127,9 +127,9 @@ module.exports = function(){
 		check: function(args, done){
 			var self = this;
 
-			this.getRepo(args, function(err, repo){
-				if (err || !repo || !repo.gist) {
-					done(err, false);
+			this.getRepo(args, function(e, repo){
+				if (e || !repo || !repo.gist) {
+					done(e, false);
 					return;
 				}
 
@@ -143,12 +143,15 @@ module.exports = function(){
 					args.gist_version = gist.history[0].version;
 
 					if (args.user) {
-						self.get(args, function(err, cla){
-							done(err, !!cla);
+						self.get(args, function(error, cla){
+							done(error, !!cla);
 						});
 					}
 					else if (args.number) {
-						repoService.getPRCommitters(args, function(err, committers){
+						repoService.getPRCommitters(args, function(error, committers){
+							if (error) {
+								logger.warn(error);
+							}
 							checkAll(committers, args).then(function(result){
 								done(null, result.signed, result.user_map);
 							});
@@ -159,12 +162,11 @@ module.exports = function(){
 		},
 
 		sign: function(args, done) {
-			var now = new Date();
 			var self = this;
 
-			self.check(args, function(err, signed){
-				if (err || signed) {
-					done(err);
+			self.check(args, function(e, signed){
+				if (e || signed) {
+					done(e);
 					return;
 				}
 
@@ -176,12 +178,12 @@ module.exports = function(){
 
 					args.gist_url = repo.gist;
 
-					self.create(args, function(err){
-						if (err) {
-							done(err);
+					self.create(args, function(error){
+						if (error) {
+							done(error);
 							return;
 						}
-						done(err, 'done');
+						done(error, 'done');
 					});
 				});
 			});
@@ -190,7 +192,26 @@ module.exports = function(){
 		//Get list of signed CLAs for all repos the user has contributed to
 		getSignedCLA: function(args, done){
 			var selector = [];
-			repoService.all(function(err, repos){
+			var findCla = function(query, repoList, claList, cb){
+				CLA.find(query, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+					if (err) {
+						logger.warn(err);
+					} else {
+						clas.forEach(function(cla){
+							if(repoList.indexOf(cla.repo) < 0){
+								repoList.push(cla.repo);
+								claList.push(cla);
+							}
+						});
+					}
+					cb();
+				});
+			};
+
+			repoService.all(function(e, repos){
+				if (e) {
+					logger.warn(e);
+				}
 				repos.forEach(function(repo){
 					selector.push({
 						user: args.user,
@@ -200,61 +221,12 @@ module.exports = function(){
 				});
 				var repoList = [];
 				var uniqueClaList = [];
-				CLA.find({$or: selector}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
-					clas.forEach(function(cla){
-						if(repoList.indexOf(cla.repo) < 0){
-								repoList.push(cla.repo);
-								uniqueClaList.push(cla);
-						}
-					});
-					CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
-						clas.forEach(function(cla){
-							if(repoList.indexOf(cla.repo) < 0){
-									repoList.push(cla.repo);
-									uniqueClaList.push(cla);
-							}
-						});
-						done(err, uniqueClaList);
+				findCla({$or: selector}, repoList, uniqueClaList, function(){
+					findCla({user: args.user}, repoList, uniqueClaList, function(){
+						done(null, uniqueClaList);
 					});
 				});
 			});
-
-
-
-
-
-
-
-			// var that = this;
-			// var deferred = q.defer();
-			// CLA.find({user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
-			// 	var repoList = [];
-			// 	var uniqueClaList = [];
-			// 	var promises = [];
-			// 		clas.forEach(function(cla){
-			// 			if(repoList.indexOf(cla.repo) < 0){
-			// 				var promise = that.getRepo({repo: cla.repo,	owner: cla.owner});
-			// 				promise.then(function(repo){
-			// 						var claPromise = that.getLastSignature({repo: repo.repo, owner: repo.owner, user: args.user, gist_url: repo.gist});
-			// 						claPromise.then(function(repoCLA){
-			// 								repoList.push(repoCLA.repo);
-			// 								uniqueClaList.push(repoCLA);
-			// 								console.log('claPromise ', repoCLA);
-			// 						});
-			// 						promises.push(claPromise);
-			// 				}, function(){
-			// 						repoList.push(cla.repo);
-			// 						uniqueClaList.push(cla);
-			// 				});
-			// 				promises.push(promise);
-			// 			}
-			// 		});
-			// 		q.all(promises).then(function(data){
-			// 							console.log('resolve promises, ', data);
-			// 							console.log('resolve, ', uniqueClaList);
-			// 			done(null, uniqueClaList);
-			// 		});
-			// });
 		},
 
 		getAll: function(args, done) {
@@ -265,15 +237,18 @@ module.exports = function(){
 					done(err, clas);
 				});
 			} else {
-				CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url}, function(err, clas){
+				CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url}, function(e, clas){
 					if (!clas) {
-						done(err, clas);
+						done(e, clas);
 						return;
 					}
 					self.getRepo(args, function(err, repo){
-						self.getGist(repo, function(err, gist){
+						if (err) {
+							logger.warn(err);
+						}
+						self.getGist(repo, function(error, gist){
 							if (!gist) {
-								done(err, gist);
+								done(error, gist);
 								return;
 							}
 							clas.forEach(function(cla){
@@ -281,7 +256,7 @@ module.exports = function(){
 									valid.push(cla);
 								}
 							});
-							done(err, valid);
+							done(error, valid);
 						});
 					});
 				});

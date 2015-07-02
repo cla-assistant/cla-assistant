@@ -1,15 +1,9 @@
-var merge = require('merge');
-
-// models
-var User = require('mongoose').model('User');
-var Repo = require('mongoose').model('Repo');
-
 // services
-var github = require('../services/github');
 var pullRequest = require('../services/pullRequest');
 var status = require('../services/status');
 var cla = require('../services/cla');
 var repoService = require('../services/repo');
+var log = require('../services/logger');
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,9 +11,7 @@ var repoService = require('../services/repo');
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 module.exports = function(req, res) {
-	var pull_request = req.args.pull_request;
-
-	console.log(req.args.action);
+	log.debug(req.args.action);
 	if( ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
 		var args = {
 			owner: req.args.repository.owner.login,
@@ -45,9 +37,12 @@ module.exports = function(req, res) {
 		//         notification_args
 		// );
 
-		repoService.getPRCommitters(args, function(err, committers){
-			if(!err && committers && committers.length > 0){
+		repoService.getPRCommitters(args, function(e, committers){
+			if(!e && committers && committers.length > 0){
 				cla.check(args, function(err, signed, user_map){
+					if (err) {
+						log.warn(err);
+					}
 					args.signed = signed;
 					status.update(args);
 					if (!signed) {

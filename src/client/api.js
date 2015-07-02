@@ -33,7 +33,9 @@ module.factory('$RAW', ['$q', '$http',
                         // parse result (again)
                         try {
                             res = JSON.parse(res);
-                        } catch (ex) {}
+                        } catch (ex) {
+                            // doNothing
+                        }
                         // yield result
                         callback(null, res, new Date() - now);
                     })
@@ -49,25 +51,11 @@ module.factory('$RAW', ['$q', '$http',
                     header.Authorization = 'token ' + user_token;
                 }
                 $http.get(url, {'headers': header}).
-                    success(function(data, status){
+                    success(function(data){
                         deferred.resolve(data);
                         // callback(null, data, status);
                     })
-                    .error(function(err, status){
-                        deferred.reject(err);
-                        // callback(err, null, status);
-                    });
-
-                return deferred.promise;
-            },
-            post: function(url, d, user_token) {
-                var deferred = $q.defer();
-                $http.post(url, d).
-                    success(function(data, status){
-                        deferred.resolve(data);
-                        // callback(null, data, status);
-                    })
-                    .error(function(err, status){
+                    .error(function(err){
                         deferred.reject(err);
                         // callback(err, null, status);
                     });

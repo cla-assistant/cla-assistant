@@ -3,131 +3,13 @@ var assert = require('assert');
 var sinon = require('sinon');
 
 // services
-var github = require('../../../server/services/github');
 var pullRequest = require('../../../server/services/pullRequest');
 var status = require('../../../server/services/status');
 var cla = require('../../../server/services/cla');
 var repoService = require('../../../server/services/repo');
 
-//api
-var github_api = require('../../../server/api/github');
-
-//model
-var Repo = require('../../../server/documents/repo').Repo;
-var User = require('../../../server/documents/user').User;
-var CLA = require('../../../server/documents/cla').CLA;
-
 // webhook under test
 var pull_request = require('../../../server/webhooks/pull_request');
-
-
-describe('webhook pull request', function(test_done) {
-  var res = {status: function(status){
-    assert.equal(status, 200);
-    return {send: function(result){}};
-  }};
-
-  var test_req;
-  var test_repo;
-  var test_user;
-
-  beforeEach(function(){
-    test_req = {args: {
-      pull_request: testData,
-      repository: testData.base.repo,
-      number: testData.number,
-      action: 'opened'
-    }};
-
-    test_repo = {repo: test_req.args.repository.name, owner: test_req.args.repository.owner.login, token: 'abc', pull_req: [], save: function(){}};
-
-    sinon.stub(cla, 'check', function(args, done){
-      assert(args.number);
-      assert(!args.user);
-      done(null, false);
-    });
-
-    sinon.stub(repoService, 'getPRCommitters', function(args, done){
-      assert(args.repo);
-      assert(args.owner);
-      assert(args.number);
-      done(null, [{id: 1, name: 'login'}]);
-    });
-
-    sinon.stub(pullRequest, 'badgeComment', function(){});
-    sinon.stub(status, 'update', function(args){
-      assert(args.owner);
-      assert(args.repo);
-      assert(args.number);
-      assert(args.signed !== undefined);
-    });
-
-  });
-
-  afterEach(function(){
-    repoService.getPRCommitters.restore();
-
-    pullRequest.badgeComment.restore();
-    status.update.restore();
-    cla.check.restore();
-	});
-
-  it('should update status of pull request if not signed', function(it_done){
-    pull_request(test_req, res);
-    assert(pullRequest.badgeComment.called);
-
-    it_done();
-  });
-
-  it('should provide user_map to badgeComment', function(it_done){
-      cla.check.restore();
-      pullRequest.badgeComment.restore();
-
-      sinon.stub(cla, 'check', function(args, done){
-          done(null, false, {not_signed: ['test_user']});
-      });
-      sinon.stub(pullRequest, 'badgeComment', function(owner, repo, repoId, prNumber, signed, user_map){
-          assert(user_map.not_signed);
-      });
-
-      pull_request(test_req, res);
-      assert(pullRequest.badgeComment.called);
-      it_done();
-  });
-
-  it('should update status of pull request if signed', function(it_done){
-    cla.check.restore();
-    sinon.stub(cla, 'check', function(args, done){
-      done(null, true);
-    });
-
-    pull_request(test_req, res);
-    assert(!pullRequest.badgeComment.called);
-    assert(status.update.called);
-    it_done();
-  });
-
-	it('should update status of pull request if not signed and new user', function(it_done){
-		test_user = null;
-
-		pull_request(test_req, res);
-		assert(cla.check.called);
-		it_done();
-	});
-
-  it('should do nothing if the pull request has no committers', function(it_done){
-    repoService.getPRCommitters.restore();
-    sinon.stub(repoService, 'getPRCommitters', function(args, done){
-      done(null, []);
-    });
-
-    pull_request(test_req, res);
-
-    assert(!cla.check.called);
-
-    it_done();
-  });
-});
 
 var testData = {
   'id': 1,
@@ -353,143 +235,104 @@ var testData = {
   'changed_files': 5
 };
 
-var testData_commits = [
-  {
-    'url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'html_url': 'https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'comments_url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments',
-    'commit': {
-      'url': 'https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-      'author': {
-        'name': 'Monalisa Octocat',
-        'email': 'support@github.com',
-        'date': '2011-04-14T16:00:49Z'
-      },
-      'committer': {
-        'name': 'Monalisa Octocat',
-        'email': 'support@github.com',
-        'date': '2011-04-14T16:00:49Z'
-      },
-      'message': 'Fix all the bugs',
-      'tree': {
-        'url': 'https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-        'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e'
-      },
-      'comment_count': 0
-    },
-    'author': {
-      'login': 'octocat',
-      'id': 1,
-      'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
-      'gravatar_id': '',
-      'url': 'https://api.github.com/users/octocat',
-      'html_url': 'https://github.com/octocat',
-      'followers_url': 'https://api.github.com/users/octocat/followers',
-      'following_url': 'https://api.github.com/users/octocat/following{/other_user}',
-      'gists_url': 'https://api.github.com/users/octocat/gists{/gist_id}',
-      'starred_url': 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
-      'subscriptions_url': 'https://api.github.com/users/octocat/subscriptions',
-      'organizations_url': 'https://api.github.com/users/octocat/orgs',
-      'repos_url': 'https://api.github.com/users/octocat/repos',
-      'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
-      'received_events_url': 'https://api.github.com/users/octocat/received_events',
-      'type': 'User',
-      'site_admin': false
-    },
-    'committer': {
-      'login': 'octocat',
-      'id': 1,
-      'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
-      'gravatar_id': '',
-      'url': 'https://api.github.com/users/octocat',
-      'html_url': 'https://github.com/octocat',
-      'followers_url': 'https://api.github.com/users/octocat/followers',
-      'following_url': 'https://api.github.com/users/octocat/following{/other_user}',
-      'gists_url': 'https://api.github.com/users/octocat/gists{/gist_id}',
-      'starred_url': 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
-      'subscriptions_url': 'https://api.github.com/users/octocat/subscriptions',
-      'organizations_url': 'https://api.github.com/users/octocat/orgs',
-      'repos_url': 'https://api.github.com/users/octocat/repos',
-      'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
-      'received_events_url': 'https://api.github.com/users/octocat/received_events',
-      'type': 'User',
-      'site_admin': false
-    },
-    'parents': [
-      {
-        'url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-        'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e'
-      }
-    ]
-  },
-  {
-    'url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'html_url': 'https://github.com/octocat/Hello-World/commit/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-    'comments_url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e/comments',
-    'commit': {
-      'url': 'https://api.github.com/repos/octocat/Hello-World/git/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-      'author': {
-        'name': 'Monalisa Octocat',
-        'email': 'support@github.com',
-        'date': '2011-04-14T16:00:49Z'
-      },
-      'committer': {
-        'name': 'Monalisa Octocat',
-        'email': 'support@github.com',
-        'date': '2011-04-14T16:00:49Z'
-      },
-      'message': 'Fix all the bugs',
-      'tree': {
-        'url': 'https://api.github.com/repos/octocat/Hello-World/tree/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-        'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e'
-      },
-      'comment_count': 0
-    },
-    'author': {
-      'login': 'octocat2',
-      'id': 1,
-      'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
-      'gravatar_id': '',
-      'url': 'https://api.github.com/users/octocat2',
-      'html_url': 'https://github.com/octocat2',
-      'followers_url': 'https://api.github.com/users/octocat/followers',
-      'following_url': 'https://api.github.com/users/octocat/following{/other_user}',
-      'gists_url': 'https://api.github.com/users/octocat/gists{/gist_id}',
-      'starred_url': 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
-      'subscriptions_url': 'https://api.github.com/users/octocat/subscriptions',
-      'organizations_url': 'https://api.github.com/users/octocat/orgs',
-      'repos_url': 'https://api.github.com/users/octocat/repos',
-      'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
-      'received_events_url': 'https://api.github.com/users/octocat/received_events',
-      'type': 'User',
-      'site_admin': false
-    },
-    'committer': {
-      'login': 'octocat2',
-      'id': 1,
-      'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
-      'gravatar_id': '',
-      'url': 'https://api.github.com/users/octocat2',
-      'html_url': 'https://github.com/octocat2',
-      'followers_url': 'https://api.github.com/users/octocat/followers',
-      'following_url': 'https://api.github.com/users/octocat/following{/other_user}',
-      'gists_url': 'https://api.github.com/users/octocat/gists{/gist_id}',
-      'starred_url': 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
-      'subscriptions_url': 'https://api.github.com/users/octocat/subscriptions',
-      'organizations_url': 'https://api.github.com/users/octocat/orgs',
-      'repos_url': 'https://api.github.com/users/octocat/repos',
-      'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
-      'received_events_url': 'https://api.github.com/users/octocat/received_events',
-      'type': 'User',
-      'site_admin': false
-    },
-    'parents': [
-      {
-        'url': 'https://api.github.com/repos/octocat/Hello-World/commits/6dcb09b5b57875f334f61aebed695e2e4193db5e',
-        'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e'
-      }
-    ]
-  }
-];
+describe('webhook pull request', function() {
+  var res = {status: function(res_status){
+    assert.equal(res_status, 200);
+    return {send: function(){}};
+  }};
+
+  var test_req;
+
+  beforeEach(function(){
+    test_req = {args: {
+      pull_request: testData,
+      repository: testData.base.repo,
+      number: testData.number,
+      action: 'opened'
+    }};
+
+    sinon.stub(cla, 'check', function(args, done){
+      assert(args.number);
+      assert(!args.user);
+      done(null, false);
+    });
+
+    sinon.stub(repoService, 'getPRCommitters', function(args, done){
+      assert(args.repo);
+      assert(args.owner);
+      assert(args.number);
+      done(null, [{id: 1, name: 'login'}]);
+    });
+
+    sinon.stub(pullRequest, 'badgeComment', function(){});
+    sinon.stub(status, 'update', function(args){
+      assert(args.owner);
+      assert(args.repo);
+      assert(args.number);
+      assert(args.signed !== undefined);
+    });
+
+  });
+
+  afterEach(function(){
+    repoService.getPRCommitters.restore();
+
+    pullRequest.badgeComment.restore();
+    status.update.restore();
+    cla.check.restore();
+	});
+
+  it('should update status of pull request if not signed', function(it_done){
+    pull_request(test_req, res);
+    assert(pullRequest.badgeComment.called);
+
+    it_done();
+  });
+
+  it('should provide user_map to badgeComment', function(it_done){
+      cla.check.restore();
+      pullRequest.badgeComment.restore();
+
+      sinon.stub(cla, 'check', function(args, done){
+          done(null, false, {not_signed: ['test_user']});
+      });
+      sinon.stub(pullRequest, 'badgeComment', function(owner, repo, repoId, prNumber, signed, user_map){
+          assert(user_map.not_signed);
+      });
+
+      pull_request(test_req, res);
+      assert(pullRequest.badgeComment.called);
+      it_done();
+  });
+
+  it('should update status of pull request if signed', function(it_done){
+    cla.check.restore();
+    sinon.stub(cla, 'check', function(args, done){
+      done(null, true);
+    });
+
+    pull_request(test_req, res);
+    assert(!pullRequest.badgeComment.called);
+    assert(status.update.called);
+    it_done();
+  });
+
+	it('should update status of pull request if not signed and new user', function(it_done){
+		pull_request(test_req, res);
+		assert(cla.check.called);
+		it_done();
+	});
+
+  it('should do nothing if the pull request has no committers', function(it_done){
+    repoService.getPRCommitters.restore();
+    sinon.stub(repoService, 'getPRCommitters', function(args, done){
+      done(null, []);
+    });
+
+    pull_request(test_req, res);
+
+    assert(!cla.check.called);
+
+    it_done();
+  });
+});

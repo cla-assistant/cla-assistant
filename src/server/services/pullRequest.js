@@ -32,12 +32,11 @@ var commitText = function(signed, badgeUrl, claUrl, user_map){
 module.exports = {
     badgeComment: function(owner, repo, repoId, pullNumber, signed, user_map) {
         var badgeUrl = url.pullRequestBadge(signed);
-        var token;
 
         this.getComment({repo: repo, owner: owner, number: pullNumber}, function(error, comment){
             repoService.get({repo: repo, owner: owner}, function(err, res){
-                if (res && !err) {
-                    token = res.token;
+                if (err) {
+                    log.info(err);
                 }
                 var claUrl = url.claURL(owner, repo, pullNumber);
 

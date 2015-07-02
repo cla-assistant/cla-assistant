@@ -4,6 +4,7 @@ var Repo = mongoose.model('Repo');
 
 //services
 var github = require('../services/github');
+var logger = require('../services/logger');
 
 //services
 var url = require('../services/url');
@@ -50,12 +51,18 @@ module.exports = {
     },
 
     getPRCommitters: function(args, done){
-        Repo.findOne({owner: args.owner, repo: args.repo}, function(err, repo){
+        Repo.findOne({owner: args.owner, repo: args.repo}, function(e, repo){
+            if (e) {
+                logger.error(e);
+            }
             var committers = [];
 
             args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
             args.token = repo.token;
             github.direct_call(args, function(err, res){
+                if (err) {
+                    logger.info(err);
+                }
                 if (res.data && !res.data.message) {
                     res.data.forEach(function(commit){
                         if(committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){

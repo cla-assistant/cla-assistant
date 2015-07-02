@@ -14,16 +14,16 @@ module.exports = {
         var description = 'Contributor License Agreement is not signed yet.';
         var token;
 
-        repoService.get({repo: args.repo, owner: args.owner}, function(err, res){
-            if (res && !err) {
+        repoService.get({repo: args.repo, owner: args.owner}, function(e, res){
+            if (res && !e) {
                 token = res.token;
             }
             args.url = url.githubPullRequest(args.owner, args.repo, args.number);
             args.token = token;
 
-            github.direct_call(args, function(err, res){
-                if (!err && res && res.data.head) {
-                    args.sha = res.data.head.sha;
+            github.direct_call(args, function(err, result){
+                if (!err && result && result.data.head) {
+                    args.sha = result.data.head.sha;
 
                     if (args.signed) {
                         status = 'success';
