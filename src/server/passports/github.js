@@ -1,9 +1,9 @@
-var github = require('../services/github');
 var url = require('../services/url');
+var repoService = require('../services/repo');
+var logger = require('../services/logger');
 var passport = require('passport');
 var Strategy = require('passport-github').Strategy;
 var merge = require('merge');
-var sugar = require('array-sugar');
 
 passport.use(new Strategy({
         clientID: config.server.github.client,
@@ -23,11 +23,25 @@ passport.use(new Strategy({
             token: accessToken
         }, {
             upsert: true
-        }, function(err, num, res) {
-            done(null, merge(profile._json, {
-                token: accessToken
-            }));
+        }, function() {
         });
+
+        repoService.getUserRepos({token: accessToken}, function(err, res){
+            if (res && res.length > 0) {
+                res.forEach(function(repo){
+                    if (repo.token !== accessToken) {
+                        repo.token = accessToken;
+                        repo.save();
+                        logger.debug('Update access token for repo', repo.repo);
+                    }
+                });
+            } else if (err) {
+                logger.warn(err);
+            }
+        });
+        done(null, merge(profile._json, {
+            token: accessToken
+        }));
     }
 ));
 

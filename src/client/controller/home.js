@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$anchorScroll',
-    function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $anchorScroll) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location',
+    function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location) {
 
         $scope.repos = [];
         $scope.gists = [];
@@ -84,23 +84,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getRepos = function() {
-            // var callBack = function(data){
-            //     data.value.forEach(function(orgRepo){
-            //             $scope.repos.push(orgRepo);
-            //         });
-            //     if (data.hasMore) {
-            //         data.getMore();
-            //     } else {
-            //         updateScopeData();
-            //     }
-            // };
-
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
                 $HUBService.direct_call(githubUserRepos).then(function(data){
                     data.value.forEach(function(orgRepo){
-                            $scope.repos.push(orgRepo);
-                        });
-                    updateScopeData();
+                        $scope.repos.push(orgRepo);
+                    });
+                    if ($scope.repos.length > 0) {
+                        updateScopeData();
+                    }
                 });
             }
         };

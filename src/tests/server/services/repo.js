@@ -319,3 +319,62 @@ describe('repo:addPullRequest', function() {
 		it_done();
     });
 });
+
+describe('repo:getUserRepos', function(){
+    afterEach(function(){
+        github.direct_call.restore();
+        Repo.find.restore();
+    });
+
+    it('should return all linked repositories of the logged user', function(it_done){
+        sinon.stub(github, 'direct_call', function(args, done){
+            assert.equal(args.url, 'https://api.github.com/user/repos?per_page=100');
+            assert(args.token);
+            done(null, {data: [{owner: {login: 'login'}, name: 'repo1'}, {owner: {login: 'login'}, name: 'repo2'}]});
+        });
+        sinon.stub(Repo, 'find', function(args, done){
+            assert.equal(args.$or.length, 2);
+            done(null, [{owner: 'login', repo: 'repo1'}]);
+        });
+
+        repo.getUserRepos({token: 'test_token'}, function(err, res){
+            assert.ifError(err);
+            assert(res[0].repo, 'repo1');
+            assert(Repo.find.called);
+
+            it_done();
+        });
+    });
+
+    it('should handle github error', function(it_done){
+        sinon.stub(github, 'direct_call', function(args, done){
+            done(null, {data: {message: 'Bad credentials'}});
+        });
+        sinon.stub(Repo, 'find', function(args, done){
+            done();
+        });
+
+        repo.getUserRepos({}, function(err){
+            assert.equal(err, 'Bad credentials');
+            assert(!Repo.find.called);
+
+            it_done();
+        });
+    });
+
+    it('should handle mogodb error', function(it_done){
+        sinon.stub(github, 'direct_call', function(args, done){
+            done(null, {data: [{owner: {login: 'login'}, name: 'repo1'}, {owner: {login: 'login'}, name: 'repo2'}]});
+        });
+        sinon.stub(Repo, 'find', function(args, done){
+            done('DB error');
+        });
+
+        repo.getUserRepos({}, function(err){
+            assert(err);
+            assert(Repo.find.called);
+
+            it_done();
+        });
+    });
+});

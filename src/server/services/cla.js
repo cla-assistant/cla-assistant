@@ -252,7 +252,7 @@ module.exports = function(){
 								return;
 							}
 							clas.forEach(function(cla){
-								if (gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
+								if (gist.history && gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
 									valid.push(cla);
 								}
 							});

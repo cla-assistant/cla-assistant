@@ -111,7 +111,7 @@ describe('Home Controller', function() {
                 html_url: 'https://gist.github.com/gistId',
                 files: {'file.txt': {filename: 'file1'}}
             }]));
-        httpBackend.when('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
+        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
         httpBackend.when('GET', '/static/cla-assistant.json').respond({ 'default-cla': [{
           'name': 'first default cla',
           'url': 'https://gist.github.com/gistId'
@@ -127,8 +127,6 @@ describe('Home Controller', function() {
     });
 
     it('should get user repos and mix claRepos data with repos data if user has admin rights', function() {
-        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
-
         httpBackend.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(2);
@@ -153,11 +151,23 @@ describe('Home Controller', function() {
 
     it('should not load user`s repos if he is not an admin', function(){
         githubResponse.meta.scopes = 'user:email';
+        httpBackend.resetExpectations();
+
         httpBackend.flush();
 
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
+    });
+
+    it('should not try to get linked repos if user has no repos in GitHub', function(){
+        httpBackend.resetExpectations();
+        httpBackend.expect('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond([]);
+
+
+        httpBackend.flush();
+
+        (homeCtrl.scope.repos.length).should.be.equal(0);
     });
 
     it('should create repo entry and webhook on link action', function(){
@@ -263,6 +273,7 @@ describe('Home Controller', function() {
     // });
 
     it('should check repos whether they are activated or NOT', function(){
+        httpBackend.resetExpectations();
         httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{name: 'Hello-World', owner: 'octocat', gist: ''}]);
         httpBackend.flush();
 
@@ -270,7 +281,6 @@ describe('Home Controller', function() {
     });
 
     it('should check repos whether they are ACTIVATED or not', function(){
-        httpBackend.expect('POST', '/api/repo/getAll', {set: [{owner: 'octocat', repo: 'Hello-World'}, {owner: 'orgOwner'}]}).respond([{repo: 'Hello-World', owner: 'octocat', gist: 1234}]);
         httpBackend.flush();
 
         (homeCtrl.scope.claRepos[0].active).should.be.ok;

@@ -76,6 +76,28 @@ module.exports = {
 
             });
         });
+    },
+
+    getUserRepos: function(args, done){
+        var that = this;
+        github.direct_call({url: 'https://api.github.com/user/repos?per_page=100', token: args.token}, function(err, res){
+            if (!res.data || res.data.length < 1 || res.data.message) {
+                err = res.data && res.data.message ? res.data.message : err;
+                done(err, null);
+                return;
+            }
+
+            var repoSet = [];
+            res.data.forEach(function(githubRepo){
+                repoSet.push({
+                    owner: githubRepo.owner.login,
+                    repo: githubRepo.name
+                });
+            });
+            that.getAll({set: repoSet}, function(error, result){
+                done(error, result);
+            });
+        });
     }
   //   remove: function(args, done){
 		// CLA.remove({repo:24456091}).exec();

@@ -34,7 +34,7 @@ module.exports = {
         var badgeUrl = url.pullRequestBadge(signed);
 
         this.getComment({repo: repo, owner: owner, number: pullNumber}, function(error, comment){
-            repoService.get({repo: repo, owner: owner}, function(err, res){
+            repoService.get({repo: repo, owner: owner}, function(err){
                 if (err) {
                     log.info(err);
                 }
@@ -56,7 +56,7 @@ module.exports = {
                             user: config.server.github.user,
                             pass: config.server.github.pass
                         }
-                    }, function(e, result, meta){
+                    }, function(e){
                         if (e) {
                             log.error(e);
                         }
@@ -75,7 +75,7 @@ module.exports = {
                             user: config.server.github.user,
                             pass: config.server.github.pass
                         }
-                    }, function(e, result, meta){
+                    }, function(e){
                         if (e) {
                             log.error(e);
                         }
@@ -108,10 +108,8 @@ module.exports = {
     },
 
     editComment: function(args, done){
-        var commentToEdit;
         var badgeUrl = url.pullRequestBadge(args.signed);
         var claUrl = url.claURL(args.owner, args.repo, args.number);
-        var token;
         this.getComment({repo: args.repo, owner: args.owner, number: args.number}, function(error, comment){
             if (error || !comment) {
                 return;
@@ -133,7 +131,7 @@ module.exports = {
                     user: config.server.github.user,
                     pass: config.server.github.pass
                 }
-            }, function(e, result, meta){
+            }, function(e){
                 if (e) {
                     log.error(e);
                 }

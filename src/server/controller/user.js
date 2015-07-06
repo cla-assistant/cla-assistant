@@ -1,7 +1,5 @@
 var passport = require('passport');
 var express = require('express');
-var path = require('path');
-var logger = require('./../services/logger');
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // User controller

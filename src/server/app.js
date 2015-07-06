@@ -5,7 +5,6 @@ var glob = require('glob');
 var merge = require('merge');
 var passport = require('passport');
 var path = require('path');
-var sass = require('node-sass');
 var sass_middleware = require('node-sass-middleware');
 // var sass_middleware = require('node-sass-middleware');
 
@@ -120,6 +119,9 @@ async.series([
 
         async.eachSeries(config.server.documents, function(p, cb) {
             glob(p, function(err, file) {
+                if (err) {
+                    console.log('! '.yellow + err);
+                }
                 if (file && file.length) {
                     file.forEach(function(f) {
                         try {
@@ -146,6 +148,9 @@ async.series([
 
         async.eachSeries(config.server.passport, function(p, cb) {
             glob(p, function(err, file) {
+                if (err) {
+                    console.log('! '.yellow + err);
+                }
                 if (file && file.length) {
                     file.forEach(function(f) {
                         console.log('✓ '.bold.green + path.relative(process.cwd(), f));
@@ -167,6 +172,9 @@ async.series([
 
         async.eachSeries(config.server.controller, function(p, cb) {
             glob(p, function(err, file) {
+                if (err) {
+                    console.log('! '.yellow + err);
+                }
                 if (file && file.length) {
                     file.forEach(function(f) {
                         try {
@@ -193,6 +201,9 @@ async.series([
 
         async.eachSeries(config.server.api, function(p, cb) {
             glob(p, function(err, file) {
+                if (err) {
+                    console.log('! '.yellow + err);
+                }
                 if (file && file.length) {
                     file.forEach(function(f) {
                         console.log('✓ '.bold.green + path.relative(process.cwd(), f));
@@ -214,6 +225,9 @@ async.series([
 
         async.eachSeries(config.server.webhooks, function(p, cb) {
             glob(p, function(err, file) {
+                if (err) {
+                    console.log('! '.yellow + err);
+                }
                 if (file && file.length) {
                     file.forEach(function(f) {
                         console.log('✓ '.bold.green + path.relative(process.cwd(), f));
@@ -224,8 +238,10 @@ async.series([
             });
         }, callback);
     }
-
-], function(err, res) {
+], function(err) {
+    if (err) {
+        console.log('! '.yellow + err);
+    }
     var log = require('./services/logger');
 
     console.log('\n✓ '.bold.green + 'bootstrapped, '.bold + 'app listening on localhost:' + config.server.localport);
@@ -243,7 +259,11 @@ app.all('/api/:obj/:fun', function(req, res) {
         if(err) {
             return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
         }
-        obj ? res.send(JSON.stringify(obj)) : res.send();
+        if (obj) {
+            res.send(JSON.stringify(obj));
+        } else {
+            res.send();
+        }
     });
 });
 

@@ -7,6 +7,9 @@ var CLA = require('mongoose').model('CLA');
 
 var router = express.Router();
 
+//services
+var logger = require('./../services/logger');
+
 router.post('/count/*', function(req, res, next){
 	//No token is sent by slack :(
 	// if (req.body.token && config.server.slack.token.match(req.body.token)) {
@@ -17,6 +20,9 @@ router.post('/count/*', function(req, res, next){
 
 router.all('/count/repos', function(req, res) {
 	Repo.find({}, function(err, repos) {
+		if (err) {
+			logger.info(err);
+		}
 		res.set('Content-Type', 'application/json');
 		var list = '';
 		repos.forEach(function(repo, i){
@@ -35,6 +41,9 @@ router.all('/count/clas', function(req, res) {
 										owner: '$owner',
 										user: '$user'}
 	}}], function(err, data){
+		if (err) {
+			logger.info(err);
+		}
 		res.set('Content-Type', 'application/json');
 		var text = {text: 'There are ' + data.length + ' signed CLAs!'};
 		text.attachments = [];
