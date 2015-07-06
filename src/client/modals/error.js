@@ -1,5 +1,5 @@
 module.controller('ErrorCtrl',
-	function($scope, $modalInstance, $window, $timeout, $state, $RPCService) {
+	function($scope, $modalInstance) {
 
 		$scope.ok = function () {
 			$modalInstance.close();

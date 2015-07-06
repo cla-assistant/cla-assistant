@@ -1,8 +1,6 @@
 // module
 var url = require('../services/url');
 var github = require('../services/github');
-// models
-var Repo = require('mongoose').model('Repo');
 
 module.exports = {
 
@@ -40,26 +38,19 @@ module.exports = {
     },
 
     create: function(req, done) {
-        // Repo.findOne({repo: req.args.user_uuid}, function(err, user) {
-
-        //     if(!user) {
-        //         return done(err);
-        //     }
-
-            github.call({
-                obj: 'repos',
-                fun: 'createHook',
-                arg: {
-                    user: req.args.owner,
-                    repo: req.args.repo,
-                    name: 'web',
-                    config: { url: url.webhook(req.args.repo), content_type: 'json' },
-                    events: ['pull_request'],
-                    active: true
-                },
-                token: req.user.token
-            }, done);
-        // });
+        github.call({
+            obj: 'repos',
+            fun: 'createHook',
+            arg: {
+                user: req.args.owner,
+                repo: req.args.repo,
+                name: 'web',
+                config: { url: url.webhook(req.args.repo), content_type: 'json' },
+                events: ['pull_request'],
+                active: true
+            },
+            token: req.user.token
+        }, done);
     },
 
     remove: function(req, done) {

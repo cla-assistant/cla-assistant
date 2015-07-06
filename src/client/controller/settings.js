@@ -35,7 +35,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.open_error = function(){
-            var modal = $modal.open({
+            $modal.open({
                 templateUrl: '/modals/templates/error_modal.html',
                 controller: 'ErrorCtrl'
             });
@@ -121,13 +121,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     }
                 });
             } else {
-                $RPCService.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err, data){
+                $RPCService.call('webhook', 'remove', {repo: $scope.repo.repo, user: $scope.repo.owner}, function(err){
                     if (!err) {
                         $scope.repo.active = false;
                     }
                 });
             }
-            $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err, data){
+            $RPCService.call('repo', 'update', {repo: $scope.repo.repo, owner: $scope.repo.owner, gist: $scope.repo.gist}, function(err){
                 if ($scope.repo.gist) {
                     // $scope.getUsers();
                     $scope.getGist();
@@ -178,7 +178,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
     }
 ]);
 
-module.directive('settings', [function(elem, attr){
+module.directive('settings', [function(){
     return {
         templateUrl: '/templates/settings.html',
         controller: 'SettingsCtrl',

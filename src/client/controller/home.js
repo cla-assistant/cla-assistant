@@ -99,7 +99,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         var getGists = function(){
             $scope.gists = [];
             if (!$scope.defaultClas.length) {
-              $scope.getDefaultClaFiles().then(function(data){
+              $scope.getDefaultClaFiles().then(function(){
                 $scope.gists = $scope.gists.concat($scope.defaultClas);
               });
             }
@@ -243,7 +243,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.removeWebhook = function(claRepo){
-            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err){
                 if (!err) {
                     claRepo.active = false;
                 }
@@ -280,7 +280,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.remove = function(claRepo){
-            $RPCService.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err, data){
+            $RPCService.call('repo', 'remove', {repo: claRepo.repo, owner: claRepo.owner, gist: claRepo.gist}, function(err){
                 if (!err) {
                     var i = $scope.claRepos.indexOf(claRepo);
                     if (i > -1) {
@@ -289,7 +289,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             });
 
-            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err, data){
+            $RPCService.call('webhook', 'remove', {repo: claRepo.repo, user: claRepo.owner}, function(err){
                 if (!err) {
                     claRepo.active = false;
                 }
@@ -319,10 +319,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         //     });
         // };
 
-        $scope.scrollTo = function(id) {
-            $document.scrollTopAnimated(0, 800);
-        };
-
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.url();
         };
@@ -346,9 +342,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         scope: {
             resize: '@'
         },
-        link: function(scope, element, attrs){
+        link: function(scope, element){
             var el = element;
-            var inititalElOffset;
 
             var positionElement = function(){
                 if (scope.resize === 'height') {
@@ -370,7 +365,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         }
     };
 }])
-.directive('feature', ['$window', function($window){
+.directive('feature', ['$window', function(){
     return {
         templateUrl: '/templates/feature.html',
         scope: {
@@ -378,9 +373,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             iconSrc: '@',
             header: '@',
             text: '@'
-        },
-        link: function(scope, element, attrs){
-
         }
     };
 }])
@@ -390,7 +382,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             time: '@',
             active: '='
         },
-        link: function(scope, element, attrs){
+        link: function(scope, element){
             var children = element.children();
             var start = function(){
                 $timeout(function(){

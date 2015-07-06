@@ -8,7 +8,7 @@ var github = require('../services/github');
 var repoService = require('../services/repo');
 
 module.exports = {
-    update: function(args, done) {
+    update: function(args) {
 
         var status = 'pending';
         var description = 'Contributor License Agreement is not signed yet.';

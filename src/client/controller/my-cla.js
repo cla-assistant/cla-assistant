@@ -18,12 +18,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       $scope.defaultClas = [];
 
       var orderBy = $filter('orderBy');
-      var githubGists = 'https://api.github.com/gists?per_page=100';
-      var githubUserRepos = 'https://api.github.com/user/repos?per_page=100';
-
-      $scope.logAdminIn = function(){
-          $window.location.href = '/auth/github?admin=true';
-      };
 
       var getUser = function(){
           $scope.user = {value: {admin: false}};
@@ -46,13 +40,13 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
       var getSignedCLA = function(){
         return $RPCService.call('cla', 'getSignedCLA', {
-          user: $scope.user.value.login
+            user: $scope.user.value.login
           }, function(err, data){
-          $scope.claRepos = data.value;
-          for(var i = 0; i < $scope.claRepos.length; i++){
-            $scope.getGist($scope.claRepos[i]);
-            $scope.getVersionStatus($scope.claRepos[i]);
-          }
+              $scope.claRepos = data.value;
+              for(var i = 0; i < $scope.claRepos.length; i++){
+                $scope.getGist($scope.claRepos[i]);
+                $scope.getVersionStatus($scope.claRepos[i]);
+              }
         });
       };
 
@@ -88,10 +82,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         $scope.claRepos = orderBy($scope.claRepos, predicate, reverse);
       };
 
-      var getGithubUserData = function(login){
-          return $HUBService.call('user', 'getFrom', {user: login});
-      };
-
       $scope.getDefaultClaFiles = function(){
           return $RAW.get('/static/cla-assistant.json').then(function(data){
             $scope.defaultClas = data['default-cla'];
@@ -99,7 +89,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getClaView = function(claRepo) {
-          var modal = $modal.open({
+          $modal.open({
               templateUrl: '/modals/templates/claView.html',
               controller: 'ClaViewCtrl',
               scope: $scope,
@@ -130,7 +120,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         } else {
             claRepo.noCLA = true;
         }
-          var modal = $modal.open({
+          $modal.open({
               templateUrl: '/modals/templates/versionView.html',
               controller: 'VersionViewCtrl',
               scope: $scope,

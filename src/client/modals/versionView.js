@@ -1,4 +1,4 @@
-module.controller('VersionViewCtrl', function($scope, $modalInstance, cla, noCLA, showCLA, $window, $state, $RPCService, $sce) {
+module.controller('VersionViewCtrl', function($scope, $modalInstance, cla, noCLA, showCLA, $window) {
   $scope.claObj = cla;
   $scope.noCLA = noCLA;
   $scope.showCLA = showCLA;
@@ -9,11 +9,11 @@ module.controller('VersionViewCtrl', function($scope, $modalInstance, cla, noCLA
 
   $scope.openNewCla = function () {
     $modalInstance.dismiss('Link opened');
-    $window.open('/'+$scope.claObj.owner+'/'+$scope.claObj.repo);
+    $window.open('/' + $scope.claObj.owner + '/' + $scope.claObj.repo);
   };
 
   $scope.openRevision = function () {
-    $window.open($scope.claObj.gist_url+'/revisions');
+    $window.open($scope.claObj.gist_url + '/revisions');
   };
 
   $scope.cancel = function () {
