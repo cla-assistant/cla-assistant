@@ -72,6 +72,7 @@ describe('Settings Controller', function() {
         };
 
         scope.user.value = {id: 1, login: 'octocat', admin: false};
+        httpBackend.when('GET', '/config').respond({});
         httpBackend.when('POST', '/api/cla/getAll', {repo: scope.repo.repo, owner: scope.repo.owner, gist: {gist_url: scope.repo.gist}}).respond([{user: 'login'}, {user: 'user2'}]);
 
     }));
@@ -242,6 +243,7 @@ describe('Settings Controller', function() {
         it('should load gist file only if gist url is given', function(){
             scope.repo = {repo: 'myRepo', owner: 'login', gist: ''};
             settingsCtrl = createCtrl();
+            httpBackend.flush();
 
             (!!settingsCtrl.scope.gist.url).should.not.be.ok;
         });

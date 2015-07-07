@@ -1,14 +1,40 @@
 var module = angular.module('app',
     ['cla.filters',
+     'cla.config',
      'ui.utils',
      'ui.router',
      'ui.bootstrap',
      'ui.select',
      'ngSanitize',
      'ngAnimate',
-     'ngCsv']);
+     'ngCsv',
+     'angulartics',
+     'angulartics.google.analytics']);
 
 var filters = angular.module('cla.filters', []);
+
+angular.module('cla.config', [])
+    .provider('$config', function() {
+
+        function Config($http) {
+            this.get = function(done) {
+                $http.get('/config')
+                    .success(function(data, status) {
+                        done(data || {}, status);
+                    });
+            };
+        }
+
+        this.$get = ['$http',
+            function($http) {
+                return new Config($http);
+            }
+        ];
+
+        // var url = $.url();
+        //
+        // this.log = url.param('log') === 'true' || document.location.hostname === 'localhost';
+    });
 // *************************************************************
 // Delay start
 // *************************************************************
@@ -87,9 +113,16 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
         });
     }
 ])
-.run(['$rootScope', '$state', '$stateParams',
-    function($rootScope, $state, $stateParams) {
+.run(['$rootScope', '$state', '$stateParams', '$config',
+    function($rootScope, $state, $stateParams, $config) {
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
+
+        $config.get(function(data) {
+            $rootScope.$config = data;
+            if(data.gacode) {
+                ga('create', data.gacode, 'auto');
+            }
+        });
     }
 ]);

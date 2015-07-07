@@ -104,6 +104,7 @@ describe('Home Controller', function() {
 
         homeCtrl = createCtrl();
         githubResponse = {data: {login: 'login'}, meta: {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'}};
+        httpBackend.when('GET', '/config').respond({});
         httpBackend.when('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(githubResponse);
         httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
         httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/gists?per_page=100'}).respond(testDataGists.data.concat(
