@@ -7,6 +7,7 @@ var pullRequest = require('../../../server/services/pullRequest');
 var status = require('../../../server/services/status');
 var cla = require('../../../server/services/cla');
 var repoService = require('../../../server/services/repo');
+var logger = require('../../../server/services/logger');
 
 // webhook under test
 var pull_request = require('../../../server/webhooks/pull_request');
@@ -328,11 +329,14 @@ describe('webhook pull request', function() {
     sinon.stub(repoService, 'getPRCommitters', function(args, done){
       done(null, []);
     });
+    sinon.stub(logger, 'warn', function(){ });
 
     pull_request(test_req, res);
 
     assert(!cla.check.called);
+    assert(logger.warn.called);
 
+    logger.warn.restore();
     it_done();
   });
 });

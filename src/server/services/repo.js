@@ -53,7 +53,7 @@ module.exports = {
     getPRCommitters: function(args, done){
         Repo.findOne({owner: args.owner, repo: args.repo}, function(e, repo){
             if (e) {
-                logger.error(e);
+                logger.error(new Error(e).stack);
             }
             var committers = [];
 
@@ -61,16 +61,20 @@ module.exports = {
             args.token = repo.token;
             github.direct_call(args, function(err, res){
                 if (err) {
-                    logger.info(err);
+                    logger.info(new Error(err).stack);
                 }
                 if (res.data && !res.data.message) {
                     res.data.forEach(function(commit){
+                        if (!commit || !commit.committer) {
+                            logger.warn(new Error(res.data).stack);
+                        }
                         if(committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){
                             committers.push({name: commit.committer.login, id: commit.committer.id});
                         }
                     });
                     done(null, committers);
                 } else if (res.data.message) {
+                    logger.info(new Error(res.data.message).stack);
                     done(res.data.message);
                 }
 

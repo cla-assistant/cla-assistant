@@ -268,7 +268,7 @@ describe('repo:check', function() {
     });
 });
 
-describe('repo:addPullRequest', function() {
+describe('repo:getPRCommitters', function() {
     var test_repo;
 
     beforeEach(function(){

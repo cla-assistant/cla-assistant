@@ -41,7 +41,7 @@ module.exports = function(req, res) {
 			if(!e && committers && committers.length > 0){
 				cla.check(args, function(err, signed, user_map){
 					if (err) {
-						log.warn(err);
+						log.warn(new Error(err).stack);
 					}
 					args.signed = signed;
 					status.update(args);
@@ -57,6 +57,8 @@ module.exports = function(req, res) {
 						);
 					}
 				});
+			} else {
+				log.warn(new Error(e).stack);
 			}
 		});
 	}
