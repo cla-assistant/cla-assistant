@@ -64,8 +64,8 @@ module.exports = {
                     logger.info(new Error(err).stack);
                 }
                 if (res.data && !res.data.message) {
-                    logger.info('on getPRCommitters res.data is: ', res.data);
                     res.data.forEach(function(commit){
+                        logger.info('on getPRCommitters res.data.forEach commit is: ', commit);
                         if (!commit || !commit.committer.login) {
                             logger.warn(new Error(res.data).stack);
                         }
