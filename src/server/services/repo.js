@@ -66,8 +66,9 @@ module.exports = {
                 if (res.data && !res.data.message) {
                     res.data.forEach(function(commit){
                         logger.info('on getPRCommitters res.data.forEach commit is: ', commit);
-                        if (!commit || !commit.committer.login) {
-                            logger.warn(new Error(res.data).stack);
+                        if (!commit || !commit.committer === null) {
+                            logger.warn(new Error('commit info seems to be wrong', commit).stack);
+                            return;
                         }
                         if(committers.length === 0 || committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){
                             committers.push({name: commit.committer.login, id: commit.committer.id});
