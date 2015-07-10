@@ -66,10 +66,10 @@ module.exports = {
                 if (res.data && !res.data.message) {
                     logger.info('on getPRCommitters res.data is: ', res.data);
                     res.data.forEach(function(commit){
-                        if (!commit || !commit.committer) {
+                        if (!commit || !commit.committer.login) {
                             logger.warn(new Error(res.data).stack);
                         }
-                        if(committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){
+                        if(committers.length === 0 || committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){
                             committers.push({name: commit.committer.login, id: commit.committer.id});
                         }
                     });
