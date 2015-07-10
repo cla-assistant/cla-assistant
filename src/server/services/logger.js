@@ -11,7 +11,10 @@ try{
 		src: true,
 		name: config.server.http.host,
 		streams: [{
-			path: 'log'
+			type: 'rotating-file',
+			path: 'log',
+			period: '1d',   // daily rotation
+			count: 5        // keep 5 back copies
 		},
 		{
 			level: 'error',
@@ -41,7 +44,10 @@ try{
 		src: true,
 		name: config.server.http.host,
 		streams: [{
-			path: 'log'
+			type: 'rotating-file',
+			path: 'log',
+			period: '1d',   // daily rotation
+			count: 5        // keep 5 back copies
 		}]
 	});
 }
