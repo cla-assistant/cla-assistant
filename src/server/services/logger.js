@@ -12,7 +12,7 @@ try{
 		name: config.server.http.host,
 		streams: [{
 			type: 'rotating-file',
-			path: '../logs/bunyan',
+			path: 'log',
 			period: '1d',   // daily rotation
 			count: 5        // keep 5 back copies
 		},
