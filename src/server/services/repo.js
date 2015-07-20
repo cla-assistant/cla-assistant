@@ -65,8 +65,8 @@ module.exports = {
                 }
                 if (res.data && !res.data.message) {
                     res.data.forEach(function(commit){
-                        logger.info('on getPRCommitters res.data.forEach commit is: ', commit);
                         if (!commit || commit.committer === null) {
+                            logger.warn('Problem on PR ', url.githubPullRequest(args.owner, args.repo, args.number));
                             logger.warn(new Error('commit info seems to be wrong', commit).stack);
                             return;
                         }
