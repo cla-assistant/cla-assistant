@@ -54,10 +54,42 @@ describe('cla:get', function() {
         });
     });
 
+    it('should get gist and render it with repo token', function(it_done) {
+        sinon.stub(cla, 'getRepo', function(args, cb){
+            assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
+            cb(null, {gist: 'url', token: 'repo_token'});
+        });
+        sinon.stub(cla, 'getGist', function(repo, cb){
+            assert.equal(repo.gist.gist_url, 'url');
+            var res = {url: 'url', files: {xyFile: {content: 'some content'}}, updated_at: '2011-06-20T11:34:15Z', history: [{version: 'xyz'}]};
+            cb(null, res);
+        });
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
+            var res;
+            assert.equal(args.obj, 'markdown');
+            assert.equal(args.fun, 'render');
+            assert.equal(args.token, 'repo_token');
+            res = {statusCode: 200};
+            cb(null, res);
+        });
+
+        var req = {args: {repo: 'myRepo', owner: 'login'}};
+
+        cla_api.get(req, function() {
+            assert(cla.getRepo.called);
+
+            githubStub.restore();
+            cla.getRepo.restore();
+            cla.getGist.restore();
+            it_done();
+        });
+    });
+
     it('should get gist and render it without user token', function(it_done) {
         sinon.stub(cla, 'getRepo', function(args, cb){
             assert.deepEqual(args, {repo: 'myRepo', owner: 'login'});
-            cb(null, {gist: 'url', token: 'abc'});
+            // cb(null, {gist: 'url', token: 'abc'});
+            cb(null, {gist: 'url'});
         });
         sinon.stub(cla, 'getGist', function(repo, cb){
             assert.equal(repo.gist.gist_url, 'url');

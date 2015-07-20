@@ -7,6 +7,8 @@ var url = require('../services/url');
 var prService = require('../services/pullRequest');
 var log = require('../services/logger');
 
+var token;
+
 module.exports = {
 	getGist: function(req, done){
 		if(req.user && req.user.token && req.args.gist){
@@ -20,7 +22,7 @@ module.exports = {
 				}
 				var gist_args = {gist_url: repo.gist};
 				gist_args = req.args.gist ? req.args.gist : gist_args;
-				var token = req.user && req.user.token ? req.user.token : repo.token;
+				token = req.user && req.user.token ? req.user.token : repo.token;
 				cla.getGist({token: token, gist: gist_args}, done);
 			});
 		}
@@ -46,9 +48,9 @@ module.exports = {
 				done(e);
 				return;
 			}
-			if (req.user && req.user.token) {
-				args.token = req.user.token;
-			}
+
+			args.token = req.user && req.user.token ? req.user.token : token;
+
 			github.call(args, function(error, response) {
 				var callback_error;
 				if (!response || response.statusCode !== 200){
