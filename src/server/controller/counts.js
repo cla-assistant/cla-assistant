@@ -25,9 +25,14 @@ router.all('/count/repos', function(req, res) {
 		}
 		res.set('Content-Type', 'application/json');
 		var list = '';
-		repos.forEach(function(repo, i){
-			list += '\n ' + ++i + '. ' + repo.owner + '/' + repo.repo;
-		});
+		if (req.query.last) {
+			var fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
+			list = '\n Newest repo is <https://github.com/' + fullName + '|' + fullName + '>';
+		} else {
+			repos.forEach(function(repo, i){
+				list += '\n ' + ++i + '. ' + repo.owner + '/' + repo.repo;
+			});
+		}
         res.send(JSON.stringify({
             count: repos.length,
             text: 'There are ' + repos.length + ' registered repositories!' + list,
