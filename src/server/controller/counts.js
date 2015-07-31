@@ -27,7 +27,7 @@ router.all('/count/repos', function(req, res) {
 		var list = '';
 		if (req.query.last) {
 			var fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
-			list = '\n Newest repo is <https://github.com/' + fullName + '|' + fullName + '>';
+			list = '\n Newest repo is https://github.com/' + fullName;
 		} else {
 			repos.forEach(function(repo, i){
 				list += '\n ' + ++i + '. ' + repo.owner + '/' + repo.repo;
