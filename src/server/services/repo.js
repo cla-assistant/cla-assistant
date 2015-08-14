@@ -65,13 +65,19 @@ module.exports = {
                 }
                 if (res.data && !res.data.message) {
                     res.data.forEach(function(commit){
-                        if (!commit || commit.committer === null) {
+                        try {
+                            var committer = commit.committer || commit.commit.committer;
+                        } catch (error) {
                             logger.warn('Problem on PR ', url.githubPullRequest(args.owner, args.repo, args.number));
-                            logger.warn(new Error('commit info seems to be wrong', commit).stack);
+                            logger.warn(new Error('commit info seems to be wrong; ' + error).stack);
                             return;
                         }
-                        if(committers.length === 0 || committers.map(function(c) { return c.name; }).indexOf(commit.committer.login) < 0){
-                            committers.push({name: commit.committer.login, id: commit.committer.id});
+                        var user = {
+                            name: committer.login || committer.name,
+                            id: committer.id || ''
+                        };
+                        if(committers.length === 0 || committers.map(function(c) { return c.name; }).indexOf(user.name) < 0){
+                            committers.push(user);
                         }
                     });
                     done(null, committers);

@@ -296,6 +296,43 @@ var testData_commits = [
   }
 ];
 
+var testData_commit_with_no_user = [
+  {
+    'sha': '0b0f859cb34ccc39c038376a58b612a9574d7d55',
+    'commit': {
+      'author': {
+        'name': 'Anton Kharitonoff',
+        'email': 'ak@gmail.com',
+        'date': '2015-08-14T12:15:42Z'
+      },
+      'committer': {
+        'name': 'Anton Kharitonoff',
+        'email': 'ak@gmail.com',
+        'date': '2015-08-14T12:15:42Z'
+      },
+      'message': 'some more changes',
+      'tree': {
+        'sha': '297200be0c1886e8ea6185ae71eaa3d8708f53b4',
+        'url': 'https://api.github.com/repos/KharitonOff/cla3/git/trees/297200be0c1886e8ea6185ae71eaa3d8708f53b4'
+      },
+      'url': 'https://api.github.com/repos/KharitonOff/cla3/git/commits/0b0f859cb34ccc39c038376a58b612a9574d7d55',
+      'comment_count': 0
+    },
+    'url': 'https://api.github.com/repos/KharitonOff/cla3/commits/0b0f859cb34ccc39c038376a58b612a9574d7d55',
+    'html_url': 'https://github.com/KharitonOff/cla3/commit/0b0f859cb34ccc39c038376a58b612a9574d7d55',
+    'comments_url': 'https://api.github.com/repos/KharitonOff/cla3/commits/0b0f859cb34ccc39c038376a58b612a9574d7d55/comments',
+    'author': null,
+    'committer': null,
+    'parents': [
+      {
+        'sha': 'b43123ef4c5d862cd57aabf99b53e8d68c7eac85',
+        'url': 'https://api.github.com/repos/KharitonOff/cla3/commits/b43123ef4c5d862cd57aabf99b53e8d68c7eac85',
+        'html_url': 'https://github.com/KharitonOff/cla3/commit/b43123ef4c5d862cd57aabf99b53e8d68c7eac85'
+      }
+    ]
+  }
+];
+
 describe('repo:create', function() {
     afterEach(function(){
         Repo.create.restore();
@@ -309,8 +346,8 @@ describe('repo:create', function() {
             done(null, {repo: args.repo});
         });
 
-        var args = {repo: 'myRepo', user: 'login', owner: 'owner', gist: 'url/gistId', token: 'abc'};
-        repo.create(args, function(err){
+        var arg = {repo: 'myRepo', user: 'login', owner: 'owner', gist: 'url/gistId', token: 'abc'};
+        repo.create(arg, function(err){
             assert.ifError(err);
             it_done();
         });
@@ -330,8 +367,8 @@ describe('repo:check', function() {
             done(null, {});
         });
 
-        var args = {repo: 'myRepo', owner: 'owner'};
-        repo.check(args, function(err, obj){
+        var arg = {repo: 'myRepo', owner: 'owner'};
+        repo.check(arg, function(err, obj){
             assert.ifError(err);
             assert(obj);
             it_done();
@@ -361,7 +398,7 @@ describe('repo:getPRCommitters', function() {
     });
 
     it('should get committer for a pull request', function(it_done){
-		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
+		var arg = {repo: 'myRepo', owner: 'owner', number: '1'};
 
         github.direct_call.restore();
         sinon.stub(github, 'direct_call', function(argums, done){
@@ -370,7 +407,7 @@ describe('repo:getPRCommitters', function() {
             done(null, {data: testData_commit});
         });
 
-		repo.getPRCommitters(args, function(err, data){
+		repo.getPRCommitters(arg, function(err, data){
 			assert.ifError(err);
             assert.equal(data.length, 1);
 			assert.equal(data[0].name, 'octocat');
@@ -382,9 +419,9 @@ describe('repo:getPRCommitters', function() {
     });
 
     it('should get list of committers for a pull request', function(it_done){
-		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
+		var arg = {repo: 'myRepo', owner: 'owner', number: '1'};
 
-		repo.getPRCommitters(args, function(err, data){
+		repo.getPRCommitters(arg, function(err, data){
 			assert.ifError(err);
             assert.equal(data.length, 2);
 			assert.equal(data[0].name, 'octocat');
@@ -395,14 +432,31 @@ describe('repo:getPRCommitters', function() {
 		it_done();
     });
 
+    it('should handle committers who has no github user', function(it_done){
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function(argums, done){
+            done(null, {data: testData_commit_with_no_user});
+        });
+        var arg = {repo: 'myRepo', owner: 'owner', number: '1'};
+
+        repo.getPRCommitters(arg, function(err, data){
+			assert.ifError(err);
+            assert.equal(data.length, 1);
+			// assert.equal(data[0].name, 'octocat');
+			// assert(Repo.findOne.called);
+			assert(github.direct_call.called);
+		});
+        it_done();
+    });
+
     it('should handle error', function(it_done){
 		github.direct_call.restore();
 		sinon.stub(github, 'direct_call', function(args, done){
 			done(null, {data: {message: 'Any Error message'}});
 		});
-		var args = {repo: 'myRepo', owner: 'owner', number: '1'};
+		var arg = {repo: 'myRepo', owner: 'owner', number: '1'};
 
-		repo.getPRCommitters(args, function(err){
+		repo.getPRCommitters(arg, function(err){
 			assert(err);
 			assert(Repo.findOne.called);
 			assert(github.direct_call.called);
