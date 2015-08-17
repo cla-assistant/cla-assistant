@@ -464,6 +464,22 @@ describe('repo:getPRCommitters', function() {
 
 		it_done();
     });
+
+    it('should handle not found repo', function(it_done){
+		Repo.findOne.restore();
+		sinon.stub(Repo, 'findOne', function(args, done){
+			done(null, null);
+		});
+		var arg = {repo: 'myRepo', owner: 'owner', number: '1'};
+
+		repo.getPRCommitters(arg, function(err){
+			assert(err);
+			assert(Repo.findOne.called);
+			assert(!github.direct_call.called);
+		});
+
+		it_done();
+    });
 });
 
 describe('repo:getUserRepos', function(){

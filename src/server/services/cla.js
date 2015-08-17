@@ -17,6 +17,10 @@ module.exports = function(){
 		var all_signed = true;
 		var promises = [];
 		var user_map = {signed: [], not_signed: []};
+		if (!users) {
+			deferred.reject('There are no users to check :( ');
+			return deferred.promise;
+		}
 		users.forEach(function(user){
 			args.user = user.name;
 			user_map.not_signed.push(args.user);
@@ -154,6 +158,9 @@ module.exports = function(){
 							}
 							checkAll(committers, args).then(function(result){
 								done(null, result.signed, result.user_map);
+							},
+							function(error_msg){
+								done(error_msg, false);
 							});
 						});
 					}

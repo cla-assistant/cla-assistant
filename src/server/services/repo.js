@@ -52,8 +52,12 @@ module.exports = {
 
     getPRCommitters: function(args, done){
         Repo.findOne({owner: args.owner, repo: args.repo}, function(e, repo){
-            if (e) {
-                logger.error(new Error(e).stack);
+            if (e || !repo) {
+                var errorMsg = e;
+                errorMsg += 'with following arguments: ' + JSON.stringify(args);
+                logger.error(new Error(errorMsg).stack);
+                done(errorMsg);
+                return;
             }
             var committers = [];
 
