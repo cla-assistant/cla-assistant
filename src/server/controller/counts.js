@@ -49,19 +49,10 @@ router.all('/count/clas', function(req, res) {
 				return;
 			}
 			res.set('Content-Type', 'application/json');
-			var text = {text: 'Recent CLA'};
-			text.attachments = [];
 			var fullName = cla[0].owner + '/' + cla[0].repo;
-			text.attachments.push(
-				{
-					title: 'Recent signature',
-					text: 'Recently ' + cla[0].user + ' signed a CLA for https://github.com/' + fullName,
-					mrkdwn_in: ['text']
-				}
-			);
+
 			res.send(JSON.stringify({
-				text: text.text,
-				attachments: text.attachments
+				text: cla[0].user + ' signed a CLA for https://github.com/' + fullName
 			}));
 		});
 	} else {
