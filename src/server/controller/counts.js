@@ -42,42 +42,66 @@ router.all('/count/repos', function(req, res) {
 });
 
 router.all('/count/clas', function(req, res) {
-	CLA.aggregate( [{'$group': { '_id': { repo: '$repo',
-										owner: '$owner',
-										user: '$user'}
-	}}], function(err, data){
-		if (err) {
-			logger.info(err);
-		}
-		res.set('Content-Type', 'application/json');
-		var text = {text: 'There are ' + data.length + ' signed CLAs!'};
-		text.attachments = [];
-		var list = {};
-		if (req.query.detailed) {
-			data.forEach(function(cla){
-				list[cla._id.owner + '/' + cla._id.repo] = list[cla._id.owner + '/' + cla._id.repo] ? list[cla._id.owner + '/' + cla._id.repo] : [];
-				list[cla._id.owner + '/' + cla._id.repo].push(cla._id.user);
-				// list += '\n ' + cla._id.user + ' is contributing to ' + cla._id.owner + '/' + cla._id.repo;
-			});
-			for (var repository in list){
-				var users = list[repository];
-				text.attachments.push(
-					{
-						title: repository,
-						// pretext: Pretext _supports_ mrkdwn,
-						text: 'CLA is signed by ' + users.length + ' committer(s): ' + JSON.stringify(users),
-						mrkdwn_in: ['title']
-					}
-				);
+	console.log(req.query);
+	if (req.query.last) {
+		CLA.find().sort({'created_at': -1}).limit(1).exec(function(err, cla){
+			if(err){
+				return;
 			}
-		}
-		// text = list ? text + list : text;
-		res.send(JSON.stringify({
-			count: data.length,
-			text: text.text,
-			attachments: text.attachments
-		}));
-	});
+			res.set('Content-Type', 'application/json');
+			var text = {text: 'Recent CLA'};
+			text.attachments = [];
+			var fullName = cla[0].owner + '/' + cla[0].repo;
+			text.attachments.push(
+				{
+					title: 'Recent signature',
+					text: 'Recently ' + cla[0].user + ' signed a CLA for https://github.com/' + fullName,
+					mrkdwn_in: ['text']
+				}
+			);
+			res.send(JSON.stringify({
+				text: text.text,
+				attachments: text.attachments
+			}));
+		});
+	} else {
+			CLA.aggregate( [{'$group': { '_id': { repo: '$repo',
+											owner: '$owner',
+											user: '$user'}
+		}}], function(err, data){
+			if (err) {
+				logger.info(err);
+			}
+			res.set('Content-Type', 'application/json');
+			var text = {text: 'There are ' + data.length + ' signed CLAs!'};
+			text.attachments = [];
+			var list = {};
+			if (req.query.detailed) {
+				data.forEach(function(cla){
+					list[cla._id.owner + '/' + cla._id.repo] = list[cla._id.owner + '/' + cla._id.repo] ? list[cla._id.owner + '/' + cla._id.repo] : [];
+					list[cla._id.owner + '/' + cla._id.repo].push(cla._id.user);
+					// list += '\n ' + cla._id.user + ' is contributing to ' + cla._id.owner + '/' + cla._id.repo;
+				});
+				for (var repository in list){
+					var users = list[repository];
+					text.attachments.push(
+						{
+							title: repository,
+							// pretext: Pretext _supports_ mrkdwn,
+							text: 'CLA is signed by ' + users.length + ' committer(s): ' + JSON.stringify(users),
+							mrkdwn_in: ['title']
+						}
+					);
+				}
+			}
+			// text = list ? text + list : text;
+			res.send(JSON.stringify({
+				count: data.length,
+				text: text.text,
+				attachments: text.attachments
+			}));
+		});
+	}
 });
 
 module.exports = router;
