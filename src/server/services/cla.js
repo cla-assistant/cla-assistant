@@ -16,15 +16,17 @@ module.exports = function(){
 		var deferred = q.defer();
 		var all_signed = true;
 		var promises = [];
-		var user_map = {signed: [], not_signed: []};
+		var user_map = {signed: [], not_signed: [], unknown: []};
 		if (!users) {
 			deferred.reject('There are no users to check :( ');
 			return deferred.promise;
 		}
 		users.forEach(function(user){
 			args.user = user.name;
-			user_map.not_signed.push(args.user);
-
+			user_map.not_signed.push(user.name);
+			if (!user.id) {
+				user_map.unknown.push(user.name);
+			}
 			promises.push(claService.get(args, function(err, cla){
 				if (err) {
 					logger.warn(err);
