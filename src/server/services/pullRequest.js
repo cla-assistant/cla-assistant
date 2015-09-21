@@ -28,7 +28,6 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 	}
 
 	if (user_map && user_map.unknown && user_map.unknown.length > 0) {
-		text += '<br/><br/>---';
 		var userNames = '';
 		user_map.unknown.forEach(function (signee) {
 			userNames += signee + ', ';
