@@ -1,0 +1,48 @@
+
+<div class="modal-body modal-primary">
+	<div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
+        Upload
+    </div>
+
+    <div class="center-block row" style="font-size:18px;">
+    	You can upload a CSV containing all the users who have
+        already signed your CSV.
+    </div>
+
+    <form class="form-inline">
+        <div class="form-group">
+            <input type="file" name="file" accept=".csv" file-model="file">
+        </div>
+        <div class="form-group">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="header">
+                First row is header information
+              </label>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-condensed table-bordered" 
+           style="display: block; max-width: 568px; overflow-x: scroll;">
+        <tr>
+            <th ng-repeat="datum in json.data[0]" 
+                ng-click="$parent.selected=$index" 
+                ng-class="{warning: selected===$index}">
+                {{ $index + 1 }}
+            </th>
+        </tr>
+        <tr ng-repeat="i in (header ? [1, 2, 3] : [0, 1, 2])">
+            <td ng-repeat="datum in json.data[i] track by $index" 
+                ng-class="{warning: selected===$index}">
+                {{ datum }}
+            </td>
+        </tr>
+    </table>
+
+    <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
+	    <button class="btn btn-cancel" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-info" ng-click="upload(selected)" ng-disabled="!json || (!selected && selected !== 0)">Upload</button>
+    </div>
+</div>

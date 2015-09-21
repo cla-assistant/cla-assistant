@@ -128,5 +128,30 @@ module.exports = {
 		var args = {repo: req.args.repo, owner: req.args.owner, user: req.user.login};
 
 		cla.check(args, done);
-  }
+  },
+
+  	upload: function(req, done) {
+
+  		var users = req.args.data || [];
+
+  		users.forEach(function(user) {
+  			github.call({
+  				obj: 'user',
+  				fun: 'getFrom',
+  				arg: {user: user},
+  				token: req.user.token
+  			}, function(err, user) {
+  				if(!err && user) {
+  					cla.sign({
+  						repo: req.args.repo, 
+  						owner: req.args.owner, 
+  						user: user.login, 
+  						user_id: user.id
+  					});
+  				}
+  			});
+  		})
+
+  		done();
+  	}
 };

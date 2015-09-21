@@ -5,8 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location',
-    function ($rootScope, $scope, $document, $HUB, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location',
+    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location) {
 
         $scope.repos = [];
         $scope.gists = [];
@@ -190,6 +190,21 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
             modal.result.then(function(repo){
                 $scope.remove(repo);
+            });
+        };
+
+        $scope.upload = function(claRepo){
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/upload.html',
+                controller: 'UploadCtrl',
+                windowClass: 'upload'
+            });
+            modal.result.then(function(users) {
+                $RPC.call('cla', 'upload', {
+                    repo: claRepo.repo,
+                    owner: claRepo.owner,
+                    users: users
+                });
             });
         };
 
