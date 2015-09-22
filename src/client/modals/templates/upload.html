@@ -2,11 +2,11 @@
 <div class="modal-body modal-primary">
 	<div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
-        Upload
+        Import
     </div>
 
     <div class="center-block row" style="font-size:18px;">
-    	Upload a CSV file containing all the GitHub usernames
+    	Import a CSV file containing all the GitHub usernames
         of contributers who have already signed your CLA.
     </div>
 
@@ -52,6 +52,6 @@
 
     <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
 	    <button class="btn btn-cancel" ng-click="cancel()">Cancel</button>
-        <button class="btn btn-info" ng-click="upload(selected)" ng-disabled="!json || (!selected && selected !== 0)">Upload</button>
+        <button class="btn btn-info" ng-click="upload(selected)" ng-disabled="!json || (!selected && selected !== 0)">Import</button>
     </div>
 </div>
