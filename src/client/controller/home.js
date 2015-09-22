@@ -193,21 +193,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-        $scope.upload = function(claRepo){
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/upload.html',
-                controller: 'UploadCtrl',
-                windowClass: 'upload'
-            });
-            modal.result.then(function(users) {
-                $RPC.call('cla', 'upload', {
-                    repo: claRepo.repo,
-                    owner: claRepo.owner,
-                    users: users
-                });
-            });
-        };
-
         $scope.info = function() {
             $modal.open({
                 templateUrl: '/modals/templates/info_gist.html',

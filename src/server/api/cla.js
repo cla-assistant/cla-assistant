@@ -1,4 +1,7 @@
-//services
+// modules
+var async = require('async');
+
+// services
 var github = require('../services/github');
 var cla = require('../services/cla');
 var status = require('../services/status');
@@ -132,9 +135,9 @@ module.exports = {
 
   	upload: function(req, done) {
 
-  		var users = req.args.data || [];
+  		var users = req.args.users || [];
 
-  		users.forEach(function(user) {
+  		async.each(users, function(user, callback) {
   			github.call({
   				obj: 'user',
   				fun: 'getFrom',
@@ -147,11 +150,9 @@ module.exports = {
   						owner: req.args.owner, 
   						user: user.login, 
   						user_id: user.id
-  					});
+  					}, callback);
   				}
   			});
-  		})
-
-  		done();
+  		}, done);
   	}
 };

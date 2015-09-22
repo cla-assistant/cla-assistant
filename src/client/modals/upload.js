@@ -35,7 +35,7 @@ module.controller('UploadCtrl',
             fileModel: '='
         },
         link: function(scope, elem, attr) {
-            elem.bind('change', function(change) {
+            elem.bind('change drop', function(change) {
                 var reader = new FileReader();
                 reader.onload = function(load) {
                     scope.$apply(function() {
@@ -43,6 +43,10 @@ module.controller('UploadCtrl',
                     });
                 };
                 reader.readAsText(change.target.files[0]);
+            });
+
+            elem.bind('ondragenter', function() {
+                console.log('dude...');
             });
         }
     };

@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$HUBService', '$window', '$sce', '$modal',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $HUBService, $window, $sce, $modal) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal',
+    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
@@ -164,6 +164,23 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                 $scope.getContributors($scope.repo);
                 report($scope.repo);
             }
+        };
+
+        $scope.upload = function(claRepo){
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/upload.html',
+                controller: 'UploadCtrl',
+                windowClass: 'upload'
+            });
+            modal.result.then(function(users) {
+                $RPC.call('cla', 'upload', {
+                    repo: claRepo.repo,
+                    owner: claRepo.owner,
+                    users: users
+                }, function() {
+                    $scope.update();
+                });
+            });
         };
 
         if ($scope.repo.gist) {
