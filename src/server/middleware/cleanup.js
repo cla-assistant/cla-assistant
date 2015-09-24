@@ -8,7 +8,8 @@ var removeToken = function(obj){
 		//do nothing
 	}
 	return obj;
-}
+};
+
 module.exports = {
 	cleanObject: function(obj){
 		if(Object.prototype.toString.call( obj ) === '[object Array]' ) {

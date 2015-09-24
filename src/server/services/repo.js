@@ -11,9 +11,9 @@ var url = require('../services/url');
 
 module.exports = {
 	all: function(done) {
-	  Repo.find({}, function(err, repos){
-		done(err, repos);
-	  });
+		Repo.find({}, function(err, repos){
+			done(err, repos);
+		});
 	},
 
 	check: function(args, done) {
@@ -51,19 +51,10 @@ module.exports = {
 	},
 
 	getPRCommitters: function(args, done){
-		Repo.findOne({owner: args.owner, repo: args.repo}, function(e, repo){
-			if (e || !repo) {
-				var errorMsg = e;
-				errorMsg += 'with following arguments: ' + JSON.stringify(args);
-				logger.error(new Error(errorMsg).stack);
-				done(errorMsg);
-				return;
-			}
+		var callGithub = function(arg){
 			var committers = [];
 
-			args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
-			args.token = repo.token;
-			github.direct_call(args, function(err, res){
+			github.direct_call(arg, function(err, res){
 				if (err) {
 					logger.info(new Error(err).stack);
 				}
@@ -72,7 +63,7 @@ module.exports = {
 						try {
 							var committer = commit.committer || commit.commit.committer;
 						} catch (error) {
-							logger.warn('Problem on PR ', url.githubPullRequest(args.owner, args.repo, args.number));
+							logger.warn('Problem on PR ', url.githubPullRequest(arg.owner, arg.repo, arg.number));
 							logger.warn(new Error('commit info seems to be wrong; ' + error).stack);
 							return;
 						}
@@ -87,11 +78,34 @@ module.exports = {
 					done(null, committers);
 				} else if (res.data.message) {
 					logger.info(new Error(res.data.message).stack);
-					logger.info('getPRCommitters with args: ', args);
-					done(res.data.message);
+					logger.info('getPRCommitters with arg: ', arg);
+
+					arg.count = arg.count ? arg.count + 1 : 1;
+					if (res.data.message === 'Not Found' && arg.count < 3) {
+						setTimeout(function () {
+							callGithub(arg);
+						}, 1000);
+					} else {
+						done(res.data.message);
+					}
 				}
 
 			});
+		};
+
+		Repo.findOne({owner: args.owner, repo: args.repo}, function(e, repo){
+			if (e || !repo) {
+				var errorMsg = e;
+				errorMsg += 'with following arguments: ' + JSON.stringify(args);
+				logger.error(new Error(errorMsg).stack);
+				done(errorMsg);
+				return;
+			}
+
+			args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
+			args.token = repo.token;
+
+			callGithub(args);
 		});
 	},
 
