@@ -507,8 +507,9 @@ describe('repo:getPRCommitters', function () {
 			assert(Repo.findOne.called);
 			assert(github.direct_call.calledThrice);
 		});
-
+		setTimeout(it_done, 3500);
 		it_done();
+
 	});
 
 	it('should handle not found repo', function (it_done) {
