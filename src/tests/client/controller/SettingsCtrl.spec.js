@@ -118,7 +118,7 @@ describe('Settings Controller', function () {
 				repo: 'myRepo',
 				user: 'login'
 			}).respond({
-				id: 'webhookId'
+				active: true
 			});
 		});
 
@@ -291,6 +291,7 @@ describe('Settings Controller', function () {
 		});
 
 		describe('on validateLinkedRepo', function(){
+			var webhook = {active: true};
 			beforeEach(function(){
 				httpBackend.flush();
 
@@ -308,9 +309,7 @@ describe('Settings Controller', function () {
 				httpBackend.expect('POST', '/api/webhook/get', {
 					repo: 'myRepo',
 					user: 'login'
-				}).respond({
-					id: 'webhookId'
-				});
+				}).respond(webhook);
 
 			});
 			it('should indicate loading', function () {
@@ -329,6 +328,16 @@ describe('Settings Controller', function () {
 				(settingsCtrl.scope.loading).should.not.be.ok;
 				(settingsCtrl.scope.valid.gist).should.be.ok;
 				(settingsCtrl.scope.valid.webhook).should.be.ok;
+			});
+
+			it('should use active flag of webhook to validate it', function(){
+				webhook.active = false;
+				settingsCtrl.scope.validateLinkedRepo();
+
+				httpBackend.flush();
+				(settingsCtrl.scope.loading).should.not.be.ok;
+				(settingsCtrl.scope.valid.gist).should.be.ok;
+				(settingsCtrl.scope.valid.webhook).should.be.not.ok;
 			});
 		});
 
@@ -412,7 +421,7 @@ describe('Settings Controller', function () {
 				repo: 'myRepo',
 				user: 'login'
 			}).respond({
-				id: 'webhookId'
+				active: true
 			});
 			// settingsCtrl.scope.getGist();
 			httpBackend.flush();

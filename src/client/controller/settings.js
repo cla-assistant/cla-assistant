@@ -66,7 +66,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			}, function(err, obj){
 				if (!err && obj && obj.value) {
 					webhook = obj.value;
-					$scope.valid.webhook = webhook && webhook.id ? true : false;
+					$scope.valid.webhook = webhook.active;
 				}
 			});
 		};
