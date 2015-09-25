@@ -27,7 +27,7 @@
 </div>
 
 <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
-	<img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-template="validationPopover.templateUrl" popover-trigger="mouseenter" popover-placement="right">
+	<img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-template="'validateRepo.html'" popover-trigger="mouseenter" popover-placement="right">
 </div>
 <script type="text/ng-template" id="validateRepo.html">
 	<i class="fa" ng-class="valid.gist ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> gist</i>
@@ -37,10 +37,4 @@
 <div class="col-xs-4 col-sm-1 ">
 	<i class="fa fa-trash-o action-icon" style="float:right; font-size:18px" ng-click="$parent.confirmRemove(repo)" tooltip-placement="bottom" tooltip="Unlink">
 	</i>
-	<!-- <i class="fa fa-pencil action-icon"
-	style=" font-size:17px"
-	ng-click=""
-	tooltip-placement="bottom"
-	tooltip="Edit">
-	</i> -->
 </div>

@@ -17,9 +17,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		$scope.valid = {};
 		$scope.signatures = [];
 		$scope.contributors = [];
-		$scope.validationPopover = {
-			templateUrl: 'validateRepo.html'
-		};
 		var webhook = {};
 
 		$scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At'];
@@ -36,7 +33,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
 		var validateGistUrl = function (gist_url) {
 			var valid = false;
-			// valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
 			valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
 			return valid ? gist_url : undefined;
 		};
@@ -98,7 +94,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 						getGithubUserData(signature.user).then(function (user) {
 							contributor.html_url = user.html_url;
 							// $scope.contributors.push(user.value);
-
 						});
 					});
 				}
@@ -191,11 +186,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				gist: $scope.repo.gist
 			}, function () {
 				$scope.validateLinkedRepo();
-				// if ($scope.repo.gist) {
-				// 	// $scope.getUsers();
-				// 	$scope.getGist();
-				// 	$scope.getSignatures($scope.repo);
-				// }
 			});
 		};
 
@@ -226,10 +216,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		};
 
 		$scope.validateLinkedRepo();
-		// if ($scope.repo.gist) {
-		// 	$scope.getGist();
-		// 	$scope.getSignatures($scope.repo);
-		// }
 	}
 ]);
 
