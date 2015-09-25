@@ -13,9 +13,14 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		$scope.admin = false;
 		$scope.errorMsg = [];
 		$scope.loading = false;
-		$scope.gistValid = true;
+		$scope.gistUrlIsValid = true;
+		$scope.valid = {};
 		$scope.signatures = [];
 		$scope.contributors = [];
+		$scope.validationPopover = {
+			templateUrl: 'validateRepo.html'
+		};
+		var webhook = {};
 
 		$scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At'];
 
@@ -29,7 +34,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			return args;
 		}
 
-		$scope.isValid = function (gist_url) {
+		var validateGistUrl = function (gist_url) {
 			var valid = false;
 			// valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
 			valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
@@ -62,6 +67,11 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			return $RPCService.call('webhook', 'get', {
 				repo: $scope.repo.repo,
 				user: $scope.repo.owner
+			}, function(err, obj){
+				if (!err && obj && obj.value) {
+					webhook = obj.value;
+					$scope.valid.webhook = webhook && webhook.id ? true : false;
+				}
 			});
 		};
 
@@ -103,6 +113,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			}, function (err, data) {
 				if (!err && data.value) {
 					$scope.gist = data.value;
+					$scope.valid.gist = $scope.gist && $scope.gist.id ? true : false;
 				}
 				$scope.gist.linked = true;
 			});
@@ -140,13 +151,19 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				$scope.getSignatures($scope.repo);
 				$q.all(promises).then(function(){
 					$scope.loading = false;
+					console.log('Validate ', $scope.repo.owner, '/', $scope.repo.repo);
+					console.log('gist ', $scope.valid.gist, ', webhook ', $scope.valid.webhook);
 				});
 			}
 		};
 
+		$scope.isLinkActive = function(){
+			return !$scope.loading && $scope.valid.gist && $scope.valid.webhook ? true : false;
+		};
+
 		$scope.update = function () {
-			$scope.gistValid = $scope.isValid($scope.repo.gist);
-			if ($scope.repo.gist && !$scope.gistValid) {
+			$scope.gistUrlIsValid = validateGistUrl($scope.repo.gist);
+			if ($scope.repo.gist && !$scope.gistUrlIsValid) {
 				return;
 			}
 			if ($scope.repo.gist) {
@@ -172,12 +189,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				repo: $scope.repo.repo,
 				owner: $scope.repo.owner,
 				gist: $scope.repo.gist
-			}, function (err) {
-				if ($scope.repo.gist) {
-					// $scope.getUsers();
-					$scope.getGist();
-					$scope.getSignatures($scope.repo);
-				}
+			}, function () {
+				$scope.validateLinkedRepo();
+				// if ($scope.repo.gist) {
+				// 	// $scope.getUsers();
+				// 	$scope.getGist();
+				// 	$scope.getSignatures($scope.repo);
+				// }
 			});
 		};
 

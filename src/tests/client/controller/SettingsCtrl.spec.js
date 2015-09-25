@@ -302,6 +302,7 @@ describe('Settings Controller', function () {
 						gist_url: 'https://gist.github.com/gistId'
 					}
 				}).respond({
+					id: 'gistId',
 					url: 'https://gist.github.com/gistId'
 				});
 				httpBackend.expect('POST', '/api/webhook/get', {
@@ -326,6 +327,8 @@ describe('Settings Controller', function () {
 
 				httpBackend.flush();
 				(settingsCtrl.scope.loading).should.not.be.ok;
+				(settingsCtrl.scope.valid.gist).should.be.ok;
+				(settingsCtrl.scope.valid.webhook).should.be.ok;
 			});
 		});
 
