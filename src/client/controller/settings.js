@@ -146,8 +146,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				$scope.getSignatures($scope.repo);
 				$q.all(promises).then(function(){
 					$scope.loading = false;
-					console.log('Validate ', $scope.repo.owner, '/', $scope.repo.repo);
-					console.log('gist ', $scope.valid.gist, ', webhook ', $scope.valid.webhook);
 				});
 			}
 		};
