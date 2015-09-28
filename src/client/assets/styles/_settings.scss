@@ -13,7 +13,7 @@
 
 .settings{
   img{
-    height:1.5em; min-height:15px;
+	height:1.5em; min-height:15px;
   }
 }
 
@@ -21,14 +21,18 @@
   color: $gray;
 }
 
+.settings {
+	.action {
+		padding: 0;
+	}
 
-// diff-match-patch
-.ins, ins {
-  color: black;
-  background: #bbffbb;
-}
+	.action-icon {
+		float:right;
+		font-size:18px;
+		margin-right: 15px;
+	}
 
-.del, del {
-  color: black;
-  background: #ffbbbb;
+	.action-icon:first-of-type {
+		margin-right: 0;
+	}
 }
