@@ -44,7 +44,7 @@ module.exports = {
 					}
 				};
 			} catch (e){
-				log.warn(e);
+				log.warn(e, ' Args: ', req.args);
 				done(e);
 				return;
 			}
