@@ -133,26 +133,28 @@ module.exports = {
 		cla.check(args, done);
   },
 
-  	upload: function(req, done) {
+	upload: function(req, done) {
 
-  		var users = req.args.users || [];
+		var users = req.args.users || [];
 
-  		async.each(users, function(user, callback) {
-  			github.call({
-  				obj: 'user',
-  				fun: 'getFrom',
-  				arg: {user: user},
-  				token: req.user.token
-  			}, function(err, user) {
-  				if(!err && user) {
-  					cla.sign({
-  						repo: req.args.repo, 
-  						owner: req.args.owner, 
-  						user: user.login, 
-  						user_id: user.id
-  					}, callback);
-  				}
-  			});
-  		}, done);
-  	}
+		async.each(users, function(user, callback) {
+			github.call({
+				obj: 'user',
+				fun: 'getFrom',
+				arg: {user: user},
+				token: req.user.token
+			}, function(err, user) {
+				if(err || !user) {
+					return callback();
+				}
+
+				cla.sign({
+					repo: req.args.repo, 
+					owner: req.args.owner, 
+					user: user.login, 
+					user_id: user.id
+				}, callback);
+			});
+		}, done);
+	}
 };
