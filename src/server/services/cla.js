@@ -29,7 +29,7 @@ module.exports = function(){
 			}
 			promises.push(claService.get(args, function(err, cla){
 				if (err) {
-					logger.warn(err);
+					logger.warn(new Error(err).stack);
 				}
 				if (!cla) {
 					all_signed = false;
@@ -83,7 +83,11 @@ module.exports = function(){
 			req = https.request(options, function(res){
 				res.on('data', function(chunk) { data += chunk; });
 				res.on('end', function(){
-					data = JSON.parse(data);
+					try {
+						data = JSON.parse(data);
+					} catch (e) {
+						logger.warn(new Error(e).stack);
+					}
 					done(null, data);
 				});
 			});
@@ -156,7 +160,7 @@ module.exports = function(){
 					else if (args.number) {
 						repoService.getPRCommitters(args, function(error, committers){
 							if (error) {
-								logger.warn(error);
+								logger.warn(new Error(error).stack);
 							}
 							checkAll(committers, args).then(function(result){
 								done(null, result.signed, result.user_map);
@@ -204,7 +208,7 @@ module.exports = function(){
 			var findCla = function(query, repoList, claList, cb){
 				CLA.find(query, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
 					if (err) {
-						logger.warn(err);
+						logger.warn(new Error(err).stack);
 					} else {
 						clas.forEach(function(cla){
 							if(repoList.indexOf(cla.repo) < 0){
@@ -219,7 +223,7 @@ module.exports = function(){
 
 			repoService.all(function(e, repos){
 				if (e) {
-					logger.warn(e);
+					logger.warn(new Error(e).stack);
 				}
 				repos.forEach(function(repo){
 					selector.push({
@@ -253,7 +257,7 @@ module.exports = function(){
 					}
 					self.getRepo(args, function(err, repo){
 						if (err) {
-							logger.warn(err);
+							logger.warn(new Error(err).stack);
 						}
 						self.getGist(repo, function(error, gist){
 							if (!gist) {
