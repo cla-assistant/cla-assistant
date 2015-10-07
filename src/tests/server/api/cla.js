@@ -518,3 +518,72 @@ describe('cla api', function() {
     });
 
 });
+
+describe('cla:upload', function() {
+    it('should silenty exit when no users provided', function(it_done) {
+
+        var req = {args: {repo: 'myRepo', owner: 'login'}, user: {token: 'user_token'}};
+
+        cla_api.upload(req, function(err, res) {
+            assert.equal(err, undefined);
+            assert.equal(res, undefined);
+            it_done();
+        });
+    });
+
+    it('should not "sign" cla when github user not found', function(it_done) {
+
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
+            assert.equal(args.obj, 'user');
+            assert.equal(args.fun, 'getFrom');
+            assert.equal(args.arg.user, 'one');
+            assert.equal(args.token, 'user_token');
+            cb('not found');
+        });
+
+        var claStub = sinon.stub(cla, 'sign', function(args, cb) {
+            cb(null, {});
+        });
+
+        var req = {args: {repo: 'myRepo', owner: 'login', users: ['one']}, user: {token: 'user_token'}};
+
+        cla_api.upload(req, function(err, res) {
+            assert(githubStub.called);
+            assert(!claStub.called);
+            githubStub.restore();
+            claStub.restore();
+            it_done();
+        });
+    });
+
+    it('should "sign" cla for two users', function(it_done) {
+
+        var githubStub = sinon.stub(github, 'call', function(args, cb) {
+            assert.equal(args.obj, 'user');
+            assert.equal(args.fun, 'getFrom');
+            assert.equal(args.token, 'user_token');
+            cb(null, {
+                id: 1,
+                login: args.arg.user
+            });
+        });
+
+        var claStub = sinon.stub(cla, 'sign', function(args, cb) {
+            assert.equal(args.repo, 'myRepo');
+            assert.equal(args.owner, 'login');
+            assert.equal(args.user, 'one');
+            assert.equal(args.user_id, 1);
+            cb(null, {});
+        });
+
+        var req = {args: {repo: 'myRepo', owner: 'login', users: ['one']}, user: {token: 'user_token'}};
+
+        cla_api.upload(req, function(err, res) {
+            assert(githubStub.called);
+            assert(claStub.called);
+            githubStub.restore();
+            claStub.restore();
+            it_done();
+        });
+    });
+});
