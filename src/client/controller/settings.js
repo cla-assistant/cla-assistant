@@ -213,6 +213,21 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			}
 		};
 
+		$scope.upload = function(claRepo){
+			var modal = $modal.open({
+				templateUrl: '/modals/templates/upload.html',
+				controller: 'UploadCtrl',
+				windowClass: 'upload'
+			});
+			modal.result.then(function(users) {
+				$RPCService.call('cla', 'upload', {
+					repo: claRepo.repo,
+					owner: claRepo.owner,
+					users: users
+				}).then($scope.update);
+			});
+		};
+
 		$scope.validateLinkedRepo();
 	}
 ]);
