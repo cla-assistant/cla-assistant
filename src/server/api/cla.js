@@ -195,14 +195,15 @@ module.exports = {
 				},
 				token: req.user.token
 			}, function (err, gh_user) {
-				if (!err && gh_user) {
-					cla.sign({
-						repo: req.args.repo,
-						owner: req.args.owner,
-						user: gh_user.login,
-						user_id: gh_user.id
-					}, callback);
+				if (err || !gh_user) {
+					return callback();
 				}
+				cla.sign({
+					repo: req.args.repo,
+					owner: req.args.owner,
+					user: gh_user.login,
+					user_id: gh_user.id
+				}, callback);
 			});
 		}, done);
 	}
