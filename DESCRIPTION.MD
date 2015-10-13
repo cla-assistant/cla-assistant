@@ -13,15 +13,11 @@ To use CLA assistant, all you need to do is to store your CLA as a GitHub Gist f
 - it updates the status of the pull request as soon the contributor agrees to your CLA
 - if the content of your CLA changes over time you have not to notify all your active contributor to sign the new version of the CLA again. CLA assistant will do it for you! Just update the linked Gist file. Each new pull request will get a comment with request to sign the CLA even if the user has already signed the previous version.
 
-You as repository owner can review the list of users who signed your CLA for each version of it.
-
-### Marketing website
-https://www.review.ninja/
+Repository owners can review the list of users who signed your CLA for each version of it. To get started, visit https://cla-assistant.io.
 
 ### Contacts
-technical support contact – hello@review.ninja
-security contact – david.farr@sap.com
-Escalation contact- ben.boeser@sap.com
+- technical support contact – tba
+- escalation contact- t.jansen@sap.com
 
 ### Documentation
 Documentation - https://cla-assistant.io/
