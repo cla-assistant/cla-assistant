@@ -20,12 +20,12 @@ Repository owners can review the list of users who signed your CLA for each vers
 - escalation contact- t.jansen@sap.com
 
 ### Documentation
-Documentation - https://cla-assistant.io/
-Terms of service - https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30
-Privacy Policy - same
-Support – tba
-Status - tba
-Pricing – for free. For all. For everything.
+- Documentation - https://cla-assistant.io/
+- Terms of service - https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30
+- Privacy Policy - same
+- Support – tba
+- Status - tba
+- Pricing – for free. For all. For everything.
 
 
 ###Category
