@@ -13,6 +13,8 @@ To use CLA assistant, all you need to do is to store your CLA as a GitHub Gist f
 - it updates the status of the pull request as soon the contributor agrees to your CLA
 - if the content of your CLA changes over time you have not to notify all your active contributor to sign the new version of the CLA again. CLA assistant will do it for you! Just update the linked Gist file. Each new pull request will get a comment with request to sign the CLA even if the user has already signed the previous version.
 
+![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/screenshot.png)
+
 Repository owners can review the list of users who signed your CLA for each version of it. To get started, visit https://cla-assistant.io.
 
 ### Contacts
