@@ -16,7 +16,7 @@ To use CLA assistant, all you need to do is to store your CLA as a GitHub Gist f
 Repository owners can review the list of users who signed your CLA for each version of it. To get started, visit https://cla-assistant.io.
 
 ### Contacts
-- technical support contact – tba
+- technical support contact – tools@sap.com
 - escalation contact- t.jansen@sap.com
 
 ### Documentation
