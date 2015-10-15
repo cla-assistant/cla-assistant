@@ -23,8 +23,8 @@ Repository owners can review the list of users who signed your CLA for each vers
 - Documentation - https://cla-assistant.io/
 - Terms of service - https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30
 - Privacy Policy - same
-- Support – tba
-- Status - tba
+- Support – tools@sap.com
+- Status - https://twitter.com/cla_assistant
 - Pricing – for free. For all. For everything.
 
 
