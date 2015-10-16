@@ -116,6 +116,44 @@ module.exports = {
 		cla.getAll(req.args, done);
 	},
 
+	validatePullRequests: function (req, done){
+		github.direct_call({
+			url: url.githubPullRequests(req.args.owner, req.args.repo, 'open'),
+			token: req.args.token ? req.args.token : req.user.token
+		}, function (error, res) {
+			if (error) {
+				log.error(error);
+			}
+
+			if (res && res.data && !error) {
+				res.data.forEach(function (pullRequest) {
+					var status_args = {
+						repo: req.args.repo,
+						owner: req.args.owner
+					};
+					status_args.number = pullRequest.number;
+					cla.check(status_args, function (cla_err, all_signed, user_map) {
+						if (cla_err) {
+							log.error(cla_err);
+						}
+						status_args.signed = all_signed;
+						status.update(status_args);
+						prService.editComment({
+							repo: req.args.repo,
+							owner: req.args.owner,
+							number: status_args.number,
+							signed: all_signed,
+							user_map: user_map
+						});
+					});
+				});
+			}
+			if (typeof done === 'function') {
+				done(error);
+			}
+		});
+	},
+
 	sign: function (req, done) {
 		var args = {
 			repo: req.args.repo,
@@ -123,6 +161,7 @@ module.exports = {
 			user: req.user.login,
 			user_id: req.user.id
 		};
+		var self = this;
 
 		cla.sign(args, function (err, signed) {
 			if (err) {
@@ -135,38 +174,8 @@ module.exports = {
 				if (e) {
 					log.error(e);
 				}
-				github.direct_call({
-					url: url.githubPullRequests(args.owner, args.repo, 'open'),
-					token: repo.token
-				}, function (error, res) {
-					if (error) {
-						log.error(error);
-					}
-
-					if (res && res.data && !error) {
-						res.data.forEach(function (pullRequest) {
-							var status_args = {
-								repo: args.repo,
-								owner: args.owner
-							};
-							status_args.number = pullRequest.number;
-							cla.check(status_args, function (cla_err, all_signed, user_map) {
-								if (cla_err) {
-									log.error(cla_err);
-								}
-								status_args.signed = all_signed;
-								status.update(status_args);
-								prService.editComment({
-									repo: args.repo,
-									owner: args.owner,
-									number: status_args.number,
-									signed: all_signed,
-									user_map: user_map
-								});
-							});
-						});
-					}
-				});
+				req.args.token = repo.token;
+				self.validatePullRequests(req);
 			});
 			done(err, signed);
 		});

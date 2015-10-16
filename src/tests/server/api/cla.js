@@ -816,3 +816,69 @@ describe('cla:upload', function () {
 		});
 	});
 });
+
+describe('cla: validatePullRequests', function(){
+	var req;
+	beforeEach(function() {
+		req = {
+			args: {
+				repo: 'myRepo',
+				owner: 'owner',
+				token: 'test_token'
+			}
+		};
+		sinon.stub(github, 'direct_call', function (args, cb) {
+			assert(args.url);
+			assert(args.token);
+			assert.equal(args.url, url.githubPullRequests('owner', 'myRepo', 'open'));
+
+			cb(null, {
+				data: [{
+					number: 1
+				}, {
+					number: 2
+				}]
+			});
+		});
+		sinon.stub(statusService, 'update', function (args) {
+			assert(args.signed);
+		});
+		sinon.stub(cla, 'check', function (args, cb) {
+			cb(null, true);
+		});
+		sinon.stub(prService, 'editComment', function () {});
+	});
+
+	afterEach(function(){
+		cla.check.restore();
+		statusService.update.restore();
+		prService.editComment.restore();
+		github.direct_call.restore();
+	});
+	it('should update all open pull requests', function(it_done){
+
+		cla_api.validatePullRequests(req, function (error, res) {
+			assert.ifError(error);
+			assert.equal(statusService.update.callCount, 2);
+			assert(github.direct_call.called);
+			assert(prService.editComment.called);
+
+			it_done();
+		});
+	});
+
+	it('should update all PRs with users token', function(it_done){
+		req.args.token = undefined;
+		req.user = {
+			token: 'user_token'
+		};
+		cla_api.validatePullRequests(req, function (error, res) {
+			assert.ifError(error);
+			assert.equal(statusService.update.callCount, 2);
+			assert(github.direct_call.called);
+			assert(prService.editComment.called);
+
+			it_done();
+		});
+	});
+});
