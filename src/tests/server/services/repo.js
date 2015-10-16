@@ -488,6 +488,7 @@ describe('repo:getPRCommitters', function () {
 	});
 
 	it('should retry api call if gitHub returns "Not Found"', function (it_done) {
+		this.timeout(4000);
 		github.direct_call.restore();
 		sinon.stub(github, 'direct_call', function (args, done) {
 			done(null, {
@@ -508,8 +509,6 @@ describe('repo:getPRCommitters', function () {
 			assert(github.direct_call.calledThrice);
 		});
 		setTimeout(it_done, 3500);
-		it_done();
-
 	});
 
 	it('should handle not found repo', function (it_done) {
