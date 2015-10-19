@@ -11,7 +11,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
       $scope.repos = [];
       $scope.gists = [];
-      $scope.claRepos = [];
+      $scope.signedCLAs = [];
       $scope.signedCLAs = [];
       $scope.users = [];
       $scope.user = {};
@@ -42,10 +42,12 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         return $RPCService.call('cla', 'getSignedCLA', {
             user: $scope.user.value.login
           }, function(err, data){
-              $scope.claRepos = data.value;
-              for(var i = 0; i < $scope.claRepos.length; i++){
-                $scope.getGist($scope.claRepos[i]);
-                $scope.getVersionStatus($scope.claRepos[i]);
+              if(!err && data){
+                  $scope.signedCLAs = data.value;
+                  for(var i = 0; i < $scope.signedCLAs.length; i++){
+                    $scope.getGist($scope.signedCLAs[i]);
+                    $scope.getVersionStatus($scope.signedCLAs[i]);
+                  }
               }
         });
       };
@@ -79,7 +81,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       });
 
       $scope.order = function(predicate, reverse){
-        $scope.claRepos = orderBy($scope.claRepos, predicate, reverse);
+        $scope.signedCLAs = orderBy($scope.signedCLAs, predicate, reverse);
       };
 
       $scope.getDefaultClaFiles = function(){
@@ -88,13 +90,13 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           });
       };
 
-      $scope.getClaView = function(claRepo) {
+      $scope.getClaView = function(signedCLA) {
           $modal.open({
               templateUrl: '/modals/templates/claView.html',
               controller: 'ClaViewCtrl',
               scope: $scope,
               resolve: {
-                  cla: function(){ return claRepo; }
+                  cla: function(){ return signedCLA; }
               }
           });
       };
@@ -108,64 +110,79 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           return fileVersion;
       };
 
-      $scope.getVersionView = function(claRepo) {
-        if (claRepo.newCLA) {
-            claRepo.noCLA = false;
+      $scope.getVersionView = function(signedCLA) {
+         if(!signedCLA.revoked){
+            if (signedCLA.newCLA) {
+                signedCLA.noCLA = false;
 
-            if(claRepo.newCLA.html_url !== claRepo.gist_url){
-              claRepo.showCLA = true;
+                if(signedCLA.newCLA.html_url !== signedCLA.gist_url){
+                  signedCLA.showCLA = true;
+                } else {
+                  signedCLA.showCLA = false;
+                }
             } else {
-              claRepo.showCLA = false;
+                signedCLA.noCLA = true;
             }
-        } else {
-            claRepo.noCLA = true;
         }
           $modal.open({
               templateUrl: '/modals/templates/versionView.html',
               controller: 'VersionViewCtrl',
               scope: $scope,
               resolve: {
-                  cla: function(){ return claRepo; },
-                  noCLA: function(){ return claRepo.noCLA; },
-                  showCLA: function(){ return claRepo.showCLA; }
+                  cla: function(){ return signedCLA; },
+                  noCLA: function(){ return signedCLA.noCLA; },
+                  showCLA: function(){ return signedCLA.showCLA; },
+                  revoked: function(){ return signedCLA.revoked; }
               }
           });
       };
 
-      function getLinkedGist(claRepo) {
+      function getLinkedGist(signedCLA) {
           return $RPCService.call('cla', 'getGist', {
-            repo: claRepo.repo,
-            owner: claRepo.owner
+            repo: signedCLA.repo,
+            owner: signedCLA.owner
           }, function (err, data){
               if(!err && data.value){
-                claRepo.newCLA = data.value;
+                signedCLA.newCLA = data.value;
               }
           });
       }
 
-      function checkCLA(claRepo) {
+      function checkCLA(signedCLA) {
           return $RPCService.call('cla', 'check', {
-              repo: claRepo.repo,
-              owner: claRepo.owner
+              repo: signedCLA.repo,
+              owner: signedCLA.owner
           }, function(err, signed){
               if (!err && signed.value && signed) {
-                  claRepo.signed = true;
+                  signedCLA.signed = true;
               }else {
-                  claRepo.signed = false;
-                  getLinkedGist(claRepo);
+                  signedCLA.signed = false;
+                  getLinkedGist(signedCLA);
               }
           });
       }
 
-      $scope.getVersionStatus = function(claRepo) {
-        // getLatestGist(claRepo);
-        checkCLA(claRepo).then(function(){
-          if (claRepo.signed) {
-              claRepo.stat = true;
+      $scope.getVersionStatus = function(signedCLA) {
+        // getLatestGist(signedCLA);
+        checkCLA(signedCLA).then(function(){
+          if (signedCLA.signed) {
+              signedCLA.stat = true;
           }else{
-              claRepo.stat = false;
+              signedCLA.stat = false;
           }
         });
       };
+
+     $scope.getRevokeView = function(signedCLA) {
+         $modal.open({
+             templateUrl: '/modals/templates/revokeView.html',
+             controller: 'RevokeViewCtrl',
+             scope: $scope,
+             resolve: {
+                 cla: function(){ return signedCLA; }
+             }
+         });
+     };
+
     }
 ]);

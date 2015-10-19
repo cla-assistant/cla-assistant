@@ -28,8 +28,10 @@
 			<h3>Thank you {{user.login}}</h3>
 			<h4>for signing the CLA!</h4>
 			</br>
-			<h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
+			<h4 ng-if="!showRedirect" ng-show="!!redirect">we are now taking you back to GitHub</h4>
+			<h4 ng-if="showRedirect" ng-show="!!redirect">we are now taking you back to CLA-Assistant</h4>
 			<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
 		</div>
+
 	</div>
 </div>

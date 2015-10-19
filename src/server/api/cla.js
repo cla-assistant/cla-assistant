@@ -90,8 +90,12 @@ module.exports = {
 		});
 	},
 
-  getAll: function(req, done){
+	getAll: function(req, done){
 		cla.getAll(req.args, done);
+	},
+
+	revokeAllSignatures: function(req, done){
+		cla.revokeAllSignatures(req.args, done);
 	},
 
 	sign: function(req, done) {

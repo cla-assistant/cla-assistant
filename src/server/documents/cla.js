@@ -6,7 +6,9 @@ var CLASchema = mongoose.Schema({
     user: String,
     gist_url: String,
     gist_version: String,
-    created_at: Date
+    created_at: Date,
+    revoked: {type: Boolean, default: false },
+    revoked_at: Date
 });
 
 CLASchema.index({

@@ -5,9 +5,8 @@
 // path: /:repoId/:prId
 // *****************************************************
 
-module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$modal', '$sce', '$timeout', '$http', '$q',
-    function($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $modal, $sce, $timeout, $http, $q) {
-
+module.controller( 'ClaController', ['$window', '$scope', '$rootScope', '$stateParams', '$location', '$RAW', '$RPCService', '$HUBService', '$modal', '$sce', '$timeout', '$http', '$q',
+    function($window, $scope, $rootScope, $stateParams, $location, $RAW, $RPCService, $HUBService, $modal, $sce, $timeout, $http, $q) {
         $scope.cla = null;
         $scope.signed = false;
         $scope.signedCLA = null;
@@ -34,6 +33,8 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
             }, function(err, signed){
                 if (!err && signed.value) {
                     $scope.signed = true;
+                }else{
+                    $scope.signed = false;
                 }
             });
         }
@@ -43,7 +44,9 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
                 repo: $stateParams.repo,
                 owner: $stateParams.user
             }, function(err, exists){
-                callback(exists.value);
+                if(!err){
+                    callback(exists.value);
+                }
             });
         }
 
@@ -61,7 +64,6 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
                 }
             });
         };
-
 
         // function getDiff(){
         //     return $RPCService.call('cla', 'get', {
@@ -89,7 +91,7 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
                     repo: $stateParams.repo,
                     owner: $stateParams.user,
                     gist: {gist_url: data.value.gist_url,
-                            gist_version: data.value.gist_version}
+                           gist_version: data.value.gist_version}
                 }).then(function(cla_data){
                     $scope.signedCLA.text = cla_data.value.raw;
                 });
@@ -97,6 +99,7 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
 
             return promise;
         }
+
 
         $scope.agree = function(){
             var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
@@ -122,8 +125,14 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
           }
           if ($scope.user && $scope.user.value && $scope.repoExists) {
               checkCLA().then(function(signed){
-                  if (signed.value) {
+                  if(signed.value && $rootScope.urlValue === '/my-cla'){
+                      $scope.showRedirect = true;
+                      $timeout(function () {
+                          $window.location.href = $rootScope.urlValue;
+                      }, 5000);
+                  } else if (signed.value) {
                       $http.get('/logout?noredirect=true');
+                      $scope.showRedirect = false;
                       $timeout(function(){
                           $window.location.href = $scope.redirect;
                       }, 5000);

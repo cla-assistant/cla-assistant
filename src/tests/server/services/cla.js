@@ -171,6 +171,24 @@ describe('cla:check', function() {
         callbacks.end();
 	});
 
+    it('should check whether user revoked the actual CLA', function(it_done){
+        sinon.stub(CLA, 'findOne', function(args, done){
+			assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url/gistId', gist_version: 'xyz'});
+			done(null, {id: 123, gist_url: 'url/gistId', created_at: '2012-06-20T11:34:15Z', gist_version: 'xyz', revoked: true});
+        });
+
+        var args = {repo: 'myRepo', owner: 'owner', user: 'login'};
+
+        cla.check(args, function(err, result){
+			assert.ifError(err);
+			assert(!result);
+			it_done();
+		});
+
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
+    });
+
     it('should positive check for pull request if pull request number given', function(it_done){
        sinon.stub(CLA, 'findOne', function(args, done){
             done(null, {id: 123, gist_url: 'url/gistId', created_at: '2012-06-20T11:34:15Z', gist_version: 'xyz'});
@@ -379,10 +397,10 @@ describe('cla:getSignedCLA', function() {
 
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           var listOfAllCla = [
-            {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1'},
-            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2'},
-            {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1'}
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url', gist_version: '1', revoked: false},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '1', revoked: false},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', gist_version: '2', revoked: false},
+            {repo: 'repo3', user: 'login', gist_url: 'gist_url', gist_version: '1', revoked: false}
           ];
           done(null, listOfAllCla);
         });
@@ -404,13 +422,13 @@ describe('cla:getSignedCLA', function() {
         });
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
           var listOfAllCla = [
-            {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z'},
-            {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z'},
-            {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z'}
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z', revoked: false},
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}
           ];
           if (args.$or) {
-            done(null, [{repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z'},
-                        {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z'}]);
+            done(null, [{repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
+                        {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}]);
           }else{
             done(null, listOfAllCla);
           }
@@ -426,6 +444,33 @@ describe('cla:getSignedCLA', function() {
             it_done();
         });
       });
+});
+
+describe('cla:revokeAllSignatures', function(){
+    it('should get all clas signed by the user for a specific repo', function(it_done){
+        sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
+        var listOfAllCla = [
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z', revoked: false},
+            {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
+            {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}
+        ];
+        done(null, listOfAllCla);
+        });
+        sinon.stub(CLA, 'update', function(args, done){
+
+        });
+
+        var args = {user: 'login', repo: 'repo1'};
+        cla.revokeAllSignatures(args, function(err, clas){
+            assert.ifError(err);
+            assert.equal(clas[0].repo, 'repo1');
+            assert.equal(clas[1].repo, 'repo1');
+            assert.equal(clas.length, 2);
+            assert.equal(CLA.update.called, 2);
+            CLA.find.restore();
+            it_done();
+        });
+    });
 });
 
 describe('cla:getAll', function() {

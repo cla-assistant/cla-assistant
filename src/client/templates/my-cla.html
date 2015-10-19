@@ -24,18 +24,18 @@
   </div>
 <div class="row main" style="margin-top: 70px;">
 	<div class="row">
-		<h4 class="col-xs-12" style="margin: 25px; padding-left: 0;">Signed Contributor License Agreements</h4>
+		<h4 class="col-xs-12" style="margin-bottom: 25px; padding-left: 0;">Signed Contributor License Agreements</h4>
 	</div>
 	<div class="well row" style="padding-top: 25px;">
 		<table class="table">
-      <tbody>
+        <tbody>
   			<tr>
   				<td>
-            <div class="row">
+                    <div class="row">
     					<div ng-init="reverse=true; show_repo=false; show_created_at=false">
-    						<div class="col-sm-3 clickable" ng-click="reverse=!reverse; order(['owner', 'repo'], reverse); show_repo=true; show_created_at=false" style="padding-left: 0;">
+    						<div class="col-sm-4 clickable" ng-click="reverse=!reverse; order(['owner', 'repo'], reverse); show_repo=true; show_created_at=false" style="padding-left: 0;">
     							Repository
-                  &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_repo==true"></span>
+                                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_repo==true"></span>
 
     						</div>
     						<div class="col-sm-3">
@@ -43,33 +43,36 @@
     						</div>
     						<div class="col-sm-3">
     							<span class="clickable" ng-click="reverse=!reverse; order('created_at', reverse); show_created_at=true; show_repo=false">Date of Signature</span>
-                  &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
+                                &nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
     						</div>
-    						<div class="col-sm-3" style="text-align:center;">
-    							Version-Status
+    						<div class="col-sm-1" style="text-align:center">
+    							Status
     						</div>
     					</div>
-            </div>
+                    </div>
   				</td>
   			</tr>
-  			<tr ng-repeat="claRepo in claRepos">
+  			<tr ng-repeat="signedCLA in signedCLAs">
   				<td>
   					<div class="row">
-  						<div class="col-xs-12 col-sm-3" style="padding-left: 0;">
-  							<a ng-href="https://github.com/{{ claRepo.owner }}/{{ claRepo.repo }}" target="space">
-  								{{ claRepo.owner }} / {{ claRepo.repo }}
+  						<div class="col-xs-12 col-sm-4" style="padding-left: 0;">
+  							<a ng-href="https://github.com/{{ signedCLA.owner }}/{{ signedCLA.repo }}" target="space">
+  								{{ signedCLA.owner }} / {{ signedCLA.repo }}
   							</a>
   						</div>
-  						<div class="col-xs-12 col-sm-3 text">
-  							<a ng-click="getClaView(claRepo)" class="clickable" target="space">{{getGistName(claRepo.gistObj)}}</a>
+  						<div class="col-xs-12 col-sm-3">
+  							<a ng-click="getClaView(signedCLA)" class="clickable" target="space">{{getGistName(signedCLA.gistObj)}}</a>
   						</div>
   						<div class="col-xs-12 col-sm-3">
-  							{{claRepo.created_at | date:'longDate'}}
+  							{{signedCLA.created_at|date:'MMMM dd, yyyy'}}
   						</div>
-  						<div  class="col-xs-12 col-sm-3 center-block clickable">
-                  <img ng-if="!claRepo.stat" src="/assets/images/link_inactive.svg" style="height:1.5em; min-height:15px;" ng-click="getVersionView(claRepo)">
-                  <img ng-if="claRepo.stat" src="/assets/images/link_active.svg" style="height:1.5em; min-height:15px;" tooltip-placement="bottom" tooltip="everything is ok!">
-          	  </div>
+  						<div  class="col-xs-6 col-sm-1 center-block">
+                          <img class="clickable" ng-if="!signedCLA.stat || signedCLA.revoked" src="/assets/images/link_inactive.svg" style="height:1.5em; min-height:15px;" tooltip-placement="bottom" tooltip="Action may be required!" ng-click="getVersionView(signedCLA)">
+                          <img ng-if="signedCLA.stat && !signedCLA.revoked" src="/assets/images/link_active.svg" style="height:1.5em; min-height:15px;" tooltip-placement="bottom" tooltip="everything is ok!">
+                  	    </div>
+                        <div class="col-xs-6 col-sm-1 center-block">
+                            <i class="fa fa-trash-o action-icon clickable" ng-if="!signedCLA.revoked" style="float:right; font-size:18px" tooltip-placement="bottom" tooltip="Revoke" ng-click="getRevokeView(signedCLA)"> </i>
+                        </div>
   					</div>
   				</td>
   			</tr>

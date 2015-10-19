@@ -112,7 +112,7 @@ module.exports = function(){
 		//Get last signature of the user for given repository and gist url
 		getLastSignature: function(args, done) {
 			var deferred = q.defer();
-			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {select: {'created_at': -1}}, function(err, cla){
+			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args. gist_version}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {select: {'created_at': -1}}, function(err, cla){
 				if (!err && cla) {
 					deferred.resolve(cla);
 				}
@@ -144,10 +144,13 @@ module.exports = function(){
 
 					if (args.user) {
 						self.get(args, function(error, cla){
+							if (cla && cla.revoked === true) {
+								done(error, false);
+								return;
+							}
 							done(error, !!cla);
 						});
-					}
-					else if (args.number) {
+					} else if (args.number) {
 						repoService.getPRCommitters(args, function(error, committers){
 							if (error) {
 								logger.warn(error);
@@ -169,7 +172,6 @@ module.exports = function(){
 					done(e);
 					return;
 				}
-
 				self.getRepo(args, function(err, repo){
 					if (err || !repo) {
 						done(err);
@@ -178,12 +180,26 @@ module.exports = function(){
 
 					args.gist_url = repo.gist;
 
-					self.create(args, function(error){
-						if (error) {
-							done(error);
+					self.getGist(repo, function(errGetGist, gist){
+						if (err || !gist.history) {
+							done(errGetGist, false);
 							return;
 						}
-						done(error, 'done');
+						args.gist_version = gist.history[0].version;
+						self.create(args, function(error){
+							if (error) {
+								self.get(args, function(errorGet, cla){
+									if(cla.revoked){
+										var now = new Date();
+										CLA.update({_id: cla.id}, {$set: {created_at: now, revoked: false}}).exec();
+									}
+								});
+
+								done(error);
+								return;
+							}
+							done(error, 'done');
+						});
 					});
 				});
 			});
@@ -193,11 +209,12 @@ module.exports = function(){
 		getSignedCLA: function(args, done){
 			var selector = [];
 			var findCla = function(query, repoList, claList, cb){
-				CLA.find(query, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+				CLA.find(query, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*', 'revoked_at': '*'}, {sort: {'created_at': -1}}, function(err, clas){
 					if (err) {
 						logger.warn(err);
 					} else {
 						clas.forEach(function(cla){
+							// if(repoList.indexOf(cla.repo) < 0 && !cla.revoked){
 							if(repoList.indexOf(cla.repo) < 0){
 								repoList.push(cla.repo);
 								claList.push(cla);
@@ -226,6 +243,32 @@ module.exports = function(){
 						done(null, uniqueClaList);
 					});
 				});
+			});
+		},
+
+		revokeAllSignatures: function(args, done) {
+			var claList = [];
+			var now = new Date();
+			CLA.find({repo: args.repo, user: args.user}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {sort: {'created_at': -1}}, function(err, clas){
+				if (err) {
+					logger.warn(err);
+				} else {
+					clas.forEach(function(cla){
+						if(cla.repo === args.repo){
+							claList.push(cla);
+							cla.revoked = true;
+							cla.revoked_at = now;
+
+							// cla.save(function(error) {
+							// 	if(error){
+							// 		return error;
+							// 	}
+							// });
+							CLA.update({_id: cla.id}, {$set: {revoked: true, revoked_at: now}}).exec();
+						}
+					});
+				}
+				done(null, claList);
 			});
 		},
 
@@ -261,11 +304,10 @@ module.exports = function(){
 					});
 				});
 			}
-
 		},
+
 		create: function(args, done){
 			var now = new Date();
-
 			CLA.create({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
 				done(err, res);
 			});

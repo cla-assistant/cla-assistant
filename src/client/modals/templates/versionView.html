@@ -5,7 +5,7 @@
 	</div>
 	-->
 
-	<div ng-if="showCLA && !noCLA">
+	<div ng-if="showCLA && !noCLA && !revokedCLA">
 		<div class="center-block">
 			<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
 				Sorry, your actual signed CLA is outdated...
@@ -18,7 +18,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-if="!showCLA && !noCLA">
+	<div ng-if="!showCLA && !noCLA && !revokedCLA">
 			<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
 				Sorry, your actual signed CLA is outdated...
 			</div>
@@ -31,12 +31,23 @@
 				<button class="btn btn-success" ng-click="openNewCla()">Let me resign!</button>
 			</div>
 	</div>
-	<div ng-if="noCLA">
+	<div ng-if="noCLA && !revokedCLA">
 		<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
 			There is currently no CLA linked to this repository.
 		</div>
 		<div class="center-block row" style="font-size:18px; margin-top: 20px; margin-bottom: 20px;">
 			Please wait, until the owner has linked a CLA.
+		</div>
+	</div>
+	<div ng-if="revokedCLA">
+		<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
+			This CLA is revoked.
+		</div>
+		<div class="center-block row" style="font-size:18px; margin-top: 20px; margin-bottom: 20px;">
+			You revoked this CLA at {{claObj.revoked_at|date:'MMMM dd, yyyy HH:mm'}}
+		</div>
+		<div style="text-align:center; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
+			<button class="btn btn-success" ng-click="openNewCla()">Let me resign!</button>
 		</div>
 	</div>
 </div>
