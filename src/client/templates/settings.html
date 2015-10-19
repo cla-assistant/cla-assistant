@@ -1,52 +1,42 @@
 <!-- <div class="row settings_background"> -->
 
 <td>
-<div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
-	<div class="text clickable">
-		<a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
-			<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i> &nbsp; {{ repo.owner }} / {{ repo.repo }}
-		</a>
+	<div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
+		<div class="text clickable">
+			<a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
+				<i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i> &nbsp; {{ repo.owner }} / {{ repo.repo }}
+			</a>
+		</div>
 	</div>
-</div>
 
-<div class="col-xs-12 col-sm-3 col-lg-2">
-	<div ng-if="!loading && gist.id.length > 0" class="text">
-		<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+	<div class="col-xs-12 col-sm-3 col-lg-2">
+		<div ng-if="!loading && gist.id.length > 0" class="text">
+			<a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+		</div>
 	</div>
-</div>
 
-<div class="col-lg-3 hidden-xs hidden-sm hidden-md text">
-	<a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
-</div>
+	<div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md text">
+		<a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
+	</div>
 
-<div class="col-xs-12 col-sm-3 col-lg-2 text">
-	{{gist.updated_at | date:'longDate'}}
-</div>
+	<div class="col-xs-12 col-sm-2 col-lg-2 text">
+		{{gist.updated_at | date:'longDate'}}
+	</div>
 
-<div class="col-xs-4 col-sm-1 col-lg-1" style="text-align:center; text-decoration: underline;">
-	<a ng-click="getReport(repo);" class="clickable">{{signatures.length}}</a>
-</div>
+	<div class="col-xs-4 col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
+		<a ng-click="getReport(repo);" class="clickable">{{signatures.length}}</a>
+	</div>
 
-<div class="col-xs-4 col-sm-1 col-lg-1 center-block">
-	<img ng-if="loading" src="/assets/images/link_inactive.svg">
-	<img ng-if="!loading && gist.id.length > 0" src="/assets/images/link_active.svg" popover-placement="bottom"
-	popover="everything is ok!">
-	<img ng-if="!loading && !gist.id && gist.linked" src="/assets/images/link_inactive.svg" tooltip-placement="bottom"
-	tooltip="inactive">
-</div>
-<div class="col-xs-4 col-sm-1 action">
-
-	<i class="fa fa-trash-o action-icon"
-	ng-click="$parent.confirmRemove(repo)"
-	tooltip-placement="bottom"
-	tooltip="Unlink">
-	</i>
-
-	<i class="fa fa-upload action-icon"
-	   ng-click="upload(repo)"
-	   tooltip-placement="bottom"
-	   tooltip="Import">
-	</i>
-</div>
+	<script type="text/ng-template" id="validateRepo.html">
+		<i class="fa" ng-class="valid.gist ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> gist</i>
+		<i class="fa" ng-class="valid.webhook ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> webhook</i>
+	</script>
+	<div class="col-xs-4 col-sm-1 col-lg-1 center-block">
+		<img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateRepo.html'" popover-trigger="mouseenter" popover-popup-delay="300">
+	</div>
+	<div class="col-xs-4 col-sm-1 action">
+		<i class="fa fa-trash-o action-icon" style="float:right; font-size:18px" ng-click="$parent.confirmRemove(repo)" tooltip-placement="bottom" tooltip="Unlink"></i>
+		<i class="fa fa-upload action-icon" ng-click="upload(repo)" tooltip-placement="bottom" tooltip="Import"></i>
+	</div>
 
 </td>
