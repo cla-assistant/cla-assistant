@@ -112,7 +112,7 @@ module.exports = function(){
 		//Get last signature of the user for given repository and gist url
 		getLastSignature: function(args, done) {
 			var deferred = q.defer();
-			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args. gist_version}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {select: {'created_at': -1}}, function(err, cla){
+			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {select: {'created_at': -1}}, function(err, cla){
 				if (!err && cla) {
 					deferred.resolve(cla);
 				}
