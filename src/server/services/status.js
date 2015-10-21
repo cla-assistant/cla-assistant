@@ -6,46 +6,59 @@
 var url = require('../services/url');
 var github = require('../services/github');
 var repoService = require('../services/repo');
+var logger = require('../services/logger');
+
+var log = function(err, res, args) {
+	if (err) {
+		logger.warn(new Error(err));
+	}
+	logger.warn('Error: ', err, '; result: ', res, '; Args: ', args);
+};
 
 module.exports = {
-    update: function(args) {
+	update: function(args) {
 
-        var status = 'pending';
-        var description = 'Contributor License Agreement is not signed yet.';
-        var token;
+		var status = 'pending';
+		var description = 'Contributor License Agreement is not signed yet.';
+		var token;
 
-        repoService.get({repo: args.repo, owner: args.owner}, function(e, res){
-            if (res && !e) {
-                token = res.token;
-            }
-            args.url = url.githubPullRequest(args.owner, args.repo, args.number);
-            args.token = token;
+		repoService.get({repo: args.repo, owner: args.owner}, function(e, res){
+			if (res && !e) {
+				token = res.token;
+			}
+			args.url = url.githubPullRequest(args.owner, args.repo, args.number);
+			args.token = token;
 
-            github.direct_call(args, function(err, result){
-                if (!err && result && result.data.head) {
-                    args.sha = result.data.head.sha;
+			github.direct_call(args, function(err, resp){
+				if (!err && resp && resp.data.head) {
+					args.sha = resp.data.head.sha;
 
-                    if (args.signed) {
-                        status = 'success';
-                        description = 'Contributor License Agreement is signed.';
-                    }
+					if (args.signed) {
+						status = 'success';
+						description = 'Contributor License Agreement is signed.';
+					}
 
-                    github.call({
-                        obj: 'statuses',
-                        fun: 'create',
-                        arg: {
-                            user: args.owner,
-                            repo: args.repo,
-                            sha: args.sha,
-                            state: status,
-                            description: description,
-                            target_url: url.claURL(args.owner, args.repo, args.number),
-                            context: 'licence/cla'
-                        },
-                        token: token
-                    }, null);
-                }
-            });
-        });
-    }
+					github.call({
+						obj: 'statuses',
+						fun: 'create',
+						arg: {
+							user: args.owner,
+							repo: args.repo,
+							sha: args.sha,
+							state: status,
+							description: description,
+							target_url: url.claURL(args.owner, args.repo, args.number),
+							context: 'licence/cla'
+						},
+						token: token
+					}, function(error, response){
+						log(error, response, args);
+					});
+				}
+				else {
+					log(err, resp, args);
+				}
+			});
+		});
+	}
 };
