@@ -540,7 +540,7 @@ describe('repo:getUserRepos', function () {
 
 	it('should return all linked repositories of the logged user', function (it_done) {
 		sinon.stub(github, 'direct_call', function (args, done) {
-			assert.equal(args.url, 'https://api.github.com/user/repos?per_page=100');
+			assert.equal(args.url.indexOf('https://api.github.com/user/repos?per_page=100'), 0);
 			assert(args.token);
 			done(null, {
 				data: [{

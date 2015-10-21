@@ -48,13 +48,15 @@ module.exports = {
 						},
 						token: token
 					}, function(error, response){
-						logger.warn('Create Status: ');
-						log(error, response, args);
+						if (error) {
+							logger.warn('Create Status: ');
+							log(error, response, args);
+						}
 					});
 				}
 				else {
-					logger.warn('Get PR: ');
-					log(err, resp, args);
+					// logger.warn('Get PR: ');
+					// log(err, resp, args);
 				}
 			});
 		});

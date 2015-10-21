@@ -161,7 +161,7 @@ module.exports = {
 				}
 			}, function (e) {
 				if (e) {
-					log.error(new Error(e).stack);
+					log.warn(new Error(e).stack);
 					log.warn(e, 'with args: ', args, 'and commentId: ', comment.id);
 				}
 			});

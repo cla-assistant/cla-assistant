@@ -136,7 +136,7 @@ module.exports = {
 	getUserRepos: function (args, done) {
 			var that = this;
 			github.direct_call({
-				url: 'https://api.github.com/user/repos?per_page=100',
+				url: 'https://api.github.com/user/repos?per_page=100;affiliation=owner,collaborator',
 				token: args.token
 			}, function (err, res) {
 				if (!res.data || res.data.length < 1 || res.data.message) {
