@@ -117,8 +117,8 @@ module.exports = {
 				args.token = result.token;
 			}
 			github.direct_call(args, function (e, res) {
+				var CLAAssistantComment;
 				if (!e && res && res.data && !res.data.message) {
-					var CLAAssistantComment;
 					res.data.some(function (comment) {
 						if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
 							CLAAssistantComment = comment;
