@@ -70,13 +70,9 @@ module.exports = {
 						log.error(callback_error);
 					}
 				}
-				if (response && response.body) {
+				if (response) {
 					done(callback_error, {
-						raw: response.body
-					});
-				} else if (response && response.data) {
-					done(callback_error, {
-						raw: response.data
+						raw: response.body || response.data || response
 					});
 				} else {
 					done(callback_error);

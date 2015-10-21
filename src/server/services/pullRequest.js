@@ -79,7 +79,7 @@ module.exports = {
 						}
 					}, function (e) {
 						if (e) {
-							log.error(e);
+							log.error(new Error(e).stack);
 						}
 					});
 				} else {
@@ -98,7 +98,7 @@ module.exports = {
 						}
 					}, function (e) {
 						if (e) {
-							log.error(e);
+							log.error(new Error(e).stack);
 						}
 					});
 				}
@@ -161,7 +161,8 @@ module.exports = {
 				}
 			}, function (e) {
 				if (e) {
-					log.error(e);
+					log.error(new Error(e).stack);
+					log.warn(e, 'with args: ', args, 'and commentId: ', comment.id);
 				}
 			});
 		});
