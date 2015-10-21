@@ -31,7 +31,7 @@
     "ejs": "^2.3.2",
     "express": "^4.13.0",
     "express-session": "^1.11.3",
-    "github": "git+https://github.com/KharitonOff/node-github.git",
+    "github": "^0.2.4",
     "glob": "^5.0.12",
     "merge": "^1.2.0",
     "mongoose": "^4.0.6",

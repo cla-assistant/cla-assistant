@@ -18,8 +18,6 @@ var log = function(err, res, args) {
 module.exports = {
 	update: function(args) {
 
-		var status = 'pending';
-		var description = 'Contributor License Agreement is not signed yet.';
 		var token;
 
 		repoService.get({repo: args.repo, owner: args.owner}, function(e, res){
@@ -33,10 +31,8 @@ module.exports = {
 				if (!err && resp && resp.data.head) {
 					args.sha = resp.data.head.sha;
 
-					if (args.signed) {
-						status = 'success';
-						description = 'Contributor License Agreement is signed.';
-					}
+					var status = args.signed ? 'success' : 'pending';
+					var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
 					github.call({
 						obj: 'statuses',
