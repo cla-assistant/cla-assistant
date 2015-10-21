@@ -25,7 +25,7 @@ module.exports = function(){
 				if (err) {
 					logger.warn(err);
 				}
-				if (!cla) {
+				if (!cla || cla.revoked) {
 					all_signed = false;
 				} else {
 					var i = user_map.not_signed.indexOf(cla.user);
@@ -141,10 +141,9 @@ module.exports = function(){
 						return;
 					}
 					args.gist_version = gist.history[0].version;
-
 					if (args.user) {
 						self.get(args, function(error, cla){
-							if (cla && cla.revoked === true) {
+							if (cla && cla.revoked) {
 								done(error, false);
 								return;
 							}
