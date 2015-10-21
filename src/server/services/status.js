@@ -12,7 +12,7 @@ var log = function(err, res, args) {
 	if (err) {
 		logger.warn(new Error(err));
 	}
-	logger.warn('Error: ', err, '; result: ', res, '; Args: ', args);
+	logger.info('Error: ', err, '; result: ', res, '; Args: ', args);
 };
 
 module.exports = {
