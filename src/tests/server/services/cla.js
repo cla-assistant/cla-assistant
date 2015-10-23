@@ -275,7 +275,6 @@ describe('cla:sign', function() {
             assert(args);
             done(null, {gist: 'url/gistId', token: 'abc'});
         });
-
         sinon.stub(https, 'request', function(options, done) {
             assert.deepEqual(options, {
                 hostname: 'api.github.com',
@@ -287,10 +286,10 @@ describe('cla:sign', function() {
                     'User-Agent': 'cla-assistant'
                 }
             });
+
             done(res);
             return req;
         });
-
         sinon.stub(github, 'direct_call', function(args, done){
             assert(args.url);
             assert(args.token);
@@ -321,22 +320,23 @@ describe('cla:sign', function() {
             assert.deepEqual(args, {uuid: test_args.user_id});
             done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo', owner: {login: 'owner'}} }], save: function(){}});
         });
-
         cla.sign(test_args, function() {
-            // assert(res.pullRequest);
-            assert(CLA.create.called);
-
-            user_find.restore();
-            CLA.findOne.restore();
-            it_done();
+                // assert(res.pullRequest);
+                assert(CLA.create.called);
+                user_find.restore();
+                CLA.findOne.restore();
+                it_done();
         });
 
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
         callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
         callbacks.end();
     });
 
 
     it('should do nothing if user has already signed', function(it_done){
+
         test_args.user = 'signedUser';
 
         cla.sign(test_args, function() {
@@ -352,6 +352,11 @@ describe('cla:sign', function() {
         CLA.create.restore();
         sinon.stub(CLA, 'create', function(args, done){
             done('any DB error', null);
+        });
+
+        cla.get.restore();
+        sinon.stub(cla, 'get', function(args, done){
+            done('error in get');
         });
 
         cla.sign(test_args, function(err, result){
@@ -449,15 +454,12 @@ describe('cla:getSignedCLA', function() {
 describe('cla:revokeAllSignatures', function(){
     it('should get all clas signed by the user for a specific repo', function(it_done){
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
-        var listOfAllCla = [
-            {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z', revoked: false},
-            {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
-            {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}
-        ];
-        done(null, listOfAllCla);
-        });
-        sinon.stub(CLA, 'update', function(args, done){
-
+            var listOfAllCla = [
+                {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z', revoked: false},
+                {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
+                {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}
+            ];
+            done(null, listOfAllCla);
         });
 
         var args = {user: 'login', repo: 'repo1'};
@@ -466,7 +468,6 @@ describe('cla:revokeAllSignatures', function(){
             assert.equal(clas[0].repo, 'repo1');
             assert.equal(clas[1].repo, 'repo1');
             assert.equal(clas.length, 2);
-            assert.equal(CLA.update.called, 2);
             CLA.find.restore();
             it_done();
         });

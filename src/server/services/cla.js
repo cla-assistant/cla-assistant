@@ -112,7 +112,7 @@ module.exports = function(){
 		//Get last signature of the user for given repository and gist url
 		getLastSignature: function(args, done) {
 			var deferred = q.defer();
-			CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {select: {'created_at': -1}}, function(err, cla){
+				CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url}, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*'}, {select: {'created_at': -1}}, function(err, cla){
 				if (!err && cla) {
 					deferred.resolve(cla);
 				}
@@ -178,7 +178,6 @@ module.exports = function(){
 					}
 
 					args.gist_url = repo.gist;
-
 					self.getGist(repo, function(errGetGist, gist){
 						if (err || !gist.history) {
 							done(errGetGist, false);
@@ -188,12 +187,13 @@ module.exports = function(){
 						self.create(args, function(error){
 							if (error) {
 								self.get(args, function(errorGet, cla){
-									if(cla.revoked){
+									if(!errorGet && cla && cla.revoked){
 										var now = new Date();
 										CLA.update({_id: cla.id}, {$set: {created_at: now, revoked: false}}).exec();
+									} else {
+										logger.warn(errorGet);
 									}
 								});
-
 								done(error);
 								return;
 							}
@@ -257,12 +257,6 @@ module.exports = function(){
 							claList.push(cla);
 							cla.revoked = true;
 							cla.revoked_at = now;
-
-							// cla.save(function(error) {
-							// 	if(error){
-							// 		return error;
-							// 	}
-							// });
 							CLA.update({_id: cla.id}, {$set: {revoked: true, revoked_at: now}}).exec();
 						}
 					});
