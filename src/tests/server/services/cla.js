@@ -368,6 +368,35 @@ describe('cla:sign', function() {
         callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
         callbacks.end();
     });
+
+    it('should report error if error occours on DB, but still sign CLA', function(it_done){
+        CLA.create.restore();
+        sinon.stub(CLA, 'create', function(args, done){
+            done('any DB error', null);
+        });
+
+        cla.get.restore();
+        sinon.stub(cla, 'get', function(args, done){
+            done(null, {id: 123, gist_url: 'url/gistId', created_at: '2011-06-20T11:34:15Z', gist_version: 'xyz', revoked: true});
+        });
+
+        sinon.stub(CLA, 'update', function(){
+            return {exec: function(){}};
+        });
+
+        cla.sign(test_args, function(err, result){
+            assert(!err);
+            assert(CLA.update.called);
+            assert(result);
+            CLA.update.restore();
+            it_done();
+        });
+
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
+        callbacks.data('{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}');
+        callbacks.end();
+    });
 });
 
 describe('cla:create', function() {
@@ -462,12 +491,17 @@ describe('cla:revokeAllSignatures', function(){
             done(null, listOfAllCla);
         });
 
+        sinon.stub(CLA, 'update', function(){
+            return {exec: function(){}};
+        });
+
         var args = {user: 'login', repo: 'repo1'};
         cla.revokeAllSignatures(args, function(err, clas){
             assert.ifError(err);
             assert.equal(clas[0].repo, 'repo1');
             assert.equal(clas[1].repo, 'repo1');
             assert.equal(clas.length, 2);
+            CLA.update.restore();
             CLA.find.restore();
             it_done();
         });

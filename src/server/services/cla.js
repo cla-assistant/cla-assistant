@@ -165,6 +165,7 @@ module.exports = function(){
 
 		sign: function(args, done) {
 			var self = this;
+			var response = null;
 
 			self.check(args, function(e, signed){
 				if (e || signed) {
@@ -190,11 +191,13 @@ module.exports = function(){
 									if(!errorGet && cla && cla.revoked){
 										var now = new Date();
 										CLA.update({_id: cla.id}, {$set: {created_at: now, revoked: false}}).exec();
+										response = cla;
+										error = null;
 									} else {
 										logger.warn(errorGet);
 									}
 								});
-								done(error);
+								done(error, response);
 								return;
 							}
 							done(error, 'done');
