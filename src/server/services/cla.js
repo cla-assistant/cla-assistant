@@ -16,14 +16,20 @@ module.exports = function(){
 		var deferred = q.defer();
 		var all_signed = true;
 		var promises = [];
-		var user_map = {signed: [], not_signed: []};
+		var user_map = {signed: [], not_signed: [], unknown: []};
+		if (!users) {
+			deferred.reject('There are no users to check :( ');
+			return deferred.promise;
+		}
 		users.forEach(function(user){
 			args.user = user.name;
-			user_map.not_signed.push(args.user);
-
+			user_map.not_signed.push(user.name);
+			if (!user.id) {
+				user_map.unknown.push(user.name);
+			}
 			promises.push(claService.get(args, function(err, cla){
 				if (err) {
-					logger.warn(err);
+					logger.warn(new Error(err).stack);
 				}
 				if (!cla || cla.revoked) {
 					all_signed = false;
@@ -77,7 +83,11 @@ module.exports = function(){
 			req = https.request(options, function(res){
 				res.on('data', function(chunk) { data += chunk; });
 				res.on('end', function(){
-					data = JSON.parse(data);
+					try {
+						data = JSON.parse(data);
+					} catch (e) {
+						logger.warn(new Error(e).stack);
+					}
 					done(null, data);
 				});
 			});
@@ -152,10 +162,13 @@ module.exports = function(){
 					} else if (args.number) {
 						repoService.getPRCommitters(args, function(error, committers){
 							if (error) {
-								logger.warn(error);
+								logger.warn(new Error(error).stack);
 							}
 							checkAll(committers, args).then(function(result){
 								done(null, result.signed, result.user_map);
+							},
+							function(error_msg){
+								done(error_msg, false);
 							});
 						});
 					}
@@ -213,7 +226,7 @@ module.exports = function(){
 			var findCla = function(query, repoList, claList, cb){
 				CLA.find(query, {'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'revoked': '*', 'revoked_at': '*'}, {sort: {'created_at': -1}}, function(err, clas){
 					if (err) {
-						logger.warn(err);
+						logger.warn(new Error(err).stack);
 					} else {
 						clas.forEach(function(cla){
 							// if(repoList.indexOf(cla.repo) < 0 && !cla.revoked){
@@ -229,7 +242,7 @@ module.exports = function(){
 
 			repoService.all(function(e, repos){
 				if (e) {
-					logger.warn(e);
+					logger.warn(new Error(e).stack);
 				}
 				repos.forEach(function(repo){
 					selector.push({
@@ -283,7 +296,7 @@ module.exports = function(){
 					}
 					self.getRepo(args, function(err, repo){
 						if (err) {
-							logger.warn(err);
+							logger.warn(new Error(err).stack);
 						}
 						self.getGist(repo, function(error, gist){
 							if (!gist) {
