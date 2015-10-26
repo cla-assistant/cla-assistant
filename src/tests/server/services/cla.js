@@ -237,11 +237,27 @@ describe('cla:check', function () {
 
 	it('should check whether user revoked the actual CLA', function(it_done){
         sinon.stub(CLA, 'findOne', function(args, done){
-			assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url/gistId', gist_version: 'xyz'});
-			done(null, {id: 123, gist_url: 'url/gistId', created_at: '2012-06-20T11:34:15Z', gist_version: 'xyz', revoked: true});
+			assert.deepEqual(args, {
+				repo: 'myRepo',
+				owner: 'owner',
+				user: 'login',
+				gist_url: 'url/gistId',
+				gist_version: 'xyz'
+			});
+			done(null, {
+				id: 123,
+				gist_url: 'url/gistId',
+				created_at: '2012-06-20T11:34:15Z',
+				gist_version: 'xyz',
+				revoked: true
+			});
         });
 
-        var args = {repo: 'myRepo', owner: 'owner', user: 'login'};
+        var args = {
+			repo: 'myRepo',
+			owner: 'owner',
+			user: 'login'
+		};
 
         cla.check(args, function(err, result){
 			assert.ifError(err);
@@ -419,11 +435,21 @@ describe('cla:sign', function() {
     var test_args;
 
     beforeEach(function(){
-		test_args = { repo: 'myRepo', owner: 'owner', user: 'login', user_id: 3};
+		test_args = {
+			repo: 'myRepo',
+			owner: 'owner',
+			user: 'login',
+			user_id: 3
+		};
 
         sinon.stub(cla, 'get', function(args, done){
             if (args.user !== 'login') {
-                done(null, {id: 123, gist_url: 'url/gistId', created_at: '2011-06-20T11:34:15Z', gist_version: 'xyz'});
+                done(null, {
+					id: 123,
+					gist_url: 'url/gistId',
+					created_at: '2011-06-20T11:34:15Z',
+					gist_version: 'xyz'
+				});
             } else {
                 done(null, undefined);
             }
@@ -482,12 +508,31 @@ describe('cla:sign', function() {
 
 	it('should store signed cla data if not signed yet', function(it_done) {
         sinon.stub(CLA, 'findOne', function(args, done){
-            assert.deepEqual(args, {repo: 'myRepo', owner: 'owner', user: 'login', gist_url: 'url/gistId', gist_version: 'xyz'});
+            assert.deepEqual(args, {
+				repo: 'myRepo',
+				owner: 'owner',
+				user: 'login',
+				gist_url: 'url/gistId',
+				gist_version: 'xyz'
+			});
             done(null, true);
         });
         var user_find = sinon.stub(User, 'findOne', function(args, done){
             assert.deepEqual(args, {uuid: test_args.user_id});
-            done('', {requests: [{number: 1, sha: 123, repo: {id: 123, name: 'myRepo', owner: {login: 'owner'}} }], save: function(){}});
+            done('', {
+				requests: [{
+					number: 1,
+					sha: 123,
+					repo: {
+						id: 123,
+						name: 'myRepo',
+						owner: {
+							login: 'owner'
+						}
+					}
+				}],
+				save: function(){}
+			});
         });
         cla.sign(test_args, function() {
                 // assert(res.pullRequest);
@@ -546,7 +591,13 @@ describe('cla:sign', function() {
 
         cla.get.restore();
         sinon.stub(cla, 'get', function(args, done){
-            done(null, {id: 123, gist_url: 'url/gistId', created_at: '2011-06-20T11:34:15Z', gist_version: 'xyz', revoked: true});
+            done(null, {
+				id: 123,
+				gist_url: 'url/gistId',
+				created_at: '2011-06-20T11:34:15Z',
+				gist_version: 'xyz',
+				revoked: true
+			});
         });
 
         sinon.stub(CLA, 'update', function(){
@@ -715,11 +766,25 @@ describe('cla:getSignedCLA', function () {
 describe('cla:revokeAllSignatures', function(){
     it('should get all clas signed by the user for a specific repo', function(it_done){
         sinon.stub(CLA, 'find', function(args, selectionCriteria, sortCriteria, done){
-            var listOfAllCla = [
-                {repo: 'repo1', user: 'login', gist_url: 'gist_url1', created_at: '2011-06-20T11:34:15Z', revoked: false},
-                {repo: 'repo1', user: 'login', gist_url: 'gist_url2', created_at: '2011-06-15T11:34:15Z', revoked: false},
-                {repo: 'repo2', user: 'login', gist_url: 'gist_url', created_at: '2011-06-15T11:34:15Z', revoked: false}
-            ];
+            var listOfAllCla = [{
+				repo: 'repo1',
+				user: 'login',
+				gist_url: 'gist_url1',
+				created_at: '2011-06-20T11:34:15Z',
+				revoked: false
+			},	{
+				repo: 'repo1',
+				user: 'login',
+				gist_url: 'gist_url2',
+				created_at: '2011-06-15T11:34:15Z',
+				revoked: false
+			},	{
+				repo: 'repo2',
+				user: 'login',
+				gist_url: 'gist_url',
+				created_at: '2011-06-15T11:34:15Z',
+				revoked: false
+			}];
             done(null, listOfAllCla);
         });
 
@@ -854,9 +919,6 @@ describe('cla:getAll', function () {
 		});
 	});
 });
-
-
-
 
 describe('cla:getGist', function () {
 	it('should extract valid gist ID', function (it_done) {
