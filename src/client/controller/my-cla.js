@@ -163,7 +163,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       }
 
       $scope.getVersionStatus = function(signedCLA) {
-        // getLatestGist(signedCLA);
         checkCLA(signedCLA).then(function(){
           if (signedCLA.signed) {
               signedCLA.stat = true;
