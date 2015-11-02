@@ -49,7 +49,7 @@ module.exports = {
 						token: token
 					}, function(error, response){
 						if (error) {
-							logger.warn('Create Status: ');
+							logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
 							log(error, response, args);
 						}
 					});

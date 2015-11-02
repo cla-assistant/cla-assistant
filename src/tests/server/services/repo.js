@@ -622,4 +622,43 @@ describe('repo:getUserRepos', function () {
 			it_done();
 		});
 	});
+
+	it('should handle affiliation attribute', function(it_done){
+		sinon.stub(github, 'direct_call', function (args, done) {
+			assert(args.url.indexOf('affiliation=x,y') > -1);
+			assert(args.token);
+			done(null, {});
+		});
+		sinon.stub(Repo, 'find', function (args, done) {
+			done();
+		});
+		repo.getUserRepos({
+			token: 'test_token',
+			affiliation: 'x,y'
+		}, function (err, res) {
+			assert.ifError(err);
+			assert(github.direct_call.called);
+
+			it_done();
+		});
+	});
+
+	it('should handle affiliation if not provided', function(it_done){
+		sinon.stub(github, 'direct_call', function (args, done) {
+			assert(args.url.indexOf('affiliation=owner') > -1);
+			assert(args.token);
+			done(null, {});
+		});
+		sinon.stub(Repo, 'find', function (args, done) {
+			done();
+		});
+		repo.getUserRepos({
+			token: 'test_token'
+		}, function (err, res) {
+			assert.ifError(err);
+			assert(github.direct_call.called);
+
+			it_done();
+		});
+	});
 });
