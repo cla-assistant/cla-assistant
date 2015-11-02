@@ -341,6 +341,22 @@ describe('Settings Controller', function () {
 			});
 		});
 
+		describe('on recheck', function(){
+			beforeEach(function(){
+				httpBackend.flush();
+
+				httpBackend.expect('POST', '/api/cla/validatePullRequests', {
+					repo: 'myRepo',
+					owner: 'login'
+				}).respond();
+			});
+			it('should call validatePullRequests api', function(){
+				settingsCtrl.scope.recheck({repo: 'myRepo', owner: 'login'});
+
+				httpBackend.flush();
+			});
+		});
+
 		it('should prepare array of contributors for export', function () {
 			httpBackend.flush();
 			sinon.stub(modal, 'open', function () {

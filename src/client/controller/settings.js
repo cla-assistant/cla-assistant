@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q',
-	function ($rootScope, $scope, $stateParams, $HUB, $RPCService, $HUBService, $window, $sce, $modal, $q) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q',
+	function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q) {
 
 		$scope.gist = {};
 		$scope.gistIndex = 0;
@@ -63,7 +63,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			return $RPCService.call('webhook', 'get', {
 				repo: $scope.repo.repo,
 				user: $scope.repo.owner
-			}, function(err, obj){
+			}, function (err, obj) {
 				if (!err && obj && obj.value) {
 					webhook = obj.value;
 					$scope.valid.webhook = webhook.active;
@@ -144,13 +144,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				promises.push($scope.getGist());
 				promises.push(getWebhook());
 				$scope.getSignatures($scope.repo);
-				$q.all(promises).then(function(){
+				$q.all(promises).then(function () {
 					$scope.loading = false;
 				});
 			}
 		};
 
-		$scope.isLinkActive = function(){
+		$scope.isLinkActive = function () {
 			return !$scope.loading && $scope.valid.gist && $scope.valid.webhook ? true : false;
 		};
 
@@ -213,13 +213,23 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			}
 		};
 
-		$scope.upload = function(claRepo){
+		$scope.recheck = function (claRepo) {
+			$scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
+				repo: claRepo.repo,
+				owner: claRepo.owner
+			}, function(){
+				$scope.popoverIsOpen = false;
+			});
+		};
+
+		$scope.upload = function (claRepo) {
+			$scope.popoverIsOpen = false;
 			var modal = $modal.open({
 				templateUrl: '/modals/templates/upload.html',
 				controller: 'UploadCtrl',
 				windowClass: 'upload'
 			});
-			modal.result.then(function(users) {
+			modal.result.then(function (users) {
 				$RPCService.call('cla', 'upload', {
 					repo: claRepo.repo,
 					owner: claRepo.owner,
@@ -232,7 +242,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 	}
 ]);
 
-module.directive('settings', [function () {
+module.directive('settings', ['$document', function ($document) {
 	return {
 		templateUrl: '/templates/settings.html',
 		controller: 'SettingsCtrl',
@@ -240,6 +250,21 @@ module.directive('settings', [function () {
 		scope: {
 			repo: '=',
 			user: '='
+		},
+		link: function (scope, element, attrs, controller) {
+			var documentClickHandler = function (event) {
+				var eventOutsideTarget = (element[0] !== event.target) && (element.find(event.target).length === 0);
+				if (eventOutsideTarget) {
+					scope.$apply(function () {
+						scope.popoverIsOpen = false;
+					});
+				}
+			};
+
+			$document.on("click", documentClickHandler);
+			scope.$on("$destroy", function () {
+				$document.off("click", documentClickHandler);
+			});
 		}
 	};
 }]);

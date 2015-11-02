@@ -1,5 +1,4 @@
 <!-- <div class="row settings_background"> -->
-
 <td>
 	<div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
 		<div class="text clickable">
@@ -27,16 +26,22 @@
 		<a ng-click="getReport(repo);" class="clickable">{{signatures.length}}</a>
 	</div>
 
-	<script type="text/ng-template" id="validateRepo.html">
+	<script type="text/ng-template" id="validateLink.html">
 		<i class="fa" ng-class="valid.gist ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> gist</i>
 		<i class="fa" ng-class="valid.webhook ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> webhook</i>
 	</script>
 	<div class="col-xs-4 col-sm-1 col-lg-1 center-block">
-		<img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateRepo.html'" popover-trigger="mouseenter" popover-popup-delay="300">
+		<img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateLink.html'" popover-trigger="mouseenter" popover-popup-delay="300">
 	</div>
-	<div class="col-xs-4 col-sm-1 action">
-		<i class="fa fa-trash-o action-icon" style="float:right; font-size:18px" ng-click="$parent.confirmRemove(repo)" tooltip-placement="bottom" tooltip="Unlink"></i>
-		<i class="fa fa-upload action-icon" ng-click="upload(repo)" tooltip-placement="bottom" tooltip="Import"></i>
+
+	<script type="text/ng-template" id="moreActions.html">
+		<button class="btn btn-info" ng-click="upload(repo)" style="width:100%">Import</button>
+		<button class="btn btn-info" ng-click="recheck(repo)" style="margin-top:5px; width:100%">Recheck PRs</button>
+	</script>
+	<div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
+		<i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
+			 popover-placement="right" popover-template="'moreActions.html'" popover-trgger="focus" popover-is-open="popoverIsOpen"></i>
+		<i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(repo)" tooltip-placement="bottom" tooltip="Unlink"></i>
 	</div>
 
 </td>
