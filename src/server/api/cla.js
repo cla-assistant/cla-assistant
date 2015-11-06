@@ -90,6 +90,7 @@ module.exports = {
 	},
 
 	//Get users last signature for given repository (if repo is currently linked)
+	//Parameters: repo, owner (mandatory)
 	getLastSignature: function (req, done) {
 		cla.getRepo(req.args, function (err, repo) {
 			if (err || !repo) {
