@@ -94,7 +94,20 @@
 	}
 
 	.export-button{
-		text-align: right;
 		margin: 30px 0px;
+	}
+
+	.form-group{
+		margin-bottom: 10px;
+		padding-left: 0px
+	}
+}
+
+.report .modal-body{
+	button{
+		margin: 0;
+	}
+	.selectize-input{
+		height: 100%;
 	}
 }
