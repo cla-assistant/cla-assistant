@@ -1,11 +1,11 @@
-<div class="modal-body modal-primary" ng-hide="contributors.length > 0" style="min-height: 400px;">
+<div class="modal-body modal-primary" ng-show="newContributors.loading" style="min-height: 400px;">
 	<div class="row">
 		<div class="col-sm-12 center-block" >
 			<img src="/assets/images/link_inactive.svg" class="spin-img" style="margin:10px; margin-top:150px">
 		</div>
 	</div>
 </div>
-<div class="modal-body modal-primary" ng-show="contributors.length > 0">
+<div class="modal-body modal-primary" ng-show="!newContributors.loading">
 	<div ng-click="cancel()" class="fa fa-times close-button"></div>
 	<div style="text-align: center; font-size:26px; margin-top: 20px;">
 		Contributors who signed {{getGistName()}}
@@ -13,11 +13,11 @@
 
 	<div class="export-button row">
 		<div class="form-group has-feedback col-xs-8">
-			<ui-select ng-model="selectedVersion.version"  theme="selectize">
+			<ui-select ng-model="selectedVersion.version"  theme="selectize" on-select="newContributors = getContributors($select.selected.version)">
 				<ui-select-match placeholder="select version from ..." allow-clear="true">
 					Version from {{$select.selected.committed_at | date: 'medium'}}
 				</ui-select-match>
-				<ui-select-choices repeat="version in gist.history | filter: $select.search" null-option="emptyGist">
+				<ui-select-choices repeat="version in gist.history | filter: $select.search">
 					  <span ng-bind-html="version.committed_at | highlight: $select.search | date: 'medium'"></span>
 				</ui-select-choices>
 			</ui-select>
@@ -55,7 +55,7 @@
 	</div>
 </div>
 
-<div class="modal-body modal-primary" ng-show="contributors.length > 0">
+<div class="modal-body modal-primary" ng-show="!newContributors.loading">
 	<span ng-show="contributors.length == 1"><b>{{contributors.length}}</b> contributor signed this CLA</span>
 	<span ng-show="contributors.length != 1"><b>{{contributors.length}}</b> contributors signed this CLA</span>
 </div>

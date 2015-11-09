@@ -224,7 +224,6 @@ describe('pullRequest:badgeComment', function () {
 	it('should add a note to the comment with name of ONE committer who has no github account', function(it_done){
 		direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function (args, git_done) {
-			console.log(args.arg.body);
 			assert(args.arg.body.indexOf('**user1** seems not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
@@ -240,7 +239,6 @@ describe('pullRequest:badgeComment', function () {
 	it('should add a note to the comment with names of MULTIPLE committers who has no github account', function(it_done){
 		direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function (args, git_done) {
-			console.log(args.arg.body);
 			assert(args.arg.body.indexOf('**user1, user2** seem not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();

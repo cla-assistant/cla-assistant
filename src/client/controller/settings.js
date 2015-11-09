@@ -15,7 +15,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		$scope.loading = false;
 		$scope.gistUrlIsValid = true;
 		$scope.valid = {};
-		$scope.signatures = [];
+		$scope.signatures = {};
 		$scope.contributors = [];
 		var webhook = {};
 
@@ -44,19 +44,16 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			});
 		};
 
-		$scope.getSignatures = function (claRepo) {
-			return $RPCService.call('cla', 'getAll', {
+		$scope.getSignatures = function (claRepo, gist_version, cb) {
+			console.log('gist_version', gist_version);
+			return $RPC.call('cla', 'getAll', {
 				repo: claRepo.repo,
 				owner: claRepo.owner,
 				gist: {
-					gist_url: claRepo.gist
+					gist_url: claRepo.gist,
+					gist_version: gist_version
 				}
-			}, function (err, signatures) {
-				if (signatures && signatures.value) {
-					$scope.signatures = signatures.value;
-					$scope.contributors = signatures.value;
-				}
-			});
+			}, cb);
 		};
 
 		var getWebhook = function () {
@@ -77,8 +74,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			});
 		};
 
-		$scope.getContributors = function () {
-			return $scope.getSignatures($scope.repo).then(function (data) {
+		$scope.getContributors = function (gist_version) {
+			return $scope.getSignatures($scope.repo, gist_version, function (err, data) {
 				$scope.contributors = [];
 				if (data && data.value && data.value.length > 0) {
 					data.value.forEach(function (signature) {
@@ -143,7 +140,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 				// $scope.getUsers();
 				promises.push($scope.getGist());
 				promises.push(getWebhook());
-				$scope.getSignatures($scope.repo);
+				$scope.signatures = $scope.getSignatures($scope.repo);
 				$q.all(promises).then(function () {
 					$scope.loading = false;
 				});
@@ -207,8 +204,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		};
 
 		$scope.getReport = function () {
-			if ($scope.signatures.length > 0) {
-				$scope.getContributors($scope.repo);
+			if ($scope.signatures.value.length > 0) {
+				$scope.getContributors();
 				report($scope.repo);
 			}
 		};
