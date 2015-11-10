@@ -45,7 +45,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		};
 
 		$scope.getSignatures = function (claRepo, gist_version, cb) {
-			console.log('gist_version', gist_version);
 			return $RPC.call('cla', 'getAll', {
 				repo: claRepo.repo,
 				owner: claRepo.owner,

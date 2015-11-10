@@ -3,7 +3,7 @@
 
 describe('Home Controller', function () {
 
-	var scope, httpBackend, createCtrl, homeCtrl, githubResponse, calledApi, $HUB;
+	var scope, httpBackend, createCtrl, homeCtrl, githubResponse, calledApi, $HUB, $RPCService;
 
 	var testDataRepos = {
 		data: [{
@@ -34,8 +34,7 @@ describe('Home Controller', function () {
 			'fork': false,
 			'url': 'https://api.github.com/repos/octocat/Hello-World',
 			'html_url': 'https://github.com/octocat/Hello-World'
-		},
-		{
+		}, {
 			id: 123,
 			owner: {
 				login: 'orgOwner'
@@ -90,12 +89,14 @@ describe('Home Controller', function () {
 		}]
 	};
 	var getAllReposData;
+	var rpcRepoGetAllData;
 
 	beforeEach(angular.mock.module('app'));
 	beforeEach(angular.mock.module('templates'));
 
-	beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_) {
+	beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_) {
 		$HUB = _$HUB_;
+		$RPCService = _$RPCService_;
 		calledApi = {};
 		httpBackend = $injector.get('$httpBackend');
 
@@ -125,31 +126,43 @@ describe('Home Controller', function () {
 			fun: 'get',
 			arg: {}
 		}).respond(githubResponse);
+
 		var hubDirectCall = $HUB.direct_call;
 		sinon.stub($HUB, 'direct_call', function (url, data, cb) {
-			var response;
+			var response = {};
 
 			if (url.indexOf('https://api.github.com/user/repos') > -1) {
 				(url.indexOf('affiliation=owner,organization_member')).should.be.greaterThan(-1);
-				response = getAllReposData || testDataRepos.data;
+				response = getAllReposData || {
+					value: testDataRepos.data
+				};
+				if (response.getMore) {
+					response.cb = cb;
+				}
 			} else {
 				hubDirectCall(url, data, cb);
 				return;
 			}
-			cb(null, {
-				value: response
-			});
+			cb(null, response);
 		});
-		// httpBackend.when('POST', '/api/github/call', {
-		// 	obj: 'repos',
-		// 	fun: 'getAll',
-		// 	arg: {
-		// 		user: 'login',
-		// 		type: 'owner',
-		// 		per_page: 100
-		// 	}
-		// }).respond(getAllReposData || testDataRepos.data);
-		// httpBackend.when('POST', '/api/github/direct_call', {url: 'https://api.github.com/user/repos?per_page=100'}).respond(testDataRepos.data.concat([{id: 123, owner: {login: 'orgOwner'}}]));
+
+		var rpcCall = $RPCService.call;
+		sinon.stub($RPCService, 'call', function (o, f, args, cb) {
+			var response;
+			if (o === 'repo' && f === 'getAll') {
+				response = rpcRepoGetAllData || {
+					value: [{
+						repo: 'Hello-World',
+						owner: 'octocat',
+						gist: 1234
+					}]
+				};
+			} else {
+				return rpcCall(o, f, args, cb);
+			}
+			cb(null, response);
+		});
+
 		httpBackend.when('POST', '/api/github/direct_call', {
 			url: 'https://api.github.com/gists?per_page=100'
 		}).respond(testDataGists.data.concat(
@@ -160,19 +173,8 @@ describe('Home Controller', function () {
 						filename: 'file1'
 					}
 				}
-			}]));
-		httpBackend.when('POST', '/api/repo/getAll', {
-			set: [{
-				owner: 'octocat',
-				repo: 'Hello-World'
-			}, {
-				owner: 'orgOwner'
-			}]
-		}).respond([{
-			repo: 'Hello-World',
-			owner: 'octocat',
-			gist: 1234
-		}]);
+			}])
+		);
 		httpBackend.when('GET', '/static/cla-assistant.json').respond({
 			'default-cla': [{
 				'name': 'first default cla',
@@ -189,6 +191,9 @@ describe('Home Controller', function () {
 		homeCtrl.scope.selectedGist = {};
 
 		$HUB.direct_call.restore();
+		$RPCService.call.restore();
+		getAllReposData = undefined;
+		rpcRepoGetAllData = undefined;
 	});
 
 	it('should get user repos and mix claRepos data with repos data if user has admin rights', function () {
@@ -200,40 +205,41 @@ describe('Home Controller', function () {
 		(homeCtrl.scope.claRepos[0].fork).should.be.equal(testDataRepos.data[0].fork);
 	});
 
-	xit('should get more repos if there are more to load', function () {
-
-		httpBackend.expect('POST', '/api/github/direct_call', {
-				url: 'https://api.github.com/user/repos?per_page=100'
-			})
-			.respond(testDataRepos.data, {
-				link: '<next_page_url>; rel="next"'
-			});
-		httpBackend.expect('POST', '/api/github/direct_call', {
-			url: 'next_page_url'
-		}).respond([{
-			id: 456,
-			owner: {
-				login: 'orgOwner'
+	it('should get more repos if there are more to load', function () {
+		var getMoreCalled = false;
+		getAllReposData = {
+			value: testDataRepos.data,
+			hasMore: true,
+			getMore: function () {
+				getMoreCalled = true;
 			}
-		}]);
-		httpBackend.expect('POST', '/api/repo/getAll', {
-			set: [{
-				owner: 'octocat',
-				repo: 'Hello-World'
-			}, {
-				owner: 'orgOwner'
-			}]
-		}).respond([{
-			repo: 'Hello-World',
-			owner: 'octocat',
-			gist: 1234
-		}]);
+		};
+		httpBackend.flush();
+
+		(getMoreCalled).should.be.equal(true);
+	});
+
+	it('should update scope.repos when all repos loaded first', function () {
+		getAllReposData = {
+			value: testDataRepos.data,
+			hasMore: true,
+			getMore: function () {
+				this.hasMore = false;
+				this.value.push({
+					id: 123,
+					name: 'test',
+					owner: {
+						login: 'octocat'
+					}
+				});
+				console.log(this);
+				this.cb(null, this);
+			}
+		};
 
 		httpBackend.flush();
 
-		(homeCtrl.scope.repos.length).should.be.equal(3);
-		(homeCtrl.scope.claRepos.length).should.be.equal(1);
-		(homeCtrl.scope.user.value.admin).should.be.equal(true);
+		(scope.repos.length).should.be.equal(3);
 	});
 
 	it('should not load user`s repos if he is not an admin', function () {
@@ -248,12 +254,13 @@ describe('Home Controller', function () {
 	});
 
 	it('should not try to get linked repos if user has no repos in GitHub', function () {
-		getAllReposData = [];
+		getAllReposData = {
+			value: []
+		};
 
 		httpBackend.flush();
 
 		(homeCtrl.scope.repos.length).should.be.equal(0);
-		getAllReposData = undefined;
 	});
 
 	it('should create repo entry and webhook on link action', function () {
@@ -428,19 +435,11 @@ describe('Home Controller', function () {
 	});
 
 	it('should check repos whether they are activated or NOT', function () {
-		httpBackend.resetExpectations();
-		httpBackend.expect('POST', '/api/repo/getAll', {
-			set: [{
-				owner: 'octocat',
-				repo: 'Hello-World'
-			}, {
-				owner: 'orgOwner'
-			}]
-		}).respond([{
+		rpcRepoGetAllData = {value: [{
 			name: 'Hello-World',
 			owner: 'octocat',
 			gist: ''
-		}]);
+		}]};
 		httpBackend.flush();
 
 		(homeCtrl.scope.claRepos[0].active).should.not.be.ok;

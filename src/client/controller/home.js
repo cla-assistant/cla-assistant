@@ -97,11 +97,16 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 			var getRepos = function () {
 				if ($scope.user && $scope.user.value && $scope.user.value.admin) {
 					$HUB.direct_call(githubUserRepos, {}, function (err, data) {
-						data.value.forEach(function (orgRepo) {
-							$scope.repos.push(orgRepo);
-						});
-						if ($scope.repos.length > 0) {
-							updateScopeData();
+						if (data.hasMore) {
+							data.getMore();
+							console.log('hasMore');
+						} else {
+							data.value.forEach(function (orgRepo) {
+								$scope.repos.push(orgRepo);
+							});
+							if ($scope.repos.length > 0) {
+								updateScopeData();
+							}
 						}
 					});
 				}
