@@ -99,7 +99,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 					$HUB.direct_call(githubUserRepos, {}, function (err, data) {
 						if (data.hasMore) {
 							data.getMore();
-							console.log('hasMore');
 						} else {
 							data.value.forEach(function (orgRepo) {
 								$scope.repos.push(orgRepo);
