@@ -7,7 +7,7 @@ The Contributor License Agreement assistant (CLA assistant) lets you handle the 
 
 All you need to do is to store your CLA as a GitHub Gist file and link it with your repository in the CLA assistant. The remaining part takes CLA assistant for you over:
 
- - it notifies each contributor to sign the CLA as soon as he creates a pull request
+ - it notifies each contributor to sign the CLA as soon as he or she creates a pull request
  - it lets contributor sign your CLA easily doing few clicks
  - it authenticates the signer with his GitHub account
  - it updates the status of the pull request as soon the contributor agrees to your CLA
