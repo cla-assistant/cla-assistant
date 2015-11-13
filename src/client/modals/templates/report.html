@@ -15,10 +15,12 @@
 		<div class="form-group has-feedback col-xs-8">
 			<ui-select ng-model="selectedVersion.version"  theme="selectize" on-select="newContributors = getContributors($select.selected.version)">
 				<ui-select-match placeholder="select version from ..." allow-clear="true">
-					Version from {{$select.selected.committed_at | date: 'medium'}}
+					<div ng-if="$select.selected.committed_at">Version from {{$select.selected.committed_at | date: 'medium'}}</div>
+					<div ng-if="$select.selected.text">{{$select.selected.text}}</div>
 				</ui-select-match>
-				<ui-select-choices repeat="version in gist.history | filter: $select.search">
-					  <span ng-bind-html="version.committed_at | highlight: $select.search | date: 'medium'"></span>
+				<ui-select-choices repeat="version in history | filter: $select.search">
+					  <span ng-bind-html="version.committed_at | highlight: $select.search | date: 'medium'" ng-if="version.committed_at"></span>
+					  <span ng-bind-html="version.text | highlight: $select.search" ng-if="!version.committed_at"></span>
 				</ui-select-choices>
 			</ui-select>
 		</div>

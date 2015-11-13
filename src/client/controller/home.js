@@ -345,29 +345,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 				});
 			};
 
-			// $scope.getSignatures = function(claRepo){
-			//     return $RPCService.call('cla', 'getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}});
-			// };
-			//
-			// var getGithubUserData = function(login){
-			//     return $HUBService.call('user', 'getFrom', {user: login});
-			// };
-			//
-			// $scope.getUsers = function(claRepo){
-			//     return $scope.getSignatures(claRepo).then(function(data){
-			//         $scope.users = [];
-			//         if (data && data.value) {
-			//             data.value.forEach(function(signature){
-			//                 getGithubUserData(signature.user).then(function(user){
-			//                     user.value.cla = signature;
-			//                     $scope.users.push(user.value);
-			//
-			//                 });
-			//             });
-			//         }
-			//     });
-			// };
-
 			$scope.isActive = function (viewLocation) {
 				return viewLocation === $location.url();
 			};

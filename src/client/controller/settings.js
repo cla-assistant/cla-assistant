@@ -89,7 +89,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 						$scope.contributors.push(contributor);
 						getGithubUserData(signature.user).then(function (user) {
 							contributor.html_url = user.html_url;
-							// $scope.contributors.push(user.value);
 						});
 					});
 				}
@@ -97,7 +96,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 		};
 
 		$scope.getGist = function () {
-			$RPCService.call('cla', 'getGist', {
+			return $RPCService.call('cla', 'getGist', {
 				repo: $scope.repo.repo,
 				owner: $scope.repo.owner,
 				gist: gistArgs()
@@ -133,14 +132,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
 		$scope.validateLinkedRepo = function () {
 			var promises = [];
-			// ng-if="!loading && gist.id.length > 0"
 			if ($scope.repo.gist) {
 				$scope.loading = true;
-				// $scope.getUsers();
 				promises.push($scope.getGist());
 				promises.push(getWebhook());
-				$scope.signatures = $scope.getSignatures($scope.repo);
 				$q.all(promises).then(function () {
+					$scope.signatures = $scope.getSignatures($scope.repo, gistArgs().gist_version);
 					$scope.loading = false;
 				});
 			}
@@ -150,45 +147,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 			return !$scope.loading && $scope.valid.gist && $scope.valid.webhook ? true : false;
 		};
 
-		$scope.update = function () {
-			$scope.gistUrlIsValid = validateGistUrl($scope.repo.gist);
-			if ($scope.repo.gist && !$scope.gistUrlIsValid) {
-				return;
-			}
-			if ($scope.repo.gist) {
-				$RPCService.call('webhook', 'create', {
-					repo: $scope.repo.repo,
-					owner: $scope.repo.owner
-				}, function (err, data) {
-					if (!err) {
-						$scope.repo.active = true;
-					}
-				});
-			} else {
-				$RPCService.call('webhook', 'remove', {
-					repo: $scope.repo.repo,
-					user: $scope.repo.owner
-				}, function (err) {
-					if (!err) {
-						$scope.repo.active = false;
-					}
-				});
-			}
-			$RPCService.call('repo', 'update', {
-				repo: $scope.repo.repo,
-				owner: $scope.repo.owner,
-				gist: $scope.repo.gist
-			}, function () {
-				$scope.validateLinkedRepo();
-			});
-		};
-
 		$scope.renderHtml = function (html_code) {
 			return $sce.trustAsHtml(html_code);
 		};
 
 		var report = function (claRepo) {
-			var modal = $modal.open({
+			$modal.open({
 				templateUrl: '/modals/templates/report.html',
 				controller: 'ReportCtrl',
 				windowClass: 'report',
@@ -199,14 +163,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 					}
 				}
 			});
-			// modal.result.then(function(args){});
 		};
 
 		$scope.getReport = function () {
 			if ($scope.signatures.value.length > 0) {
-				$scope.getContributors();
-				report($scope.repo);
+				$scope.getContributors(gistArgs().gist_version);
 			}
+			report($scope.repo);
 		};
 
 		$scope.recheck = function (claRepo) {
@@ -230,7 +193,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 					repo: claRepo.repo,
 					owner: claRepo.owner,
 					users: users
-				}).then($scope.update);
+				}).then($scope.validateLinkedRepo);
 			});
 		};
 

@@ -242,6 +242,12 @@ module.exports = function(){
 			});
 		},
 
+		//Get all signed CLAs for given repo and gist url and/or a given gist version
+		//Params:
+		//	repo (mandatory)
+		//	owner (mandatory)
+		//	gist.gist_url (mandatory)
+		//	gist.gist_version (optional)
 		getAll: function(args, done) {
 			var self = this;
 			var valid = [];
@@ -255,23 +261,23 @@ module.exports = function(){
 						done(e, clas);
 						return;
 					}
-					self.getRepo(args, function(err, repo){
-						if (err) {
-							logger.warn(new Error(err).stack);
-						}
-						self.getGist(repo, function(error, gist){
-							if (!gist) {
-								done(error, gist);
-								return;
-							}
-							clas.forEach(function(cla){
-								if (gist.history && gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
-									valid.push(cla);
-								}
-							});
-							done(error, valid);
-						});
-					});
+					// self.getRepo(args, function(err, repo){
+					// 	if (err) {
+					// 		logger.warn(new Error(err).stack);
+					// 	}
+					// 	self.getGist(repo, function(error, gist){
+					// 		if (!gist) {
+					// 			done(error, gist);
+					// 			return;
+					// 		}
+					// 		clas.forEach(function(cla){
+					// 			if (gist.history && gist.history.length > 0 && gist.history[0].version === cla.gist_version) {
+					// 				valid.push(cla);
+					// 			}
+					// 		});
+							done(e, clas);
+					// 	});
+					// });
 				});
 			}
 

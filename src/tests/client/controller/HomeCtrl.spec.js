@@ -232,7 +232,6 @@ describe('Home Controller', function () {
 						login: 'octocat'
 					}
 				});
-				console.log(this);
 				this.cb(null, this);
 			}
 		};

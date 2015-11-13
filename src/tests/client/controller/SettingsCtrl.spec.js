@@ -96,7 +96,6 @@ describe('Settings Controller', function () {
 				(args.repo).should.be.equal(scope.repo.repo);
 				(args.owner).should.be.equal(scope.repo.owner);
 				(args.gist.gist_url).should.be.equal(scope.repo.gist);
-				// (args.gist.gist_version).should.be.equal(scope.gist.history[0].version);
 				var resp = args.gist.gist_version ? [{user: 'login' }] : [{
 					user: 'login'
 				}, {
@@ -112,6 +111,8 @@ describe('Settings Controller', function () {
 				response.value = testResp.cla.getGist || testGistData;
 			} else if (obj === 'webhook' && fun === 'get') {
 				response.value = testResp.webhook.get || {active: true};
+			} else if (obj === 'webhook' && fun === 'create') {
+				response.value = testResp.webhook.create || {active: true};
 			} else {
 				return originalRPCCall(obj, fun, args, cb);
 			}
@@ -202,8 +203,9 @@ describe('Settings Controller', function () {
 		});
 
 		it('should get number of contributors on init', function () {
+			$timeout.flush();
 
-			(settingsCtrl.scope.signatures.value.length).should.be.equal(2);
+			(settingsCtrl.scope.signatures.value.length).should.be.equal(1);
 		});
 
 		it('should get all contributors signed this cla', function () {
@@ -264,24 +266,35 @@ describe('Settings Controller', function () {
 					url: 'https://gist.github.com/gistId'
 				};
 			});
+
+			it('should provide a gist version calling getSignatures', function(){
+				sinon.spy(scope, 'getSignatures');
+				testResp.cla.getGist = testGistData;
+
+				settingsCtrl.scope.validateLinkedRepo();
+				$timeout.flush();
+
+				(scope.getSignatures.calledWith(scope.repo, scope.gist.history[0].version)).should.be.equal(true);
+			});
+
 			it('should indicate loading', function () {
 				$timeout.flush();
-				(settingsCtrl.scope.loading).should.not.be.ok;
+				(settingsCtrl.scope.loading).should.be.equal(false);
 
 				settingsCtrl.scope.validateLinkedRepo();
 
-				(settingsCtrl.scope.loading).should.be.ok;
+				(settingsCtrl.scope.loading).should.be.equal(true);
 				$timeout.flush();
-				(settingsCtrl.scope.loading).should.not.be.ok;
+				(settingsCtrl.scope.loading).should.be.equal(false);
 			});
 
 			it('should validate repo by checking repo, gist and webhook', function () {
 				settingsCtrl.scope.validateLinkedRepo();
 
 				$timeout.flush();
-				(settingsCtrl.scope.loading).should.not.be.ok;
-				(settingsCtrl.scope.valid.gist).should.be.ok;
-				(settingsCtrl.scope.valid.webhook).should.be.ok;
+				(settingsCtrl.scope.loading).should.not.be.equal(true);
+				(settingsCtrl.scope.valid.gist).should.be.equal(true);
+				(settingsCtrl.scope.valid.webhook).should.be.equal(true);
 			});
 
 			it('should use active flag of webhook to validate it', function () {
@@ -289,9 +302,9 @@ describe('Settings Controller', function () {
 				settingsCtrl.scope.validateLinkedRepo();
 
 				$timeout.flush();
-				(settingsCtrl.scope.loading).should.not.be.ok;
-				(settingsCtrl.scope.valid.gist).should.be.ok;
-				(settingsCtrl.scope.valid.webhook).should.be.not.ok;
+				(settingsCtrl.scope.loading).should.not.be.equal(true);
+				(settingsCtrl.scope.valid.gist).should.be.equal(true);
+				(settingsCtrl.scope.valid.webhook).should.be.equal(false);
 			});
 		});
 
@@ -306,30 +319,42 @@ describe('Settings Controller', function () {
 			});
 		});
 
-		it('should prepare array of contributors for export', function () {
-			sinon.stub(modal, 'open', function () {
-				return;
+		describe('on getReport', function(){
+			it('should show list of contributors for the current gist version first', function(){
+				sinon.spy(scope, 'getSignatures');
+				$timeout.flush();
+
+				settingsCtrl.scope.getReport();
+				
+				(scope.getSignatures.calledWith(scope.repo, scope.gist.history[0].version)).should.be.equal(true);
 			});
-			testResp.cla.getAll = [{
-				user: 'login'
-			}];
+			it('should prepare array of contributors for export', function () {
+				sinon.stub(modal, 'open', function () {
+					return;
+				});
+				testResp.cla.getAll = [{
+					user: 'login'
+				}];
+				$timeout.flush();
 
-			settingsCtrl.scope.getReport();
+				settingsCtrl.scope.getReport();
 
-			settingsCtrl.scope.contributors.length.should.be.equal(1);
-		});
-
-		it('should not call report modal if there are no signatures', function () {
-			testResp.cla.getAll = [];
-			createCtrl();
-
-			sinon.stub(modal, 'open', function () {
-				return;
+				settingsCtrl.scope.contributors.length.should.be.equal(1);
 			});
 
-			settingsCtrl.scope.getReport();
+			it('should call report modal even if there are no signatures', function () {
+				testResp.cla.getAll = [];
+				createCtrl();
+				$timeout.flush();
 
-			(modal.open.called).should.be.equal(false);
+				sinon.stub(modal, 'open', function () {
+					return;
+				});
+
+				settingsCtrl.scope.getReport();
+
+				(modal.open.called).should.be.equal(true);
+			});
 		});
 	});
 
