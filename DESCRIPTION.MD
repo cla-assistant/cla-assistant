@@ -2,10 +2,10 @@
 Manages the signing of Contributor License Agreements (CLA's) within GitHub Flow.
 
 ### Short Description
-Streamline your workflow and let CLA Assistant handle the legal side of contributions to a repository for you. CLA Assistant enables contributors to sign CLA's from within a pull request.
+Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLA's from within a pull request.
 
 ### Description
-To get started, simply store your CLA as a GitHub Gist file then link it with the repository in CLA Assistant. Then sit back and relax while CLA Assistant:
+To get started, simply store your CLA as a GitHub Gist file then link it with the repository in CLA assistant. Then sit back and relax while CLA assistant:
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
 - Allows contributors to sign a CLA from within a pull request
