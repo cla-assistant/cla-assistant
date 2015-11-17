@@ -62,7 +62,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 				$RPCService.call('repo', 'getAll', {
 					set: repoSet
 				}, function (err, data) {
-					// $RPCService.call('repo', 'getAll', {owner: $rootScope.user.value.login}, function(err, data){
 					$scope.claRepos = data.value;
 					$scope.claRepos.forEach(function (claRepo) {
 						claRepo.active = claRepo.gist ? true : false;
@@ -100,8 +99,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 						if (data.hasMore) {
 							data.getMore();
 						} else {
-							data.value.forEach(function (orgRepo) {
-								$scope.repos.push(orgRepo);
+							data.value.forEach(function (repo) {
+								if (repo.permissions.push) {
+									$scope.repos.push(repo);
+								}
 							});
 							if ($scope.repos.length > 0) {
 								updateScopeData();

@@ -315,6 +315,55 @@ var testData_commit_with_no_user = [{
 	}]
 }];
 
+var testData_repos = [{
+	'id': 1296269,
+	'owner': {
+		'login': 'octocat',
+		'id': 1,
+		'html_url': 'https://github.com/octocat',
+		'type': 'User',
+		'site_admin': false
+	},
+	'name': 'Hello-World',
+	'full_name': 'octocat/Hello-World',
+	'description': 'This your first repo!',
+	'private': false,
+	'fork': false,
+	'url': 'https://api.github.com/repos/octocat/Hello-World',
+	'html_url': 'https://github.com/octocat/Hello-World',
+	'language': null,
+	'forks_count': 9,
+	'stargazers_count': 80,
+	'watchers_count': 80,
+	'size': 108,
+	'default_branch': 'master',
+	'open_issues_count': 0,
+	'has_issues': true,
+	'has_wiki': true,
+	'has_pages': false,
+	'has_downloads': true,
+	'pushed_at': '2011-01-26T19:06:43Z',
+	'created_at': '2011-01-26T19:01:12Z',
+	'updated_at': '2011-01-26T19:14:43Z',
+	'permissions': {
+		'admin': false,
+		'push': false,
+		'pull': true
+	}
+},
+{
+	'id': 2,
+	'owner': {
+		'login': 'login'
+	},
+	'name': 'test_repo',
+	'permissions': {
+		'admin': false,
+		'push': true,
+		'pull': true
+	}
+}];
+
 describe('repo:create', function () {
 	afterEach(function () {
 		Repo.create.restore();
@@ -547,12 +596,22 @@ describe('repo:getUserRepos', function () {
 					owner: {
 						login: 'login'
 					},
-					name: 'repo1'
+					name: 'repo1',
+					permissions: {
+						admin: false,
+						push: true,
+						pull: true
+					}
 				}, {
 					owner: {
 						login: 'login'
 					},
-					name: 'repo2'
+					name: 'repo2',
+					permissions: {
+						admin: false,
+						push: true,
+						pull: true
+					}
 				}]
 			});
 		});
@@ -602,12 +661,22 @@ describe('repo:getUserRepos', function () {
 					owner: {
 						login: 'login'
 					},
-					name: 'repo1'
+					name: 'repo1',
+					permissions: {
+						admin: false,
+						push: true,
+						pull: true
+					}
 				}, {
 					owner: {
 						login: 'login'
 					},
-					name: 'repo2'
+					name: 'repo2',
+					permissions: {
+						admin: false,
+						push: true,
+						pull: true
+					}
 				}]
 			});
 		});
@@ -623,7 +692,7 @@ describe('repo:getUserRepos', function () {
 		});
 	});
 
-	it('should handle affiliation attribute', function(it_done){
+	it('should handle affiliation attribute', function (it_done) {
 		sinon.stub(github, 'direct_call', function (args, done) {
 			assert(args.url.indexOf('affiliation=x,y') > -1);
 			assert(args.token);
@@ -635,7 +704,7 @@ describe('repo:getUserRepos', function () {
 		repo.getUserRepos({
 			token: 'test_token',
 			affiliation: 'x,y'
-		}, function (err, res) {
+		}, function (err) {
 			assert.ifError(err);
 			assert(github.direct_call.called);
 
@@ -643,7 +712,7 @@ describe('repo:getUserRepos', function () {
 		});
 	});
 
-	it('should handle affiliation if not provided', function(it_done){
+	it('should handle affiliation if not provided', function (it_done) {
 		sinon.stub(github, 'direct_call', function (args, done) {
 			assert(args.url.indexOf('affiliation=owner') > -1);
 			assert(args.token);
@@ -654,9 +723,33 @@ describe('repo:getUserRepos', function () {
 		});
 		repo.getUserRepos({
 			token: 'test_token'
-		}, function (err, res) {
+		}, function (err) {
 			assert.ifError(err);
 			assert(github.direct_call.called);
+
+			it_done();
+		});
+	});
+
+	it('should provide only repos with push rights', function(it_done){
+		sinon.stub(github, 'direct_call', function (args, done) {
+			assert(args.token);
+			done(null, {data: testData_repos});
+		});
+		sinon.stub(Repo, 'find', function (args, done) {
+			assert.equal(args.$or.length, 1);
+			done(null, [{
+				owner: 'login',
+				repo: 'test_repo'
+			}]);
+		});
+
+		repo.getUserRepos({
+			token: 'test_token'
+		}, function (err, res) {
+			assert.ifError(err);
+			assert(res.length === 1);
+			assert(Repo.find.called);
 
 			it_done();
 		});

@@ -33,11 +33,31 @@ describe('Home Controller', function () {
 			'private': false,
 			'fork': false,
 			'url': 'https://api.github.com/repos/octocat/Hello-World',
-			'html_url': 'https://github.com/octocat/Hello-World'
+			'html_url': 'https://github.com/octocat/Hello-World',
+			'permissions': {
+				'admin': false,
+				'push': true,
+				'pull': true
+			}
 		}, {
 			id: 123,
 			owner: {
 				login: 'orgOwner'
+			},
+			permissions: {
+				admin: false,
+				push: true,
+				pull: true
+			}
+		}, {
+			id: 456,
+			owner: {
+				login: 'orgOwner'
+			},
+			permissions: {
+				admin: false,
+				push: false,
+				pull: true
 			}
 		}]
 	};
@@ -230,6 +250,11 @@ describe('Home Controller', function () {
 					name: 'test',
 					owner: {
 						login: 'octocat'
+					},
+					permissions: {
+						admin: false,
+						push: true,
+						pull: true
 					}
 				});
 				this.cb(null, this);

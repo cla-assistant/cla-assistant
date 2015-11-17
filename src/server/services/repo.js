@@ -148,10 +148,12 @@ module.exports = {
 
 			var repoSet = [];
 			res.data.forEach(function (githubRepo) {
-				repoSet.push({
-					owner: githubRepo.owner.login,
-					repo: githubRepo.name
-				});
+				if (githubRepo.permissions.push) {
+					repoSet.push({
+						owner: githubRepo.owner.login,
+						repo: githubRepo.name
+					});
+				}
 			});
 			that.getAll({
 				set: repoSet
