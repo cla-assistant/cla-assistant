@@ -264,6 +264,14 @@ describe('webhook pull request', function () {
 			done(null, false);
 		});
 
+		sinon.stub(repoService, 'get', function (args, done) {
+			assert(args.repo);
+			assert(args.owner);
+			done(null, {
+				repo: 'requestedRepo'
+			});
+		});
+
 		sinon.stub(repoService, 'getPRCommitters', function (args, done) {
 			assert(args.repo);
 			assert(args.owner);
@@ -285,6 +293,7 @@ describe('webhook pull request', function () {
 	});
 
 	afterEach(function () {
+		repoService.get.restore();
 		repoService.getPRCommitters.restore();
 
 		pullRequest.badgeComment.restore();
@@ -349,5 +358,18 @@ describe('webhook pull request', function () {
 
 		logger.warn.restore();
 		it_done();
+	});
+
+	it('should do nothing if the pull request hook comes from unknown repository', function(){
+		repoService.get.restore();
+		sinon.stub(repoService, 'get', function (args, done) {
+			done(null, null);
+		});
+
+		pull_request(test_req, res);
+
+		assert.equal(repoService.get.called, true);
+		assert.equal(repoService.getPRCommitters.called, false);
+		assert.equal(cla.check.called, false);
 	});
 });
