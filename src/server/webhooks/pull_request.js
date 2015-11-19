@@ -10,9 +10,9 @@ var log = require('../services/logger');
 // Github Pull Request Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
 	log.debug(req.args.action);
-	if( ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
+	if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
 		var args = {
 			owner: req.args.repository.owner.login,
 			repo: req.args.repository.name,
@@ -37,9 +37,9 @@ module.exports = function(req, res) {
 		//         notification_args
 		// );
 
-		repoService.getPRCommitters(args, function(e, committers){
-			if(!e && committers && committers.length > 0){
-				cla.check(args, function(err, signed, user_map){
+		repoService.getPRCommitters(args, function (e, committers) {
+			if (!e && committers && committers.length > 0) {
+				cla.check(args, function (err, signed, user_map) {
 					if (err) {
 						log.warn(new Error(err).stack);
 					}
@@ -63,9 +63,9 @@ module.exports = function(req, res) {
 		});
 	}
 
-  // if(req.args.action === 'synchronize') {
+	// if(req.args.action === 'synchronize') {
 
-  // }
+	// }
 
 	res.status(200).send('OK');
 };
