@@ -13,7 +13,13 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 - Updates the status of a pull request when the contributor agrees to the CLA
 - Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
-![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/linked_CLAs)
+
+
+![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/sign_cla)
+
+
+![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/assests/images/preview.gif)
 
 Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.
 
