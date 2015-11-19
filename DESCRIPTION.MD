@@ -19,7 +19,7 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 ![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/sign_cla.png)
 
 
-![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/assets/images/preview.gif)
+![screenshot](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/preview.gif)
 
 Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.
 
