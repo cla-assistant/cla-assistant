@@ -3,7 +3,7 @@
 
 describe('Home Controller', function () {
 
-	var scope, httpBackend, createCtrl, homeCtrl, githubResponse, calledApi, $HUB, $RPCService;
+	var scope, httpBackend, createCtrl, homeCtrl, githubResponse, $HUB, $RAW, $RPCService;
 
 	var testDataRepos = {
 		data: [{
@@ -114,38 +114,13 @@ describe('Home Controller', function () {
 	beforeEach(angular.mock.module('app'));
 	beforeEach(angular.mock.module('templates'));
 
-	beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_) {
+	beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_, _$RAW_) {
 		$HUB = _$HUB_;
+		$RAW = _$RAW_;
 		$RPCService = _$RPCService_;
-		calledApi = {};
 		httpBackend = $injector.get('$httpBackend');
 
 		scope = $rootScope.$new();
-
-		createCtrl = function () {
-
-			var ctrl = $controller('HomeCtrl', {
-				$scope: scope
-			});
-			ctrl.scope = scope;
-			return ctrl;
-		};
-
-		homeCtrl = createCtrl();
-		githubResponse = {
-			data: {
-				login: 'login'
-			},
-			meta: {
-				scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'
-			}
-		};
-		httpBackend.when('GET', '/config').respond({});
-		httpBackend.when('POST', '/api/github/call', {
-			obj: 'user',
-			fun: 'get',
-			arg: {}
-		}).respond(githubResponse);
 
 		var hubDirectCall = $HUB.direct_call;
 		sinon.stub($HUB, 'direct_call', function (url, data, cb) {
@@ -183,6 +158,40 @@ describe('Home Controller', function () {
 			cb(null, response);
 		});
 
+		var rawGet = $RAW.get;
+		sinon.stub($RAW, 'get', function(url, token){
+			if (url.indexOf('count') > -1) {
+				return {then: function(){}};
+			} else {
+				return rawGet(url, token);
+			}
+		});
+
+		createCtrl = function () {
+
+			var ctrl = $controller('HomeCtrl', {
+				$scope: scope
+			});
+			ctrl.scope = scope;
+			return ctrl;
+		};
+
+		homeCtrl = createCtrl();
+		githubResponse = {
+			data: {
+				login: 'login'
+			},
+			meta: {
+				scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'
+			}
+		};
+		httpBackend.when('GET', '/config').respond({});
+		httpBackend.when('POST', '/api/github/call', {
+			obj: 'user',
+			fun: 'get',
+			arg: {}
+		}).respond(githubResponse);
+
 		httpBackend.when('POST', '/api/github/direct_call', {
 			url: 'https://api.github.com/gists?per_page=100'
 		}).respond(testDataGists.data.concat(
@@ -211,6 +220,7 @@ describe('Home Controller', function () {
 		homeCtrl.scope.selectedGist = {};
 
 		$HUB.direct_call.restore();
+		$RAW.get.restore();
 		$RPCService.call.restore();
 		getAllReposData = undefined;
 		rpcRepoGetAllData = undefined;
@@ -582,4 +592,20 @@ describe('Home Controller', function () {
 		(!homeCtrl.scope.selectedGist.gist).should.be.ok;
 	});
 
+	it('should NOT load counts if user is logged', function(){
+		httpBackend.flush();
+
+		($RAW.get.calledWith('/count/clas')).should.be.equal(false);
+	});
+
+	it('should load counts if user not logged', function(){
+		httpBackend.expect('POST', '/api/github/call', {
+			obj: 'user',
+			fun: 'get',
+			arg: {}
+		}).respond(401, 'Authentication required');
+		httpBackend.flush();
+
+		($RAW.get.called).should.be.equal(true);
+	});
 });

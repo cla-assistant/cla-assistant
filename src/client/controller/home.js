@@ -235,9 +235,23 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 				});
 			};
 
+			$scope.count = function(){
+				$RAW.get('/count/clas').then(function (data) {
+					$scope.numberClas = data.count;
+				});
+				$RAW.get('/count/repos').then(function (data) {
+					$scope.numberRepos = data.count;
+				});
+				$RAW.get('/count/stars').then(function (data) {
+					$scope.numberStars = data.count;
+				});
+			};
+
 			getUser().then(function () {
 				getRepos();
 				getGists();
+			}, function(){
+				$scope.count();
 			});
 
 			$scope.clear = function ($event, obj) {
@@ -362,36 +376,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
 				return found ? 'Default CLAs' : 'My Gist Files';
 			};
+
 		}
 	])
-	.directive('resize', ['$window', function ($window) {
-		return {
-			scope: {
-				resize: '@'
-			},
-			link: function (scope, element) {
-				var el = element;
-
-				var positionElement = function () {
-					if (scope.resize === 'height') {
-						el.css('height', $window.innerHeight + 'px');
-					} else if (scope.resize === 'max-width') {
-						el.css('max-width', this.innerWidth - 100);
-					}
-				};
-
-				angular.element($window).bind('resize', function () {
-					positionElement();
-					scope.$apply();
-				});
-
-				angular.element($window).bind('load', function () {
-					positionElement();
-					scope.$apply();
-				});
-			}
-		};
-	}])
 	.directive('feature', ['$window', function () {
 		return {
 			templateUrl: '/templates/feature.html',

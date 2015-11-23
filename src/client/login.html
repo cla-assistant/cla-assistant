@@ -119,11 +119,13 @@
 			</div>
 
 			<div class="row lp-section" style="height: 400px;">
+				<div class="center-block">
+					<h4 class="lp-premium">We have collected so far</h4>
+				</div>
 				<div class="col-md-4 col-md-offset-4" text-slider active="active" time='5000' style="text-align: center;  margin-top: 3em">
-					<!-- <h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 0]">Set up, activate and accept CLAs</h4>
-		<h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 1]">Set up, activate and accept CLAs</h4>
-		<h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 2]">Set up, activate and accept CLAs</h4>
-		<h4 class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 3]">Set up, activate and accept CLAs</h4> -->
+					<p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 0]"><i class="octicon octicon-repo"></i> {{numberRepos}} registered repositories</p>
+					<p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 1]"><img src="/assets/images/CLA_logo.svg" class="lp-textblock-icon"/> {{numberClas}} signed CLAs</p>
+					<p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 2]"><i class="octicon octicon-star"></i> {{numberStars}} GitHub stars</p>
 				</div>
 			</div>
 
@@ -133,7 +135,7 @@
 					<p>Put your CLA into a <a href="https://gist.github.com" target="_blank">Gist</a>, and link it to a repository</p>
 				</div>
 
-				<div class="row" style="margin-bottom:30px; margin-top: 75px;">
+				<div class="row lp-bottom-space" style=" margin-top: 75px;">
 					<div class="center-block">
 						<div class="col-xs-12 col-sm-4 col-md-4 ">
 							<img class="float-right " src="/assets/images/howto1.svg" style=" height: 150px;">
@@ -149,7 +151,7 @@
 					</div>
 				</div>
 
-				<div class="row" style="margin-bottom:40px;">
+				<div class="row lp-bottom-space">
 					<div class="center-block">
 						<div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
 							<img class="float-left" src="/assets/images/howto2.svg" style="height: 150px;">
@@ -165,7 +167,7 @@
 					</div>
 				</div>
 
-				<div class="row" style="margin-bottom:30px;">
+				<div class="row lp-bottom-space">
 					<div class="center-block">
 						<div class="col-xs-12 col-sm-4 col-md-4">
 							<img class="float-right" src="/assets/images/howto3.svg" style="height: 150px;">
@@ -181,7 +183,7 @@
 					</div>
 				</div>
 
-				<div class="row" style="margin-bottom:30px;">
+				<div class="row lp-bottom-space">
 					<div class="center-block">
 						<div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
 							<img class=" float-left" src="/assets/images/howto4.svg" style="height: 150px;">
@@ -203,7 +205,7 @@
 				<div class="center-block">
 					<h4>PREVIEW</h4>
 				</div>
-				<div class="center-block">
+				<div class="center-block" style="margin-bottom:40px;">
 					<img src="/assets/images/browser.svg" class="center-block preview-browser"/>
 					<img src="/assets/images/preview.gif" class="center-block"/>
 				</div>
@@ -213,22 +215,8 @@
 				<div class="center-block">
 					<btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px">
 						<span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
-					<!-- <div style="font-size:24px; margin-top: 50px;">Set up, activate and accept CLAs</div> -->
 				</div>
 			</div>
-			<!--     <div class="lp-white lp-section" style="font-size: 25px; padding-left:0">
-	  <div class="center-block">
-		<h4>SCREENSHOTS :)</h4>
-	  </div>
-	  <div style="width: 10000px; position: relative" img-slider>
-		<div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:right" ng-click="right();" class="fa fa-angle-left"></div>
-		<div style="position:absolute;width:50px;height:50px;cursor:pointer; text-align:left" ng-click="left();" class="fa fa-angle-right"></div>
-		<img src="/assets/images/screenshot-1.png" style="max-height:500px; display: inline-block;">
-		<img src="/assets/images/screenshot-2.png" style="max-height:500px; display: inline-block;">
-		<img src="/assets/images/screenshot-4.png" style="max-height:500px; display: inline-block;">
-		<img src="/assets/images/screenshot-5.png" style="max-height:500px; display: inline-block;">
-	  </div>
-	</div> -->
 		</div>
 
 		<div class="navbar navbar-default navbar-fixed-bottom">

@@ -56,7 +56,6 @@
 }
 
 .lp-section {
-  /*overflow: hidden;*/
   font-size: 25px;
   padding:50px;
 }
@@ -74,6 +73,10 @@
 .lp-row {
   position: absolute;
   width:100%;
+}
+
+.lp-bottom-space {
+	margin-bottom: 30px;
 }
 
 img.step-icon{
@@ -146,6 +149,14 @@ a.lp-signin:hover, a.lp-signin:focus {
   position: absolute;
   width: 100%;
   opacity: 0;
+  i {
+	  font-size: 25px;
+  }
+}
+
+.lp-textblock-icon {
+	height:25px;
+	margin-bottom:10px;
 }
 
 .section-show-add, .section-show-remove,
