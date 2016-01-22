@@ -441,3 +441,11 @@ small {
 .report .row{
   padding-top: 15px;
 }
+
+// _popover
+.popover-inner{
+  display: -moz-grid-line;
+  i {
+      width: 100%;
+  }
+}
