@@ -190,6 +190,7 @@ module.exports = function(){
                     }
 
                     args.gist_url = repo.gist;
+                    args.repoId = repo.repoId;
 
                     self.create(args, function(error){
                         if (error) {
@@ -294,7 +295,7 @@ module.exports = function(){
         create: function(args, done){
             var now = new Date();
 
-            CLA.create({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
+            CLA.create({repo: args.repo, owner: args.owner, repoId: args.repoId, user: args.user, gist_url: args.gist, gist_version: args.gist_version, created_at: now}, function(err, res){
                 done(err, res);
             });
         }

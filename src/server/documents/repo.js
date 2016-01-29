@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
 var RepoSchema = mongoose.Schema({
+    repoId: String,
     repo: String,
     owner: String,
     gist: String,

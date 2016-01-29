@@ -28,6 +28,7 @@ module.exports = {
         Repo.create({
             repo: args.repo,
             owner: args.owner,
+            repoId: args.repoId,
             gist: args.gist,
             token: args.token
         }, function (err, repo) {
