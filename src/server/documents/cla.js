@@ -1,9 +1,11 @@
 var mongoose = require('mongoose');
 
 var CLASchema = mongoose.Schema({
+    repoId: String,
     repo: String,
     owner: String,
     user: String,
+    userId: String,
     gist_url: String,
     gist_version: String,
     created_at: Date

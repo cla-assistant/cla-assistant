@@ -51,8 +51,12 @@ module.exports = function() {
             claUrl = number ? claUrl + '?pullRequest=' + number : claUrl;
             return claUrl;
         },
+        githubRepository: function(owner, repo){
+            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo);
+            return _url;
+        },
         githubPullRequests: function(owner, repo, state){
-            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls');
+            var _url = this.githubRepository(owner, repo) + '/pulls';
             _url = state ? _url + '?state=' + state : _url;
             return _url;
         },
