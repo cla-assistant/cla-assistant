@@ -68,7 +68,6 @@ module.exports = {
         args.set.forEach(function(repo){
             repoIds.push({repoId: repo.repoId});
         });
-        console.log(repoIds);
         Repo.find({
             $or: repoIds
         }, function (err, dbRepos) {
@@ -212,7 +211,6 @@ module.exports = {
                     } else if (ghRepo && ghRepo.data && ghRepo.data.message) {
                         logger.info(ghRepo.data.message, 'with params ', params);
                         // logger.info('Removed repo: ', dbRepo);
-                        // dbRepo.remove();
                         // params.url = ghRepo.data.url;
                         // github.direct_call(params, function(e, ghRepository){
                         //     if (!ghRepository.data.id && ghRepository.data.message) {
@@ -244,8 +242,8 @@ module.exports = {
             url: url.githubRepository(args.owner, args.repo),
             token: args.token
         };
-        console.log('params:', params);
         github.direct_call(params, function(err, ghRepo){
+            console.log(ghRepo);
             if (ghRepo && ghRepo.data && ghRepo.data.id) {
                 done(err, ghRepo.data);
             } else if (ghRepo && ghRepo.data && ghRepo.data.url) {

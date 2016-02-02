@@ -482,3 +482,58 @@ describe('repo:getUserRepos', function () {
         });
     });
 });
+
+describe('repo:getGHRepo', function () {
+    afterEach(function () {
+        github.direct_call.restore();
+    });
+
+    it('should return gitHub repo data', function (it_done) {
+        var resData;
+        sinon.stub(github, 'direct_call', function (args, done) {
+            resData = {data: testData.repo};
+            done(null, resData);
+        });
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            token: '123'
+        };
+        repo.getGHRepo(args, function (err, res) {
+            assert.ifError(err);
+            assert.equal(res.name, 'Hello-World');
+            assert.equal(res.id, 1296269);
+
+            it_done();
+        });
+    });
+
+    it('should recall github if repo is transferred and new url is provided', function(it_done){
+        var resData;
+        sinon.stub(github, 'direct_call', function (args, done) {
+            if (args.url.indexOf('https://api.github.com/repos/octopus/Hello-World') >= 0 ) {
+                resData = {data: {
+                    url: 'https://api.github.com/repos/octocat/Hello-World',
+                    message: 'Repo transferred'
+                }};
+            } else {
+                resData = {data: testData.repo};
+            }
+            done(null, resData);
+        });
+        var args = {
+            owner: 'octopus',
+            repo: 'Hello-World',
+            token: '123'
+        };
+        repo.getGHRepo(args, function (err, res) {
+            assert.ifError(err);
+            assert.equal(github.direct_call.calledTwice, true);
+            assert.equal(res.owner.login, 'octocat');
+            assert.equal(res.name, 'Hello-World');
+            assert.equal(res.id, 1296269);
+
+            it_done();
+        });
+    });
+});
