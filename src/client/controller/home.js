@@ -56,7 +56,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 $scope.repos.forEach(function (repo) {
                     repoSet.push({
                         owner: repo.owner.login,
-                        repo: repo.name
+                        repo: repo.name,
+                        repoId: repo.id
                     });
                 });
                 $RPCService.call('repo', 'getAll', {

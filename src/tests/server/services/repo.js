@@ -73,6 +73,76 @@ describe('repo:check', function () {
     });
 });
 
+describe('repo:getAll', function () {
+    var arg;
+    var response;
+    beforeEach(function () {
+        sinon.stub(Repo, 'find', function (args, done) {
+            assert(args.$or[0].repoId);
+            assert(!args.$or[0].repo);
+            assert(!args.$or[0].owner);
+            done(null, response || [{
+                save: function(){}
+            }]);
+        });
+
+        arg = { set: [{
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 123
+        }]};
+    });
+    afterEach(function () {
+        Repo.find.restore();
+    });
+
+    it('should find cla repos from set of github repos', function (it_done) {
+        repo.getAll(arg, function (err, obj) {
+            assert.ifError(err);
+            assert.equal(obj.length, 1);
+            it_done();
+        });
+    });
+
+    it('should use only repoIds for db selection', function(it_done){
+        repo.getAll(arg, function (err, obj) {
+            assert.ifError(err);
+            assert.equal(obj.length, 1);
+            it_done();
+        });
+    });
+
+    it('should use only repoIds for db selection', function(it_done){
+        repo.getAll(arg, function (err, obj) {
+            assert.ifError(err);
+            assert.equal(obj.length, 1);
+            it_done();
+        });
+    });
+
+    it('should update repo name and owner on db if github repo was transferred', function(it_done){
+        arg = { set: [{
+            repo: 'newRepoName',
+            owner: 'newOwner',
+            repoId: 123
+        }]};
+        response = [{
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 123,
+            save: function(){}
+        }];
+        sinon.spy(response[0], 'save');
+        repo.getAll(arg, function (err, obj) {
+            assert.equal(obj[0].repoId, 123);
+            assert.equal(obj[0].repo, arg.set[0].repo);
+            assert.equal(obj[0].owner, arg.set[0].owner);
+            assert(response[0].save.called);
+            it_done();
+        });
+    });
+});
+
 describe('repo:getPRCommitters', function () {
     var test_repo;
 
@@ -274,7 +344,9 @@ describe('repo:getUserRepos', function () {
             assert.equal(args.$or.length, 2);
             done(null, [{
                 owner: 'login',
-                repo: 'repo1'
+                repo: 'repo1',
+                repoId: 'xy',
+                save: function(){}
             }]);
         });
 
