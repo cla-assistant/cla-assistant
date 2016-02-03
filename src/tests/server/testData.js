@@ -606,7 +606,18 @@ var testData = {
         'url': 'https://api.github.com/repos/KharitonOff/cla3/commits/b43123ef4c5d862cd57aabf99b53e8d68c7eac85',
         'html_url': 'https://github.com/KharitonOff/cla3/commit/b43123ef4c5d862cd57aabf99b53e8d68c7eac85'
     }]
-}]
+}],
+
+////////////////////////////////////////////
+//////////////// REPO FROM DB //////////////
+////////////////////////////////////////////
+
+'repo_from_db':
+{
+    'repoId': 1296269,
+    'owner': 'octocat',
+    'repo': 'Hello-World'
+}
 };
 module.exports = {
     data: testData

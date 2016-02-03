@@ -53,7 +53,7 @@ describe('repo:check', function () {
         Repo.findOne.restore();
     });
 
-    it('should check repo entry', function (it_done) {
+    it('should check repo entry with repo name and owner', function (it_done) {
         sinon.stub(Repo, 'findOne', function (args, done) {
             assert(args);
             assert(args.repo);
@@ -64,6 +64,27 @@ describe('repo:check', function () {
         var arg = {
             repo: 'myRepo',
             owner: 'owner'
+        };
+        repo.check(arg, function (err, obj) {
+            assert.ifError(err);
+            assert(obj);
+            it_done();
+        });
+    });
+
+    it('should check repo entry only with repo id if given', function (it_done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
+            assert(args);
+            assert(args.repoId);
+            assert(!args.repo);
+            assert(!args.owner);
+            done(null, {});
+        });
+
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 123
         };
         repo.check(arg, function (err, obj) {
             assert.ifError(err);
@@ -318,6 +339,7 @@ describe('repo:getUserRepos', function () {
             assert(args.token);
             done(null, {
                 data: [{
+                    id: 123,
                     owner: {
                         login: 'login'
                     },
@@ -328,6 +350,7 @@ describe('repo:getUserRepos', function () {
                         pull: true
                     }
                 }, {
+                    id: 456,
                     owner: {
                         login: 'login'
                     },
@@ -345,7 +368,7 @@ describe('repo:getUserRepos', function () {
             done(null, [{
                 owner: 'login',
                 repo: 'repo1',
-                repoId: 'xy',
+                repoId: 123,
                 save: function(){}
             }]);
         });

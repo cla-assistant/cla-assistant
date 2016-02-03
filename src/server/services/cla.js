@@ -112,10 +112,28 @@ module.exports = function(){
 
         get: function(args, done) {
             var deferred = q.defer();
-            CLA.findOne({repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist, gist_version: args.gist_version}, function(err, cla){
-                deferred.resolve();
-                done(err, cla);
-            });
+            var findCla = function (){
+                CLA.findOne({repoId: args.repoId, user: args.user, gist_url: args.gist, gist_version: args.gist_version}, function(err, cla){
+                    deferred.resolve();
+                    if(typeof done === 'function'){
+                        done(err, cla);
+                    }
+                });
+            };
+            if (!args.repoId) {
+                this.getRepo(args, function(error, repo){
+                    if (error || !repo) {
+                        deferred.reject();
+                        if(typeof done === 'function'){
+                            done(err);
+                        }
+                    }
+                    args.repoId = repo.repoId;
+                    findCla();
+                });
+            } else {
+                findCla();
+            }
             return deferred.promise;
         },
 
@@ -144,6 +162,7 @@ module.exports = function(){
                 }
 
                 args.gist = repo.gist;
+                args.repoId = repo.repoId;
 
                 self.getGist(repo, function(err, gist){
                     if (err || !gist.history) {
@@ -243,30 +262,30 @@ module.exports = function(){
             });
         },
 
-        // updateDBData: function(req, done){
-        //     logger.info(req.user);
-        //     CLA.find({}, function(err, clas){
-        //         if (!err && clas) {
-        //             clas.forEach(function(cla){
-        //                 repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
-        //                     if (ghRepo && ghRepo.id) {
-        //                         cla.repoId = ghRepo.id;
-        //                         if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
-        //                             logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
-        //                             cla.owner = ghRepo.owner.login;
-        //                             cla.repo = ghRepo.name;
-        //                             logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
-        //                         }
-        //                         cla.save();
-        //                     }
-        //                 });
-        //             });
-        //             done('updating ' + clas.length + ' CLAs...');
-        //         } else {
-        //             done(err);
-        //         }
-        //     });
-        // },
+        updateDBData: function(req, done){
+            logger.info(req.user);
+            CLA.find({}, function(err, clas){
+                if (!err && clas) {
+                    clas.forEach(function(cla){
+                        repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
+                            if (ghRepo && ghRepo.id) {
+                                cla.repoId = ghRepo.id;
+                                if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
+                                    logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
+                                    cla.owner = ghRepo.owner.login;
+                                    cla.repo = ghRepo.name;
+                                    logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
+                                }
+                                cla.save();
+                            }
+                        });
+                    });
+                    done('updating ' + clas.length + ' CLAs...');
+                } else {
+                    done(err);
+                }
+            });
+        },
 
         //Get all signed CLAs for given repo and gist url and/or a given gist version
         //Params:
@@ -275,22 +294,27 @@ module.exports = function(){
         //	gist.gist_url (mandatory)
         //	gist.gist_version (optional)
         getAll: function(args, done) {
-            var self = this;
-            var valid = [];
+            var selection = {gist_url: args.gist.gist_url};
             if (args.gist.gist_version) {
-                CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url, gist_version: args.gist.gist_version}, function(err, clas){
-                    done(err, clas);
-                });
+                selection.gist_version = args.gist.gist_version;
+            }
+            var findClas = function(){
+                CLA.find(selection, done);
+            };
+            if (args.repoId) {
+                selection.repoId = args.repoId;
+                findClas();
             } else {
-                CLA.find({repo: args.repo, owner: args.owner, gist_url: args.gist.gist_url}, function(e, clas){
-                    if (!clas) {
-                        done(e, clas);
-                        return;
+                this.getRepo(args, function(err, repo){
+                    if (!err && repo) {
+                        selection.repoId = repo.repoId;
+                        findClas();
+                    } else {
+                        done(err);
                     }
-                    done(e, clas);
+
                 });
             }
-
         },
         create: function(args, done){
             var now = new Date();

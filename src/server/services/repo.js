@@ -9,23 +9,35 @@ var logger = require('../services/logger');
 //services
 var url = require('../services/url');
 
-require('array-sugar');
+var isTransferredRenamed = function(dbRepo, ghRepo) {
+    return ghRepo.repoId === dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
+};
 
-var compareRepoNameAndUpdate = function(ghRepos, dbRepos, done) {
-    var isTransferredRenamed = function(dbRepo, ghRepo) {
-        return ghRepo.repoId === dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
-    };
+var compareRepoNameAndUpdate = function(dbRepo, ghRepo) {
+    if (isTransferredRenamed(dbRepo, ghRepo)) {
+        dbRepo.owner = ghRepo.owner;
+        dbRepo.repo = ghRepo.repo;
+        dbRepo.save();
+        return true;
+    } else {
+        return false;
+    }
+};
+
+var compareAllRepos = function(ghRepos, dbRepos, done) {
     dbRepos.forEach(function(dbRepo){
         ghRepos.some(function(ghRepo){
-            if (isTransferredRenamed(dbRepo, ghRepo)) {
-                dbRepo.owner = ghRepo.owner;
-                dbRepo.repo = ghRepo.repo;
-                dbRepo.save();
-            }
-            return isTransferredRenamed(dbRepo, ghRepo);
+            return compareRepoNameAndUpdate(dbRepo, ghRepo);
         });
     });
     done();
+};
+
+var selection = function (args) {
+    return args.repoId ? {repoId: args.repoId} : {
+        repo: args.repo,
+        owner: args.owner
+    };
 };
 
 module.exports = {
@@ -36,10 +48,7 @@ module.exports = {
     },
 
     check: function (args, done) {
-        Repo.findOne({
-            repo: args.repo,
-            owner: args.owner
-        }, function (err, repo) {
+        Repo.findOne(selection(args), function (err, repo) {
             done(err, !!repo);
         });
     },
@@ -55,10 +64,7 @@ module.exports = {
         });
     },
     get: function (args, done) {
-        Repo.findOne({
-            repo: args.repo,
-            owner: args.owner
-        }, function (err, repo) {
+        Repo.findOne(selection(args), function (err, repo) {
             done(err, repo);
         });
     },
@@ -72,7 +78,7 @@ module.exports = {
             $or: repoIds
         }, function (err, dbRepos) {
             if (dbRepos) {
-                compareRepoNameAndUpdate(ghRepos, dbRepos, function(){
+                compareAllRepos(ghRepos, dbRepos, function(){
                     done(err, dbRepos);
                 });
             } else {
@@ -81,10 +87,7 @@ module.exports = {
         });
     },
     update: function (args, done) {
-        Repo.findOne({
-            repo: args.repo,
-            owner: args.owner
-        }, function (err, repo) {
+        Repo.findOne(selection(args), function (err, repo) {
             if (err) {
                 done(err);
                 return;
@@ -94,10 +97,7 @@ module.exports = {
         });
     },
     remove: function (args, done) {
-        Repo.remove({
-            repo: args.repo,
-            owner: args.owner
-        }).exec(done);
+        Repo.remove(selection(args)).exec(done);
     },
 
     getPRCommitters: function (args, done) {
@@ -145,10 +145,7 @@ module.exports = {
             });
         };
 
-        Repo.findOne({
-            owner: args.owner,
-            repo: args.repo
-        }, function (e, repo) {
+        Repo.findOne(selection(args), function (e, repo) {
             if (e || !repo) {
                 var errorMsg = e;
                 errorMsg += 'with following arguments: ' + JSON.stringify(args);
@@ -182,7 +179,8 @@ module.exports = {
                 if (githubRepo.permissions.push) {
                     repoSet.push({
                         owner: githubRepo.owner.login,
-                        repo: githubRepo.name
+                        repo: githubRepo.name,
+                        repoId: githubRepo.id
                     });
                 }
             });
@@ -243,7 +241,6 @@ module.exports = {
             token: args.token
         };
         github.direct_call(params, function(err, ghRepo){
-            console.log(ghRepo);
             if (ghRepo && ghRepo.data && ghRepo.data.id) {
                 done(err, ghRepo.data);
             } else if (ghRepo && ghRepo.data && ghRepo.data.url) {
