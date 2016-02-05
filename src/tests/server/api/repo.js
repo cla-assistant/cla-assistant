@@ -118,49 +118,6 @@ describe('repo', function () {
             it_done();
         });
     });
-    // 
-    // it('should send repo data if requester is the repo owner', function () {
-    //     var repoStub = sinon.stub(Repo, 'findOne', function (args, done) {
-    //         if (args.owner === 'login' && args.repo === 'myRepo') {
-    //             var r = {
-    //                 owner: 'login',
-    //                 gist: 1234
-    //             };
-    //             done(null, r);
-    //             return;
-    //         }
-    //         done('repo not found');
-    //     });
-    //
-    //     var req = {
-    //         user: {
-    //             login: 'login'
-    //         },
-    //         args: {
-    //             repo: 'myRepo',
-    //             owner: 'login'
-    //         }
-    //     };
-    //
-    //     repo_api.get(req, function (error, res) {
-    //         assert.equal(res.gist, 1234);
-    //     });
-    //
-    //     req = {
-    //         user: {
-    //             login: 'login2'
-    //         },
-    //         args: {
-    //             repo: 'myRepo',
-    //             owner: 'login'
-    //         }
-    //     };
-    //
-    //     repo_api.get(req, function (error, res) {
-    //         repoStub.restore();
-    //         assert.equal(!!res, false);
-    //     });
-    // });
 
     it('should get all repos for user', function () {
         sinon.stub(Repo, 'find', function (args, cb) {

@@ -192,48 +192,26 @@ module.exports = {
         });
     },
 
-//// TEMPORARY
-
-    updateDBData: function(req, done) {
-        var self = this;
-        Repo.find({}, function(error, dbRepos){
-            dbRepos.forEach(function(dbRepo){
-                var params = {
-                    url: url.githubRepository(dbRepo.owner, dbRepo.repo),
-                    token: req.user.token
-                };
-                github.direct_call(params, function(err, ghRepo){
-                    if (ghRepo && ghRepo.data && ghRepo.data.id) {
-                        dbRepo.repoId = ghRepo.data.id;
-                        dbRepo.save();
-                    } else if (ghRepo && ghRepo.data && ghRepo.data.message) {
-                        logger.info(ghRepo.data.message, 'with params ', params);
-                        // logger.info('Removed repo: ', dbRepo);
-                        // params.url = ghRepo.data.url;
-                        // github.direct_call(params, function(e, ghRepository){
-                        //     if (!ghRepository.data.id && ghRepository.data.message) {
-                        //         logger.info(ghRepository.data.message, 'with params ', params);
-                        //         return;
-                        //     }
-                        //     Repo.findOne({repo: ghRepository.data.name, owner: ghRepository.data.owner.login}, function(er, dbRepository){
-                        //         if (!dbRepository.repoId) {
-                        //             dbRepository.repoId = ghRepository.data.id;
-                        //             dbRepository.owner = ghRepository.data.owner.login;
-                        //             dbRepository.repo = ghRepository.data.name;
-                        //             dbRepository.save();
-                        //             logger.info('Update transferred and newly created Repo ', ghRepository.data.full_name);
-                        //         } else if (dbRepository.repoId !== ghRepository.data.id) {
-                        //             logger.warn('Attention! different ids for the same named repo: ', dbRepository.repoId, ' !==', ghRepository.data.id);
-                        //         }
-                        //     });
-                        // });
-                    }
-                });
-            });
-            done();
-        });
-    },
-//// TEMPORARY
+    // updateDBData: function(req, done) {
+    //     var self = this;
+    //     Repo.find({}, function(error, dbRepos){
+    //         dbRepos.forEach(function(dbRepo){
+    //             var params = {
+    //                 url: url.githubRepository(dbRepo.owner, dbRepo.repo),
+    //                 token: req.user.token
+    //             };
+    //             github.direct_call(params, function(err, ghRepo){
+    //                 if (ghRepo && ghRepo.data && ghRepo.data.id) {
+    //                     dbRepo.repoId = ghRepo.data.id;
+    //                     dbRepo.save();
+    //                 } else if (ghRepo && ghRepo.data && ghRepo.data.message) {
+    //                     logger.info(ghRepo.data.message, 'with params ', params);
+    //                 }
+    //             });
+    //         });
+    //         done();
+    //     });
+    // },
 
     getGHRepo: function (args, done) {
         var params = {

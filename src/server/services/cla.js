@@ -262,30 +262,30 @@ module.exports = function(){
             });
         },
 
-        updateDBData: function(req, done){
-            logger.info(req.user);
-            CLA.find({}, function(err, clas){
-                if (!err && clas) {
-                    clas.forEach(function(cla){
-                        repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
-                            if (ghRepo && ghRepo.id) {
-                                cla.repoId = ghRepo.id;
-                                if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
-                                    logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
-                                    cla.owner = ghRepo.owner.login;
-                                    cla.repo = ghRepo.name;
-                                    logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
-                                }
-                                cla.save();
-                            }
-                        });
-                    });
-                    done('updating ' + clas.length + ' CLAs...');
-                } else {
-                    done(err);
-                }
-            });
-        },
+        // updateDBData: function(req, done){
+        //     logger.info(req.user);
+        //     CLA.find({}, function(err, clas){
+        //         if (!err && clas) {
+        //             clas.forEach(function(cla){
+        //                 repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
+        //                     if (ghRepo && ghRepo.id) {
+        //                         cla.repoId = ghRepo.id;
+        //                         if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
+        //                             logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
+        //                             cla.owner = ghRepo.owner.login;
+        //                             cla.repo = ghRepo.name;
+        //                             logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
+        //                         }
+        //                         cla.save();
+        //                     }
+        //                 });
+        //             });
+        //             done('updating ' + clas.length + ' CLAs...');
+        //         } else {
+        //             done(err);
+        //         }
+        //     });
+        // },
 
         //Get all signed CLAs for given repo and gist url and/or a given gist version
         //Params:
