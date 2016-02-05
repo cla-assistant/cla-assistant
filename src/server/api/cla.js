@@ -215,10 +215,10 @@ module.exports = {
     },
 
     updateDBData: function (req, done) {
-        // cla.updateDBData(req, function(msg){
-        // });
         repoService.updateDBData(req, function(){
+            cla.updateDBData(req, function(msg){
+                done(null, msg);
+            });
         });
-        done(null, 'Done.');
     }
 };
