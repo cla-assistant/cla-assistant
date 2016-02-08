@@ -119,6 +119,38 @@ module.exports = {
         cla.getAll(req.args, done);
     },
 
+    //Get number of signed CLAs for the given repo. If no gist_version provided, the latest one will be used.
+    //Params:
+    //	repo (mandatory)
+    //	owner (mandatory)
+    //	gist.gist_url (optional)
+    //	gist.gist_version (optional)
+    countCLA: function(req, done){
+        var params = req.args;
+        function getMissingParams (cb){
+            if (params.gist && params.gist.gist_url && params.gist.gist_version) {
+                cb();
+            } else{
+                cla.getRepo(req.args, function(err, repo){
+                    params.token = repo.token;
+                    params.gist = params.gist && params.gist.gist_url ? params.gist : {
+                        gist_url: repo.gist
+                    };
+                    cla.getGist(req.args, function(e, gist){
+                        params.gist.gist_version = gist.history[0].version;
+                        cb();
+                    });
+                });
+            }
+        };
+        function count (){
+            cla.getAll(params, function(err, clas){
+                done(err, clas.length);
+            });
+        };
+        getMissingParams(count);
+    },
+
     validatePullRequests: function (req, done){
         github.direct_call({
             url: url.githubPullRequests(req.args.owner, req.args.repo, 'open'),

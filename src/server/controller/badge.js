@@ -5,7 +5,9 @@ var express = require('express'),
 
 //services
 var repo = require('./../services/repo');
-var cla = require('./../services/cla');
+
+//api
+var cla = require('./../api/cla');
 
 var CLA = require('mongoose').model('CLA');
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,32 +48,16 @@ router.all('/readme/badge/:owner/:repo', function (req, res) {
         repo: req.params.repo
     };
     var redirect = function(count){
-        console.log(count);
         res.redirect('https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg');
     };
-    repo.get(args, function (err, repodata) {
-        if (err || !repodata) {
+    req.args = args;
+    cla.countCLA(req, function(err, count){
+        if (err || !count) {
             redirect(0);
             return;
         }
-        CLA.aggregate([{
-            '$match': {
-                repo: req.params.repo,
-                owner: req.params.owner,
-                gist_url: repodata.gist
-            }
-        }, {
-            '$group': {
-                '_id': {
-                    user: '$user'
-                }
-            }
-        }], function (e, data) {
-            count = data.length || 0;
-            redirect(count);
-        });
+        redirect(count);
     });
-
 });
 
 module.exports = router;
