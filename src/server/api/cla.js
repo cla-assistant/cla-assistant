@@ -109,6 +109,12 @@ module.exports = {
         });
     },
 
+    //Get all signed CLAs for given repo and gist url and/or a given gist version
+    //Params:
+    //	repo (mandatory)
+    //	owner (mandatory)
+    //	gist.gist_url (mandatory)
+    //	gist.gist_version (optional)
     getAll: function (req, done) {
         cla.getAll(req.args, done);
     },

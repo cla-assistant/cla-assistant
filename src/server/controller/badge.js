@@ -46,6 +46,7 @@ router.all('/readme/badge/:owner/:repo', function (req, res) {
         repo: req.params.repo
     };
     var redirect = function(count){
+        console.log(count);
         res.redirect('https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg');
     };
     repo.get(args, function (err, repodata) {
