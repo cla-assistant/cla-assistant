@@ -843,7 +843,7 @@ describe('cla:upload', function () {
             }
         };
 
-        cla_api.upload(req, function (err, res) {
+        cla_api.upload(req, function () {
             assert(githubStub.called);
             assert(!claStub.called);
             githubStub.restore();
@@ -883,7 +883,7 @@ describe('cla:upload', function () {
             }
         };
 
-        cla_api.upload(req, function (err, res) {
+        cla_api.upload(req, function () {
             assert(githubStub.called);
             assert(claStub.called);
             githubStub.restore();
@@ -933,7 +933,7 @@ describe('cla: validatePullRequests', function(){
     });
     it('should update all open pull requests', function(it_done){
 
-        cla_api.validatePullRequests(req, function (error, res) {
+        cla_api.validatePullRequests(req, function (error) {
             assert.ifError(error);
             assert.equal(statusService.update.callCount, 2);
             assert(github.direct_call.called);
@@ -948,7 +948,7 @@ describe('cla: validatePullRequests', function(){
         req.user = {
             token: 'user_token'
         };
-        cla_api.validatePullRequests(req, function (error, res) {
+        cla_api.validatePullRequests(req, function (error) {
             assert.ifError(error);
             assert.equal(statusService.update.callCount, 2);
             assert(github.direct_call.called);
