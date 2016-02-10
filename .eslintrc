@@ -23,7 +23,7 @@ rules:
     new-cap: 0
     no-extra-semi: 1
     no-path-concat: 0
-    no-space-before-semi: 1
+    semi-spacing: 1
     no-trailing-spaces: 1
     no-undef: 1
     no-underscore-dangle: 0
