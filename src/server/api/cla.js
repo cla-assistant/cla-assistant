@@ -132,6 +132,9 @@ module.exports = {
                 cb();
             } else{
                 cla.getRepo(req.args, function(err, repo){
+                    if (err || !repo) {
+                        cb();
+                    }
                     params.token = repo.token;
                     params.gist = params.gist && params.gist.gist_url ? params.gist : {
                         gist_url: repo.gist
@@ -142,12 +145,12 @@ module.exports = {
                     });
                 });
             }
-        };
+        }
         function count (){
             cla.getAll(params, function(err, clas){
                 done(err, clas.length);
             });
-        };
+        }
         getMissingParams(count);
     },
 

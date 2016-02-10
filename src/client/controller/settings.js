@@ -31,11 +31,11 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return args;
         }
 
-        var validateGistUrl = function (gist_url) {
-            var valid = false;
-            valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
-            return valid ? gist_url : undefined;
-        };
+        // var validateGistUrl = function (gist_url) {
+        //     var valid = false;
+        //     valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
+        //     return valid ? gist_url : undefined;
+        // };
 
         $scope.open_error = function () {
             $modal.open({
@@ -199,7 +199,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.getBadge = function (claRepo) {
             $scope.popoverIsOpen = false;
-            var modal = $modal.open({
+            $modal.open({
                 templateUrl: '/modals/templates/badge.html',
                 controller: 'BadgeCtrl',
                 windowClass: 'get-badge',
@@ -209,9 +209,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     }
                 }
             });
-            // modal.result.then(function () {
-            //
-            // });
         };
 
         $scope.validateLinkedRepo();
@@ -227,7 +224,7 @@ module.directive('settings', ['$document', function ($document) {
             repo: '=',
             user: '='
         },
-        link: function (scope, element, attrs, controller) {
+        link: function (scope, element) {
             var documentClickHandler = function (event) {
                 var eventOutsideTarget = (element[0] !== event.target) && (element.find(event.target).length === 0);
                 if (eventOutsideTarget) {
@@ -237,9 +234,9 @@ module.directive('settings', ['$document', function ($document) {
                 }
             };
 
-            $document.on("click", documentClickHandler);
-            scope.$on("$destroy", function () {
-                $document.off("click", documentClickHandler);
+            $document.on('click', documentClickHandler);
+            scope.$on('$destroy', function () {
+                $document.off('click', documentClickHandler);
             });
         }
     };

@@ -4,7 +4,7 @@ module.controller('BadgeCtrl', function ($scope, $modalInstance, $window, repo) 
     $scope.linkUrl = $window.location + repo.owner + '/' + repo.repo;
     $scope.types = [{
         type: 'HTML',
-        url: "<a href='" + $scope.linkUrl + "'><img src='" + $scope.badgeUrl + "' alt='CLA assistant' /></a>"
+        url: '<a href="' + $scope.linkUrl + '"><img src="' + $scope.badgeUrl + '" alt="CLA assistant" /></a>'
     }, {
         type: 'Image URL',
         url: $scope.badgeUrl

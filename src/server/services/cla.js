@@ -125,7 +125,7 @@ module.exports = function(){
                     if (error || !repo) {
                         deferred.reject();
                         if(typeof done === 'function'){
-                            done(err);
+                            done(error);
                         }
                     }
                     args.repoId = repo.repoId;

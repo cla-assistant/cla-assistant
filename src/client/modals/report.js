@@ -7,7 +7,7 @@ module.controller('ReportCtrl', function($scope, $modalInstance, $window, repo) 
 	$scope.selectedVersion.version = $scope.gist.history[0];
 
 	$scope.history.push({text: 'All versions'});
-	
+
 	$scope.cancel = function () {
 		$modalInstance.dismiss('cancel');
 	};
