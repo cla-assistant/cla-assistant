@@ -5,6 +5,20 @@
 // path: /
 // *****************************************************
 
+var isInArray = function(item, repos){
+    function check (claRepo) {
+        return claRepo.repo === item.name && claRepo.owner === item.owner.login;
+    }
+    return repos.some(check);
+};
+
+var deleteFromArray = function(item, array){
+    var i = array.indexOf(item);
+    if (i > -1) {
+        array.splice(i, 1);
+    }
+};
+
 module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location',
         function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location) {
 
@@ -33,12 +47,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             };
 
             $scope.isNotClaRepo = function (repo) {
-                var match = false;
-                $scope.claRepos.some(function (claRepo) {
-                    match = claRepo.repo === repo.name && claRepo.owner === repo.owner.login ? true : false;
-                    return match;
-                });
-                return !match;
+                return !isInArray(repo, $scope.claRepos);
             };
 
             var mixRepoData = function (claRepo) {
@@ -63,6 +72,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 $RPCService.call('repo', 'getAll', {
                     set: repoSet
                 }, function (err, data) {
+                    if (err || !data) {
+                        return;
+                    }
                     $scope.claRepos = data.value;
                     $scope.claRepos.forEach(function (claRepo) {
                         claRepo.active = claRepo.gist ? true : false;
@@ -97,6 +109,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var getRepos = function () {
                 if ($scope.user && $scope.user.value && $scope.user.value.admin) {
                     $HUB.direct_call(githubUserRepos, {}, function (err, data) {
+                        if (err || !data) {
+                            return;
+                        }
                         if (data.hasMore) {
                             data.getMore();
                         } else {
@@ -142,10 +157,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var showErrorMessage = function (text) {
                 var error = text;
                 $timeout(function () {
-                    var i = $scope.errorMsg.indexOf(error);
-                    if (i > -1) {
-                        $scope.errorMsg.splice(i, 1);
-                    }
+                    deleteFromArray(error, $scope.errorMsg);
                 }, 3000);
 
                 $scope.errorMsg.push(error);
@@ -318,10 +330,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     }
                     if (err || !data.value) {
                         $scope.removeWebhook(newClaRepo);
-                        var i = $scope.claRepos.indexOf(newClaRepo);
-                        if (i > -1) {
-                            $scope.claRepos.splice(i, 1);
-                        }
+                        deleteFromArray(newClaRepo, $scope.claRepos);
                     } else {
                         $scope.claRepos.push(newClaRepo);
                         $scope.query.text = '';
@@ -349,14 +358,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     }
                 });
 
-                $RPCService.call('webhook', 'remove', {
-                    repo: claRepo.repo,
-                    user: claRepo.owner
-                }, function (err) {
-                    if (!err) {
-                        claRepo.active = false;
-                    }
-                });
+                $scope.removeWebhook(claRepo);
             };
 
             $scope.isActive = function (viewLocation) {
@@ -419,16 +421,10 @@ filters.filter('notIn', function () {
         var notMatched = [];
 
         repos.forEach(function (item) {
-            var found = false;
-            arr.some(function (claRepo) {
-                found = claRepo.repo === item.name && claRepo.owner === item.owner.login ? true : false;
-                return found;
-            });
-            if (!found) {
+            if (!isInArray(item, arr)) {
                 notMatched.push(item);
             }
         });
-
         return notMatched;
     };
 });
