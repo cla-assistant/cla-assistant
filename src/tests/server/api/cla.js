@@ -25,11 +25,11 @@ var testData = require('../testData').data;
 // api
 var cla_api = require('../../../server/api/cla');
 
-describe('', function () {
+describe('', function() {
     var reqArgs;
     var resp;
     var error;
-    beforeEach(function () {
+    beforeEach(function() {
         reqArgs = {
             cla: {
                 getRepo: {
@@ -45,6 +45,14 @@ describe('', function () {
             cla: {
                 getRepo: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
                 getGist: JSON.parse(JSON.stringify(testData.gist)) //clone object
+            },
+            github: {
+                directCall: {
+                    data: [
+                        { number: 1},
+                        { number: 2}
+                    ]
+                }
             }
         };
         error = {
@@ -54,12 +62,12 @@ describe('', function () {
             }
         };
 
-        sinon.stub(cla, 'getRepo', function (args, cb) {
+        sinon.stub(cla, 'getRepo', function(args, cb) {
             assert.deepEqual(args, reqArgs.cla.getRepo);
             cb(error.cla.getRepo, resp.cla.getRepo);
         });
 
-        sinon.stub(cla, 'getGist', function (args, cb) {
+        sinon.stub(cla, 'getGist', function(args, cb) {
             if (args.gist && args.gist.gist_url) {
                 assert.equal(args.gist.gist_url, reqArgs.cla.getGist.gist);
             } else {
@@ -67,14 +75,23 @@ describe('', function () {
             }
             cb(error.cla.getGist, resp.cla.getGist);
         });
+
+        sinon.stub(github, 'direct_call', function(args, cb) {
+            assert(args.url);
+            assert(args.token);
+            assert.equal(args.url, url.githubPullRequests('octocat', 'Hello-World', 'open'));
+
+            cb(null, resp.github.directCall);
+        });
     });
-    afterEach(function () {
+    afterEach(function() {
         cla.getRepo.restore();
         cla.getGist.restore();
+        github.direct_call.restore();
     });
-    describe('cla:get', function () {
-        it('should get gist and render it with user token', function (it_done) {
-            var githubStub = sinon.stub(github, 'call', function (args, cb) {
+    describe('cla:get', function() {
+        it('should get gist and render it with user token', function(it_done) {
+            var githubStub = sinon.stub(github, 'call', function(args, cb) {
                 var res;
                 assert.equal(args.obj, 'markdown');
                 assert.equal(args.fun, 'render');
@@ -96,7 +113,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.get(req, function () {
+            cla_api.get(req, function() {
                 assert(cla.getRepo.called);
 
                 githubStub.restore();
@@ -104,8 +121,8 @@ describe('', function () {
             });
         });
 
-        it('should get gist and render it with repo token', function (it_done) {
-            var githubStub = sinon.stub(github, 'call', function (args, cb) {
+        it('should get gist and render it with repo token', function(it_done) {
+            var githubStub = sinon.stub(github, 'call', function(args, cb) {
                 var res;
                 assert.equal(args.obj, 'markdown');
                 assert.equal(args.fun, 'render');
@@ -123,7 +140,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.get(req, function () {
+            cla_api.get(req, function() {
                 assert(cla.getRepo.called);
 
                 githubStub.restore();
@@ -131,10 +148,10 @@ describe('', function () {
             });
         });
 
-        it('should get gist and render it without user token', function (it_done) {
+        it('should get gist and render it without user token', function(it_done) {
             resp.cla.getRepo.token = undefined;
 
-            var githubStub = sinon.stub(github, 'call', function (args, cb) {
+            var githubStub = sinon.stub(github, 'call', function(args, cb) {
                 var res;
                 assert.equal(args.obj, 'markdown');
                 assert.equal(args.fun, 'render');
@@ -152,7 +169,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.get(req, function () {
+            cla_api.get(req, function() {
                 assert(cla.getRepo.called);
 
                 githubStub.restore();
@@ -160,9 +177,9 @@ describe('', function () {
             });
         });
 
-        it('should handle wrong gist url', function (it_done) {
+        it('should handle wrong gist url', function(it_done) {
 
-            var repoStub = sinon.stub(Repo, 'findOne', function (args, cb) {
+            var repoStub = sinon.stub(Repo, 'findOne', function(args, cb) {
                 var repo = {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -175,7 +192,7 @@ describe('', function () {
             resp.cla.getGist = undefined;
             error.cla.getGist = 'error';
 
-            var githubStub = sinon.stub(github, 'call', function () {
+            var githubStub = sinon.stub(github, 'call', function() {
                 assert();
             });
 
@@ -186,7 +203,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.get(req, function (err) {
+            cla_api.get(req, function(err) {
                 assert.equal(!!err, true);
                 githubStub.restore();
                 repoStub.restore();
@@ -195,7 +212,7 @@ describe('', function () {
 
         });
 
-        it('should handle result with no files', function (it_done) {
+        it('should handle result with no files', function(it_done) {
             resp.cla.getGist.files = undefined;
 
             var req = {
@@ -205,7 +222,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.get(req, function () {
+            cla_api.get(req, function() {
                 assert(cla.getRepo.called);
 
                 it_done();
@@ -213,7 +230,7 @@ describe('', function () {
 
         });
 
-        describe('in case of failing github api', function () {
+        describe('in case of failing github api', function() {
             var githubError;
             var githubResponse;
             var req = {
@@ -226,42 +243,42 @@ describe('', function () {
                 }
             };
 
-            beforeEach(function () {
-                sinon.stub(github, 'call', function (args, cb) {
+            beforeEach(function() {
+                sinon.stub(github, 'call', function(args, cb) {
                     cb(githubError, githubResponse);
                 });
-                sinon.stub(log, 'error', function (err) {
+                sinon.stub(log, 'error', function(err) {
                     assert(err);
                 });
             });
 
-            afterEach(function () {
+            afterEach(function() {
                 log.error.restore();
                 github.call.restore();
             });
 
-            it('should handle github error', function (it_done) {
+            it('should handle github error', function(it_done) {
                 githubError = 'any error';
-                cla_api.get(req, function (err) {
+                cla_api.get(req, function(err) {
 
                     assert(err);
                     it_done();
                 });
             });
 
-            it('should handle error stored in response message', function (it_done) {
+            it('should handle error stored in response message', function(it_done) {
                 githubResponse = {
                     statusCode: 500,
                     message: 'somthing went wrong, e.g. user revoked access rights'
                 };
                 githubError = null;
-                cla_api.get(req, function (err) {
+                cla_api.get(req, function(err) {
                     assert.equal(err, githubResponse.message);
                     it_done();
                 });
             });
 
-            it('should handle error only if status unequal 200 or there is no response', function (it_done) {
+            it('should handle error only if status unequal 200 or there is no response', function(it_done) {
                 githubResponse = {
                     statusCode: 200,
                     data: {}
@@ -269,11 +286,11 @@ describe('', function () {
                 githubError = 'any error';
 
                 log.error.restore();
-                sinon.stub(log, 'error', function () {
+                sinon.stub(log, 'error', function() {
                     assert();
                 });
 
-                cla_api.get(req, function (err, res) {
+                cla_api.get(req, function(err, res) {
 
                     assert(res);
                     assert(!err);
@@ -285,9 +302,9 @@ describe('', function () {
 
     });
 
-    describe('cla api', function () {
+    describe('cla api', function() {
         var req;
-        beforeEach(function () {
+        beforeEach(function() {
             req = {
                 user: {
                     id: 3,
@@ -300,31 +317,18 @@ describe('', function () {
                 }
             };
 
-            sinon.stub(repo_service, 'get', function (args, cb) {
+            sinon.stub(repo_service, 'get', function(args, cb) {
                 assert(args);
                 cb(null, {
                     gist: testData.repo_from_db.gist,
                     token: 'abc.cla.getAll'
                 });
             });
-            sinon.stub(github, 'direct_call', function (args, cb) {
-                assert(args.url);
-                assert(args.token);
-                assert.equal(args.url, url.githubPullRequests('octocat', 'Hello-World', 'open'));
 
-                cb(null, {
-                    data: [{
-                        number: 1
-                    }, {
-                        number: 2
-                    }]
-                });
-            });
-
-            sinon.stub(statusService, 'update', function (args) {
+            sinon.stub(statusService, 'update', function(args) {
                 assert(args.signed);
             });
-            sinon.stub(cla, 'sign', function (args, cb) {
+            sinon.stub(cla, 'sign', function(args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -333,24 +337,23 @@ describe('', function () {
                 });
                 cb(null, 'done');
             });
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check', function(args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () {});
+            sinon.stub(prService, 'editComment', function() {});
         });
 
-        afterEach(function () {
+        afterEach(function() {
             statusService.update.restore();
             repo_service.get.restore();
-            github.direct_call.restore();
             cla.check.restore();
             cla.sign.restore();
             prService.editComment.restore();
         });
 
-        it('should call cla service on sign', function (it_done) {
+        it('should call cla service on sign', function(it_done) {
 
-            cla_api.sign(req, function (err) {
+            cla_api.sign(req, function(err) {
                 assert.ifError(err);
                 assert(cla.sign.called);
 
@@ -358,8 +361,8 @@ describe('', function () {
             });
         });
 
-        it('should update status of pull request created by user, who signed', function (it_done) {
-            cla_api.sign(req, function (err, res) {
+        it('should update status of pull request created by user, who signed', function(it_done) {
+            cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(statusService.update.called);
@@ -368,8 +371,8 @@ describe('', function () {
             });
         });
 
-        it('should update status of all open pull requests for the repo', function (it_done) {
-            cla_api.sign(req, function (err, res) {
+        it('should update status of all open pull requests for the repo', function(it_done) {
+            cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert.equal(statusService.update.callCount, 2);
@@ -380,21 +383,21 @@ describe('', function () {
             });
         });
 
-        it('should comment with user_map if it is given', function (it_done) {
+        it('should comment with user_map if it is given', function(it_done) {
             cla.check.restore();
             prService.editComment.restore();
 
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check', function(args, cb) {
                 cb(null, true, {
                     signed: [],
                     not_signed: []
                 });
             });
-            sinon.stub(prService, 'editComment', function (args) {
+            sinon.stub(prService, 'editComment', function(args) {
                 assert(args.user_map.signed);
             });
 
-            cla_api.sign(req, function (err, res) {
+            cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(github.direct_call.called);
@@ -404,13 +407,10 @@ describe('', function () {
             });
         });
 
-        it('should handle repos without open pull requests', function (it_done) {
-            github.direct_call.restore();
-            sinon.stub(github, 'direct_call', function (args, cb) {
-                cb(null, {});
-            });
+        it('should handle repos without open pull requests', function(it_done) {
+            resp.github.directCall = {};
 
-            cla_api.sign(req, function (err, res) {
+            cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(github.direct_call.called);
@@ -421,9 +421,9 @@ describe('', function () {
         });
     });
 
-    describe('cla api', function () {
+    describe('cla api', function() {
         var req;
-        beforeEach(function () {
+        beforeEach(function() {
             req = {
                 user: {
                     id: 3,
@@ -436,8 +436,8 @@ describe('', function () {
             };
         });
 
-        it('should call cla service on getLastSignature', function (it_done) {
-            sinon.stub(cla, 'getLastSignature', function (args, cb) {
+        it('should call cla service on getLastSignature', function(it_done) {
+            sinon.stub(cla, 'getLastSignature', function(args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -453,7 +453,7 @@ describe('', function () {
             };
             console.log(req);
 
-            cla_api.getLastSignature(req, function (err) {
+            cla_api.getLastSignature(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getLastSignature.called);
 
@@ -462,8 +462,8 @@ describe('', function () {
             });
         });
 
-        it('should call cla service on getSignedCLA', function (it_done) {
-            sinon.stub(cla, 'getSignedCLA', function (args, cb) {
+        it('should call cla service on getSignedCLA', function(it_done) {
+            sinon.stub(cla, 'getSignedCLA', function(args, cb) {
                 assert.deepEqual(args, {
                     user: 'user'
                 });
@@ -474,7 +474,7 @@ describe('', function () {
                 user: 'user'
             };
 
-            cla_api.getSignedCLA(req, function (err) {
+            cla_api.getSignedCLA(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getSignedCLA.called);
 
@@ -483,8 +483,8 @@ describe('', function () {
             });
         });
 
-        it('should call cla service on check', function (it_done) {
-            sinon.stub(cla, 'check', function (args, cb) {
+        it('should call cla service on check', function(it_done) {
+            sinon.stub(cla, 'check', function(args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -493,7 +493,7 @@ describe('', function () {
                 cb(null, true);
             });
 
-            cla_api.check(req, function (err) {
+            cla_api.check(req, function(err) {
                 assert.ifError(err);
                 assert(cla.check.called);
 
@@ -502,9 +502,9 @@ describe('', function () {
             });
         });
 
-        it('should call cla service on getAll', function (it_done) {
+        it('should call cla service on getAll', function(it_done) {
             req.args.gist = testData.repo_from_db.gist;
-            sinon.stub(cla, 'getAll', function (args, cb) {
+            sinon.stub(cla, 'getAll', function(args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -513,7 +513,7 @@ describe('', function () {
                 cb(null, []);
             });
 
-            cla_api.getAll(req, function (err) {
+            cla_api.getAll(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getAll.called);
 
@@ -522,8 +522,8 @@ describe('', function () {
             });
         });
 
-        it('should call cla service on getGist', function (it_done) {
-            cla_api.getGist(req, function (err) {
+        it('should call cla service on getGist', function(it_done) {
+            cla_api.getGist(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getGist.called);
 
@@ -531,11 +531,11 @@ describe('', function () {
             });
         });
 
-        it('should call cla service using user token, not repo token', function (it_done) {
+        it('should call cla service using user token, not repo token', function(it_done) {
             req.args.gist = testData.repo_from_db.gist;
             req.user.token = 'user_token';
 
-            cla_api.getGist(req, function (err) {
+            cla_api.getGist(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getGist.calledWith({
                     token: 'user_token',
@@ -546,14 +546,16 @@ describe('', function () {
             });
         });
 
-        it('should call cla service getGist with user token even if repo is not linked anymore', function (it_done) {
-            req.args.gist = {gist_url: testData.repo_from_db.gist};
+        it('should call cla service getGist with user token even if repo is not linked anymore', function(it_done) {
+            req.args.gist = {
+                gist_url: testData.repo_from_db.gist
+            };
             req.user.token = 'user_token';
 
             resp.cla.getRepo = null;
             error.cla.getRepo = 'There is no repo.';
 
-            cla_api.getGist(req, function (err) {
+            cla_api.getGist(req, function(err) {
                 assert.ifError(err);
                 assert(cla.getGist.called);
 
@@ -561,13 +563,13 @@ describe('', function () {
             });
         });
 
-        it('should fail calling cla service getGist with user token even if repo is not linked anymore when no gist is provided', function (it_done) {
+        it('should fail calling cla service getGist with user token even if repo is not linked anymore when no gist is provided', function(it_done) {
             req.user.token = 'user_token';
 
             resp.cla.getRepo = null;
             error.cla.getRepo = 'There is no repo.';
 
-            cla_api.getGist(req, function (err) {
+            cla_api.getGist(req, function(err) {
                 assert(err);
                 assert(!cla.getGist.called);
 
@@ -576,26 +578,26 @@ describe('', function () {
         });
     });
 
-    describe('cla:countCLA', function () {
+    describe('cla:countCLA', function() {
         var req = {};
-        beforeEach(function () {
+        beforeEach(function() {
             req.args = {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
             resp.cla.getAll = [{}];
-            sinon.stub(cla, 'getAll', function (args, cb) {
+            sinon.stub(cla, 'getAll', function(args, cb) {
                 assert(args.gist.gist_url);
                 assert(args.gist.gist_version);
 
                 cb(error.cla.getAll, resp.cla.getAll);
             });
         });
-        afterEach(function () {
+        afterEach(function() {
             cla.getAll.restore();
         });
 
-        it('should call getAll on countCLA', function (it_done) {
+        it('should call getAll on countCLA', function(it_done) {
             reqArgs.cla.getRepo.gist = {
                 gist_url: testData.repo_from_db.gist,
                 gist_version: testData.gist.history[0].version
@@ -606,7 +608,7 @@ describe('', function () {
             };
 
 
-            cla_api.countCLA(req, function (err, number) {
+            cla_api.countCLA(req, function(err, number) {
                 assert.ifError(err);
                 assert(cla.getAll.called);
                 assert.equal(number, 1);
@@ -614,7 +616,7 @@ describe('', function () {
                 it_done();
             });
         });
-        it('should get gist version if not provided', function (it_done) {
+        it('should get gist version if not provided', function(it_done) {
             reqArgs.cla.getRepo.gist = {
                 gist_url: testData.repo_from_db.gist
             };
@@ -624,7 +626,7 @@ describe('', function () {
             resp.cla.getAll = [{}, {}];
 
 
-            cla_api.countCLA(req, function (err, number) {
+            cla_api.countCLA(req, function(err, number) {
                 assert.ifError(err);
                 assert(cla.getAll.called);
                 assert.equal(number, resp.cla.getAll.length);
@@ -632,10 +634,10 @@ describe('', function () {
                 it_done();
             });
         });
-        it('should get gist url and version if not provided', function (it_done) {
+        it('should get gist url and version if not provided', function(it_done) {
             resp.cla.getAll = [{}, {}];
 
-            cla_api.countCLA(req, function (err, number) {
+            cla_api.countCLA(req, function(err, number) {
                 assert.ifError(err);
                 assert(cla.getAll.called);
                 assert.equal(number, resp.cla.getAll.length);
@@ -645,8 +647,8 @@ describe('', function () {
         });
     });
 
-    describe('cla:upload', function () {
-        it('should silenty exit when no users provided', function (it_done) {
+    describe('cla:upload', function() {
+        it('should silenty exit when no users provided', function(it_done) {
 
             var req = {
                 args: {
@@ -658,16 +660,16 @@ describe('', function () {
                 }
             };
 
-            cla_api.upload(req, function (err, res) {
+            cla_api.upload(req, function(err, res) {
                 assert.equal(err, undefined);
                 assert.equal(res, undefined);
                 it_done();
             });
         });
 
-        it('should not "sign" cla when github user not found', function (it_done) {
+        it('should not "sign" cla when github user not found', function(it_done) {
 
-            var githubStub = sinon.stub(github, 'call', function (args, cb) {
+            var githubStub = sinon.stub(github, 'call', function(args, cb) {
                 assert.equal(args.obj, 'user');
                 assert.equal(args.fun, 'getFrom');
                 assert.equal(args.arg.user, 'one');
@@ -675,7 +677,7 @@ describe('', function () {
                 cb('not found');
             });
 
-            var claStub = sinon.stub(cla, 'sign', function (args, cb) {
+            var claStub = sinon.stub(cla, 'sign', function(args, cb) {
                 cb(null, {});
             });
 
@@ -690,7 +692,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.upload(req, function () {
+            cla_api.upload(req, function() {
                 assert(githubStub.called);
                 assert(!claStub.called);
                 githubStub.restore();
@@ -699,9 +701,9 @@ describe('', function () {
             });
         });
 
-        it('should "sign" cla for two users', function (it_done) {
+        it('should "sign" cla for two users', function(it_done) {
 
-            var githubStub = sinon.stub(github, 'call', function (args, cb) {
+            var githubStub = sinon.stub(github, 'call', function(args, cb) {
                 assert.equal(args.obj, 'user');
                 assert.equal(args.fun, 'getFrom');
                 assert.equal(args.token, 'user_token');
@@ -711,7 +713,7 @@ describe('', function () {
                 });
             });
 
-            var claStub = sinon.stub(cla, 'sign', function (args, cb) {
+            var claStub = sinon.stub(cla, 'sign', function(args, cb) {
                 assert.equal(args.repo, 'Hello-World');
                 assert.equal(args.owner, 'octocat');
                 assert.equal(args.user, 'one');
@@ -730,7 +732,7 @@ describe('', function () {
                 }
             };
 
-            cla_api.upload(req, function () {
+            cla_api.upload(req, function() {
                 assert(githubStub.called);
                 assert(claStub.called);
                 githubStub.restore();
@@ -740,9 +742,9 @@ describe('', function () {
         });
     });
 
-    describe('cla: validatePullRequests', function () {
+    describe('cla: validatePullRequests', function() {
         var req;
-        beforeEach(function () {
+        beforeEach(function() {
             req = {
                 args: {
                     repo: 'Hello-World',
@@ -750,37 +752,23 @@ describe('', function () {
                     token: 'test_token'
                 }
             };
-            sinon.stub(github, 'direct_call', function (args, cb) {
-                assert(args.url);
-                assert(args.token);
-                assert.equal(args.url, url.githubPullRequests('octocat', 'Hello-World', 'open'));
-
-                cb(null, {
-                    data: [{
-                        number: 1
-                    }, {
-                        number: 2
-                    }]
-                });
-            });
-            sinon.stub(statusService, 'update', function (args) {
+            sinon.stub(statusService, 'update', function(args) {
                 assert(args.signed);
             });
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check', function(args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () {});
+            sinon.stub(prService, 'editComment', function() {});
         });
 
-        afterEach(function () {
+        afterEach(function() {
             cla.check.restore();
             statusService.update.restore();
             prService.editComment.restore();
-            github.direct_call.restore();
         });
-        it('should update all open pull requests', function (it_done) {
+        it('should update all open pull requests', function(it_done) {
 
-            cla_api.validatePullRequests(req, function (error) {
+            cla_api.validatePullRequests(req, function(error) {
                 assert.ifError(error);
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.direct_call.called);
@@ -790,12 +778,12 @@ describe('', function () {
             });
         });
 
-        it('should update all PRs with users token', function (it_done) {
+        it('should update all PRs with users token', function(it_done) {
             req.args.token = undefined;
             req.user = {
                 token: 'user_token'
             };
-            cla_api.validatePullRequests(req, function (error) {
+            cla_api.validatePullRequests(req, function(error) {
                 assert.ifError(error);
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.direct_call.called);
