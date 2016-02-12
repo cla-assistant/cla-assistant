@@ -4,4 +4,5 @@ languages:
   PHP: true
   Python: true
 exclude_paths:
-  "src/client/assets/js/edge.5.0.1.min.js"
+- src/client/assets/js/edge.5.0.1.min.js
+- src/tests/**/*
