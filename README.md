@@ -1,20 +1,19 @@
-[![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant)
+[![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) [![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant)
 [![ReviewNinja](https://app.review.ninja/26210598/badge)](https://app.review.ninja/cla-assistant/cla-assistant)
 
 Contributor License Agreement assistant
 ===
-The Contributor License Agreement assistant (CLA assistant) lets you handle the legal side of contributions to your code easily.
+Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
 
-All you need to do is to store your CLA as a GitHub Gist file and link it with your repository in the CLA assistant. The remaining part takes CLA assistant for you over:
+To get started, simply store your CLA as a GitHub Gist file then link it with the repository in CLA assistant. Then sit back and relax while CLA assistant:
 
- - it notifies each contributor to sign the CLA as soon as he creates a pull request
- - it lets contributor sign your CLA easily doing few clicks
- - it authenticates the signer with his GitHub account
- - it updates the status of the pull request as soon the contributor agrees to your CLA
+- Comments on each opened pull request to ask the contributor to sign the CLA
+- Allows contributors to sign a CLA from within a pull request
+- Authenticates the signee with his or her GitHub account
+- Updates the status of a pull request when the contributor agrees to the CLA
+- Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
-If the content of your CLA changes over time you have not to notify all your active contributor to sign the new version of the CLA again. CLA assistant will do it for you! Just update the linked Gist file. Each new pull request will get a comment with request to sign the CLA even if the user has already signed the previous version.
-
-You as repository owner can review the list of users who signed your CLA for each version of it.
+Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.
 
 Try
 ====
@@ -80,8 +79,8 @@ Finally, source the environment file and start the application.
 
     source .env
     npm start
-    
-    
+
+
 License
 =======
 

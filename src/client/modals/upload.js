@@ -34,7 +34,7 @@ module.controller('UploadCtrl',
 		scope: {
 			fileModel: '='
 		},
-		link: function(scope, elem, attr) {
+		link: function(scope, elem) {
 			elem.bind('change drop', function(change) {
 				var reader = new FileReader();
 				reader.onload = function(load) {

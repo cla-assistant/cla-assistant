@@ -25,15 +25,15 @@
   position: relative;
 
   .navbar-brand {
-    padding-left: 10px;
-    padding-top:0
+	padding-left: 10px;
+	padding-top:0
   }
 
   .lp-signin {
-    position:absolute;
-    top:auto;
-    bottom:15px;
-    right:10px;
+	position:absolute;
+	top:auto;
+	bottom:15px;
+	right:10px;
   }
 }
 
@@ -56,7 +56,6 @@
 }
 
 .lp-section {
-  /*overflow: hidden;*/
   font-size: 25px;
   padding:50px;
 }
@@ -74,6 +73,10 @@
 .lp-row {
   position: absolute;
   width:100%;
+}
+
+.lp-bottom-space {
+	margin-bottom: 30px;
 }
 
 img.step-icon{
@@ -110,20 +113,20 @@ a.lp-signin:hover, a.lp-signin:focus {
 
 @media(min-width: 701px) and (max-width: 1314px){
   .feature-col{
-    width: 550px;
+	width: 550px;
   }
 }
 
 @media(min-width: 1315px){
   .feature-col{
-    width: 1100px;
+	width: 1100px;
   }
 }
 
 
 @media(max-width: 610px){
   .col-xs-12 {
-    width: 100%;
+	width: 100%;
   }
 }
 
@@ -146,6 +149,14 @@ a.lp-signin:hover, a.lp-signin:focus {
   position: absolute;
   width: 100%;
   opacity: 0;
+  i {
+	  font-size: 25px;
+  }
+}
+
+.lp-textblock-icon {
+	height:25px;
+	margin-bottom:10px;
 }
 
 .section-show-add, .section-show-remove,
@@ -207,24 +218,24 @@ a.lp-signin:hover, a.lp-signin:focus {
 }
 
 .feature-text {
-    bottom:0;
-    background-color:white;
-    color:#2c3e50;
-    text-align:center;
-    font-size:20px;
-    padding-top: 3em;
-    padding-left: 10px;
-    padding-right: 10px;
+	bottom:0;
+	background-color:white;
+	color:#2c3e50;
+	text-align:center;
+	font-size:20px;
+	padding-top: 3em;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .feature-header {
-    text-align: center;
-    top: 160px;
+	text-align: center;
+	top: 160px;
 }
 
 .feature-img {
-    height:50%;
-    margin: 30px auto;
+	height:50%;
+	margin: 30px auto;
 }
 
 .next-step-show {
@@ -237,51 +248,56 @@ a.lp-signin:hover, a.lp-signin:focus {
 
 @media(min-width: 768px){
   .how-to-align-left{
-    text-align: left;
+	text-align: left;
   }
 
   .how-to-align-right{
-    text-align: right;
+	text-align: right;
   }
 
   .float-left{
-    float: left;
+	float: left;
   }
 
   .float-right{
-    float: right;
+	float: right;
   }
 
   .lp-resize{
-    height: auto;
+	height: auto;
   }
+}
+
+.preview-browser {
+	height:20px;
+	width:661px;
 }
 
 @media(max-width: 767px){
   .how-to-align{
-    text-align: center;
+	text-align: center;
   }
 
   .float-right-to-center{
-    float: right;
-    position: relative;
-    left: -50%; /* or right 50% */
-    text-align: left;
+	float: right;
+	position: relative;
+	left: -50%; /* or right 50% */
+	text-align: left;
   }
 
   .float-left-to-center{
-    float: left;
-    position: relative;
-    right: 50%; /* or left -50% */
-    text-align: left;
+	float: left;
+	position: relative;
+	right: 50%; /* or left -50% */
+	text-align: left;
   }
 }
 
 @media(max-width: 599px){
   .lp-header{
-    display: none;
+	display: none;
   }
   .lp-hide-text{
-    display: none;
+	display: none;
   }
 }

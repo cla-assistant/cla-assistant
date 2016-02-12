@@ -29,7 +29,7 @@ try{
 			level: 'info',
 			stream: new BunyanSlack({
 				webhook_url: config.server.slack_url,
-				channel: '@kharitonov',
+				channel: '#cla-logs',
 				username: 'CLA assistant',
 				customFormatter: formatter
 			})

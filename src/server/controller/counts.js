@@ -9,17 +9,18 @@ var router = express.Router();
 
 //services
 var logger = require('./../services/logger');
+var github = require('./../services/github');
 
-router.post('/count/*', function(req, res, next){
+router.post('/count/*', function (req, res, next) {
 	//No token is sent by slack :(
 	// if (req.body.token && config.server.slack.token.match(req.body.token)) {
-		next();
+	next();
 	// }
 	// res.status(404);
 });
 
-router.all('/count/repos', function(req, res) {
-	Repo.find({}, function(err, repos) {
+router.all('/count/repos', function (req, res) {
+	Repo.find({}, function (err, repos) {
 		if (err) {
 			logger.info(err);
 		}
@@ -29,23 +30,24 @@ router.all('/count/repos', function(req, res) {
 			var fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
 			list = '\n Newest repo is https://github.com/' + fullName;
 		} else {
-			repos.forEach(function(repo, i){
+			repos.forEach(function (repo, i) {
 				list += '\n ' + ++i + '. ' + repo.owner + '/' + repo.repo;
 			});
 		}
-        res.send(JSON.stringify({
-            count: repos.length,
-            text: 'There are ' + repos.length + ' registered repositories!' + list,
-            mrkdwn_in: ['text']
-        }));
-    });
+		res.send(JSON.stringify({
+			count: repos.length,
+			text: 'There are ' + repos.length + ' registered repositories!' + list,
+			mrkdwn_in: ['text']
+		}));
+	});
 });
 
-router.all('/count/clas', function(req, res) {
-	console.log(req.query);
+router.all('/count/clas', function (req, res) {
 	if (req.query.last) {
-		CLA.find().sort({'created_at': -1}).limit(1).exec(function(err, cla){
-			if(err){
+		CLA.find().sort({
+			'created_at': -1
+		}).limit(1).exec(function (err, cla) {
+			if (err) {
 				return;
 			}
 			res.set('Content-Type', 'application/json');
@@ -56,33 +58,38 @@ router.all('/count/clas', function(req, res) {
 			}));
 		});
 	} else {
-			CLA.aggregate( [{'$group': { '_id': { repo: '$repo',
-											owner: '$owner',
-											user: '$user'}
-		}}], function(err, data){
+		CLA.aggregate([{
+			'$group': {
+				'_id': {
+					repo: '$repo',
+					owner: '$owner',
+					user: '$user'
+				}
+			}
+		}], function (err, data) {
 			if (err) {
 				logger.info(err);
 			}
 			res.set('Content-Type', 'application/json');
-			var text = {text: 'There are ' + data.length + ' signed CLAs!'};
+			var text = {
+				text: 'There are ' + data.length + ' signed CLAs!'
+			};
 			text.attachments = [];
 			var list = {};
 			if (req.query.detailed) {
-				data.forEach(function(cla){
+				data.forEach(function (cla) {
 					list[cla._id.owner + '/' + cla._id.repo] = list[cla._id.owner + '/' + cla._id.repo] ? list[cla._id.owner + '/' + cla._id.repo] : [];
 					list[cla._id.owner + '/' + cla._id.repo].push(cla._id.user);
 					// list += '\n ' + cla._id.user + ' is contributing to ' + cla._id.owner + '/' + cla._id.repo;
 				});
-				for (var repository in list){
+				for (var repository in list) {
 					var users = list[repository];
-					text.attachments.push(
-						{
-							title: repository,
-							// pretext: Pretext _supports_ mrkdwn,
-							text: 'CLA is signed by ' + users.length + ' committer(s): ' + JSON.stringify(users),
-							mrkdwn_in: ['title']
-						}
-					);
+					text.attachments.push({
+						title: repository,
+						// pretext: Pretext _supports_ mrkdwn,
+						text: 'CLA is signed by ' + users.length + ' committer(s): ' + JSON.stringify(users),
+						mrkdwn_in: ['title']
+					});
 				}
 			}
 			// text = list ? text + list : text;
@@ -95,4 +102,22 @@ router.all('/count/clas', function(req, res) {
 	}
 });
 
+router.all('/count/stars', function (req, res) {
+	github.call({
+		obj: 'repos',
+		fun: 'get',
+		arg: {
+			user: 'cla-assistant',
+			repo: 'cla-assistant'
+		},
+		basicAuth: {
+			user: config.server.github.user,
+			pass: config.server.github.pass
+		}
+	}, function(err, resp){
+		res.send(JSON.stringify({
+			count: resp.stargazers_count
+		}));
+	});
+});
 module.exports = router;

@@ -22,11 +22,12 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/angulartics/0.17.2/angulartics.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/angulartics/0.17.2/angulartics-ga.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js"></script>
   <script>
-	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
   </script>
   <!-- APP -->
   <script src="app.min.js"></script>
@@ -48,60 +49,60 @@
 
 <!-- the navbar -->
   <div id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
-	<div class="container-fluid">
-		<div class="navbar-home-left">
-			<div ng-show="!!user.value.login">
-			  <a ng-href="{{user.value.html_url}}" target="spcae">
-				<img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
-				<a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
-			  </a>
-			</div>
-		</div>
-		<div class="nav navbar-home-right">
-			<a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px" tooltip-placement="left"
-			tooltip="Sign out"></a>
-		</div>
-		<div class="navbar-center" style="">
-			<a href="/">
-			  <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
-			</a>
-		</div>
-	</div>
+    <div class="container-fluid">
+        <div class="navbar-home-left">
+            <div ng-show="!!user.value.login">
+              <a ng-href="{{user.value.html_url}}" target="spcae">
+                <img ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
+                <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.value.login }}</b>!</a>
+              </a>
+            </div>
+        </div>
+        <div class="nav navbar-home-right">
+            <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px" tooltip-placement="left"
+            tooltip="Sign out"></a>
+        </div>
+        <div class="navbar-center" style="">
+            <a href="/">
+              <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
+            </a>
+        </div>
+    </div>
   </div>
 
   <div class="container-fluid" style="margin-bottom:50px;">
-	<div style="margin-left:15px; margin-right: 15px">
-		<section ui-view class="col-md-8 col-md-offset-2"></section>
-	</div>
+    <div style="margin-left:15px; margin-right: 15px">
+        <section ui-view class="col-md-8 col-md-offset-2"></section>
+    </div>
   </div>
 
   <div class="navbar navbar-default navbar-fixed-bottom">
-	  <div class="navbar-top-border">
-		  <div class="container-fluid">
-			   <div class="navbar-text navbar-left">
-				  <p style="margin-bottom:0px">© 2015 SAP SE</p>
-			  </div>
-			  <div class="navbar-text navbar-center" style="z-index:-1;">
-				<p class="hidden-xs hidden-sm" style="margin-bottom: 0px;">
-				  Made with <span class="octicon octicon-heart"></span> from the GitHub team at SAP
-				</p>
-			  </div>
-			  <div class="center-block">
-				<div class="navbar-text navbar-right">
-				  <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
-					<span class="octicon octicon-mark-github"></span> Open an issue
-				  </a>
-				</div>
-			  </div>
-			  <div class="center-block">
-				<div class="navbar-text navbar-right">
-				  <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" style="margin-right: 10px">
-					Terms of Service &amp Privacy Policy
-				  </a>
-				</div>
-			  </div>
-		  </div>
-	  </div>
+      <div class="navbar-top-border">
+          <div class="container-fluid">
+               <div class="navbar-text navbar-left">
+                  <p style="margin-bottom:0px">© 2015 SAP SE</p>
+              </div>
+              <div class="navbar-text navbar-center" style="z-index:-1;">
+                <p class="hidden-xs hidden-sm" style="margin-bottom: 0px;">
+                  Made with <span class="octicon octicon-heart"></span> from the GitHub team at SAP
+                </p>
+              </div>
+              <div class="center-block">
+                <div class="navbar-text navbar-right">
+                  <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+                    <span class="octicon octicon-mark-github"></span> Open an issue
+                  </a>
+                </div>
+              </div>
+              <div class="center-block">
+                <div class="navbar-text navbar-right">
+                  <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" style="margin-right: 10px">
+                    Terms of Service &amp Privacy Policy
+                  </a>
+                </div>
+              </div>
+          </div>
+      </div>
   </div>
 </body>
 
