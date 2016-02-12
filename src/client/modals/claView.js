@@ -1,15 +1,10 @@
-module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, $state, $RPCService, $sce) {
+module.controller('ClaViewCtrl', function($scope, $modalInstance, $window, cla, $state, $RPCService, $sce, utils) {
 		$scope.claObj = cla;
 		$scope.cla = null;
 		$scope.modalInstance = $modalInstance;
 
 		$scope.getGistName = function(gistObj){
-				var fileName = '';
-				if (gistObj && gistObj.files) {
-						fileName = Object.keys(gistObj.files)[0];
-						fileName = gistObj.files[fileName].filename ? gistObj.files[fileName].filename : fileName;
-				}
-				return fileName;
+            return utils.getGistAttribute(gistObj, 'filename');
 		};
 
 		function getCLA () {

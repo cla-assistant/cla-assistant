@@ -3,7 +3,8 @@ module.exports = function (grunt) {
 		'src/client/app.js',
 		'src/client/api.js',
 		'src/client/controller/**/*.js',
-		'src/client/modals/**/*.js'
+		'src/client/modals/**/*.js',
+		'src/client/services/**/*.js'
 	];
 
 	var config = {

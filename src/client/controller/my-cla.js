@@ -5,10 +5,8 @@
 // path: /
 // *****************************************************
 
-module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService', '$modal',
-    function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService, $modal) {
-
-
+module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService', '$modal', 'utlis',
+    function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService, $modal, utils) {
       $scope.repos = [];
       $scope.gists = [];
       $scope.signedCLAs = [];
@@ -68,12 +66,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getGistName = function(gistObj){
-          var fileName = '';
-          if (gistObj && gistObj.files) {
-              fileName = Object.keys(gistObj.files)[0];
-              fileName = gistObj.files[fileName].filename ? gistObj.files[fileName].filename : fileName;
-          }
-          return fileName;
+          return utils.getGistAttribute(gistObj, 'filename');
       };
 
       getUser().then(function(){
@@ -102,16 +95,10 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
       };
 
       $scope.getGistVersion = function(gistObj){
-          var fileVersion = '';
-          if (gistObj && gistObj.files) {
-              fileVersion = Object.keys(gistObj.files)[0];
-              fileVersion = gistObj.files[fileVersion].updated_at ? gistObj.files[fileVersion].updated_at : fileVersion;
-          }
-          return fileVersion;
+          return utils.getGistAttribute(gistObj, 'updated_at');
       };
 
       $scope.getVersionView = function(signedCLA) {
-         if(!signedCLA.revoked){
             if (signedCLA.newCLA) {
                 signedCLA.noCLA = false;
 
@@ -123,7 +110,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
             } else {
                 signedCLA.noCLA = true;
             }
-        }
           $modal.open({
               templateUrl: '/modals/templates/versionView.html',
               controller: 'VersionViewCtrl',
@@ -131,8 +117,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
               resolve: {
                   cla: function(){ return signedCLA; },
                   noCLA: function(){ return signedCLA.noCLA; },
-                  showCLA: function(){ return signedCLA.showCLA; },
-                  revoked: function(){ return signedCLA.revoked; }
+                  showCLA: function(){ return signedCLA.showCLA; }
               }
           });
       };
@@ -171,17 +156,5 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
           }
         });
       };
-
-     $scope.getRevokeView = function(signedCLA) {
-         $modal.open({
-             templateUrl: '/modals/templates/revokeView.html',
-             controller: 'RevokeViewCtrl',
-             scope: $scope,
-             resolve: {
-                 cla: function(){ return signedCLA; }
-             }
-         });
-     };
-
     }
 ]);

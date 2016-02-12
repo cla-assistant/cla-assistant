@@ -42,7 +42,7 @@ module.exports = function(config) {
             // 'src/client/directives/**/*.js',
             // 'src/client/filters/**/*.js',
             // 'src/client/interceptors/**/*.js',
-            // 'src/client/services/**/*.js',
+            'src/client/services/**/*.js',
 
             // Client templates
             'src/client/**/*.html',
