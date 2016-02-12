@@ -48,10 +48,11 @@ describe('', function() {
             },
             github: {
                 directCall: {
-                    data: [
-                        { number: 1},
-                        { number: 2}
-                    ]
+                    data: [{
+                        number: 1
+                    }, {
+                        number: 2
+                    }]
                 }
             }
         };
@@ -648,17 +649,49 @@ describe('', function() {
     });
 
     describe('cla:upload', function() {
-        it('should silenty exit when no users provided', function(it_done) {
+        var req;
 
-            var req = {
+        beforeEach(function() {
+            error.github = {
+                call: null
+            };
+            reqArgs.github = {
+                call: {
+                    id: 1,
+                    login: 'one'
+                }
+            };
+            reqArgs.cla.sign = {};
+            req = {
                 args: {
                     repo: 'Hello-World',
-                    owner: 'octocat'
+                    owner: 'octocat',
+                    users: ['one']
                 },
                 user: {
                     token: 'user_token'
                 }
             };
+
+            sinon.stub(github, 'call', function(args, cb) {
+                assert.equal(args.obj, 'user');
+                assert.equal(args.fun, 'getFrom');
+                assert.equal(args.token, 'user_token');
+                cb(error.github.call, reqArgs.github.call);
+            });
+
+            sinon.stub(cla, 'sign', function(args, cb) {
+                cb(error.cla.sign, reqArgs.cla.sign);
+            });
+        });
+
+        afterEach(function() {
+            github.call.restore();
+            cla.sign.restore();
+        });
+
+        it('should silenty exit when no users provided', function(it_done) {
+            req.args.users = undefined;
 
             cla_api.upload(req, function(err, res) {
                 assert.equal(err, undefined);
@@ -668,75 +701,34 @@ describe('', function() {
         });
 
         it('should not "sign" cla when github user not found', function(it_done) {
-
-            var githubStub = sinon.stub(github, 'call', function(args, cb) {
-                assert.equal(args.obj, 'user');
-                assert.equal(args.fun, 'getFrom');
-                assert.equal(args.arg.user, 'one');
-                assert.equal(args.token, 'user_token');
-                cb('not found');
-            });
-
-            var claStub = sinon.stub(cla, 'sign', function(args, cb) {
-                cb(null, {});
-            });
-
-            var req = {
-                args: {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    users: ['one']
-                },
-                user: {
-                    token: 'user_token'
-                }
-            };
+            error.github.call = 'not found';
+            reqArgs.github.call = undefined;
 
             cla_api.upload(req, function() {
-                assert(githubStub.called);
-                assert(!claStub.called);
-                githubStub.restore();
-                claStub.restore();
+                assert(github.call.calledWith({
+                    obj: 'user',
+                    fun: 'getFrom',
+                    arg: {
+                        user: 'one'
+                    },
+                    token: 'user_token'
+                }));
+                assert(!cla.sign.called);
                 it_done();
             });
         });
 
         it('should "sign" cla for two users', function(it_done) {
-
-            var githubStub = sinon.stub(github, 'call', function(args, cb) {
-                assert.equal(args.obj, 'user');
-                assert.equal(args.fun, 'getFrom');
-                assert.equal(args.token, 'user_token');
-                cb(null, {
-                    id: 1,
-                    login: args.arg.user
-                });
-            });
-
-            var claStub = sinon.stub(cla, 'sign', function(args, cb) {
-                assert.equal(args.repo, 'Hello-World');
-                assert.equal(args.owner, 'octocat');
-                assert.equal(args.user, 'one');
-                assert.equal(args.user_id, 1);
-                cb(null, {});
-            });
-
-            var req = {
-                args: {
+            req.args.users = ['one', 'two'];
+            cla_api.upload(req, function() {
+                assert(github.call.called);
+                assert(cla.sign.calledWith({
                     repo: 'Hello-World',
                     owner: 'octocat',
-                    users: ['one']
-                },
-                user: {
-                    token: 'user_token'
-                }
-            };
-
-            cla_api.upload(req, function() {
-                assert(githubStub.called);
-                assert(claStub.called);
-                githubStub.restore();
-                claStub.restore();
+                    user: 'one',
+                    user_id: 1
+                }));
+                assert(cla.sign.calledTwice);
                 it_done();
             });
         });
@@ -768,8 +760,8 @@ describe('', function() {
         });
         it('should update all open pull requests', function(it_done) {
 
-            cla_api.validatePullRequests(req, function(error) {
-                assert.ifError(error);
+            cla_api.validatePullRequests(req, function(err) {
+                assert.ifError(err);
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.direct_call.called);
                 assert(prService.editComment.called);
@@ -783,8 +775,8 @@ describe('', function() {
             req.user = {
                 token: 'user_token'
             };
-            cla_api.validatePullRequests(req, function(error) {
-                assert.ifError(error);
+            cla_api.validatePullRequests(req, function(err) {
+                assert.ifError(err);
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.direct_call.called);
                 assert(prService.editComment.called);
