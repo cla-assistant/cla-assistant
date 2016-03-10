@@ -16,3 +16,4 @@ src/client/app.min.js.map
 .cfenv
 log
 log.*
+.vscode/*
