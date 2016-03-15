@@ -24,7 +24,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 			text += '<br/>:x: ' + signee;
 		});
 	} else {
-		text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Thank you for your submission, we really appreciate your work. Like many open source projects, before we can accept your contribution, we first ask that you sign our [Contributor License Agreement](' + claUrl + ').<br/>';
+		text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that you sign our [Contributor License Agreement](' + claUrl + ') before we can accept your contribution.<br/>';
 	}
 
 	if (user_map && user_map.unknown && user_map.unknown.length > 0) {
