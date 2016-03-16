@@ -183,7 +183,7 @@ describe('pullRequest:badgeComment', function () {
 			assert(!args.token);
 			assert.equal(args.basicAuth.user, 'cla-assistant');
 			assert.equal(args.basicAuth.pass, 'secret_pass');
-			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
+			assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
 		});
@@ -196,7 +196,7 @@ describe('pullRequest:badgeComment', function () {
 		sinon.stub(github, 'call', function (args, git_done) {
 			assert.equal(args.fun, 'editComment');
 			assert.equal(args.basicAuth.user, 'cla-assistant');
-			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.') >= 0);
+			assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
 		});
@@ -273,7 +273,7 @@ describe('pullRequest:badgeComment', function () {
 		direct_call_data = [];
 		sinon.stub(github, 'call', function (args, git_done) {
 			assert.equal(args.fun, 'createComment');
-			assert(args.arg.body.indexOf('You should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			assert(args.arg.body.indexOf('**0** out of **1**') < 0);
 			assert(args.arg.body.indexOf(':x: user2') < 0);
 			git_done(null, 'res', 'meta');
