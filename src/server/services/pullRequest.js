@@ -5,7 +5,7 @@ var log = require('../services/logger');
 
 var commentText = function (signed, badgeUrl, claUrl, user_map) {
 	if (signed) {
-		return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have accepted the CLA.';
+		return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have signed the CLA.';
 	}
 
 	var text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>';
