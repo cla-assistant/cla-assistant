@@ -33,15 +33,11 @@ module.exports = function(config) {
             // Bower
             'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
             'src/bower/angular-mocks/angular-mocks.js',
-            'src/bower/angular-diff-match-patch/angular-diff-match-patch.js',
 
             // Client code
             'src/client/app.js',
             'src/client/api.js',
             'src/client/controller/**/*.js',
-            // 'src/client/directives/**/*.js',
-            // 'src/client/filters/**/*.js',
-            // 'src/client/interceptors/**/*.js',
             'src/client/services/**/*.js',
 
             // Client templates
@@ -97,6 +93,11 @@ module.exports = function(config) {
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: ['PhantomJS'],
         // browsers: ['Chrome'],
+        plugins: [
+            'karma-ng-html2js-preprocessor',
+            'karma-mocha',
+            'karma-phantomjs-launcher'
+        ],
 
 
         // Continuous Integration mode

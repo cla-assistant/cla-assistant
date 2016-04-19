@@ -67,6 +67,26 @@ module.exports = {
 
     },
 
+    hasNextPage: function(link) {
+        var github = new GitHubApi({
+            protocol: config.server.github.protocol,
+            version: config.server.github.version,
+            host: config.server.github.api,
+            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
+        });
+        return github.hasNextPage(link);
+    },
+
+    getNextPage: function(link, cb) {
+        var github = new GitHubApi({
+            protocol: config.server.github.protocol,
+            version: config.server.github.version,
+            host: config.server.github.api,
+            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
+        });
+        return github.getNextPage(link, cb);
+    },
+
     direct_call: function(args, done) {
         var deferred = q.defer();
         var http_req = {};

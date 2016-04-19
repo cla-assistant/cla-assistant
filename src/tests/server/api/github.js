@@ -35,14 +35,14 @@ describe('github:call', function() {
 
 describe('github:call_direct', function() {
     beforeEach(function(){
-        sinon.stub(github, 'call', function(args, cb) {
+        sinon.stub(github, 'direct_call', function(args, cb) {
             assert.deepEqual(args, {url: 'url', token: 'abc'});
             cb();
         });
     });
 
     afterEach(function(){
-        github.call.restore();
+        github.direct_call.restore();
     });
 
     it('should call github service with user token', function(it_done){

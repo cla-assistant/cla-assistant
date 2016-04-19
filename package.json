@@ -70,6 +70,7 @@
     "load-grunt-tasks": "^3.4.0",
     "mkdirp": "0.5.1",
     "mocha": "^2.4.5",
+    "phantomjs-prebuilt": "^2.1.7",
     "rewire": "^2.5.1",
     "should": "^8.2.2",
     "sinon": "^1.17.3",

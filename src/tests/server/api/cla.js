@@ -47,19 +47,30 @@ describe('', function() {
                 getGist: JSON.parse(JSON.stringify(testData.gist)) //clone object
             },
             github: {
-                directCall: {
-                    data: [{
-                        number: 1
-                    }, {
-                        number: 2
-                    }]
+                callPullRequest: [{
+                    number: 1
+                }, {
+                    number: 2
+                }],
+                callMarkdown: {
+                    statusCode: 200,
+                    data: {}
+                },
+                callUser: {
+                    id: 1,
+                    login: 'one'
                 }
             }
         };
         error = {
             cla: {
                 getRepo: null,
-                getGist: null
+                getGist: null,
+            },
+            github: {
+                pullReqest: null,
+                markdown: null,
+                user: null
             }
         };
 
@@ -77,33 +88,26 @@ describe('', function() {
             cb(error.cla.getGist, resp.cla.getGist);
         });
 
-        sinon.stub(github, 'direct_call', function(args, cb) {
-            assert(args.url);
-            assert(args.token);
-            assert.equal(args.url, url.githubPullRequests('octocat', 'Hello-World', 'open'));
+        sinon.stub(github, 'call', function(args, cb) {
+            if (args.obj === 'pullRequests') {
+                console.log('github call PR');
+                assert(args.token);
 
-            cb(null, resp.github.directCall);
+                cb(error.github.pullReqest, resp.github.callPullRequest);
+            } else if (args.obj === 'markdown') {
+                cb(error.github.markdown, resp.github.callMarkdown);
+            } else if (args.obj === 'user') {
+                cb(error.github.markdown, resp.github.callUser);
+            }
         });
     });
     afterEach(function() {
         cla.getRepo.restore();
         cla.getGist.restore();
-        github.direct_call.restore();
+        github.call.restore();
     });
     describe('cla:get', function() {
         it('should get gist and render it with user token', function(it_done) {
-            var githubStub = sinon.stub(github, 'call', function(args, cb) {
-                var res;
-                assert.equal(args.obj, 'markdown');
-                assert.equal(args.fun, 'render');
-                assert.equal(args.token, 'user_token');
-                res = {
-                    statusCode: 200,
-                    data: {}
-                };
-                cb(null, res);
-            });
-
             var req = {
                 args: {
                     repo: 'Hello-World',
@@ -116,24 +120,12 @@ describe('', function() {
 
             cla_api.get(req, function() {
                 assert(cla.getRepo.called);
-
-                githubStub.restore();
+                assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: 'user_token' }));
                 it_done();
             });
         });
 
         it('should get gist and render it with repo token', function(it_done) {
-            var githubStub = sinon.stub(github, 'call', function(args, cb) {
-                var res;
-                assert.equal(args.obj, 'markdown');
-                assert.equal(args.fun, 'render');
-                assert.equal(args.token, testData.repo_from_db.token);
-                res = {
-                    statusCode: 200
-                };
-                cb(null, res);
-            });
-
             var req = {
                 args: {
                     repo: 'Hello-World',
@@ -143,8 +135,8 @@ describe('', function() {
 
             cla_api.get(req, function() {
                 assert(cla.getRepo.called);
+                assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: testData.repo_from_db.token }));
 
-                githubStub.restore();
                 it_done();
             });
         });
@@ -152,17 +144,6 @@ describe('', function() {
         it('should get gist and render it without user token', function(it_done) {
             resp.cla.getRepo.token = undefined;
 
-            var githubStub = sinon.stub(github, 'call', function(args, cb) {
-                var res;
-                assert.equal(args.obj, 'markdown');
-                assert.equal(args.fun, 'render');
-                assert.ifError(args.token);
-                res = {
-                    statusCode: 200
-                };
-                cb(null, res);
-            });
-
             var req = {
                 args: {
                     repo: 'Hello-World',
@@ -172,8 +153,8 @@ describe('', function() {
 
             cla_api.get(req, function() {
                 assert(cla.getRepo.called);
+                assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: undefined }));
 
-                githubStub.restore();
                 it_done();
             });
         });
@@ -193,10 +174,6 @@ describe('', function() {
             resp.cla.getGist = undefined;
             error.cla.getGist = 'error';
 
-            var githubStub = sinon.stub(github, 'call', function() {
-                assert();
-            });
-
             var req = {
                 args: {
                     repo: 'Hello-World',
@@ -206,7 +183,8 @@ describe('', function() {
 
             cla_api.get(req, function(err) {
                 assert.equal(!!err, true);
-                githubStub.restore();
+                assert(!github.call.called);
+
                 repoStub.restore();
                 it_done();
             });
@@ -232,7 +210,6 @@ describe('', function() {
         });
 
         describe('in case of failing github api', function() {
-            var githubError;
             var githubResponse;
             var req = {
                 args: {
@@ -245,9 +222,9 @@ describe('', function() {
             };
 
             beforeEach(function() {
-                sinon.stub(github, 'call', function(args, cb) {
-                    cb(githubError, githubResponse);
-                });
+                // sinon.stub(github, 'call', function(args, cb) {
+                //     cb(githubError, githubResponse);
+                // });
                 sinon.stub(log, 'error', function(err) {
                     assert(err);
                 });
@@ -255,36 +232,36 @@ describe('', function() {
 
             afterEach(function() {
                 log.error.restore();
-                github.call.restore();
+                // github.call.restore();
             });
 
             it('should handle github error', function(it_done) {
-                githubError = 'any error';
+                resp.github.callMarkdown = {};
+                error.github.markdown = 'any error';
                 cla_api.get(req, function(err) {
-
                     assert(err);
                     it_done();
                 });
             });
 
             it('should handle error stored in response message', function(it_done) {
-                githubResponse = {
+                resp.github.callMarkdown = {
                     statusCode: 500,
                     message: 'somthing went wrong, e.g. user revoked access rights'
                 };
-                githubError = null;
+                error.github.markdown = null;
                 cla_api.get(req, function(err) {
-                    assert.equal(err, githubResponse.message);
+                    assert.equal(err, resp.github.callMarkdown.message);
                     it_done();
                 });
             });
 
             it('should handle error only if status unequal 200 or there is no response', function(it_done) {
-                githubResponse = {
+                resp.github.callMarkdown = {
                     statusCode: 200,
                     data: {}
                 };
-                githubError = 'any error';
+                error.github.markdown = 'any error';
 
                 log.error.restore();
                 sinon.stub(log, 'error', function() {
@@ -377,7 +354,7 @@ describe('', function() {
                 assert.ifError(err);
                 assert.ok(res);
                 assert.equal(statusService.update.callCount, 2);
-                assert(github.direct_call.called);
+                assert(github.call.calledWithMatch({obj: 'pullRequests', fun: 'getAll'}));
                 assert(prService.editComment.called);
 
                 it_done();
@@ -401,7 +378,7 @@ describe('', function() {
             cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
-                assert(github.direct_call.called);
+                assert(github.call.calledWithMatch({obj: 'pullRequests', fun: 'getAll'}));
                 assert(statusService.update.called);
                 assert(prService.editComment.called);
                 it_done();
@@ -409,12 +386,12 @@ describe('', function() {
         });
 
         it('should handle repos without open pull requests', function(it_done) {
-            resp.github.directCall = {};
+            resp.github.callPullRequest = [];
 
             cla_api.sign(req, function(err, res) {
                 assert.ifError(err);
                 assert.ok(res);
-                assert(github.direct_call.called);
+                assert(github.call.calledWithMatch({obj: 'pullRequests', fun: 'getAll'}));
                 assert(!statusService.update.called);
 
                 it_done();
@@ -652,15 +629,6 @@ describe('', function() {
         var req;
 
         beforeEach(function() {
-            error.github = {
-                call: null
-            };
-            reqArgs.github = {
-                call: {
-                    id: 1,
-                    login: 'one'
-                }
-            };
             reqArgs.cla.sign = {};
             req = {
                 args: {
@@ -672,21 +640,12 @@ describe('', function() {
                     token: 'user_token'
                 }
             };
-
-            sinon.stub(github, 'call', function(args, cb) {
-                assert.equal(args.obj, 'user');
-                assert.equal(args.fun, 'getFrom');
-                assert.equal(args.token, 'user_token');
-                cb(error.github.call, reqArgs.github.call);
-            });
-
             sinon.stub(cla, 'sign', function(args, cb) {
                 cb(error.cla.sign, reqArgs.cla.sign);
             });
         });
 
         afterEach(function() {
-            github.call.restore();
             cla.sign.restore();
         });
 
@@ -701,8 +660,8 @@ describe('', function() {
         });
 
         it('should not "sign" cla when github user not found', function(it_done) {
-            error.github.call = 'not found';
-            reqArgs.github.call = undefined;
+            error.github.callUser = 'not found';
+            resp.github.callUser = undefined;
 
             cla_api.upload(req, function() {
                 assert(github.call.calledWith({
@@ -763,7 +722,7 @@ describe('', function() {
             cla_api.validatePullRequests(req, function(err) {
                 assert.ifError(err);
                 assert.equal(statusService.update.callCount, 2);
-                assert(github.direct_call.called);
+                assert(github.call.calledWithMatch({obj: 'pullRequests', fun: 'getAll'}));
                 assert(prService.editComment.called);
 
                 it_done();
@@ -778,11 +737,17 @@ describe('', function() {
             cla_api.validatePullRequests(req, function(err) {
                 assert.ifError(err);
                 assert.equal(statusService.update.callCount, 2);
-                assert(github.direct_call.called);
+                assert(github.call.calledWithMatch({obj: 'pullRequests', fun: 'getAll'}));
                 assert(prService.editComment.called);
 
                 it_done();
             });
         });
+
+        it('should load all PRs if there are more to load', function() {
+
+        });
+
+
     });
 });

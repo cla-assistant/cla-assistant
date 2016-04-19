@@ -154,17 +154,26 @@ module.exports = {
         getMissingParams(count);
     },
 
-    validatePullRequests: function (req, done){
-        github.direct_call({
-            url: url.githubPullRequests(req.args.owner, req.args.repo, 'open'),
-            token: req.args.token ? req.args.token : req.user.token
-        }, function (error, res) {
-            if (error) {
-                log.error(error);
+    validatePullRequests: function(req, done) {
+        var pullRequests = [];
+        function collectData(err, res, meta) {
+            if (err) {
+                log.error(err);
             }
 
-            if (res && res.data && !error) {
-                res.data.forEach(function (pullRequest) {
+            if (res && !err) {
+                pullRequests = pullRequests.concat(res);
+            }
+
+            if (meta && meta.link && github.hasNextPage(meta.link)) {
+                github.getNextPage(meta.link, collectData);
+            } else {
+                validateData(err);
+            }
+        }
+        function validateData(err) {
+            if (pullRequests.length > 0 && !err) {
+                pullRequests.forEach(function (pullRequest) {
                     var status_args = {
                         repo: req.args.repo,
                         owner: req.args.owner
@@ -187,9 +196,57 @@ module.exports = {
                 });
             }
             if (typeof done === 'function') {
-                done(error);
+                done(err);
             }
-        });
+        }
+
+        github.call({
+            obj: 'pullRequests',
+            fun: 'getAll',
+            arg: {
+                user: req.args.owner,
+                repo: req.args.repo,
+                state: 'open',
+                per_page: 100
+            },
+            token: req.args.token ? req.args.token : req.user.token
+        }, collectData);
+
+        // github.direct_call({
+        //     url: url.githubPullRequests(req.args.owner, req.args.repo, 'open'),
+        //     token: req.args.token ? req.args.token : req.user.token
+        // }, function (error, res) {
+        //     if (error) {
+        //         log.error(error);
+        //     }
+
+        //     if (res && res.data && !error) {
+        //         res.data.forEach(function (pullRequest) {
+        //             var status_args = {
+        //                 repo: req.args.repo,
+        //                 owner: req.args.owner
+        //             };
+        //             status_args.number = pullRequest.number;
+        //             cla.check(status_args, function (cla_err, all_signed, user_map) {
+        //                 if (cla_err) {
+        //                     log.error(cla_err);
+        //                 }
+        //                 status_args.signed = all_signed;
+        //                 status.update(status_args);
+        //                 prService.editComment({
+        //                     repo: req.args.repo,
+        //                     owner: req.args.owner,
+        //                     number: status_args.number,
+        //                     signed: all_signed,
+        //                     user_map: user_map
+        //                 });
+        //             });
+        //         });
+        //     }
+        //     if (typeof done === 'function') {
+        //         done(error);
+        //     }
+        // });
     },
 
     sign: function (req, done) {
