@@ -29,7 +29,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 	if (user_map && user_map.unknown && user_map.unknown.length > 0) {
 		var seem = (user_map.unknown.length > 1 ? 'seem' : 'seems');
 		text += '<hr/>**' + user_map.unknown.join(', ') + '** ' + seem + ' not to be a GitHub user.';
-		text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please add the email address used for this commit to your account ([for further information, click here] (https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user)).';
+		text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).';
 	}
 	return text;
 };
