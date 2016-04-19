@@ -255,7 +255,7 @@ describe('pullRequest:badgeComment', function () {
 		direct_call_data = [];
 		sinon.stub(github, 'call', function (args, git_done) {
 			assert.equal(args.fun, 'createComment');
-			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
 			assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
 			assert(args.arg.body.indexOf(':x: user2') >= 0);
@@ -290,7 +290,7 @@ describe('pullRequest:badgeComment', function () {
 		direct_call_data = testDataComments_withCLAComment;
 		sinon.stub(github, 'call', function (args, git_done) {
 			assert.equal(args.fun, 'editComment');
-			assert(args.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
 			assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
 			assert(args.arg.body.indexOf(':x: user2') >= 0);
@@ -449,7 +449,7 @@ describe('pullRequest:editComment', function () {
 		github.call.restore();
 		sinon.stub(github, 'call', function (params, git_done) {
 			assert.equal(params.fun, 'editComment');
-			assert(params.arg.body.indexOf('All committers of the pull request should sign our Contributor License Agreement in order to get your pull request merged.<br/>') >= 0);
+			assert(params.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
 			assert(params.arg.body.indexOf('**1** out of **2**') >= 0);
 			assert(params.arg.body.indexOf(':white_check_mark: user1') >= 0);
 			assert(params.arg.body.indexOf(':x: user2') >= 0);
