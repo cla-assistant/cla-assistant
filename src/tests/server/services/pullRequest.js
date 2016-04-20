@@ -209,7 +209,7 @@ describe('pullRequest:badgeComment', function () {
 		sinon.stub(github, 'call', function (args, git_done) {
 			assert.equal(args.fun, 'editComment');
 			assert.equal(args.basicAuth.user, 'cla-assistant');
-			assert(args.arg.body.indexOf('If you have already a GitHub account, please add the email address used for this commit to your account') >= 0);
+			assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0);
 			git_done(null, 'res', 'meta');
 			it_done();
 		});
