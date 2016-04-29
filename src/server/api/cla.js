@@ -22,7 +22,7 @@ module.exports = {
         } else {
             cla.getRepo(req.args, function (err, repo) {
                 if (err || !repo) {
-                    log.warn(err, 'with args: ', req.args);
+                    log.warn(new Error(err).stack, 'with args: ', req.args);
                     done(err);
                     return;
                 }
