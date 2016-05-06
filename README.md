@@ -100,11 +100,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+Stickers
+=======
+<p align="center">
+[<img src="https://www.stickermule.com/marketplace/embed_img/11612" width="100">](https://www.stickermule.com/marketplace/11612-cla-assistant)
+[<img src="https://www.stickermule.com/marketplace/embed_img/11850" width="100">](https://www.stickermule.com/marketplace/11850-cla-assistant)
+<p align="center">
+
 Credits
 =======
 
 <p align="center">
 ![SAP](https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png)
-
 <p align="center">
 :heart: from the GitHub team @ SAP
