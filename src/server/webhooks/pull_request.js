@@ -50,7 +50,6 @@ module.exports = function (req, res) {
 	}
 
 	// if(req.args.action === 'synchronize') {
-
 	// }
 
 	res.status(200).send('OK');

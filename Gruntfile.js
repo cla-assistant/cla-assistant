@@ -66,7 +66,7 @@ module.exports = function (grunt) {
 				files: ['src/**/*.js', '!src/client/app.min.js']
 			},
 			mocha: {
-				tasks: ['mochaTest'],
+				tasks: ['mocha_istanbul'],
 				files: ['src/**/*.js', '!src/client/app.min.js']
 			},
 			karma: {
