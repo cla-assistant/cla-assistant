@@ -238,7 +238,7 @@ describe('github:call_direct', function() {
         callbacks.error('Wrong URL!');
     });
 
-    xit('should use different method then get if provided', function(it_done){
+    it('should use different method then get if provided', function(it_done){
         args.http_method = 'POST';
 
         github.direct_call(args, function(err){

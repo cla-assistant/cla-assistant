@@ -10,19 +10,21 @@ var url = require('../../../server/services/url');
 
 //model
 var Repo = require('../../../server/documents/repo').Repo;
+var Org = require('../../../server/documents/org').Org;
 
 // api
 var webhook_api = require('../../../server/api/webhook');
 
+var testData = require('../testData').data;
 
-describe('webhook:call', function() {
+describe('webhook:create', function() {
     it('should call github service with user token', function(it_done){
-        var repoStub = sinon.stub(Repo, 'findOne', function(args, done){
+        sinon.stub(Repo, 'findOne', function(args, done){
             var repo = {repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId'};
             done(null, repo);
         });
 
-        var githubStub = sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function(args, done) {
             assert.deepEqual(args,
                 {obj: 'repos',
                 fun: 'createHook',
@@ -42,8 +44,40 @@ describe('webhook:call', function() {
         var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {repo: 'myRepo', owner: 'login'}};
 
         webhook_api.create(req, function() {
-            githubStub.restore();
-            repoStub.restore();
+            github.call.restore();
+            Repo.findOne.restore();
+            it_done();
+        });
+    });
+
+    it('should create a webhook for an organisation', function(it_done) {
+        sinon.stub(Org, 'findOne', function(args, done){
+            var org = {org: 'myOrg', orgId: 1, gist: 'https://gist.github.com/myOrg/gistId'};
+            done(null, org);
+        });
+
+        sinon.stub(github, 'direct_call', function(args, done) {
+            assert.deepEqual(args,
+                {url: testData.orgs[0].hooks_url,
+                arg: {
+                    name: 'web',
+                    config: { url: url.webhook(testData.orgs[0].login), content_type: 'json' },
+                    events: ['pull_request'],
+                    active: true
+                },
+                token: 'abc'
+            });
+            done();
+        });
+
+        var req = {user: { id: 1, login: 'login', token: 'abc'}, args: {org: testData.orgs[0].login, orgId: testData.orgs[0].id}};
+
+        webhook_api.create(req, function() {
+            assert(github.direct_call.called);
+            assert(Org.findOne.called);
+
+            github.direct_call.restore();
+            Org.findOne.restore();
             it_done();
         });
     });
