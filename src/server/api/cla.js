@@ -42,7 +42,7 @@ module.exports = {
     get: function (req, done) {
         this.getGist(req, function (err, res) {
             if (err || !res) {
-                log.error(err);
+                log.error(new Error(err).stack, 'with args: ', req.args);
                 done(err);
                 return;
             }
