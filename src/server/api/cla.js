@@ -23,7 +23,6 @@ module.exports = {
             cla.getRepo(req.args, function (err, repo) {
                 if (err || !repo) {
                     log.warn(new Error(err).stack, 'with args: ', req.args);
-                    log.info(req);
                     done(err);
                     return;
                 }
@@ -41,6 +40,12 @@ module.exports = {
     },
 
     get: function(req, done) {
+        if (!req.args || (!req.args.repo && !req.args.repoId)) {
+            log.info('args: ', req.args);
+            log.info('request headers: ', req.headers);
+            done('Please, provide owner and repo name');
+            return;
+        }
         this.getGist(req, function (err, res) {
             if (err || !res) {
                 log.error(new Error(err).stack, 'with args: ', req.args);
