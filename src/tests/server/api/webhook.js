@@ -51,21 +51,17 @@ describe('webhook:create', function() {
     });
 
     it('should create a webhook for an organisation', function(it_done) {
-        sinon.stub(Org, 'findOne', function(args, done){
-            var org = {org: 'myOrg', orgId: 1, gist: 'https://gist.github.com/myOrg/gistId'};
-            done(null, org);
-        });
-
         sinon.stub(github, 'direct_call', function(args, done) {
             assert.deepEqual(args,
                 {url: testData.orgs[0].hooks_url,
-                arg: {
+                body: {
                     name: 'web',
                     config: { url: url.webhook(testData.orgs[0].login), content_type: 'json' },
                     events: ['pull_request'],
                     active: true
                 },
-                token: 'abc'
+                token: 'abc',
+                http_method: 'POST'
             });
             done();
         });
@@ -74,10 +70,8 @@ describe('webhook:create', function() {
 
         webhook_api.create(req, function() {
             assert(github.direct_call.called);
-            assert(Org.findOne.called);
 
             github.direct_call.restore();
-            Org.findOne.restore();
             it_done();
         });
     });
