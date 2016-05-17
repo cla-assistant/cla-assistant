@@ -48,7 +48,7 @@ describe('url:githubProfile', function() {
 describe('url:githubFileReference', function() {
     it('should by default be https://api.github.com/user/repo/blob/fileref', function(done) {
         assert.equal(url.githubFileReference('user', 'repo', 'fileref'),
-                    'https://github.com/user/repo/blob/fileref');
+            'https://github.com/user/repo/blob/fileref');
         done();
     });
 });
@@ -56,12 +56,12 @@ describe('url:githubFileReference', function() {
 describe('url:githubPullRequests', function() {
     it('should by default be https://api.github.com/repos/:owner/:repo/pulls', function(done) {
         assert.equal(url.githubPullRequests('owner', 'repo'),
-                    'https://api.github.com/repos/owner/repo/pulls');
+            'https://api.github.com/repos/owner/repo/pulls');
         done();
     });
     it('should set state parameter if provided', function(done) {
         assert.equal(url.githubPullRequests('owner', 'repo', 'open'),
-                    'https://api.github.com/repos/owner/repo/pulls?state=open');
+            'https://api.github.com/repos/owner/repo/pulls?state=open');
         done();
     });
 });
@@ -69,7 +69,7 @@ describe('url:githubPullRequests', function() {
 describe('url:githubPullRequest', function() {
     it('should by default be https://api.github.com/repos/:owner/:repo/pulls/:number', function(done) {
         assert.equal(url.githubPullRequest('owner', 'repo', 1),
-                    'https://api.github.com/repos/owner/repo/pulls/1');
+            'https://api.github.com/repos/owner/repo/pulls/1');
         done();
     });
 });
@@ -77,7 +77,7 @@ describe('url:githubPullRequest', function() {
 describe('url:githubPullRequestCommits', function() {
     it('should by default be https://api.github.com/repos/:owner/:repo/pulls/:number', function(done) {
         assert.equal(url.githubPullRequestCommits('owner', 'repo', 1),
-                    'https://api.github.com/repos/owner/repo/pulls/1/commits');
+            'https://api.github.com/repos/owner/repo/pulls/1/commits');
         done();
     });
 });
@@ -85,7 +85,7 @@ describe('url:githubPullRequestCommits', function() {
 describe('url:pullRequestBadge', function() {
     it('should by default be http://cla-assistant.io/pull/badge/signed', function(done) {
         assert.equal(url.pullRequestBadge(true),
-                    'http://cla-assistant.io/pull/badge/signed');
+            'http://cla-assistant.io/pull/badge/signed');
         done();
     });
 });
@@ -93,7 +93,7 @@ describe('url:pullRequestBadge', function() {
 describe('url:githubPullRequestComments', function() {
     it('should by default be http://api.github.com/repos/:owner/:repo/issues/:number/comments', function(done) {
         assert.equal(url.githubPullRequestComments('owner', 'repo', 1),
-                    'https://api.github.com/repos/owner/repo/issues/1/comments');
+            'https://api.github.com/repos/owner/repo/issues/1/comments');
         done();
     });
 });
@@ -101,13 +101,21 @@ describe('url:githubPullRequestComments', function() {
 describe('url:claURL', function() {
     it('should by default be http://cla-assistant.io/:owner/:repo', function(done) {
         assert.equal(url.claURL('owner', 'repo'),
-                    'http://cla-assistant.io/owner/repo');
+            'http://cla-assistant.io/owner/repo');
         done();
     });
 
-    it('should by be http://cla-assistant.io/:owner/:repo?pullRequest=:number if number provided', function(done) {
+    it('should be http://cla-assistant.io/:owner/:repo?pullRequest=:number if number provided', function(done) {
         assert.equal(url.claURL('owner', 'repo', 1),
-                    'http://cla-assistant.io/owner/repo?pullRequest=1');
+            'http://cla-assistant.io/owner/repo?pullRequest=1');
+        done();
+    });
+});
+
+describe('url:githubOrgWebhook', function() {
+    it('should be /orgs/:org/hooks', function(done) {
+        assert.equal(url.githubOrgWebhook('orgName'),
+            'https://api.github.com/orgs/orgName/hooks');
         done();
     });
 });

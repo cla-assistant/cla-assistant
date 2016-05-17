@@ -2,9 +2,42 @@
 var url = require('../services/url');
 var github = require('../services/github');
 
+function createRepoHook(req, done) {
+    github.call({
+        obj: 'repos',
+        fun: 'createHook',
+        arg: {
+            user: req.args.owner,
+            repo: req.args.repo,
+            name: 'web',
+            config: { url: url.webhook(req.args.repo), content_type: 'json' },
+            events: ['pull_request'],
+            active: true
+        },
+        token: req.user.token
+    }, done);
+}
+
+function createOrgHook(req, done) {
+    var args = {
+        url: url.githubOrgWebhook(req.args.org),
+        token: req.user.token,
+        http_method: 'POST',
+        body: {
+            name: 'web',
+            config: { url: url.webhook(req.args.org), content_type: 'json' },
+            events: ['pull_request'],
+            active: true
+        }
+    };
+    github.direct_call(args, done);
+}
+
 module.exports = {
 
     get: function(req, done) {
+        // TODO: get also org hooks
+
         github.call({
             obj: 'repos',
             fun: 'getHooks',
@@ -38,19 +71,7 @@ module.exports = {
     },
 
     create: function(req, done) {
-        github.call({
-            obj: 'repos',
-            fun: 'createHook',
-            arg: {
-                user: req.args.owner,
-                repo: req.args.repo,
-                name: 'web',
-                config: { url: url.webhook(req.args.repo), content_type: 'json' },
-                events: ['pull_request'],
-                active: true
-            },
-            token: req.user.token
-        }, done);
+        return req.args && req.args.orgId ? createOrgHook(req, done) : createRepoHook(req, done);
     },
 
     remove: function(req, done) {
