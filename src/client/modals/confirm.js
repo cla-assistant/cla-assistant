@@ -1,10 +1,10 @@
 module.controller('ConfirmCtrl',
-	function($scope, $modalInstance, $window, $timeout, selectedGist, selectedRepo) {
-		$scope.gist = selectedGist && selectedGist.gist ? selectedGist.gist : null;
-		$scope.repo = selectedRepo && selectedRepo.repo ? selectedRepo.repo : null;
+	function($scope, $modalInstance, $window, $timeout, selected) {
+		$scope.gist = selected && selected.gist ? selected.gist : null;
+		$scope.item = selected && selected.item ? selected.item : null;
 
 		$scope.ok = function () {
-			$modalInstance.close(selectedRepo);
+			$modalInstance.close(selected.item);
 		};
 
 		$scope.cancel = function () {

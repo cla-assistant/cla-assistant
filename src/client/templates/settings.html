@@ -2,8 +2,11 @@
 <td>
     <div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
         <div class="text clickable">
-            <a ng-href="https://github.com/{{ repo.owner }}/{{ repo.repo }}" target="space">
-                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i> &nbsp; {{ repo.owner }} / {{ repo.repo }}
+            <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
+                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
+            </a>
+            <a ng-if="item.org" ng-href="https://github.com/{{ item.login }}" target="space">
+                &nbsp; {{ item.login }}
             </a>
         </div>
     </div>
@@ -23,7 +26,7 @@
     </div>
 
     <div class="col-xs-4 col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
-        <a ng-click="getReport(repo);" class="clickable">{{signatures.value.length}}</a>
+        <a ng-click="getReport(item);" class="clickable">{{signatures.value.length}}</a>
     </div>
 
     <script type="text/ng-template" id="validateLink.html">
@@ -35,13 +38,13 @@
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
-        <button class="btn btn-info" ng-click="upload(repo)" style="width:100%">Import</button>
-        <button class="btn btn-info" ng-click="recheck(repo)" style="margin-top:5px; width:100%">Recheck PRs</button>
-        <button class="btn btn-info" ng-click="getBadge(repo)" style="margin-top:5px; width:100%">Get Badge</button>
+        <button class="btn btn-info" ng-click="upload(item)" style="width:100%">Import</button>
+        <button class="btn btn-info" ng-click="recheck(item)" style="margin-top:5px; width:100%">Recheck PRs</button>
+        <button class="btn btn-info" ng-click="getBadge(item)" style="margin-top:5px; width:100%">Get Badge</button>
     </script>
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
              popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
-        <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(repo)" tooltip-placement="bottom" tooltip="Unlink"></i>
+        <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom" tooltip="Unlink"></i>
     </div>
 </td>
