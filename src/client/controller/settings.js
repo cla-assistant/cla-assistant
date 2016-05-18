@@ -23,7 +23,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         function gistArgs() {
             var args = {
-                gist_url: $scope.repo.gist
+                gist_url: $scope.item.gist
             };
             if ($scope.gist.history && $scope.gist.history.length > 0) {
                 args.gist_version = $scope.gist.history[$scope.gistIndex].version;
@@ -57,8 +57,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         var getWebhook = function () {
             return $RPCService.call('webhook', 'get', {
-                repo: $scope.repo.repo,
-                user: $scope.repo.owner
+                repo: $scope.item.repo,
+                user: $scope.item.owner
             }, function (err, obj) {
                 if (!err && obj && obj.value) {
                     webhook = obj.value;
@@ -74,14 +74,14 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getContributors = function (gist_version) {
-            return $scope.getSignatures($scope.repo, gist_version, function (err, data) {
+            return $scope.getSignatures($scope.item, gist_version, function (err, data) {
                 $scope.contributors = [];
                 if (data && data.value && data.value.length > 0) {
                     data.value.forEach(function (signature) {
                         var contributor = {};
                         contributor.user_name = signature.user;
-                        contributor.repo_owner = $scope.repo.owner;
-                        contributor.repo_name = $scope.repo.repo;
+                        contributor.repo_owner = $scope.item.owner;
+                        contributor.repo_name = $scope.item.repo;
                         contributor.gist_name = $scope.getGistName();
                         contributor.gist_url = $scope.gist.url;
                         contributor.gist_version = signature.gist_version;
@@ -97,8 +97,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.getGist = function () {
             return $RPCService.call('cla', 'getGist', {
-                repo: $scope.repo.repo,
-                owner: $scope.repo.owner,
+                repo: $scope.item.repo,
+                owner: $scope.item.owner,
                 gist: gistArgs()
             }, function (err, data) {
                 if (!err && data.value) {
@@ -132,12 +132,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.validateLinkedRepo = function () {
             var promises = [];
-            if ($scope.repo.gist) {
+            if ($scope.item.gist) {
                 $scope.loading = true;
                 promises.push($scope.getGist());
                 promises.push(getWebhook());
                 $q.all(promises).then(function () {
-                    $scope.signatures = $scope.getSignatures($scope.repo, gistArgs().gist_version);
+                    $scope.signatures = $scope.getSignatures($scope.item, gistArgs().gist_version);
                     $scope.loading = false;
                 });
             }
@@ -169,7 +169,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             if ($scope.signatures.value.length > 0) {
                 $scope.getContributors(gistArgs().gist_version);
             }
-            report($scope.repo);
+            report($scope.item);
         };
 
         $scope.recheck = function (claRepo) {
@@ -221,7 +221,7 @@ module.directive('settings', ['$document', function ($document) {
         controller: 'SettingsCtrl',
         transclude: true,
         scope: {
-            repo: '=',
+            item: '=',
             user: '='
         },
         link: function (scope, element) {

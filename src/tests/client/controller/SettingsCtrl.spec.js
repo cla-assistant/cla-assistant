@@ -69,7 +69,7 @@ describe('Settings Controller', function () {
             user: 'login',
             repo: 'myRepo'
         };
-        scope.repo = {
+        scope.item = {
             repo: 'myRepo',
             owner: 'login',
             gist: 'https://gist.github.com/gistId'
@@ -93,9 +93,9 @@ describe('Settings Controller', function () {
 
 
             if (obj === 'cla' && fun === 'getAll') {
-                (args.repo).should.be.equal(scope.repo.repo);
-                (args.owner).should.be.equal(scope.repo.owner);
-                (args.gist.gist_url).should.be.equal(scope.repo.gist);
+                (args.repo).should.be.equal(scope.item.repo);
+                (args.owner).should.be.equal(scope.item.owner);
+                (args.gist.gist_url).should.be.equal(scope.item.gist);
                 var resp = args.gist.gist_version ? [{user: 'login' }] : [{
                     user: 'login'
                 }, {
@@ -104,9 +104,9 @@ describe('Settings Controller', function () {
                 error = testErr.cla.getAll || null;
                 response.value = testResp.cla.getAll || resp;
             } else if (obj === 'cla' && fun === 'getGist') {
-                (args.repo).should.be.equal(scope.repo.repo);
-                (args.owner).should.be.equal(scope.repo.owner);
-                (args.gist.gist_url).should.be.equal(scope.repo.gist);
+                (args.repo).should.be.equal(scope.item.repo);
+                (args.owner).should.be.equal(scope.item.owner);
+                (args.gist.gist_url).should.be.equal(scope.item.gist);
 
                 response.value = testResp.cla.getGist || testGistData;
             } else if (obj === 'webhook' && fun === 'get') {
@@ -190,7 +190,7 @@ describe('Settings Controller', function () {
 
             (settingsCtrl.scope.loading).should.not.be.ok;
             (settingsCtrl.scope.gist.url).should.be.equal(testGistData.url);
-            (settingsCtrl.scope.repo).should.not.be.empty;
+            (settingsCtrl.scope.item).should.not.be.empty;
             (calledApi.RPC.cla.getGist).should.be.equal(true);
             (calledApi.RPC.cla.getAll).should.be.equal(true);
             (calledApi.RPC.webhook.get).should.be.equal(true);
@@ -209,7 +209,7 @@ describe('Settings Controller', function () {
         });
 
         it('should get all contributors signed this cla', function () {
-            var repo = settingsCtrl.scope.repo;
+            var repo = settingsCtrl.scope.item;
 
             testResp.cla.getAll = [{
                 user: 'login',
@@ -243,9 +243,9 @@ describe('Settings Controller', function () {
         describe('on getSignatures', function(){
             it('should reload data for other gist versions', function (it_done) {
                 var args = {
-                    repo: scope.repo.repo,
-                    owner: scope.repo.owner,
-                    gist: scope.repo.gist
+                    repo: scope.item.repo,
+                    owner: scope.item.owner,
+                    gist: scope.item.gist
                 };
                 testResp.cla.getAll = undefined;
 
@@ -274,7 +274,7 @@ describe('Settings Controller', function () {
                 settingsCtrl.scope.validateLinkedRepo();
                 $timeout.flush();
 
-                (scope.getSignatures.calledWith(scope.repo, scope.gist.history[0].version)).should.be.equal(true);
+                (scope.getSignatures.calledWith(scope.item, scope.gist.history[0].version)).should.be.equal(true);
             });
 
             it('should indicate loading', function () {
@@ -326,7 +326,7 @@ describe('Settings Controller', function () {
 
                 settingsCtrl.scope.getReport();
 
-                (scope.getSignatures.calledWith(scope.repo, scope.gist.history[0].version)).should.be.equal(true);
+                (scope.getSignatures.calledWith(scope.item, scope.gist.history[0].version)).should.be.equal(true);
             });
             it('should prepare array of contributors for export', function () {
                 sinon.stub(modal, 'open', function () {
@@ -375,7 +375,7 @@ describe('Settings Controller', function () {
 
     describe('handling errors', function () {
         it('should load gist file only if gist url is given', function () {
-            scope.repo = {
+            scope.item = {
                 repo: 'myRepo',
                 owner: 'login',
                 gist: ''
