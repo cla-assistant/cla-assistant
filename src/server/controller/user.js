@@ -10,6 +10,9 @@ var scope;
 
 function checkReturnTo(req, res, next) {
     scope = req.query.admin === 'true' ? config.server.github.admin_scope : config.server.github.public_scope;
+    if (req.query.org_admin) {
+        scope.push('admin:org_hook');
+    }
     var returnTo = req.query.admin === 'true' ? '/' : req.session.next;
     if (returnTo) {
         if (!req.session) {

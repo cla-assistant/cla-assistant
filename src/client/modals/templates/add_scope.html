@@ -1,0 +1,24 @@
+<div class="modal-body modal-primary">
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+
+    <div class="free-space">
+        <h4>Why link organizations?</h4>
+        <div>
+            If you link an organization with your CLA CLA assistant sets a web hook on your organization and listens to Pull Requests of all repositories in the organization. That means that your CLA becomes active for each existing and future repositories of your organization.
+        </div>
+    </div>
+
+    <div class="free-space">
+        <h4>How can I link an organization?</h4>
+        <div>
+            CLA assistant needs an additional authorization from you to be able to create web hooks for organizations. To grant CLA assistant appropriate rights just click on the button below. For more information on Authorization scopes see <a href="https://developer.github.com/v3/oauth/#scopes" target="_blank" class="text-primary">github documentation</a>
+        </div>
+    </div>
+
+    <div class="free-space">
+        <button class="btn btn-info" ng-click="ok()" style="height: 45px; width:100%;">
+            Yes, let's go for it!
+        </button>
+    </div>
+
+</div>

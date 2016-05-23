@@ -30,6 +30,7 @@ function createOrgHook(req, done) {
             active: true
         }
     };
+    console.log(args);
     github.direct_call(args, done);
 }
 
