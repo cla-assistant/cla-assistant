@@ -100,11 +100,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
 
                 $scope.user = res;
-                $scope.user.value.admin = false;
-
-                if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
-                    $scope.user.value.admin = true;
-                }
+                $scope.user.value.admin = res.meta.scopes.indexOf('write:repo_hook') > -1 ? true : false;
+                $scope.user.value.org_admin = res.meta.scopes.indexOf('admin:org_hook') > -1 ? true : false;
                 $rootScope.user = $scope.user;
                 $rootScope.$broadcast('user');
             });
@@ -148,9 +145,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getOrgs = function() {
-            return $HUBService.call('user', 'getOrgs', {}).then(function(data) {
+            var deferred = $q.defer();
+            var promise = $scope.user.value.org_admin ? $HUBService.call('user', 'getOrgs', {}) : deferred.promise;
+
+            deferred.resolve();
+            promise.then(function(data) {
                 $scope.orgs = data && data.value ? data.value : $scope.orgs;
             });
+            return promise;
         };
 
         // var validateLinkedRepos = function(){
@@ -231,6 +233,17 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 templateUrl: '/modals/templates/info_gist.html',
                 controller: 'InfoCtrl',
                 windowClass: 'howto'
+            });
+        };
+
+        $scope.addScope = function() {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/add_scope.html',
+                controller: 'AddScopeCtrl',
+                windowClass: 'howto'
+            });
+            modal.result.then(function() {
+                $window.location.href = '/auth/github?admin=true&org_admin=true';
             });
         };
 

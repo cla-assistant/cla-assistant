@@ -307,7 +307,21 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos[0].fork).should.be.equal(testDataRepos.data[0].fork);
     });
 
+    it('should check whether the user has admin:org_hook right', function() {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        httpBackend.flush();
+        (homeCtrl.scope.user.value.org_admin).should.be.equal(true);
+    });
+
+    it('should not get user orgs if the user has no admin:org_hook right', function() {
+        httpBackend.flush();
+
+        (homeCtrl.scope.user.value.org_admin).should.be.equal(false);
+        (homeCtrl.scope.orgs).should.not.be.equal(testDataOrgs);
+    });
+
     it('should get user orgs and combine them with repos in one list', function() {
+        githubResponse.meta.scopes += ', admin:org_hook';
         httpBackend.flush();
 
         (homeCtrl.scope.orgs).should.be.equal(testDataOrgs);
