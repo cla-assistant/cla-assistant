@@ -9,6 +9,7 @@ var Repo = require('../../../server/documents/repo').Repo;
 
 //services
 var github = require('../../../server/services/github');
+var orgService = require('../../../server/services/org');
 var url = require('../../../server/services/url');
 var config = require('../../../config');
 
@@ -167,16 +168,15 @@ describe('repo:getAll', function () {
 
 describe('repo:getPRCommitters', function () {
     var test_repo;
+    var test_org;
 
     beforeEach(function () {
         test_repo = {
             token: 'abc',
             save: function () {}
         };
+        test_org = null;
 
-        sinon.stub(Repo, 'findOne', function (args, done) {
-            done(null, test_repo);
-        });
         sinon.stub(github, 'direct_call', function (args, done) {
             assert(args.token);
             assert.equal(args.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
@@ -184,11 +184,19 @@ describe('repo:getPRCommitters', function () {
                 data: testData.commits
             });
         });
+        sinon.stub(orgService, 'get', function (args, done) {
+            done(null, test_org);
+        });
+
+        sinon.stub(Repo, 'findOne', function (args, done) {
+            done(null, test_repo);
+        });
     });
 
     afterEach(function () {
-        Repo.findOne.restore();
         github.direct_call.restore();
+        orgService.get.restore();
+        Repo.findOne.restore();
     });
 
     it('should get committer for a pull request', function (it_done) {
@@ -213,9 +221,10 @@ describe('repo:getPRCommitters', function () {
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
             assert(github.direct_call.called);
+
+            it_done();
         });
 
-        it_done();
     });
 
     it('should get author of commit if committer is a github bot', function (it_done) {
@@ -334,11 +343,33 @@ describe('repo:getPRCommitters', function () {
         setTimeout(it_done, 3500);
     });
 
-    it('should handle not found repo', function (it_done) {
-        Repo.findOne.restore();
-        sinon.stub(Repo, 'findOne', function (args, done) {
-            done(null, null);
+
+    it('should get list of committers for a pull request using linked org', function (it_done) {
+        test_repo = null;
+        test_org = { token: 'abc' };
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1',
+            orgId: 1
+        };
+
+        repo.getPRCommitters(arg, function (err, data) {
+            assert.ifError(err);
+            assert.equal(data.length, 2);
+            assert.equal(data[0].name, 'octocat');
+            assert.equal(orgService.get.calledWith({ orgId: 1 }), true);
+            assert.equal(Repo.findOne.called, false);
+            assert.equal(github.direct_call.called, true);
+
+            it_done();
         });
+
+    });
+
+    it('should handle request for not linked repos and orgs', function (it_done) {
+        test_repo = null;
+
         var arg = {
             repo: 'myRepo',
             owner: 'owner',

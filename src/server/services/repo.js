@@ -5,6 +5,7 @@ var Repo = mongoose.model('Repo');
 //services
 var github = require('../services/github');
 var logger = require('../services/logger');
+var orgService = require('../services/org');
 
 //services
 var url = require('../services/url');
@@ -109,6 +110,8 @@ module.exports = {
     },
 
     getPRCommitters: function (args, done) {
+        var self = this;
+
         var callGithub = function (arg) {
             var committers = [];
 
@@ -153,19 +156,29 @@ module.exports = {
             });
         };
 
-        Repo.findOne(selection(args), function (e, repo) {
-            if (e || !repo) {
-                var errorMsg = e;
-                errorMsg += 'with following arguments: ' + JSON.stringify(args);
-                logger.error(new Error(errorMsg).stack);
-                done(errorMsg);
-                return;
-            }
-
+        var collectTokenAndCallGithub = function (args, item) {
+            args.token = item.token;
             args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
-            args.token = repo.token;
 
             callGithub(args);
+        };
+
+        orgService.get({orgId: args.orgId}, function (e, org) {
+            if (!org) {
+                self.get(args, function (e, repo) {
+                    if (e || !repo) {
+                        var errorMsg = e;
+                        errorMsg += 'with following arguments: ' + JSON.stringify(args);
+                        logger.error(new Error(errorMsg).stack);
+                        done(errorMsg);
+                            return;
+                    }
+
+                    collectTokenAndCallGithub(args, repo);
+                });
+            } else {
+                collectTokenAndCallGithub(args, org);
+            }
         });
     },
 

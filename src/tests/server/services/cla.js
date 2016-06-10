@@ -241,7 +241,6 @@ describe('cla:check', function () {
 
             assert(org_service.get.called);
             assert(CLA.findOne.calledWith(expArgs.claFindOne));
-                                console.log('I am here!!!!!', result);
             assert.ifError(err);
             assert(result);
             it_done();
@@ -540,7 +539,6 @@ describe('cla:sign', function () {
         sinon.stub(CLA, 'create', function (args, done) {
             assert(args);
             assert(args.repoId || args.ownerId);
-            console.log('cla sign!!!!! 4 stub', args);
             assert(args.gist_url);
             assert(args.gist_version);
             done(testErr.claCreate, testRes.claCreate);

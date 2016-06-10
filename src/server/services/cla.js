@@ -17,7 +17,6 @@ module.exports = function () {
         var deferred = q.defer();
         try {
             var gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
-                console.log('cla sign!!!!! 1.1', gist_url, gistArray);
             var id = gistArray[gistArray.length - 1];
         } catch (ex) {
             deferred.reject('The gist url "' + gist_url + '" seems to be invalid');
@@ -45,14 +44,10 @@ module.exports = function () {
                 data += chunk;
             });
             res.on('end', function () {
-                console.log('cla sign!!!!! 1.2', data);
                 try {
                     data = JSON.parse(data);
-                    console.log('cla sign!!!!! 1.2.1');
                 } catch (e) {
                     logger.warn(new Error(e).stack);
-                    console.log('cla sign!!!!! 1.2.2');
-
                 }
                 deferred.resolve(data);
             });
@@ -104,11 +99,8 @@ module.exports = function () {
 
     var check = function (repo, owner, gist_url, user, pr_number, token, repoId, orgId) {
         var deferred = q.defer();
-                            console.log('cla sign!!!!! 1', gist_url, token);
 
         getGistObject(gist_url, undefined, token).then(function (gist) {
-                            console.log('cla sign!!!!! 2', gist);
-
             if (!gist.history) {
                 deferred.reject('No versions found for the given gist url');
                 return;
@@ -268,8 +260,6 @@ module.exports = function () {
             if (!args.gist || !args.token) {
                 getRepoOrOrg(function (e, item) {
 
-                    console.log('cla sign!!!!! 0.0.2');
-
                     if (e || !item || !item.gist) {
                         done(e, false);
                         return;
@@ -282,12 +272,7 @@ module.exports = function () {
                         args.repoId = item.repoId;
                     }
 
-                    console.log('cla sign!!!!! 0.1', args);
-
                     check(args.repo, args.owner, args.gist, args.user, args.number, item.token, args.repoId, args.orgId).then(function (result) {
-
-                        console.log(result.signed, result.user_map);
-
                         done(null, result.signed, result.user_map);
                     }, function (err) {
                         done(err);
@@ -308,7 +293,6 @@ module.exports = function () {
             var org, repo;
 
             getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
-                console.log('cla sign!!!!! 0.0.1', args, ' - Item: ', item);
                 org = item.orgId ? item : undefined;
                 repo = item.orgId ? undefined : item;
 
@@ -333,8 +317,6 @@ module.exports = function () {
                         argsToCreate.repoId = repo ? repo.repoId : undefined;
                         argsToCreate.user = args.user;
                         argsToCreate.userId = args.userId;
-
-                        console.log('cla sign!!!!! 3', argsToCreate);
 
                         self.create(argsToCreate, function (error) {
                             if (error) {
