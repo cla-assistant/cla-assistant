@@ -7,6 +7,7 @@ var pullRequest = require('../../../server/services/pullRequest');
 var status = require('../../../server/services/status');
 var cla = require('../../../server/services/cla');
 var repoService = require('../../../server/services/repo');
+var orgService = require('../../../server/services/org');
 var logger = require('../../../server/services/logger');
 
 // webhook under test
@@ -265,8 +266,8 @@ describe('webhook pull request', function () {
 		});
 
 		sinon.stub(repoService, 'get', function (args, done) {
-			assert(args.repo);
-			assert(args.owner);
+			assert(args.repoId);
+			// assert(args.ownerId);
 			done(null, {
 				repo: 'requestedRepo'
 			});
@@ -288,17 +289,23 @@ describe('webhook pull request', function () {
 			assert(args.repo);
 			assert(args.number);
 			assert(args.signed !== undefined);
-		});
+        });
 
+        sinon.stub(orgService, 'get', function(args, done) {
+            assert(args.orgId);
+            done(null, {
+                org: 'orgOfRequestedRepo'
+			});
+        });
 	});
 
 	afterEach(function () {
-		repoService.get.restore();
-		repoService.getPRCommitters.restore();
-
-		pullRequest.badgeComment.restore();
-		status.update.restore();
 		cla.check.restore();
+		orgService.get.restore();
+		pullRequest.badgeComment.restore();
+        repoService.get.restore();
+		repoService.getPRCommitters.restore();
+		status.update.restore();
 	});
 
 	it('should update status of pull request if not signed', function (it_done) {
@@ -360,9 +367,27 @@ describe('webhook pull request', function () {
 		it_done();
 	});
 
-	it('should do nothing if the pull request hook comes from unknown repository', function(){
+    it('should update status of PR even if repo is unknown but from known org', function() {
 		repoService.get.restore();
 		sinon.stub(repoService, 'get', function (args, done) {
+			done(null, null);
+		});
+
+		pull_request(test_req, res);
+
+		assert.equal(repoService.get.called, true);
+		assert.equal(orgService.get.called, true);
+		assert.equal(repoService.getPRCommitters.called, true);
+		assert.equal(cla.check.called, true);
+    });
+
+    it('should do nothing if the pull request hook comes from unknown repository and unknown org', function() {
+		repoService.get.restore();
+		sinon.stub(repoService, 'get', function (args, done) {
+			done(null, null);
+		});
+		orgService.get.restore();
+		sinon.stub(orgService, 'get', function (args, done) {
 			done(null, null);
 		});
 

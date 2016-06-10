@@ -39,4 +39,30 @@ describe('org:create', function () {
             it_done();
         });
     });
+
+});
+describe('org:create', function() {
+    afterEach(function() {
+        Org.findOne.restore();
+    });
+
+    it('should create org entry ', function(it_done) {
+        sinon.stub(Org, 'findOne', function(args, done) {
+            assert(args.orgId);
+            done(null, {
+                org: args.org
+            });
+        });
+
+        var args = {
+            orgId: testData.orgs[0].id,
+            org: testData.orgs[0].login,
+        };
+
+        org.get(args, function (err, org) {
+            assert.ifError(err);
+            assert(org);
+            it_done();
+        });
+    });
 });

@@ -41,5 +41,9 @@ module.exports = {
         }, function(err, org) {
             done(err, org);
         });
+    },
+
+    get: function(args, done) {
+        Org.findOne(args, done);
     }
 };

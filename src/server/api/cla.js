@@ -20,7 +20,7 @@ module.exports = {
                 gist: req.args.gist
             }, done);
         } else {
-            cla.getRepo(req.args, function (err, repo) {
+            repoService.get(req.args, function (err, repo) {
                 if (err || !repo) {
                     log.warn(new Error(err).stack, 'with args: ', req.args);
                     done(err);
@@ -98,7 +98,7 @@ module.exports = {
     //Get users last signature for given repository (if repo is currently linked)
     //Parameters: repo, owner (mandatory)
     getLastSignature: function (req, done) {
-        cla.getRepo(req.args, function (err, repo) {
+        repoService.get(req.args, function (err, repo) {
             if (err || !repo) {
                 log.warn(err);
                 done(err);
@@ -137,7 +137,7 @@ module.exports = {
             if (params.gist && params.gist.gist_url && params.gist.gist_version) {
                 cb();
             } else{
-                cla.getRepo(req.args, function(err, repo){
+                repoService.get(req.args, function(err, repo){
                     if (err || !repo) {
                         cb();
                     }

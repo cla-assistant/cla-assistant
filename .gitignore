@@ -17,3 +17,4 @@ src/client/app.min.js.map
 log
 log.*
 .vscode/*
+jsconfig.json

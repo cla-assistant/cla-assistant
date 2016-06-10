@@ -32,18 +32,19 @@ describe('', function() {
     beforeEach(function() {
         reqArgs = {
             cla: {
-                getRepo: {
-                    repo: 'Hello-World',
-                    owner: 'octocat'
-                },
                 getGist: {
                     gist: testData.repo_from_db.gist
+                }
+            },
+            repoService: {
+                get: {
+                    repo: 'Hello-World',
+                    owner: 'octocat'
                 }
             }
         };
         resp = {
             cla: {
-                getRepo: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
                 getGist: JSON.parse(JSON.stringify(testData.gist)) //clone object
             },
             github: {
@@ -60,24 +61,25 @@ describe('', function() {
                     id: 1,
                     login: 'one'
                 }
+            },
+            repoService: {
+                get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
             }
         };
         error = {
             cla: {
-                getRepo: null,
                 getGist: null,
             },
             github: {
                 pullReqest: null,
                 markdown: null,
                 user: null
+            },
+            repoService: {
+                get: null
             }
         };
 
-        sinon.stub(cla, 'getRepo', function(args, cb) {
-            assert.deepEqual(args, reqArgs.cla.getRepo);
-            cb(error.cla.getRepo, resp.cla.getRepo);
-        });
 
         sinon.stub(cla, 'getGist', function(args, cb) {
             if (args.gist && args.gist.gist_url) {
@@ -100,9 +102,13 @@ describe('', function() {
                 cb(error.github.markdown, resp.github.callUser);
             }
         });
+        sinon.stub(repo_service, 'get', function(args, cb) {
+            assert.deepEqual(args, reqArgs.repoService.get);
+            cb(error.repoService.get, resp.repoService.get);
+        });
     });
     afterEach(function() {
-        cla.getRepo.restore();
+        repo_service.get.restore();
         cla.getGist.restore();
         github.call.restore();
     });
@@ -119,7 +125,7 @@ describe('', function() {
             };
 
             cla_api.get(req, function() {
-                assert(cla.getRepo.called);
+                assert(repo_service.get.called);
                 assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: 'user_token' }));
                 it_done();
             });
@@ -134,7 +140,7 @@ describe('', function() {
             };
 
             cla_api.get(req, function() {
-                assert(cla.getRepo.called);
+                assert(repo_service.get.called);
                 assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: testData.repo_from_db.token }));
 
                 it_done();
@@ -142,7 +148,7 @@ describe('', function() {
         });
 
         it('should get gist and render it without user token', function(it_done) {
-            resp.cla.getRepo.token = undefined;
+            resp.repoService.get.token = undefined;
 
             var req = {
                 args: {
@@ -152,7 +158,7 @@ describe('', function() {
             };
 
             cla_api.get(req, function() {
-                assert(cla.getRepo.called);
+                assert(repo_service.get.called);
                 assert(github.call.calledWithMatch({ obj: 'markdown', fun: 'render', token: undefined }));
 
                 it_done();
@@ -202,7 +208,7 @@ describe('', function() {
             };
 
             cla_api.get(req, function() {
-                assert(cla.getRepo.called);
+                assert(repo_service.get.called);
 
                 it_done();
             });
@@ -294,14 +300,16 @@ describe('', function() {
                     gist: testData.repo_from_db.gist
                 }
             };
-
-            sinon.stub(repo_service, 'get', function(args, cb) {
-                assert(args);
-                cb(null, {
+            resp.repo_service = {
+                get: {
                     gist: testData.repo_from_db.gist,
                     token: 'abc.cla.getAll'
-                });
-            });
+                }
+            };
+            // sinon.stub(repo_service, 'get', function(args, cb) {
+            //     assert(args);
+            //     cb(null, );
+            // });
 
             sinon.stub(statusService, 'update', function(args) {
                 assert(args.signed);
@@ -322,11 +330,11 @@ describe('', function() {
         });
 
         afterEach(function() {
-            statusService.update.restore();
-            repo_service.get.restore();
             cla.check.restore();
             cla.sign.restore();
+            // repo_service.get.restore();
             prService.editComment.restore();
+            statusService.update.restore();
         });
 
         it('should call cla service on sign', function(it_done) {
@@ -530,8 +538,8 @@ describe('', function() {
             };
             req.user.token = 'user_token';
 
-            resp.cla.getRepo = null;
-            error.cla.getRepo = 'There is no repo.';
+            resp.repoService.get = null;
+            error.repoService.get = 'There is no repo.';
 
             cla_api.getGist(req, function(err) {
                 assert.ifError(err);
@@ -544,8 +552,8 @@ describe('', function() {
         it('should fail calling cla service getGist with user token even if repo is not linked anymore when no gist is provided', function(it_done) {
             req.user.token = 'user_token';
 
-            resp.cla.getRepo = null;
-            error.cla.getRepo = 'There is no repo.';
+            resp.repoService.get = null;
+            error.repoService.get = 'There is no repo.';
 
             cla_api.getGist(req, function(err) {
                 assert(err);
@@ -576,7 +584,7 @@ describe('', function() {
         });
 
         it('should call getAll on countCLA', function(it_done) {
-            reqArgs.cla.getRepo.gist = {
+            reqArgs.repoService.get.gist = {
                 gist_url: testData.repo_from_db.gist,
                 gist_version: testData.gist.history[0].version
             };
@@ -595,7 +603,7 @@ describe('', function() {
             });
         });
         it('should get gist version if not provided', function(it_done) {
-            reqArgs.cla.getRepo.gist = {
+            reqArgs.repoService.get.gist = {
                 gist_url: testData.repo_from_db.gist
             };
             req.args.gist = {
