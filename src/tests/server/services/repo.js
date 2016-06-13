@@ -10,6 +10,7 @@ var Repo = require('../../../server/documents/repo').Repo;
 //services
 var github = require('../../../server/services/github');
 var url = require('../../../server/services/url');
+var config = require('../../../config');
 
 // service under test
 var repo = require('../../../server/services/repo');
@@ -203,6 +204,33 @@ describe('repo:getPRCommitters', function () {
             assert.equal(argums.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
             done(null, {
                 data: testData.commit
+            });
+        });
+
+        repo.getPRCommitters(arg, function (err, data) {
+            assert.ifError(err);
+            assert.equal(data.length, 1);
+            assert.equal(data[0].name, 'octocat');
+            assert(Repo.findOne.called);
+            assert(github.direct_call.called);
+        });
+
+        it_done();
+    });
+
+    it('should get author of commit if committer is a github bot', function (it_done) {
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function (argums, done) {
+            assert(argums.token);
+            assert.equal(argums.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
+            done(null, {
+                data: testData.commit_done_by_bot
             });
         });
 
