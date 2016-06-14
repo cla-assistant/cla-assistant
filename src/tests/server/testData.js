@@ -15,6 +15,10 @@ var testData = {
             'public_members_url': 'https://api.github.com/orgs/github/public_members{/member}',
             'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
             'description': 'A great organization'
+        },
+        {
+            'login': 'testOrg',
+            'id': 2
         }
     ],
 

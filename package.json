@@ -31,7 +31,7 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
-    "github": "^0.2.4",
+    "github": "^1.1.2",
     "glob": "^6.0.4",
     "merge": "^1.2.0",
     "mongoose": "^4.4.6",

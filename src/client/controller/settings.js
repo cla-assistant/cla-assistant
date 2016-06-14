@@ -68,7 +68,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         var getGithubUserData = function (login) {
-            return $HUBService.call('user', 'getFrom', {
+            return $HUBService.call('users', 'getFrom', {
                 user: login
             });
         };

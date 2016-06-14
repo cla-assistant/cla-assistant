@@ -49,7 +49,7 @@ module.controller( 'ClaController', ['$window', '$scope', '$stateParams', '$RAW'
 				}
 
                 var getUser = function(){
-                    return $HUBService.call('user', 'get', {}, function(err, res){
+                    return $HUBService.call('users', 'get', {}, function(err, res){
                         if (err) {
                             return;
                         }

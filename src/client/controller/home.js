@@ -94,7 +94,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             };
 
-            return $HUBService.call('user', 'get', {}, function(err, res) {
+            return $HUBService.call('users', 'get', {}, function(err, res) {
                 if (err) {
                     return;
                 }
@@ -144,9 +144,15 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
+        var getLinkedOrgs = function () {
+            $RPCService.call('org', 'getForUser', {}, function (err, data) {
+                $scope.claOrgs = data && data.value ? data.value : $scope.claOrgs;
+            });
+        };
+
         var getOrgs = function() {
             var deferred = $q.defer();
-            var promise = $scope.user.value.org_admin ? $HUBService.call('user', 'getOrgs', {}) : deferred.promise;
+            var promise = $scope.user.value.org_admin ? $HUBService.call('users', 'getOrgs', {}) : deferred.promise;
 
             deferred.resolve();
             promise.then(function(data) {
@@ -267,6 +273,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         getUser().then(function() {
             getOrgs().then(getRepos);
+            getLinkedOrgs();
             getGists();
         }, function() {
             $scope.count();
