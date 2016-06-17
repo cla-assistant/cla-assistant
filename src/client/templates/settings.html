@@ -5,8 +5,8 @@
             <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
                 <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
             </a>
-            <a ng-if="item.org" ng-href="https://github.com/{{ item.login }}" target="space">
-                &nbsp; {{ item.login }}
+            <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space">
+                <img src="{{item.avatar_url}}" alt="" class="org">&nbsp; {{ item.org }}
             </a>
         </div>
     </div>

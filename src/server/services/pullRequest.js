@@ -157,6 +157,8 @@ module.exports = {
 				}
 			});
 		});
-		done();
+		if (typeof done === 'function') {
+			done();
+		}
 	}
 };

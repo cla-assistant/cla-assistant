@@ -9,11 +9,13 @@ var CLA = require('mongoose').model('CLA');
 var logger = require('../services/logger');
 var orgService = require('../services/org');
 var repoService = require('../services/repo');
+var config = require('../../config');
 
 module.exports = function () {
     var claService;
 
     var getGistObject = function (gist_url, gist_version, token) {
+            console.log('check->gist 1 ', gist_url, token);
         var deferred = q.defer();
         try {
             var gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
@@ -101,6 +103,7 @@ module.exports = function () {
         var deferred = q.defer();
 
         getGistObject(gist_url, undefined, token).then(function (gist) {
+            console.log('check->gist ', gist);
             if (!gist.history) {
                 deferred.reject('No versions found for the given gist url');
                 return;
@@ -118,7 +121,7 @@ module.exports = function () {
 
             if (user) {
                 claService.get(args, function (error, cla) {
-                    deferred.resolve({signed: !!cla});
+                    deferred.resolve({ signed: !!cla });
                 });
             }
             else if (pr_number) {
@@ -176,16 +179,21 @@ module.exports = function () {
 
     var getLinkedItem = function (repo, owner, token) {
         var deferred = q.defer();
-        var linkedItem = {};
+        token = token || config.server.github.token;
+
         repoService.getGHRepo({ owner: owner, repo: repo, token: token }, function (e, ghRepo) {
-            var repoPromise = repoService.get({ repoId: ghRepo.id }).then(function (linkedRepo) {
-                linkedItem = linkedItem.orgId ? linkedItem : linkedRepo;
-            });
-            var orgPromise = orgService.get({ orgId: ghRepo.owner.id }).then(function (linkedOrg) {
-                linkedItem = linkedOrg ? linkedOrg : linkedItem;
-            });
-            q.all([repoPromise, orgPromise]).then(function () {
-                deferred.resolve(linkedItem);
+            orgService.get({ orgId: ghRepo.owner.id }, function (err, linkedOrg) {
+                if (!linkedOrg) {
+                    repoService.get({ repoId: ghRepo.id }, function (error, linkedRepo) {
+                        if (linkedRepo) {
+                            deferred.resolve(linkedRepo);
+                        } else {
+                            deferred.reject(error);
+                        }
+                    });
+                } else {
+                    deferred.resolve(linkedOrg);
+                }
             });
         });
         return deferred.promise;
@@ -227,6 +235,8 @@ module.exports = function () {
                     findCla();
                 });
             } else if (args.orgId) {
+            console.log('check->get args:', args);
+
                 query.ownerId = args.orgId;
                 query.org_cla = true;
                 findCla();
@@ -253,17 +263,17 @@ module.exports = function () {
 
 
         check: function (args, done) {
-            function getRepoOrOrg(cb) {
-                return args.orgId ? getOrg(args, cb) : getRepo(args, cb);
-            }
-
+            // function getRepoOrOrg(cb) {
+            //     return args.orgId ? getOrg(args, cb) : getRepo(args, cb);
+            // }
             if (!args.gist || !args.token) {
-                getRepoOrOrg(function (e, item) {
-
-                    if (e || !item || !item.gist) {
-                        done(e, false);
-                        return;
-                    }
+                    console.log('cla:check->args', args);
+                getLinkedItem(args.repo, args.owner, args.token).then( function (item) {
+                    // if (!item || !item.gist) {
+                    //     done(e, false);
+                    //     return;
+                    // }
+                    console.log('cla:check->item', item);
 
                     args.gist = item.gist;
                     if (item.orgId) {
@@ -278,6 +288,8 @@ module.exports = function () {
                         done(err);
                     });
 
+                }, function (e) {
+                    done(e);
                 });
             } else {
                 check(args.repo, args.owner, args.gist, args.user, args.number, args.token, args.repoId, args.orgId).then(function (result) {
@@ -307,13 +319,12 @@ module.exports = function () {
 
                     getGistObject(item.gist, undefined, item.token).then(function (gist) {
                         var argsToCreate = {};
-
                         argsToCreate.gist = repo ? repo.gist : org.gist;
                         argsToCreate.gist_version = gist.history[0].version;
                         argsToCreate.owner = repo ? repo.owner : org.org;
                         argsToCreate.ownerId = repo ? repo.ownerId : org.orgId;
                         argsToCreate.org_cla = org ? true : false;
-                        argsToCreate.repo = repo ? repo.repo : undefined;
+                        argsToCreate.repo = repo ? repo.repo : args.repo;
                         argsToCreate.repoId = repo ? repo.repoId : undefined;
                         argsToCreate.user = args.user;
                         argsToCreate.userId = args.userId;
@@ -370,6 +381,21 @@ module.exports = function () {
             });
         },
 
+        // Get linked repo or org
+        // Params:
+        // repo (mandatory)
+        // owner (mandatory)
+        // token (optional)
+        getLinkedItem: function (args, done) {
+            getLinkedItem(args.repo, args.owner, args.token).then(
+                function (item) {
+                    done(null, item);
+                }, function (err) {
+                    done(err);
+                }
+            );
+        },
+
         // updateDBData: function(req, done){
         //     logger.info(req.user);
         //     CLA.find({}, function(err, clas){
@@ -397,8 +423,8 @@ module.exports = function () {
 
         //Get all signed CLAs for given repo and gist url and/or a given gist version
         //Params:
-        //	repo (mandatory)
-        //	owner (mandatory)
+        //	repoId (mandatory) or
+        //	orgId (mandatory) and
         //	gist.gist_url (mandatory)
         //	gist.gist_version (optional)
         getAll: function (args, done) {
@@ -406,24 +432,16 @@ module.exports = function () {
             if (args.gist.gist_version) {
                 selection.gist_version = args.gist.gist_version;
             }
-            var findClas = function () {
-                CLA.find(selection, done);
-            };
             if (args.repoId) {
                 selection.repoId = args.repoId;
-                findClas();
-            } else {
-                getRepo(args, function (err, repo) {
-                    if (!err && repo) {
-                        selection.repoId = repo.repoId;
-                        findClas();
-                    } else {
-                        done(err);
-                    }
-
-                });
             }
+            if (args.orgId) {
+                selection.orgId = args.orgId;
+            }
+
+            CLA.find(selection, done);
         },
+
         create: function (args, done) {
             var now = new Date();
 

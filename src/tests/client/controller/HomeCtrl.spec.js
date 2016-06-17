@@ -314,9 +314,19 @@ describe('Home Controller', function () {
     });
 
     it('should get claOrgs for user if user has admin rights', function () {
-        expRes.RPC.org = { getForUser: { value: [testDataOrgs[0]] } };
+        githubResponse.meta.scopes += ', admin:org_hook';
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
         httpBackend.flush();
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
+        (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
+    });
+
+    it('should get claOrgs but not github orgs if user has no admin:org_hook rights', function () {
+        expRes.RPC.org = { getForUser: { value: [{orgId: 1}] } };
+        httpBackend.flush();
+
+        (homeCtrl.scope.orgs.length).should.be.equal(0);
+        (!homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(true);
     });
 
     it('should check whether the user has admin:org_hook right', function () {

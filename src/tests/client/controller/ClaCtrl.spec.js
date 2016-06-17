@@ -3,8 +3,8 @@
 
 angular.module('app');
 describe('CLA Controller', function() {
-    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, repoExists, claSigned, claText, _HUBService;
-
+    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, _HUBService;
+    var linkedItem;
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
     beforeEach(angular.mock.module(function($provide){
@@ -36,15 +36,16 @@ describe('CLA Controller', function() {
 
         user.value = {id: 123, login: 'login'};
         user.meta = {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'};
-        repoExists = true;
         claSigned = true;
-        claText = {raw: '<p>cla text</p>'};
+        claText = { raw: '<p>cla text</p>' };
+        linkedItem = { repoId: 1 };
+
 
         createCtrl = function() {
             // httpBackend.when('POS  T', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(user);
-            httpBackend.when('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(repoExists);
+            httpBackend.when('POST', '/api/cla/getLinkedItem', {repo: stateParams.repo, owner: stateParams.user}).respond(linkedItem);
             httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(claSigned);
-            httpBackend.when('POST', '/api/cla/get', {repo: stateParams.repo, owner: stateParams.user}).respond(claText);
+            httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claText);
 
             var ctrl = $controller('ClaController', {
                 $scope: scope,
@@ -66,6 +67,21 @@ describe('CLA Controller', function() {
         user.value = {};
         user.meta = {};
         claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+    });
+
+    it('should get CLA text with orgid', function() {
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+        linkedItem = { orgId: 2 };
+
+        httpBackend.expect('POST', '/api/cla/get', { orgId: linkedItem.orgId }).respond(claText);
 
         claController = createCtrl();
         httpBackend.flush();
@@ -122,6 +138,15 @@ describe('CLA Controller', function() {
         httpBackend.flush();
 
         (claCheckWasCalled).should.not.be.ok;
+    });
+
+    it('should get linkedItem of the repo', function () {
+        claController = createCtrl();
+
+        httpBackend.expect('POST', '/api/cla/getLinkedItem', { repo: stateParams.repo, owner: stateParams.user }).respond(linkedItem);
+        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
+
+        httpBackend.flush();
     });
 
     it('should check whether user has signed CLA already or not and logout user if already signed', function(){
@@ -184,17 +209,17 @@ describe('CLA Controller', function() {
         (_window.location.href).should.be.equal('/accept/login/myRepo');
     });
 
-    it('should not load cla if repo does not exist', function(){
+    it('should not load cla if no linked item exists', function(){
         claController = createCtrl();
 
-        httpBackend.expect('POST', '/api/repo/check', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
+        httpBackend.expect('POST', '/api/cla/getLinkedItem', {repo: stateParams.repo, owner: stateParams.user}).respond(false);
         httpBackend.flush();
 
-        (claController.scope.repoExists).should.not.be.ok;
+        (claController.scope.linkedItem).should.not.be.ok;
     });
 
     it('should not check whether user has signed cla if repo does not exist', function(){
-        repoExists = false;
+        linkedItem = false;
         var claCheckWasCalled = false;
         claController = createCtrl();
 

@@ -30,7 +30,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
             return args;
         }
-
         // var validateGistUrl = function (gist_url) {
         //     var valid = false;
         //     valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
@@ -44,12 +43,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getSignatures = function (claRepo, gist_version, cb) {
+        $scope.getSignatures = function (linkedItem, gist_version, cb) {
             return $RPC.call('cla', 'getAll', {
-                repo: claRepo.repo,
-                owner: claRepo.owner,
+                repoId: linkedItem.repoId,
+                orgId: linkedItem.orgId,
                 gist: {
-                    gist_url: claRepo.gist,
+                    gist_url: linkedItem.gist,
                     gist_version: gist_version
                 }
             }, cb);
@@ -58,18 +57,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         var getWebhook = function () {
             return $RPCService.call('webhook', 'get', {
                 repo: $scope.item.repo,
-                user: $scope.item.owner
+                user: $scope.item.owner,
+                org: $scope.item.org
             }, function (err, obj) {
                 if (!err && obj && obj.value) {
                     webhook = obj.value;
                     $scope.valid.webhook = webhook.active;
                 }
-            });
-        };
-
-        var getGithubUserData = function (login) {
-            return $HUBService.call('users', 'getFrom', {
-                user: login
             });
         };
 
@@ -87,9 +81,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                         contributor.gist_version = signature.gist_version;
                         contributor.signed_at = signature.created_at;
                         $scope.contributors.push(contributor);
-                        getGithubUserData(signature.user).then(function (user) {
-                            contributor.html_url = user.html_url;
-                        });
                     });
                 }
             });
@@ -111,9 +102,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.getGistName = function () {
             var fileName = '';
-            if ($scope.gist && $scope.gist.files) {
+            if ($scope.gist.fileName) {
+                fileName = $scope.gist.fileName;
+            }
+            else if ($scope.gist && $scope.gist.files) {
                 fileName = Object.keys($scope.gist.files)[0];
                 fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
+                $scope.gist.fileName = fileName;
             }
             return fileName;
         };

@@ -14,16 +14,17 @@ var CLASchema = mongoose.Schema({
     org_cla: {type: Boolean, default: false },
 });
 
-CLASchema.index({
+var index = {
     repo: 1,
     owner: 1,
     user: 1,
     gist_url: 1,
     gist_version: 1,
     org_cla: 1
-}, {
+};
+var indexOptions = {
     unique: true
-});
+};
 
 var CLA = mongoose.model('CLA', CLASchema);
 
@@ -33,6 +34,7 @@ CLA.collection.dropAllIndexes(function(err, results) {
         logger.warn('dropAllIndexes results: ', results);
     }
 });
+CLA.collection.createIndex(index, indexOptions);
 
 module.exports = {
     CLA: CLA

@@ -24,6 +24,7 @@ module.exports = {
             user: process.env.GITHUB_USER,
             pass: process.env.GITHUB_PASS,
 
+            // required
             token: process.env.GITHUB_TOKEN,
 
             user_scope: ['user:email'],

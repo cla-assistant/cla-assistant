@@ -478,4 +478,15 @@ describe('pullRequest:editComment', function () {
 			it_done();
 		});
 	});
+
+	it('should not fail if no callback provided', function () {
+		var args = {
+			repo: 'myRepo',
+			owner: 'owner',
+			number: 1,
+			signed: true
+		};
+
+		pullRequest.editComment(args);
+	});
 });

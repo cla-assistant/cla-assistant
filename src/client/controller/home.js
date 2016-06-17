@@ -52,6 +52,22 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return !isInArray(repo, $scope.claRepos);
         };
 
+        var getLinkedOrgs = function () {
+            $RPCService.call('org', 'getForUser', {}, function (err, data) {
+                $scope.claOrgs = data && data.value ? data.value : $scope.claOrgs;
+
+                $scope.claOrgs.forEach(function (claOrg) {
+                    $scope.orgs.some(function (org) {
+                        if (org.id == claOrg.orgId) {
+                            claOrg.avatar_url = org.avatar_url;
+                            console.log(org.avatar_url);
+                            return true;
+                        }
+                    });
+                });
+            });
+        };
+
         var mixRepoData = function(claRepo) {
             $scope.repos.some(function(repo) {
                 if (claRepo.repo === repo.name && claRepo.owner === repo.owner.login) {
@@ -144,11 +160,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-        var getLinkedOrgs = function () {
-            $RPCService.call('org', 'getForUser', {}, function (err, data) {
-                $scope.claOrgs = data && data.value ? data.value : $scope.claOrgs;
-            });
-        };
 
         var getOrgs = function() {
             var deferred = $q.defer();
@@ -272,8 +283,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         getUser().then(function() {
-            getOrgs().then(getRepos);
-            getLinkedOrgs();
+            getOrgs().then(function () {
+                getLinkedOrgs();
+                getRepos();
+            });
             getGists();
         }, function() {
             $scope.count();
