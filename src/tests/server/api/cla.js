@@ -104,7 +104,6 @@ describe('', function () {
 
         sinon.stub(github, 'call', function (args, cb) {
             if (args.obj === 'pullRequests') {
-                console.log('github call PR');
                 assert(args.token);
 
                 cb(error.github.pullReqest, resp.github.callPullRequest);
@@ -466,7 +465,6 @@ describe('', function () {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
-            console.log(req);
 
             cla_api.getLastSignature(req, function (err) {
                 assert.ifError(err);

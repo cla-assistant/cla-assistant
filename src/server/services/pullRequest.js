@@ -1,6 +1,5 @@
 var url = require('./url');
 var github = require('./github');
-var repoService = require('./repo');
 var log = require('../services/logger');
 
 var commentText = function (signed, badgeUrl, claUrl, user_map) {
@@ -99,26 +98,19 @@ module.exports = {
 
 	getComment: function (args, done) {
 		args.url = url.githubPullRequestComments(args.owner, args.repo, args.number);
+		args.token = config.server.github.token;
 
-		repoService.get({
-			repo: args.repo,
-			owner: args.owner
-		}, function (err, result) {
-			if (result && !err) {
-				args.token = result.token;
+		github.direct_call(args, function (e, res) {
+			var CLAAssistantComment;
+			if (!e && res && res.data && !res.data.message) {
+				res.data.some(function (comment) {
+					if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
+						CLAAssistantComment = comment;
+						return true;
+					}
+				});
 			}
-			github.direct_call(args, function (e, res) {
-				var CLAAssistantComment;
-				if (!e && res && res.data && !res.data.message) {
-					res.data.some(function (comment) {
-						if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
-							CLAAssistantComment = comment;
-							return true;
-						}
-					});
-				}
-				done(e || res.data.message, CLAAssistantComment);
-			});
+			done(e || res.data.message, CLAAssistantComment);
 		});
 	},
 

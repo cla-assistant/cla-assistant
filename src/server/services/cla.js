@@ -15,7 +15,6 @@ module.exports = function () {
     var claService;
 
     var getGistObject = function (gist_url, gist_version, token) {
-            console.log('check->gist 1 ', gist_url, token);
         var deferred = q.defer();
         try {
             var gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
@@ -103,7 +102,6 @@ module.exports = function () {
         var deferred = q.defer();
 
         getGistObject(gist_url, undefined, token).then(function (gist) {
-            console.log('check->gist ', gist);
             if (!gist.history) {
                 deferred.reject('No versions found for the given gist url');
                 return;
@@ -236,8 +234,6 @@ module.exports = function () {
                     findCla();
                 });
             } else if (args.orgId) {
-            console.log('check->get args:', args);
-
                 query.ownerId = args.orgId;
                 query.org_cla = true;
                 findCla();
@@ -264,18 +260,8 @@ module.exports = function () {
 
 
         check: function (args, done) {
-            // function getRepoOrOrg(cb) {
-            //     return args.orgId ? getOrg(args, cb) : getRepo(args, cb);
-            // }
             if (!args.gist || !args.token) {
-                    console.log('cla:check->args', args);
                 getLinkedItem(args.repo, args.owner, args.token).then( function (item) {
-                    // if (!item || !item.gist) {
-                    //     done(e, false);
-                    //     return;
-                    // }
-                    console.log('cla:check->item', item);
-
                     args.gist = item.gist;
                     if (item.orgId) {
                         args.orgId = item.orgId;

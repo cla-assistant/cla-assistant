@@ -41,7 +41,7 @@ module.exports = {
     },
 
     get: function(req, done) {
-        if (!req.args || (!req.args.repo && !req.args.repoId)) {
+        if (!req.args || (!req.args.repo && !req.args.repoId && !req.args.orgId)) {
             log.info('args: ', req.args);
             log.info('request headers: ', req.headers);
             done('Please, provide owner and repo name');
@@ -288,7 +288,6 @@ module.exports = {
                 if (e) {
                     log.error(e);
                 }
-                console.log(item);
                 req.args.token = item.token;
                 self.validatePullRequests(req);
             });

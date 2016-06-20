@@ -25,8 +25,8 @@ module.exports = {
         var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
         github.call({
-          obj: 'statuses',
-          fun: 'create',
+          obj: 'repos',
+          fun: 'createStatus',
           arg: {
             user: args.owner,
             repo: args.repo,

@@ -294,7 +294,6 @@ describe('cla:check', function () {
         };
 
         cla.check(args, function (err, result) {
-            console.log(err, result);
             assert(err);
             assert(!result);
 
@@ -552,7 +551,6 @@ describe('cla:sign', function () {
             assert(args.userId);
             assert(args.gist_url);
             assert(args.gist_version);
-            console.log(args);
             done(testErr.claCreate, testRes.claCreate);
         });
 
