@@ -324,7 +324,7 @@ describe('webhook pull request', function () {
 				not_signed: ['test_user']
 			});
 		});
-		sinon.stub(pullRequest, 'badgeComment', function (owner, repo, repoId, prNumber, signed, user_map) {
+		sinon.stub(pullRequest, 'badgeComment', function (owner, repo, prNumber, signed, user_map) {
 			assert(user_map.not_signed);
 		});
 

@@ -436,7 +436,7 @@ module.exports = function () {
                 selection.repoId = args.repoId;
             }
             if (args.orgId) {
-                selection.orgId = args.orgId;
+                selection.ownerId = args.orgId;
             }
 
             CLA.find(selection, done);

@@ -35,7 +35,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 };
 
 module.exports = {
-	badgeComment: function (owner, repo, repoId, pullNumber, signed, user_map) {
+	badgeComment: function (owner, repo, pullNumber, signed, user_map) {
 		var badgeUrl = url.pullRequestBadge(signed);
 
 		this.getComment({
@@ -43,13 +43,13 @@ module.exports = {
 			owner: owner,
 			number: pullNumber
 		}, function (error, comment) {
-			repoService.get({
-				repo: repo,
-				owner: owner
-			}, function (err) {
-				if (err) {
-					log.info(err);
-				}
+			// repoService.get({
+			// 	repo: repo,
+			// 	owner: owner
+			// }, function (err) {
+			// 	if (err) {
+			// 		log.info(err);
+			// 	}
 				var claUrl = url.claURL(owner, repo, pullNumber);
 
 				var body = commentText(signed, badgeUrl, claUrl, user_map);
@@ -94,7 +94,7 @@ module.exports = {
 					});
 				}
 			});
-		});
+		// });
 	},
 
 	getComment: function (args, done) {

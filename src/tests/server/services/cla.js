@@ -832,7 +832,7 @@ describe('cla:getAll', function () {
 
         cla.getAll(args, function (err, arr) {
             assert.ifError(err);
-            assert.equal(CLA.find.calledWithMatch({ orgId: 1 }), true);
+            assert.equal(CLA.find.calledWithMatch({ ownerId: 1 }), true);
             assert.equal(arr.length, 2);
             assert.equal(arr[0].id, 2);
 

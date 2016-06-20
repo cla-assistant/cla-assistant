@@ -24,7 +24,6 @@ function handleWebHook(args) {
                     pullRequest.badgeComment(
                         args.owner,
                         args.repo,
-                        args.repoId,
                         args.number,
                         signed,
                         user_map

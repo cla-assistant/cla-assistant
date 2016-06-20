@@ -188,7 +188,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+		pullRequest.badgeComment('login', 'myRepo', 1);
 	});
 
 	it('should edit comment with cla-assistant user', function (it_done) {
@@ -201,7 +201,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+		pullRequest.badgeComment('login', 'myRepo', 1);
 	});
 
 	it('should add a note to the comment if there is a committer who is not a github user', function(it_done){
@@ -214,7 +214,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1'],
 			unknown: ['user1']
@@ -229,7 +229,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1'],
 			unknown: ['user1']
@@ -244,7 +244,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1', 'user2'],
 			unknown: ['user1', 'user2']
@@ -263,7 +263,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: ['user1'],
 			not_signed: ['user2']
 		});
@@ -280,7 +280,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user2']
 		});
@@ -298,7 +298,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: ['user1'],
 			not_signed: ['user2']
 		});
