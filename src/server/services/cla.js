@@ -125,6 +125,7 @@ module.exports = function () {
                 });
             }
             else if (pr_number) {
+                args.number = pr_number;
                 repoService.getPRCommitters(args, function (error, committers) {
                     if (error) {
                         logger.warn(new Error(error).stack);

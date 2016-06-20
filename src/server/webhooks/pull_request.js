@@ -48,11 +48,13 @@ module.exports = function (req, res) {
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
 
 		repoService.get(args, function(e, repo){
-			if (repo) {
+            if (repo) {
+                args.token = repo.token;
                 handleWebHook(args);
             } else {
                 orgService.get({ orgId: args.orgId }, function(err, org) {
                     if (org) {
+                        args.token = org.token;
                         handleWebHook(args);
                     }
                 });

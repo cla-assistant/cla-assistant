@@ -189,6 +189,7 @@ describe('cla:check', function () {
         });
 
         sinon.stub(repo_service, 'getPRCommitters', function (arg, done) {
+            assert(arg.number ? arg.number : arg.user);
             done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
         });
 

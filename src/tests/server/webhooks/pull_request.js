@@ -269,7 +269,8 @@ describe('webhook pull request', function () {
 			assert(args.repoId);
 			// assert(args.ownerId);
 			done(null, {
-				repo: 'requestedRepo'
+				repo: 'requestedRepo',
+				token: 'abc'
 			});
 		});
 
@@ -289,12 +290,14 @@ describe('webhook pull request', function () {
 			assert(args.repo);
 			assert(args.number);
 			assert(args.signed !== undefined);
+			assert(args.token);
         });
 
         sinon.stub(orgService, 'get', function(args, done) {
             assert(args.orgId);
             done(null, {
-                org: 'orgOfRequestedRepo'
+                org: 'orgOfRequestedRepo',
+				token: 'abc'
 			});
         });
 	});

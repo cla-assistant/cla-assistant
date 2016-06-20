@@ -171,6 +171,7 @@ module.exports = {
 
     validatePullRequests: function (req, done) {
         var pullRequests = [];
+        var token = req.args.token ? req.args.token : req.user.token;
         function collectData(err, res, meta) {
             if (err) {
                 log.error(err);
@@ -191,7 +192,8 @@ module.exports = {
                 pullRequests.forEach(function (pullRequest) {
                     var status_args = {
                         repo: req.args.repo,
-                        owner: req.args.owner
+                        owner: req.args.owner,
+                        token: token
                     };
                     status_args.number = pullRequest.number;
                     cla.check(status_args, function (cla_err, all_signed, user_map) {
@@ -224,7 +226,7 @@ module.exports = {
                 state: 'open',
                 per_page: 100
             },
-            token: req.args.token ? req.args.token : req.user.token
+            token: token
         }, collectData);
 
         // github.direct_call({

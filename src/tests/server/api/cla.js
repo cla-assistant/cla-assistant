@@ -756,6 +756,7 @@ describe('', function () {
             };
             sinon.stub(statusService, 'update', function (args) {
                 assert(args.signed);
+                assert(args.token);
             });
             sinon.stub(cla, 'check', function (args, cb) {
                 cb(null, true);
