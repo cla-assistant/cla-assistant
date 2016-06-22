@@ -7,10 +7,10 @@
 
 var isInArray = function(item, items) {
     function check(linkedItem) {
-        if (linkedItem.org) {
+        if (!item.full_name) {
             return linkedItem.org === item.login;
         } else {
-            return linkedItem.repo === item.name && linkedItem.owner === item.owner.login;
+            return (linkedItem.repo === item.name && linkedItem.owner === item.owner.login)  || linkedItem.org === item.owner.login;
         }
     }
     return items.some(check);
