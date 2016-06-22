@@ -45,7 +45,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
 
         $scope.logAdminIn = function() {
-            $window.location.href = '/auth/github?admin=true';
+            $window.location.href = '/auth/github';
         };
 
         $scope.isNotClaRepo = function(repo) {
@@ -78,7 +78,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return claRepo;
         };
 
-        var updateScopeData = function() {
+        var getLinkedRepos = function() {
             var repoSet = [];
             $scope.repos.forEach(function(repo) {
                 repoSet.push({
@@ -95,12 +95,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
                 $scope.claRepos = data.value;
                 $scope.claRepos.forEach(function(claRepo) {
-                    claRepo.active = claRepo.gist ? true : false;
+                    // claRepo.active = claRepo.gist ? true : false;
                     claRepo = mixRepoData(claRepo);
                 });
             });
 
-            $scope.reposAndOrgs = $scope.orgs.concat($scope.repos);
+            $scope.reposAndOrgs = $scope.user.value.org_admin ? $scope.orgs.concat($scope.repos) : $scope.repos;
         };
 
         var getUser = function() {
@@ -132,7 +132,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                         }
                     });
                     if ($scope.repos.length > 0) {
-                        updateScopeData();
+                        getLinkedRepos();
                     }
                 });
             }
@@ -162,10 +162,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
 
         var getOrgs = function() {
-            var deferred = $q.defer();
-            var promise = $scope.user.value.org_admin ? $HUBService.call('users', 'getOrgs', {}) : deferred.promise;
+            // var deferred = $q.defer();
+            // var promise = $scope.user.value.org_admin ? $HUBService.call('users', 'getOrgs', {}) : deferred.promise;
+            var promise = $HUBService.call('users', 'getOrgs', {});
 
-            deferred.resolve();
+            // deferred.resolve();
             promise.then(function(data) {
                 $scope.orgs = data && data.value ? data.value : $scope.orgs;
             });
@@ -229,19 +230,19 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-        $scope.confirmRemove = function(claRepo) {
+        $scope.confirmRemove = function(linkedItem) {
             var modal = $modal.open({
                 templateUrl: '/modals/templates/confirmRemove.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
                     selected: function() {
-                        return {item: claRepo};
+                        return {item: linkedItem};
                     }
                 }
             });
-            modal.result.then(function(repo) {
-                $scope.remove(repo);
+            modal.result.then(function(org) {
+                $scope.remove(org);
             });
         };
 
@@ -326,15 +327,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             }
         };
 
-        $scope.removeWebhook = function(claRepo) {
-            $RPCService.call('webhook', 'remove', {
-                repo: claRepo.repo,
-                user: claRepo.owner
-            }, function(err) {
-                if (!err) {
-                    claRepo.active = false;
-                }
-            });
+        $scope.removeWebhook = function (linkedItem) {
+            var arg = linkedItem.org ? {
+                org: linkedItem.org
+            } : {
+                repo: linkedItem.repo,
+                user: linkedItem.owner
+            };
+            $RPCService.call('webhook', 'remove', arg, function() {});
         };
 
 
@@ -348,7 +348,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 if (err && err.err.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 }
-                if (err || !data.value) {
+                else if (err || !data.value) {
+                    err && err.err ? showErrorMessage(err.err) : null;
                     $scope.removeWebhook(item);
                     deleteFromArray(item, linkedArray);
                 } else {
@@ -387,21 +388,21 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return $scope.isRepo($scope.selected.item) ? linkRepo() : linkOrg();
         };
 
-        $scope.remove = function(claRepo) {
-            $RPCService.call('repo', 'remove', {
-                repo: claRepo.repo,
-                owner: claRepo.owner,
-                gist: claRepo.gist
-            }, function(err) {
+        $scope.remove = function (linkedItem) {
+            var api = linkedItem.orgId ? 'org' : 'repo';
+            var removeArgs = linkedItem.orgId ?
+                {
+                    orgId: linkedItem.orgId
+                } : {
+                    repoId: linkedItem.repoId
+                };
+            $RPCService.call(api, 'remove', removeArgs, function(err) {
                 if (!err) {
-                    var i = $scope.claRepos.indexOf(claRepo);
-                    if (i > -1) {
-                        $scope.claRepos.splice(i, 1);
-                    }
+                    return api === 'org' ? getLinkedOrgs() : getLinkedRepos();
                 }
             });
 
-            $scope.removeWebhook(claRepo);
+            $scope.removeWebhook(linkedItem);
         };
 
         $scope.isActive = function(viewLocation) {

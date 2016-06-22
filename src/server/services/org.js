@@ -49,5 +49,9 @@ module.exports = {
 
     getMultiple: function (args, done) {
         Org.find({ orgId: { $in: args.orgId } }, done);
+    },
+
+    remove: function (args, done) {
+        Org.remove(args, done);
     }
 };

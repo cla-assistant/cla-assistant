@@ -146,20 +146,20 @@ module.exports = function () {
         return deferred.promise;
     };
 
-    var getOrg = function (args, done) {
-        var deferred = q.defer();
-        orgService.get(args, function (err, org) {
-            if (!err && org) {
-                deferred.resolve(org);
-            } else {
-                deferred.reject(err);
-            }
-            if (typeof done === 'function') {
-                done(err, org);
-            }
-        });
-        return deferred.promise;
-    };
+    // var getOrg = function (args, done) {
+    //     var deferred = q.defer();
+    //     orgService.get(args, function (err, org) {
+    //         if (!err && org) {
+    //             deferred.resolve(org);
+    //         } else {
+    //             deferred.reject(err);
+    //         }
+    //         if (typeof done === 'function') {
+    //             done(err, org);
+    //         }
+    //     });
+    //     return deferred.promise;
+    // };
 
     var getRepo = function (args, done) {
         var deferred = q.defer();

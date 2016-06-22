@@ -129,63 +129,73 @@ describe('webhook:get', function () {
 });
 
 describe('webhook:remove', function () {
-    it('should call github service with user token', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'findOne', function (args, done) {
+    var resGetHooks;
+    beforeEach(function () {
+        resGetHooks = [{ id: 123, config: { url: url.baseWebhook } }];
+        sinon.stub(github, 'call', function (args, done) {
+            if (args.fun === 'getHooks') {
+                done(null, resGetHooks);
+            } else if (args.fun === 'deleteHook') {
+                done();
+            }
+        });
+        sinon.stub(Repo, 'findOne', function (args, done) {
             var repo = { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId' };
             done(null, repo);
         });
+    });
+    afterEach(function () {
+        github.call.restore();
+        Repo.findOne.restore();
+    });
 
-        var githubStub = sinon.stub(github, 'call', function (args, done) {
-            if (args.fun === 'getHooks') {
-                done(null, [{ id: 123, config: { url: url.baseWebhook } }]);
-                return;
-            }
-
-            assert.deepEqual(args,
-                {
-                    obj: 'repos',
-                    fun: 'deleteHook',
-                    arg: {
-                        user: 'login',
-                        repo: 'myRepo',
-                        id: 123
-                    },
-                    token: 'abc'
-                });
-            done();
-        });
+    it('should call github service with user token for REPO hook', function (it_done) {
+        var expArgs = {
+            obj: 'repos',
+            fun: 'deleteHook',
+            arg: {
+                user: 'login',
+                repo: 'myRepo',
+                id: 123
+            },
+            token: 'abc'
+        };
 
         var req = { user: { id: 1, login: 'login', token: 'abc' }, args: { repo: 'myRepo', user: 'login' } };
 
         webhook_api.remove(req, function () {
-            githubStub.restore();
-            repoStub.restore();
+            assert(github.call.calledWith(expArgs));
+            it_done();
+        });
+    });
+
+    it('should call github service with user token for ORG hook', function (it_done) {
+        var expArgs = {
+            obj: 'orgs',
+            fun: 'deleteHook',
+            arg: {
+                org: 'octocat',
+                id: 123
+            },
+            token: 'abc'
+        };
+
+        var req = { user: { id: 1, login: 'login', token: 'abc' }, args: { org: 'octocat' } };
+
+        webhook_api.remove(req, function () {
+            assert(github.call.calledWith(expArgs));
             it_done();
         });
     });
 
     it('should report error if could not delete hook', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'findOne', function (args, done) {
-            var repo = { repo: 'myRepo', owner: 'login', gist: 'https://gist.github.com/myRepo/gistId' };
-            done(null, repo);
-        });
-
-        var githubStub = sinon.stub(github, 'call', function (args_act, done) {
-            if (args_act.fun === 'getHooks') {
-                done(null, [{ id: 123, config: { url: 'any other url' } }]);
-                return;
-            }
-
-            assert(args_act.fun);
-            done();
-        });
+        resGetHooks = [{ id: 123, config: { url: 'any other url' } }];
 
         var req = { user: { id: 1, login: 'login', token: 'abc' }, args: { repo: 'myRepo', user: 'login' } };
 
         webhook_api.remove(req, function (error) {
             assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
-            githubStub.restore();
-            repoStub.restore();
+
             it_done();
         });
     });

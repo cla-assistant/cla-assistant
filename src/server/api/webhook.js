@@ -34,21 +34,26 @@ function createOrgHook(req, done) {
     github.direct_call(args, done);
 }
 
+function extractGithubArgs(args) {
+    var obj = args.org ? 'orgs' : 'repos';
+    var arg = args.org ? {
+        org: args.org
+    } : {
+        user: args.user,
+        repo: args.repo
+        };
+    return { obj: obj, arg: arg };
+}
+
 module.exports = {
 
     get: function (req, done) {
+        var githubArgs = extractGithubArgs(req.args);
 
-        var obj = req.args.org ? 'orgs' : 'repos';
-        var arg = req.args.org ? {
-            org: req.args.org
-        } : {
-            user: req.args.user,
-            repo: req.args.repo
-        };
         github.call({
-            obj: obj,
+            obj: githubArgs.obj,
             fun: 'getHooks',
-            arg: arg,
+            arg: githubArgs.arg,
             token: req.user.token
         }, function callback(err, hooks) {
             var hook = null;
@@ -84,14 +89,13 @@ module.exports = {
                 done(err || 'No webhook found with base url ' + url.baseWebhook);
                 return;
             }
+            var githubArgs = extractGithubArgs(req.args);
+            githubArgs.arg.id = hook.id;
+
             github.call({
-                obj: 'repos',
+                obj: githubArgs.obj,
                 fun: 'deleteHook',
-                arg: {
-                    user: req.args.user,
-                    repo: req.args.repo,
-                    id: hook.id
-                },
+                arg: githubArgs.arg,
                 token: req.user.token
             }, done);
         });

@@ -42,7 +42,7 @@
         <button class="btn btn-info" ng-click="recheck(item)" style="margin-top:5px; width:100%">Recheck PRs</button>
         <button class="btn btn-info" ng-click="getBadge(item)" style="margin-top:5px; width:100%">Get Badge</button>
     </script>
-    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
+    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
              popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
         <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom" tooltip="Unlink"></i>

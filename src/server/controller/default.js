@@ -24,7 +24,7 @@ router.use('/accept/:owner/:repo', function(req, res) {
 
     } else {
 		req.session.next = req.originalUrl;
-		return res.redirect('/auth/github');
+		return res.redirect('/auth/github?public=true');
     }
 });
 

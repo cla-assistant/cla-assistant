@@ -85,3 +85,26 @@ describe('org:getMultiple', function() {
         });
     });
 });
+describe('org:remove', function() {
+    afterEach(function() {
+        Org.remove.restore();
+    });
+
+    it('should find org entry ', function(it_done) {
+        sinon.stub(Org, 'remove', function(args, done) {
+            assert(args.orgId);
+            done(null, {});
+        });
+
+        var args = {
+            orgId: testData.orgs[0].id,
+            org: testData.orgs[0].login,
+        };
+
+        org.remove(args, function (err, org) {
+            assert.ifError(err);
+            assert(org);
+            it_done();
+        });
+    });
+});
