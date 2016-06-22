@@ -38,9 +38,9 @@
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
-        <button class="btn btn-info" ng-click="upload(item)" style="width:100%">Import</button>
-        <button class="btn btn-info" ng-click="recheck(item)" style="margin-top:5px; width:100%">Recheck PRs</button>
-        <button class="btn btn-info" ng-click="getBadge(item)" style="margin-top:5px; width:100%">Get Badge</button>
+        <button class="btn btn-info" ng-click="upload(item)">Import</button>
+        <button class="btn btn-info" ng-click="recheck(item)">Recheck PRs</button>
+        <button class="btn btn-info" ng-click="getBadge(item)">Get Badge</button>
     </script>
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
