@@ -54,7 +54,7 @@
 					<ui-select-match placeholder="select">
 									<button class="fa fa-times clear-button" ng-click="clear($event, 'repo')" ng-show="$select.selected.name"></button>
 									{{$select.selected.full_name || $select.selected.login}}</ui-select-match>
-					<ui-select-choices  group-by="groupOrgs" repeat="item in reposAndOrgs | filter: $select.search |notIn:claRepos">
+					<ui-select-choices  group-by="groupOrgs" repeat="item in reposAndOrgs | filter: $select.search | notIn:claRepos | notIn:claOrgs">
 						  <span ng-if="item.full_name" class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"/>
 						  <span ng-if="item.full_name" ng-bind-html="item.full_name | highlight: $select.search"></span>
 						  <span ng-if="!item.full_name"><img src="{{item.avatar_url}}" alt="" style="width:20px"></span>

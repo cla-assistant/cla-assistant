@@ -5,11 +5,15 @@
 // path: /
 // *****************************************************
 
-var isInArray = function(item, repos) {
-    function check(claRepo) {
-        return claRepo.repo === item.name && claRepo.owner === item.owner.login;
+var isInArray = function(item, items) {
+    function check(linkedItem) {
+        if (linkedItem.org) {
+            return linkedItem.org === item.login;
+        } else {
+            return linkedItem.repo === item.name && linkedItem.owner === item.owner.login;
+        }
     }
-    return repos.some(check);
+    return items.some(check);
 };
 
 var deleteFromArray = function(item, array) {
@@ -48,23 +52,21 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $window.location.href = '/auth/github';
         };
 
-        $scope.isNotClaRepo = function(repo) {
-            return !isInArray(repo, $scope.claRepos);
+        var mixOrgData = function (claOrg) {
+            $scope.orgs.some(function (org) {
+                if (org.id == claOrg.orgId) {
+                    claOrg.avatar_url = org.avatar_url;
+                    console.log(org.avatar_url);
+                    return true;
+                }
+            });
         };
 
         var getLinkedOrgs = function () {
             $RPCService.call('org', 'getForUser', {}, function (err, data) {
                 $scope.claOrgs = data && data.value ? data.value : $scope.claOrgs;
 
-                $scope.claOrgs.forEach(function (claOrg) {
-                    $scope.orgs.some(function (org) {
-                        if (org.id == claOrg.orgId) {
-                            claOrg.avatar_url = org.avatar_url;
-                            console.log(org.avatar_url);
-                            return true;
-                        }
-                    });
-                });
+                $scope.claOrgs.forEach(mixOrgData);
             });
         };
 
@@ -314,10 +316,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.addWebhook = function(item) {
-            // $scope.gistValid = $scope.isValid($scope.repo.gist);
-            // if ($scope.repo.gist && !$scope.gistValid) {
-            //     return;
-            // }
             if (item.gist) {
                 $RPCService.call('webhook', 'create', item, function(err, data) {
                     if (!err && data && data.value) {
@@ -381,6 +379,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 org: $scope.selected.item.login,
                 gist: $scope.selected.gist.url
             };
+            mixOrgData(newClaOrg);
             return linkItem('org', newClaOrg);
         };
 
@@ -460,15 +459,15 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
     }]);
 
 filters.filter('notIn', function() {
-    return function(repos, arr) {
+    return function(items, arr) {
 
         if (arr.length === 0) {
-            return repos;
+            return items;
         }
 
         var notMatched = [];
 
-        repos.forEach(function(item) {
+        items.forEach(function(item) {
             if (!isInArray(item, arr)) {
                 notMatched.push(item);
             }

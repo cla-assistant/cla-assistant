@@ -478,7 +478,7 @@ describe('Home Controller', function () {
         homeCtrl.scope.link();
 
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
-        // (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
+        (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
         // (homeCtrl.scope.claRepos[1].active).should.be.ok;
         // (homeCtrl.scope.claRepos[1].fork).should.be.ok;
         calledApi.RPC.webhook.create.should.be.ok;
