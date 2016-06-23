@@ -109,7 +109,7 @@ describe('', function () {
                 cb(error.github.pullReqest, resp.github.callPullRequest);
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
-            } else if (args.obj === 'user') {
+            } else if (args.obj === 'users') {
                 cb(error.github.markdown, resp.github.callUser);
             }
         });
@@ -714,8 +714,8 @@ describe('', function () {
 
             cla_api.upload(req, function () {
                 assert(github.call.calledWith({
-                    obj: 'user',
-                    fun: 'getFrom',
+                    obj: 'users',
+                    fun: 'getForUser',
                     arg: {
                         user: 'one'
                     },
@@ -732,6 +732,22 @@ describe('', function () {
                 assert(github.call.called);
                 assert(cla.sign.calledWith({
                     repo: 'Hello-World',
+                    owner: 'octocat',
+                    user: 'one',
+                    userId: 1
+                }));
+                assert(cla.sign.calledTwice);
+                it_done();
+            });
+        });
+
+        it('should "sign" cla for linked org', function (it_done) {
+            req.args.users = ['one', 'two'];
+            req.args.repo = undefined;
+            cla_api.upload(req, function () {
+                assert(github.call.called);
+                assert(cla.sign.calledWith({
+                    repo: undefined,
                     owner: 'octocat',
                     user: 'one',
                     userId: 1

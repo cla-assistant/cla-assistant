@@ -180,21 +180,31 @@ module.exports = function () {
         var deferred = q.defer();
         token = token || config.server.github.token;
 
-        repoService.getGHRepo({ owner: owner, repo: repo, token: token }, function (e, ghRepo) {
-            orgService.get({ orgId: ghRepo.owner.id }, function (err, linkedOrg) {
-                if (!linkedOrg) {
-                    repoService.get({ repoId: ghRepo.id }, function (error, linkedRepo) {
-                        if (linkedRepo) {
-                            deferred.resolve(linkedRepo);
-                        } else {
-                            deferred.reject(error);
-                        }
-                    });
-                } else {
+        if (owner && !repo) {
+            orgService.get({ org: owner }, function (err, linkedOrg) {
+                if (linkedOrg) {
                     deferred.resolve(linkedOrg);
+                } else {
+                    deferred.reject(err);
                 }
             });
-        });
+        } else {
+            repoService.getGHRepo({ owner: owner, repo: repo, token: token }, function (e, ghRepo) {
+                orgService.get({ orgId: ghRepo.owner.id }, function (err, linkedOrg) {
+                    if (!linkedOrg) {
+                        repoService.get({ repoId: ghRepo.id }, function (error, linkedRepo) {
+                            if (linkedRepo) {
+                                deferred.resolve(linkedRepo);
+                            } else {
+                                deferred.reject(error);
+                            }
+                        });
+                    } else {
+                        deferred.resolve(linkedOrg);
+                    }
+                });
+            });
+        }
         return deferred.promise;
     };
 

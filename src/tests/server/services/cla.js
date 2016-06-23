@@ -546,7 +546,7 @@ describe('cla:sign', function () {
             assert(args);
 
             assert(args.repoId ? args.repoId : args.ownerId);
-            assert(args.repo);
+            assert(args.repo ? args.repo : args.org_cla);
             assert(args.owner);
             assert(args.userId);
             assert(args.gist_url);
@@ -621,6 +621,20 @@ describe('cla:sign', function () {
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
 
+            assert(CLA.create.calledWithMatch({ gist_url: 'url/gistId' }));
+            assert(org_service.get.called);
+
+            it_done();
+        });
+    });
+
+    it('should store signed cla data for org even without repo name', function (it_done) {
+        testArgs.claSign.repo = undefined;
+
+        cla.sign(testArgs.claSign, function () {
+            assert(CLA.create.called);
+
+            assert(!repo_service.getGHRepo.called);
             assert(CLA.create.calledWithMatch({ gist_url: 'url/gistId' }));
             assert(org_service.get.called);
 

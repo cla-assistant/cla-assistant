@@ -125,7 +125,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         //     $scope.errorMsg.push(error);
         // };
 
-        $scope.validateLinkedRepo = function () {
+        $scope.validateLinkedItem = function () {
             var promises = [];
             if ($scope.item.gist) {
                 $scope.loading = true;
@@ -139,7 +139,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.isLinkActive = function () {
-            return !$scope.loading && $scope.valid.gist && $scope.valid.webhook ? true : false;
+            return !$scope.loading && $scope.valid.gist && $scope.valid.webhook;
         };
 
         $scope.renderHtml = function (html_code) {
@@ -207,7 +207,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
         };
 
-        $scope.upload = function (claRepo) {
+        $scope.upload = function (linkedItem) {
             $scope.popoverIsOpen = false;
             var modal = $modal.open({
                 templateUrl: '/modals/templates/upload.html',
@@ -216,10 +216,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
             modal.result.then(function (users) {
                 $RPCService.call('cla', 'upload', {
-                    repo: claRepo.repo,
-                    owner: claRepo.owner,
+                    repo: linkedItem.repo,
+                    owner: linkedItem.owner || linkedItem.org,
                     users: users
-                }).then($scope.validateLinkedRepo);
+                }).then($scope.validateLinkedItem);
             });
         };
 
@@ -237,7 +237,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.validateLinkedRepo();
+        $scope.validateLinkedItem();
     }
 ]);
 

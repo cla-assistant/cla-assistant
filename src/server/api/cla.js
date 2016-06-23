@@ -311,8 +311,8 @@ module.exports = {
 
         async.each(users, function (user, callback) {
             github.call({
-                obj: 'user',
-                fun: 'getFrom',
+                obj: 'users',
+                fun: 'getForUser',
                 arg: {
                     user: user
                 },

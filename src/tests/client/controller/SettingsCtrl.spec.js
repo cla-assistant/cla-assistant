@@ -270,7 +270,7 @@ describe('Settings Controller', function () {
             });
         });
 
-        describe('on validateLinkedRepo', function () {
+        describe('on validateLinkedItem', function () {
             beforeEach(function () {
 
                 settingsCtrl.scope.gist = {};
@@ -284,7 +284,7 @@ describe('Settings Controller', function () {
                 sinon.spy(scope, 'getSignatures');
                 testResp.cla.getGist = testGistData;
 
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
                 $timeout.flush();
 
                 (scope.getSignatures.calledWith(scope.item, scope.gist.history[0].version)).should.be.equal(true);
@@ -294,7 +294,7 @@ describe('Settings Controller', function () {
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.be.equal(false);
 
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 (settingsCtrl.scope.loading).should.be.equal(true);
                 $timeout.flush();
@@ -302,7 +302,7 @@ describe('Settings Controller', function () {
             });
 
             it('should validate repo by checking repo, gist and webhook', function () {
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.not.be.equal(true);
@@ -312,7 +312,7 @@ describe('Settings Controller', function () {
 
             it('should use active flag of webhook to validate it', function () {
                 testResp.webhook.get = {active: false};
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.not.be.equal(true);
