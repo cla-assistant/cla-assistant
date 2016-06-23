@@ -167,13 +167,44 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             report($scope.item);
         };
 
-        $scope.recheck = function (claRepo) {
+        var validateRepoPr = function (repo, owner) {
             $scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
-                repo: claRepo.repo,
-                owner: claRepo.owner
+                repo: repo,
+                owner: owner
             }, function(){
                 $scope.popoverIsOpen = false;
             });
+        };
+        var validateOrgPr = function (linkedItem) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/validatePr.html',
+                controller: 'ValidatePrCtrl',
+                windowClass: 'validatePr',
+                scope: $scope,
+                resolve: {
+                    item: function () {
+                        return linkedItem;
+                    },
+                    repos: function () {
+                        return $scope.repos;
+                    }
+                }
+            });
+
+            $scope.popoverIsOpen = false;
+
+            modal.result.then(function (selectedRepo) {
+                validateRepoPr(selectedRepo.name, selectedRepo.owner.login);
+            });
+
+        };
+
+        $scope.recheck = function (linkedItem) {
+            if (linkedItem.org) {
+                validateOrgPr(linkedItem);
+            } else {
+                validateRepoPr(linkedItem.repo, linkedItem.owner);
+            }
         };
 
         $scope.upload = function (claRepo) {
@@ -217,7 +248,8 @@ module.directive('settings', ['$document', function ($document) {
         transclude: true,
         scope: {
             item: '=',
-            user: '='
+            user: '=',
+            repos: '='
         },
         link: function (scope, element) {
             var documentClickHandler = function (event) {

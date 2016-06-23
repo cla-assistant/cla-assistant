@@ -328,7 +328,25 @@ describe('Settings Controller', function () {
                     owner: 'login'
                 });
 
-                (calledApi.RPC.cla.validatePullRequests).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'myRepo', owner: 'login'})).should.be.equal(true);
+            });
+
+            it('should get a repo for linked org which should be checked', function () {
+                sinon.stub(modal, 'open', function () {
+                    return {
+                        result: {
+                            then: function (cb) {
+                                var selectedRepo = { name: 'Hello-World', owner: { login: 'octocat' } };
+                                cb(selectedRepo);
+                    }}};
+                });
+
+                settingsCtrl.scope.recheck({
+                    org: 'octocat'
+                });
+
+                (modal.open.called).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'Hello-World', owner: 'octocat'})).should.be.equal(true);
             });
         });
 
