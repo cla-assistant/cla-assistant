@@ -140,15 +140,14 @@ module.exports = {
                     });
                     done(null, committers);
                 } else if (res.data.message) {
-                    logger.info(new Error(res.data.message).stack);
-                    logger.info('getPRCommitters with arg: ', arg);
-
                     arg.count = arg.count ? arg.count + 1 : 1;
                     if (res.data.message === 'Not Found' && arg.count < 3) {
                         setTimeout(function () {
                             callGithub(arg);
                         }, 1000);
                     } else {
+                        logger.info(new Error(res.data.message).stack);
+                        logger.info('getPRCommitters with arg: ', arg);
                         done(res.data.message);
                     }
                 }
