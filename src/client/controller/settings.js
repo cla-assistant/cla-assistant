@@ -147,15 +147,15 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return $sce.trustAsHtml(html_code);
         };
 
-        var report = function (claRepo) {
+        var report = function (linkedItem) {
             $modal.open({
                 templateUrl: '/modals/templates/report.html',
                 controller: 'ReportCtrl',
                 windowClass: 'report',
                 scope: $scope,
                 resolve: {
-                    repo: function () {
-                        return claRepo;
+                    item: function () {
+                        return linkedItem;
                     }
                 }
             });

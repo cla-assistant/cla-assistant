@@ -37,7 +37,8 @@
 				&nbsp;<img src="/assets/images/linked.svg" class="icon" style="height:17px">&nbsp;
 			</div>
 			<div class="col-sm-6">
-				<div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claRepo.owner }} / {{ claRepo.repo }}</div>
+				<div ng-show="!claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.owner }} / {{ claItem.repo }}</div>
+				<div ng-show="claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.org }}</div>
 			</div>
 		</div>
 		<div class="row" ng-init="reverse=false; column='user_name'" style="margin-top:10px">
