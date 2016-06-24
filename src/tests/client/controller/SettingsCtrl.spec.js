@@ -70,6 +70,7 @@ describe('Settings Controller', function () {
             repo: 'myRepo'
         };
         scope.item = {
+            repoId: 123,
             repo: 'myRepo',
             owner: 'login',
             gist: 'https://gist.github.com/gistId'
@@ -93,8 +94,8 @@ describe('Settings Controller', function () {
 
 
             if (obj === 'cla' && fun === 'getAll') {
-                (args.repo).should.be.equal(scope.item.repo);
-                (args.owner).should.be.equal(scope.item.owner);
+                (!args.orgId && !args.repoId).should.be.equal(false);
+
                 (args.gist.gist_url).should.be.equal(scope.item.gist);
                 var resp = args.gist.gist_version ? [{user: 'login' }] : [{
                     user: 'login'
@@ -131,15 +132,6 @@ describe('Settings Controller', function () {
             if (error) {
                 cb(error);
                 return response;
-            }
-
-            if (obj === 'user' && fun === 'getFrom') {
-                response.value = {
-                    id: 12,
-                    login: 'login',
-                    name: 'name',
-                    html_url: 'url'
-                };
             }
 
             if (typeof cb === 'function') {
@@ -196,10 +188,19 @@ describe('Settings Controller', function () {
             (calledApi.RPC.webhook.get).should.be.equal(true);
         });
 
-        it('should get gist file name', function () {
+        it('should get gist file name and store it in scope.gist object', function () {
             var gistName = settingsCtrl.scope.getGistName();
 
             (gistName).should.be.equal('ring.erl');
+            (settingsCtrl.scope.gist.fileName).should.be.equal('ring.erl');
+        });
+
+        it('should use fileName from scope.gist object if given', function () {
+            settingsCtrl.scope.gist.fileName = 'testName';
+            var gistName = settingsCtrl.scope.getGistName();
+
+            (gistName).should.be.equal('testName');
+            settingsCtrl.scope.gist.fileName = undefined;
         });
 
         it('should get number of contributors on init', function () {
@@ -241,10 +242,22 @@ describe('Settings Controller', function () {
         });
 
         describe('on getSignatures', function(){
+            it('should get data for linked org', function (it_done) {
+                scope.item.repoId = undefined;
+                scope.item.orgId = 1;
+
+                testResp.cla.getAll = undefined;
+
+                settingsCtrl.scope.getSignatures(scope.item, 1, function(err, signatures){
+                    (calledApi.RPC.cla.getAll).should.be.equal(true);
+                    (signatures.value.length).should.be.equal(1);
+                    it_done();
+                });
+            });
+
             it('should reload data for other gist versions', function (it_done) {
                 var args = {
-                    repo: scope.item.repo,
-                    owner: scope.item.owner,
+                    repoId: scope.item.repoId,
                     gist: scope.item.gist
                 };
                 testResp.cla.getAll = undefined;
@@ -257,7 +270,7 @@ describe('Settings Controller', function () {
             });
         });
 
-        describe('on validateLinkedRepo', function () {
+        describe('on validateLinkedItem', function () {
             beforeEach(function () {
 
                 settingsCtrl.scope.gist = {};
@@ -271,7 +284,7 @@ describe('Settings Controller', function () {
                 sinon.spy(scope, 'getSignatures');
                 testResp.cla.getGist = testGistData;
 
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
                 $timeout.flush();
 
                 (scope.getSignatures.calledWith(scope.item, scope.gist.history[0].version)).should.be.equal(true);
@@ -281,7 +294,7 @@ describe('Settings Controller', function () {
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.be.equal(false);
 
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 (settingsCtrl.scope.loading).should.be.equal(true);
                 $timeout.flush();
@@ -289,7 +302,7 @@ describe('Settings Controller', function () {
             });
 
             it('should validate repo by checking repo, gist and webhook', function () {
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.not.be.equal(true);
@@ -299,7 +312,7 @@ describe('Settings Controller', function () {
 
             it('should use active flag of webhook to validate it', function () {
                 testResp.webhook.get = {active: false};
-                settingsCtrl.scope.validateLinkedRepo();
+                settingsCtrl.scope.validateLinkedItem();
 
                 $timeout.flush();
                 (settingsCtrl.scope.loading).should.not.be.equal(true);
@@ -315,7 +328,25 @@ describe('Settings Controller', function () {
                     owner: 'login'
                 });
 
-                (calledApi.RPC.cla.validatePullRequests).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'myRepo', owner: 'login'})).should.be.equal(true);
+            });
+
+            it('should get a repo for linked org which should be checked', function () {
+                sinon.stub(modal, 'open', function () {
+                    return {
+                        result: {
+                            then: function (cb) {
+                                var selectedRepo = { name: 'Hello-World', owner: { login: 'octocat' } };
+                                cb(selectedRepo);
+                    }}};
+                });
+
+                settingsCtrl.scope.recheck({
+                    org: 'octocat'
+                });
+
+                (modal.open.called).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'Hello-World', owner: 'octocat'})).should.be.equal(true);
             });
         });
 

@@ -30,7 +30,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
             return args;
         }
-
         // var validateGistUrl = function (gist_url) {
         //     var valid = false;
         //     valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
@@ -44,12 +43,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getSignatures = function (claRepo, gist_version, cb) {
+        $scope.getSignatures = function (linkedItem, gist_version, cb) {
             return $RPC.call('cla', 'getAll', {
-                repo: claRepo.repo,
-                owner: claRepo.owner,
+                repoId: linkedItem.repoId,
+                orgId: linkedItem.orgId,
                 gist: {
-                    gist_url: claRepo.gist,
+                    gist_url: linkedItem.gist,
                     gist_version: gist_version
                 }
             }, cb);
@@ -58,18 +57,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         var getWebhook = function () {
             return $RPCService.call('webhook', 'get', {
                 repo: $scope.item.repo,
-                user: $scope.item.owner
+                user: $scope.item.owner,
+                org: $scope.item.org
             }, function (err, obj) {
                 if (!err && obj && obj.value) {
                     webhook = obj.value;
                     $scope.valid.webhook = webhook.active;
                 }
-            });
-        };
-
-        var getGithubUserData = function (login) {
-            return $HUBService.call('user', 'getFrom', {
-                user: login
             });
         };
 
@@ -87,9 +81,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                         contributor.gist_version = signature.gist_version;
                         contributor.signed_at = signature.created_at;
                         $scope.contributors.push(contributor);
-                        getGithubUserData(signature.user).then(function (user) {
-                            contributor.html_url = user.html_url;
-                        });
                     });
                 }
             });
@@ -111,9 +102,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.getGistName = function () {
             var fileName = '';
-            if ($scope.gist && $scope.gist.files) {
+            if ($scope.gist.fileName) {
+                fileName = $scope.gist.fileName;
+            }
+            else if ($scope.gist && $scope.gist.files) {
                 fileName = Object.keys($scope.gist.files)[0];
                 fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
+                $scope.gist.fileName = fileName;
             }
             return fileName;
         };
@@ -130,7 +125,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         //     $scope.errorMsg.push(error);
         // };
 
-        $scope.validateLinkedRepo = function () {
+        $scope.validateLinkedItem = function () {
             var promises = [];
             if ($scope.item.gist) {
                 $scope.loading = true;
@@ -144,7 +139,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.isLinkActive = function () {
-            return !$scope.loading && $scope.valid.gist && $scope.valid.webhook ? true : false;
+            return !$scope.loading && $scope.valid.gist && $scope.valid.webhook;
         };
 
         $scope.renderHtml = function (html_code) {
@@ -172,16 +167,47 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             report($scope.item);
         };
 
-        $scope.recheck = function (claRepo) {
+        var validateRepoPr = function (repo, owner) {
             $scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
-                repo: claRepo.repo,
-                owner: claRepo.owner
+                repo: repo,
+                owner: owner
             }, function(){
                 $scope.popoverIsOpen = false;
             });
         };
+        var validateOrgPr = function (linkedItem) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/validatePr.html',
+                controller: 'ValidatePrCtrl',
+                windowClass: 'validatePr',
+                scope: $scope,
+                resolve: {
+                    item: function () {
+                        return linkedItem;
+                    },
+                    repos: function () {
+                        return $scope.repos;
+                    }
+                }
+            });
 
-        $scope.upload = function (claRepo) {
+            $scope.popoverIsOpen = false;
+
+            modal.result.then(function (selectedRepo) {
+                validateRepoPr(selectedRepo.name, selectedRepo.owner.login);
+            });
+
+        };
+
+        $scope.recheck = function (linkedItem) {
+            if (linkedItem.org) {
+                validateOrgPr(linkedItem);
+            } else {
+                validateRepoPr(linkedItem.repo, linkedItem.owner);
+            }
+        };
+
+        $scope.upload = function (linkedItem) {
             $scope.popoverIsOpen = false;
             var modal = $modal.open({
                 templateUrl: '/modals/templates/upload.html',
@@ -190,10 +216,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
             modal.result.then(function (users) {
                 $RPCService.call('cla', 'upload', {
-                    repo: claRepo.repo,
-                    owner: claRepo.owner,
+                    repo: linkedItem.repo,
+                    owner: linkedItem.owner || linkedItem.org,
                     users: users
-                }).then($scope.validateLinkedRepo);
+                }).then($scope.validateLinkedItem);
             });
         };
 
@@ -211,7 +237,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.validateLinkedRepo();
+        $scope.validateLinkedItem();
     }
 ]);
 
@@ -222,7 +248,8 @@ module.directive('settings', ['$document', function ($document) {
         transclude: true,
         scope: {
             item: '=',
-            user: '='
+            user: '=',
+            repos: '='
         },
         link: function (scope, element) {
             var documentClickHandler = function (event) {

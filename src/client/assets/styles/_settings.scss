@@ -1,4 +1,8 @@
 
+.hint {
+  color: $gray;
+}
+
 .separator {
   width: 100%;
   height: 1px;
@@ -15,10 +19,18 @@
   img{
 	height:1.5em; min-height:15px;
   }
+	.btn {
+		margin-top:5px;
+		width:100%
+	}
+	.btn:first-of-type {
+		margin-top:0px;
+	}
 }
 
-.hint {
-  color: $gray;
+.settings img.org {
+	height:1em;
+	vertical-align: inherit;
 }
 
 .settings {

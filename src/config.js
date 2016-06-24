@@ -24,10 +24,13 @@ module.exports = {
             user: process.env.GITHUB_USER,
             pass: process.env.GITHUB_PASS,
 
+            // required
             token: process.env.GITHUB_TOKEN,
 
             user_scope: ['user:email'],
-            admin_scope: ['user:email', 'public_repo', 'repo:status', 'read:repo_hook', 'write:repo_hook', 'read:org', 'gist']
+            admin_scope: ['user:email', 'public_repo', 'repo:status', 'read:repo_hook', 'write:repo_hook', 'read:org', 'gist'],
+
+            commit_bots: ['web-flow']
         },
 
         localport: process.env.PORT || 5000,

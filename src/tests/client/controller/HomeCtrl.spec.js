@@ -1,7 +1,7 @@
 /*jshiint expr:true*/
 /*global angular, describe, xit, it, beforeEach, afterEach*/
 
-describe('Home Controller', function() {
+describe('Home Controller', function () {
     var scope, httpBackend, createCtrl, homeCtrl, githubResponse, $HUB, $RAW, $RPCService;
 
     var testDataRepos = {
@@ -121,6 +121,10 @@ describe('Home Controller', function() {
             'public_members_url': 'https://api.github.com/orgs/github/public_members{/member}',
             'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
             'description': 'A great organization'
+        },
+        {
+            'login': 'testOrg',
+            'id': 2
         }
     ];
     var calledApi;
@@ -134,7 +138,7 @@ describe('Home Controller', function() {
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
-    beforeEach(angular.mock.inject(function($injector, $rootScope, $controller, _$HUB_, _$RPCService_, _$RAW_) {
+    beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_, _$RAW_) {
         $HUB = _$HUB_;
         $RAW = _$RAW_;
         $RPCService = _$RPCService_;
@@ -152,7 +156,7 @@ describe('Home Controller', function() {
         };
 
         var hubCall = $HUB.call;
-        sinon.stub($HUB, 'call', function(obj, fun, args, cb) {
+        sinon.stub($HUB, 'call', function (obj, fun, args, cb) {
             calledApi.HUB[obj] = calledApi.HUB[obj] ? calledApi.HUB[obj] : {};
             calledApi.HUB[obj][fun] = true;
             var response = {};
@@ -162,7 +166,7 @@ describe('Home Controller', function() {
                 return response;
             }
 
-            if (obj === 'user' && fun === 'getOrgs') {
+            if (obj === 'users' && fun === 'getOrgs') {
                 response.value = testDataOrgs;
             } else {
                 return hubCall(obj, fun, args, cb);
@@ -176,7 +180,7 @@ describe('Home Controller', function() {
 
 
         var hubDirectCall = $HUB.direct_call;
-        sinon.stub($HUB, 'direct_call', function(url, data, cb) {
+        sinon.stub($HUB, 'direct_call', function (url, data, cb) {
             var response = getAllReposData || {
                 value: testDataRepos.data
             };
@@ -195,7 +199,7 @@ describe('Home Controller', function() {
         });
 
         var rpcCall = $RPCService.call;
-        sinon.stub($RPCService, 'call', function(o, f, args, cb) {
+        sinon.stub($RPCService, 'call', function (o, f, args, cb) {
             calledApi.RPC[o] = calledApi.RPC[o] ? calledApi.RPC[o] : {};
             calledApi.RPC[o][f] = true;
             var response;
@@ -220,10 +224,18 @@ describe('Home Controller', function() {
                     value: true
                 };
                 error = rpcRepoCreate && rpcRepoCreate.error ? rpcRepoCreate.error : null;
+            } else if (o === 'repo' && f === 'remove') {
+                response = expRes.RPC.repo && expRes.RPC.repo.remove ? expRes.RPC.repo.remove : { value: true };
             } else if (o === 'org' && f === 'create') {
                 response = expRes.RPC.org && expRes.RPC.org.create ? expRes.RPC.org.create : { value: true };
+            } else if (o === 'org' && f === 'getForUser') {
+                response = expRes.RPC.org && expRes.RPC.org.getForUser ? expRes.RPC.org.getForUser : { value: [] };
+            } else if (o === 'org' && f === 'remove') {
+                response = expRes.RPC.org && expRes.RPC.org.remove ? expRes.RPC.org.remove : { value: true };
             } else if (o === 'webhook' && f === 'create') {
                 response = expRes.RPC.webhook && expRes.RPC.webhook.create ? expRes.RPC.webhook.create : { value: { active: true } };
+            } else if (o === 'webhook' && f === 'remove') {
+                response = expRes.RPC.webhook && expRes.RPC.webhook.remove ? expRes.RPC.webhook.remove : { value: true };
             } else {
                 return rpcCall(o, f, args, cb);
             }
@@ -231,17 +243,17 @@ describe('Home Controller', function() {
         });
 
         var rawGet = $RAW.get;
-        sinon.stub($RAW, 'get', function(url, token) {
+        sinon.stub($RAW, 'get', function (url, token) {
             if (url.indexOf('count') > -1) {
                 return {
-                    then: function() { }
+                    then: function () { }
                 };
             } else {
                 return rawGet(url, token);
             }
         });
 
-        createCtrl = function() {
+        createCtrl = function () {
             var ctrl = $controller('HomeCtrl', {
                 $scope: scope
             });
@@ -260,7 +272,7 @@ describe('Home Controller', function() {
         };
         httpBackend.when('GET', '/config').respond({});
         httpBackend.when('POST', '/api/github/call', {
-            obj: 'user',
+            obj: 'users',
             fun: 'get',
             arg: {}
         }).respond(githubResponse);
@@ -285,7 +297,7 @@ describe('Home Controller', function() {
 
     }));
 
-    afterEach(function() {
+    afterEach(function () {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
         homeCtrl.scope.selected = {};
@@ -299,7 +311,7 @@ describe('Home Controller', function() {
         rpcRepoGetAllError = undefined;
     });
 
-    it('should get user repos and mix claRepos data with repos data if user has admin rights', function() {
+    it('should get user repos and mix claRepos data with repos data if user has admin rights', function () {
         httpBackend.flush();
         (homeCtrl.scope.repos.length).should.be.equal(2);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
@@ -307,41 +319,58 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos[0].fork).should.be.equal(testDataRepos.data[0].fork);
     });
 
-    it('should check whether the user has admin:org_hook right', function() {
+    it('should get claOrgs for user if user has admin rights', function () {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
+        httpBackend.flush();
+        (homeCtrl.scope.claOrgs.length).should.be.equal(1);
+        (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
+    });
+
+    it('should get claOrgs and github orgs but not add them to reposAndOrgs array if user has no admin:org_hook rights', function () {
+        expRes.RPC.org = { getForUser: { value: [{orgId: 1}] } };
+        httpBackend.flush();
+
+        (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
+    });
+
+    it('should check whether the user has admin:org_hook right', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
         httpBackend.flush();
         (homeCtrl.scope.user.value.org_admin).should.be.equal(true);
+        (homeCtrl.scope.reposAndOrgs.length).should.be.equal(4);
     });
 
-    it('should not get user orgs if the user has no admin:org_hook right', function() {
+    it('should not get user orgs if the user has no admin:org_hook right', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.user.value.org_admin).should.be.equal(false);
-        (homeCtrl.scope.orgs).should.not.be.equal(testDataOrgs);
+        (homeCtrl.scope.orgs).should.be.equal(testDataOrgs);
+        (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
     });
 
-    it('should get user orgs and combine them with repos in one list', function() {
+    it('should get user orgs and combine them with repos in one list', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
         httpBackend.flush();
 
         (homeCtrl.scope.orgs).should.be.equal(testDataOrgs);
         (homeCtrl.scope.repos.length).should.be.equal(2);
-        (homeCtrl.scope.reposAndOrgs.length).should.be.equal(3);
+        (homeCtrl.scope.reposAndOrgs.length).should.be.equal(4);
     });
 
-    it('should group orgs and repos', function() {
+    it('should group orgs and repos', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.groupOrgs(testDataOrgs[0])).should.be.equal('Organisations');
         (homeCtrl.scope.groupOrgs(testDataRepos.data[0])).should.not.be.equal('Organisations');
     });
 
-    it('should get more repos if there are more to load', function() {
+    it('should get more repos if there are more to load', function () {
         var getMoreCalled = false;
         getAllReposData = {
             value: testDataRepos.data,
             hasMore: true,
-            getMore: function() {
+            getMore: function () {
                 getMoreCalled = true;
             }
         };
@@ -349,11 +378,11 @@ describe('Home Controller', function() {
         (getMoreCalled).should.be.equal(true);
     });
 
-    it('should update scope.repos when all repos loaded first', function() {
+    it('should update scope.repos when all repos loaded first', function () {
         getAllReposData = {
             value: testDataRepos.data,
             hasMore: true,
-            getMore: function() {
+            getMore: function () {
                 this.hasMore = false;
                 this.value.push({
                     id: 123,
@@ -375,22 +404,22 @@ describe('Home Controller', function() {
         (scope.repos.length).should.be.equal(3);
     });
 
-    it('should not load user repos if github call failed', function() {
+    it('should not load user repos if github call failed', function () {
         getAllReposError = 'Github call failed';
 
         httpBackend.flush();
         (homeCtrl.scope.repos.length).should.be.equal(0);
-        ($RPCService.call.called).should.be.equal(false);
+        ($RPCService.call.calledWithMatch('repo', 'getAll')).should.be.equal(false);
     });
 
-    it('should not load user repos if db call failed', function() {
+    it('should not load user repos if db call failed', function () {
         rpcRepoGetAllError = 'Could not find entries on DB';
 
         httpBackend.flush();
         (homeCtrl.scope.claRepos.length).should.be.equal(0);
     });
 
-    it('should not load user`s repos if he is not an admin', function() {
+    it('should not load user`s repos if he is not an admin', function () {
         githubResponse.meta.scopes = 'user:email';
         httpBackend.resetExpectations();
 
@@ -399,7 +428,7 @@ describe('Home Controller', function() {
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
     });
 
-    it('should not try to get linked repos if user has no repos in GitHub', function() {
+    it('should not try to get linked repos if user has no repos in GitHub', function () {
         getAllReposData = {
             value: []
         };
@@ -408,7 +437,7 @@ describe('Home Controller', function() {
         (homeCtrl.scope.repos.length).should.be.equal(0);
     });
 
-    it('should create repo entry and webhook on link action', function() {
+    it('should create repo entry and webhook on link action', function () {
         httpBackend.flush();
 
         homeCtrl.scope.repos = [{
@@ -439,7 +468,7 @@ describe('Home Controller', function() {
         calledApi.RPC.webhook.create.should.be.ok;
     });
 
-    it('should link organisation', function() {
+    it('should link organisation', function () {
         httpBackend.flush();
 
         homeCtrl.scope.orgs = testDataOrgs;
@@ -449,13 +478,13 @@ describe('Home Controller', function() {
         homeCtrl.scope.link();
 
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
-        // (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
+        (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
         // (homeCtrl.scope.claRepos[1].active).should.be.ok;
         // (homeCtrl.scope.claRepos[1].fork).should.be.ok;
         calledApi.RPC.webhook.create.should.be.ok;
     });
 
-    it('should set active flag depending on webhook response', function() {
+    it('should set active flag depending on webhook response', function () {
         httpBackend.flush();
 
         homeCtrl.scope.repos = [{
@@ -481,12 +510,6 @@ describe('Home Controller', function() {
         expRes.RPC.webhook = {
             create: { value: { active: false } }
         };
-        // httpBackend.expect('POST', '/api/webhook/create', {
-        //     repo: 'myRepo',
-        //     owner: 'login'
-        // }).respond({
-        //     active: false
-        // });
 
         homeCtrl.scope.link();
 
@@ -494,7 +517,7 @@ describe('Home Controller', function() {
         (homeCtrl.scope.claRepos[1].active).should.be.not.ok;
     });
 
-    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function() {
+    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function () {
         httpBackend.flush();
 
         homeCtrl.scope.repos = [{
@@ -521,23 +544,13 @@ describe('Home Controller', function() {
             value: false
         };
 
-        httpBackend.expect('POST', '/api/webhook/remove', {
-            repo: 'myRepo',
-            user: 'login'
-        }).respond({});
-        // httpBackend.expect('POST', '/api/webhook/create', {
-        //     repo: 'myRepo',
-        //     owner: 'login'
-        // }).respond(null, {
-        //     active: true
-        // });
-
         homeCtrl.scope.link();
-        httpBackend.flush();
+
+        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(true);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
     });
 
-    it('should show error message if create failed', function() {
+    it('should show error message if create failed but not remove webhook if repo already linked', function () {
         httpBackend.flush();
 
         homeCtrl.scope.selected.gist = {
@@ -558,73 +571,76 @@ describe('Home Controller', function() {
             }
         };
 
-        httpBackend.expect('POST', '/api/webhook/remove', {
-            repo: 'myRepo',
-            user: 'login'
-        }).respond({});
-
-
         homeCtrl.scope.link();
-        httpBackend.flush();
+
+        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(false);
         (homeCtrl.scope.errorMsg[0]).should.be.equal('This repository is already set up.');
     });
 
-    it('should check repos whether they are activated or NOT', function() {
-        rpcRepoGetAllData = {
-            value: [{
-                name: 'Hello-World',
-                owner: 'octocat',
-                gist: ''
-            }]
+    it('should cleanup if create failed', function () {
+        httpBackend.flush();
+
+        homeCtrl.scope.selected.gist = {
+            url: 'https://gist.github.com/gistId'
         };
-        httpBackend.flush();
-        (homeCtrl.scope.claRepos[0].active).should.not.be.ok;
+        homeCtrl.scope.selected.item = {
+            id: 123,
+            name: 'myRepo',
+            full_name: 'login/myRepo',
+            owner: {
+                login: 'login'
+            }
+        };
+
+        rpcRepoCreate = {
+            error: {
+                err: 'any other error'
+            }
+        };
+
+        homeCtrl.scope.link();
+
+        ($RPCService.call.calledWithMatch('webhook', 'remove', {repo: 'myRepo', user: 'login'})).should.be.equal(true);
+        (homeCtrl.scope.errorMsg[0]).should.not.be.equal('This repository is already set up.');
     });
 
-    it('should check repos whether they are ACTIVATED or not', function() {
+    it('should delete db entry and webhook on remove for linked org', function () {
         httpBackend.flush();
-        (homeCtrl.scope.claRepos[0].active).should.be.ok;
-        (homeCtrl.scope.claRepos[0].gist).should.be.ok;
+
+        var org = {
+            org: 'octocat',
+            orgId: 1,
+            gist: 'https://gist.github.com/myRepo/2',
+        };
+        homeCtrl.scope.claOrgs = [org];
+        homeCtrl.scope.remove(org);
+
+        ($RPCService.call.calledWithMatch('webhook', 'remove', {org: 'octocat'})).should.be.equal(true);
+        ($RPCService.call.calledWithMatch('org', 'remove')).should.be.equal(true);
+        (homeCtrl.scope.claOrgs.length).should.be.equal(0);
     });
 
-    it('should delete db entry and webhook on remove', function() {
+    it('should delete db entry and webhook on remove for linked repo', function () {
         httpBackend.flush();
-
-        httpBackend.expect('POST', '/api/repo/remove', {
-            repo: 'myRepo',
-            owner: 'login',
-            gist: 'https://gist.github.com/myRepo/2'
-        }).respond();
-        httpBackend.expect('POST', '/api/webhook/remove', {
-            repo: 'myRepo',
-            user: 'login'
-        }).respond();
 
         var repo = {
             repo: 'myRepo',
+            repoId: 1,
             owner: 'login',
+
             gist: 'https://gist.github.com/myRepo/2',
             active: true
         };
         homeCtrl.scope.claRepos = [repo];
         homeCtrl.scope.remove(repo);
 
-        httpBackend.flush();
-        (homeCtrl.scope.claRepos.length).should.be.equal(0);
+        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(true);
+        ($RPCService.call.calledWithMatch('repo', 'remove')).should.be.equal(true);
+        ($RPCService.call.calledWithMatch('repo', 'getAll')).should.be.equal(true);
+        // (homeCtrl.scope.claRepos.length).should.be.equal(0);
     });
 
-    // it('should get all users signed this cla', function(){
-    //     var claRepo = {repo: 'myRepo', owner: 'login', gist: 'url'};
-    //     httpBackend.expect('POST', '/api/cla/getAll', {repo: claRepo.repo, owner: claRepo.owner, gist: {gist_url: claRepo.gist}}).respond([{user: 'login'}]);
-    //     httpBackend.expect('POST', '/api/github/call', {obj: 'user', fun: 'getFrom', arg: {user: 'login'}}).respond({id: 12, login: 'login', name: 'name'});
-    //
-    //     homeCtrl.scope.getUsers(claRepo);
-    //       httpBackend.flush();
-    //
-    //     (homeCtrl.scope.users.length).should.be.equal(1);
-    // });
-
-    it('should load gist files of the user', function() {
+    it('should load gist files of the user', function () {
         httpBackend.flush();
         (homeCtrl.scope.gists.length).should.be.equal(3);
         (homeCtrl.scope.gists[0].name).should.be.equal('first default cla');
@@ -632,16 +648,16 @@ describe('Home Controller', function() {
         (homeCtrl.scope.gists[2].name).should.be.equal('file1');
     });
 
-    it('should validate gist url', function() {
+    it('should validate gist url', function () {
         httpBackend.flush();
         var invalidUrls = ['https://google.com', '', undefined];
 
-        invalidUrls.forEach(function(url) {
+        invalidUrls.forEach(function (url) {
             homeCtrl.scope.isValid(url).should.not.be.ok;
         });
     });
 
-    it('should identify default gist url from all gists', function() {
+    it('should identify default gist url from all gists', function () {
         httpBackend.flush();
 
         var sapClaGist = {
@@ -657,17 +673,17 @@ describe('Home Controller', function() {
         (homeCtrl.scope.groupDefaultCla(anyOtherGist)).should.not.be.equal('Default CLAs');
     });
 
-    it('should load default cla files', function() {
+    it('should load default cla files', function () {
         httpBackend.flush();
 
         homeCtrl.scope.defaultClas.length.should.be.equal(1);
         homeCtrl.scope.defaultClas[0].name.should.be.equal('first default cla');
     });
 
-    it('should clear selected repo on clear function', function() {
+    it('should clear selected repo on clear function', function () {
         httpBackend.flush();
         var ev = {
-            stopPropagation: function() { }
+            stopPropagation: function () { }
         };
         homeCtrl.scope.selected.item = {
             name: 'any test repo'
@@ -677,10 +693,10 @@ describe('Home Controller', function() {
         (!homeCtrl.scope.selected.item).should.be.ok;
     });
 
-    it('should clear selected cla on clear function', function() {
+    it('should clear selected cla on clear function', function () {
         httpBackend.flush();
         var ev = {
-            stopPropagation: function() { }
+            stopPropagation: function () { }
         };
         homeCtrl.scope.selected.gist = {
             url: 'any_test_url'
@@ -690,14 +706,14 @@ describe('Home Controller', function() {
         (!homeCtrl.scope.selected.gist).should.be.ok;
     });
 
-    it('should NOT load counts if user is logged', function() {
+    it('should NOT load counts if user is logged', function () {
         httpBackend.flush();
         ($RAW.get.calledWith('/count/clas')).should.be.equal(false);
     });
 
-    it('should load counts if user not logged', function() {
+    it('should load counts if user not logged', function () {
         httpBackend.expect('POST', '/api/github/call', {
-            obj: 'user',
+            obj: 'users',
             fun: 'get',
             arg: {}
         }).respond(401, 'Authentication required');

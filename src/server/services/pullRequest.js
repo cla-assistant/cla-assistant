@@ -1,6 +1,5 @@
 var url = require('./url');
 var github = require('./github');
-var repoService = require('./repo');
 var log = require('../services/logger');
 
 var commentText = function (signed, badgeUrl, claUrl, user_map) {
@@ -35,7 +34,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 };
 
 module.exports = {
-	badgeComment: function (owner, repo, repoId, pullNumber, signed, user_map) {
+	badgeComment: function (owner, repo, pullNumber, signed, user_map) {
 		var badgeUrl = url.pullRequestBadge(signed);
 
 		this.getComment({
@@ -43,13 +42,13 @@ module.exports = {
 			owner: owner,
 			number: pullNumber
 		}, function (error, comment) {
-			repoService.get({
-				repo: repo,
-				owner: owner
-			}, function (err) {
-				if (err) {
-					log.info(err);
-				}
+			// repoService.get({
+			// 	repo: repo,
+			// 	owner: owner
+			// }, function (err) {
+			// 	if (err) {
+			// 		log.info(err);
+			// 	}
 				var claUrl = url.claURL(owner, repo, pullNumber);
 
 				var body = commentText(signed, badgeUrl, claUrl, user_map);
@@ -94,31 +93,24 @@ module.exports = {
 					});
 				}
 			});
-		});
+		// });
 	},
 
 	getComment: function (args, done) {
 		args.url = url.githubPullRequestComments(args.owner, args.repo, args.number);
+		args.token = config.server.github.token;
 
-		repoService.get({
-			repo: args.repo,
-			owner: args.owner
-		}, function (err, result) {
-			if (result && !err) {
-				args.token = result.token;
+		github.direct_call(args, function (e, res) {
+			var CLAAssistantComment;
+			if (!e && res && res.data && !res.data.message) {
+				res.data.some(function (comment) {
+					if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
+						CLAAssistantComment = comment;
+						return true;
+					}
+				});
 			}
-			github.direct_call(args, function (e, res) {
-				var CLAAssistantComment;
-				if (!e && res && res.data && !res.data.message) {
-					res.data.some(function (comment) {
-						if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
-							CLAAssistantComment = comment;
-							return true;
-						}
-					});
-				}
-				done(e || res.data.message, CLAAssistantComment);
-			});
+			done(e || res.data.message, CLAAssistantComment);
 		});
 	},
 
@@ -157,6 +149,8 @@ module.exports = {
 				}
 			});
 		});
-		done();
+		if (typeof done === 'function') {
+			done();
+		}
 	}
 };

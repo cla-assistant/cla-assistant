@@ -5,15 +5,16 @@ var Repo = mongoose.model('Repo');
 //services
 var github = require('../services/github');
 var logger = require('../services/logger');
+var orgService = require('../services/org');
 
 //services
 var url = require('../services/url');
 
-var isTransferredRenamed = function(dbRepo, ghRepo) {
+var isTransferredRenamed = function (dbRepo, ghRepo) {
     return ghRepo.repoId === dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
 };
 
-var compareRepoNameAndUpdate = function(dbRepo, ghRepo) {
+var compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
     if (isTransferredRenamed(dbRepo, ghRepo)) {
         dbRepo.owner = ghRepo.owner;
         dbRepo.repo = ghRepo.repo;
@@ -24,17 +25,25 @@ var compareRepoNameAndUpdate = function(dbRepo, ghRepo) {
     }
 };
 
-var compareAllRepos = function(ghRepos, dbRepos, done) {
-    dbRepos.forEach(function(dbRepo){
-        ghRepos.some(function(ghRepo){
+var compareAllRepos = function (ghRepos, dbRepos, done) {
+    dbRepos.forEach(function (dbRepo) {
+        ghRepos.some(function (ghRepo) {
             return compareRepoNameAndUpdate(dbRepo, ghRepo);
         });
     });
     done();
 };
 
+var extractUserFromCommit = function (commit) {
+    var committer = commit.committer || commit.commit.committer;
+    if (config.server.github.commit_bots.indexOf(committer.login) > -1) {
+        committer = commit.author || commit.commit.author;
+    }
+    return committer;
+};
+
 var selection = function (args) {
-    return args.repoId ? {repoId: args.repoId} : {
+    return args.repoId ? { repoId: args.repoId } : {
         repo: args.repo,
         owner: args.owner
     };
@@ -71,14 +80,14 @@ module.exports = {
     getAll: function (args, done) {
         var ghRepos = args.set;
         var repoIds = [];
-        args.set.forEach(function(repo){
-            repoIds.push({repoId: repo.repoId});
+        args.set.forEach(function (repo) {
+            repoIds.push({ repoId: repo.repoId });
         });
         Repo.find({
             $or: repoIds
         }, function (err, dbRepos) {
             if (dbRepos) {
-                compareAllRepos(ghRepos, dbRepos, function(){
+                compareAllRepos(ghRepos, dbRepos, function () {
                     done(err, dbRepos);
                 });
             } else {
@@ -101,6 +110,8 @@ module.exports = {
     },
 
     getPRCommitters: function (args, done) {
+        var self = this;
+
         var callGithub = function (arg) {
             var committers = [];
 
@@ -111,7 +122,7 @@ module.exports = {
                 if (res.data && !res.data.message) {
                     res.data.forEach(function (commit) {
                         try {
-                            var committer = commit.committer || commit.commit.committer;
+                            var committer = extractUserFromCommit(commit);
                         } catch (error) {
                             logger.warn('Problem on PR ', url.githubPullRequest(arg.owner, arg.repo, arg.number));
                             logger.warn(new Error('commit info seems to be wrong; ' + error).stack);
@@ -122,8 +133,8 @@ module.exports = {
                             id: committer.id || ''
                         };
                         if (committers.length === 0 || committers.map(function (c) {
-                                return c.name;
-                            }).indexOf(user.name) < 0) {
+                            return c.name;
+                        }).indexOf(user.name) < 0) {
                             committers.push(user);
                         }
                     });
@@ -145,19 +156,29 @@ module.exports = {
             });
         };
 
-        Repo.findOne(selection(args), function (e, repo) {
-            if (e || !repo) {
-                var errorMsg = e;
-                errorMsg += 'with following arguments: ' + JSON.stringify(args);
-                logger.error(new Error(errorMsg).stack);
-                done(errorMsg);
-                return;
-            }
-
+        var collectTokenAndCallGithub = function (args, item) {
+            args.token = item.token;
             args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
-            args.token = repo.token;
 
             callGithub(args);
+        };
+
+        orgService.get({orgId: args.orgId}, function (e, org) {
+            if (!org) {
+                self.get(args, function (e, repo) {
+                    if (e || !repo) {
+                        var errorMsg = e;
+                        errorMsg += 'with following arguments: ' + JSON.stringify(args);
+                        logger.error(new Error(errorMsg).stack);
+                        done(errorMsg);
+                            return;
+                    }
+
+                    collectTokenAndCallGithub(args, repo);
+                });
+            } else {
+                collectTokenAndCallGithub(args, org);
+            }
         });
     },
 
@@ -218,12 +239,12 @@ module.exports = {
             url: url.githubRepository(args.owner, args.repo),
             token: args.token
         };
-        github.direct_call(params, function(err, ghRepo){
+        github.direct_call(params, function (err, ghRepo) {
             if (ghRepo && ghRepo.data && ghRepo.data.id) {
                 done(err, ghRepo.data);
             } else if (ghRepo && ghRepo.data && ghRepo.data.url) {
                 params.url = ghRepo.data.url;
-                github.direct_call(params, function(e, ghRepository){
+                github.direct_call(params, function (e, ghRepository) {
                     done(e, ghRepository.data);
                 });
             }

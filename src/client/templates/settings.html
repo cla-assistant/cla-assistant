@@ -5,8 +5,8 @@
             <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
                 <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
             </a>
-            <a ng-if="item.org" ng-href="https://github.com/{{ item.login }}" target="space">
-                &nbsp; {{ item.login }}
+            <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space">
+                <img src="{{item.avatar_url}}" alt="" class="org">&nbsp; {{ item.org }}
             </a>
         </div>
     </div>
@@ -38,11 +38,11 @@
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
-        <button class="btn btn-info" ng-click="upload(item)" style="width:100%">Import</button>
-        <button class="btn btn-info" ng-click="recheck(item)" style="margin-top:5px; width:100%">Recheck PRs</button>
-        <button class="btn btn-info" ng-click="getBadge(item)" style="margin-top:5px; width:100%">Get Badge</button>
+        <button class="btn btn-info" ng-click="upload(item)">Import</button>
+        <button class="btn btn-info" ng-click="recheck(item)">Recheck PRs</button>
+        <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo">Get Badge</button>
     </script>
-    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
+    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
              popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
         <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom" tooltip="Unlink"></i>

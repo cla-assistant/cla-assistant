@@ -157,13 +157,10 @@ describe('pullRequest:badgeComment', function () {
 	cla_config.server.github.pass = 'secret_pass';
 
 	beforeEach(function () {
-		sinon.stub(Repo, 'findOne', function (args, cb) {
-			cb(null, {
-				token: 'abc'
-			});
-		});
+		cla_config.server.github.token = 'xyz';
+
 		sinon.stub(github, 'direct_call', function (args, cb) {
-			assert.equal(args.token, 'abc');
+			assert.equal(args.token, 'xyz');
 			cb(null, {
 				data: direct_call_data
 			});
@@ -173,7 +170,6 @@ describe('pullRequest:badgeComment', function () {
 	afterEach(function () {
 		github.direct_call.restore();
 		github.call.restore();
-		Repo.findOne.restore();
 	});
 
 	it('should create comment with cla-assistant user', function (it_done) {
@@ -188,7 +184,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+		pullRequest.badgeComment('login', 'myRepo', 1);
 	});
 
 	it('should edit comment with cla-assistant user', function (it_done) {
@@ -201,7 +197,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1);
+		pullRequest.badgeComment('login', 'myRepo', 1);
 	});
 
 	it('should add a note to the comment if there is a committer who is not a github user', function(it_done){
@@ -214,7 +210,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1'],
 			unknown: ['user1']
@@ -229,7 +225,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1'],
 			unknown: ['user1']
@@ -244,7 +240,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user1', 'user2'],
 			unknown: ['user1', 'user2']
@@ -263,7 +259,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: ['user1'],
 			not_signed: ['user2']
 		});
@@ -280,7 +276,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: [],
 			not_signed: ['user2']
 		});
@@ -298,7 +294,7 @@ describe('pullRequest:badgeComment', function () {
 			it_done();
 		});
 
-		pullRequest.badgeComment('login', 'myRepo', 123, 1, false, {
+		pullRequest.badgeComment('login', 'myRepo', 1, false, {
 			signed: ['user1'],
 			not_signed: ['user2']
 		});
@@ -307,20 +303,10 @@ describe('pullRequest:badgeComment', function () {
 
 describe('pullRequest:getComment', function (done) {
 	beforeEach(function () {
-		sinon.stub(Repo, 'findOne', function (args, cb) {
-			cb(null, {
-				token: 'abc'
-			});
-		});
-
-		sinon.stub(github, 'call', function (args, git_done) {
-			assert.equal(args.token, 'abc');
-			git_done(null, 'res', 'meta');
-			done();
-		});
+		cla_config.server.github.token = 'xyz';
 
 		sinon.stub(github, 'direct_call', function (args, cb) {
-			assert.equal(args.token, 'abc');
+			assert.equal(args.token, 'xyz');
 			cb(null, {
 				data: testDataComments_withCLAComment
 			});
@@ -328,9 +314,7 @@ describe('pullRequest:getComment', function (done) {
 	});
 
 	afterEach(function () {
-		github.call.restore();
 		github.direct_call.restore();
-		Repo.findOne.restore();
 	});
 
 	it('should get CLA assistant_s commment', function (it_done) {
@@ -393,11 +377,7 @@ describe('pullRequest:getComment', function (done) {
 
 describe('pullRequest:editComment', function () {
 	beforeEach(function () {
-		sinon.stub(Repo, 'findOne', function (args, cb) {
-			cb(null, {
-				token: 'abc'
-			});
-		});
+		cla_config.server.github.token = 'xyz';
 
 		sinon.stub(github, 'call', function (args, cb) {
 			assert.equal(args.basicAuth.user, 'cla-assistant');
@@ -406,7 +386,7 @@ describe('pullRequest:editComment', function () {
 		});
 
 		sinon.stub(github, 'direct_call', function (args, cb) {
-			assert.equal(args.token, 'abc');
+			assert.equal(args.token, 'xyz');
 			cb(null, {
 				data: testDataComments_withCLAComment
 			});
@@ -416,7 +396,6 @@ describe('pullRequest:editComment', function () {
 	afterEach(function () {
 		github.call.restore();
 		github.direct_call.restore();
-		Repo.findOne.restore();
 	});
 
 	it('should edit comment if not signed', function (it_done) {
@@ -477,5 +456,16 @@ describe('pullRequest:editComment', function () {
 
 			it_done();
 		});
+	});
+
+	it('should not fail if no callback provided', function () {
+		var args = {
+			repo: 'myRepo',
+			owner: 'owner',
+			number: 1,
+			signed: true
+		};
+
+		pullRequest.editComment(args);
 	});
 });

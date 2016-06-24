@@ -34,61 +34,68 @@ function createOrgHook(req, done) {
     github.direct_call(args, done);
 }
 
+function extractGithubArgs(args) {
+    var obj = args.org ? 'orgs' : 'repos';
+    var arg = args.org ? {
+        org: args.org
+    } : {
+        user: args.user,
+        repo: args.repo
+        };
+    return { obj: obj, arg: arg };
+}
+
 module.exports = {
 
-    get: function(req, done) {
-        // TODO: get also org hooks
+    get: function (req, done) {
+        var githubArgs = extractGithubArgs(req.args);
 
         github.call({
-            obj: 'repos',
+            obj: githubArgs.obj,
             fun: 'getHooks',
-            arg: {
-                user: req.args.user,
-                repo: req.args.repo
-            },
+            arg: githubArgs.arg,
             token: req.user.token
-        }, function(err, hooks) {
+        }, function callback(err, hooks) {
             var hook = null;
 
-            if(!err) {
-                hooks.forEach(function(webhook) {
-                    if(webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
+            if (!err) {
+                hooks.forEach(function (webhook) {
+                    if (webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
                         hook = webhook;
                     }
                 });
             }
             done(err, hook);
         });
-                // now we will have to check two things:
-                // 1) webhook user still has push access to this repo
-                // 2) token is still valid
-                // -> if one of these conditions is not met we will
-                //    delete the webhook
+        // now we will have to check two things:
+        // 1) webhook user still has push access to this repo
+        // 2) token is still valid
+        // -> if one of these conditions is not met we will
+        //    delete the webhook
 
-                // if(hook) {
+        // if(hook) {
 
-                // }
+        // }
 
     },
 
-    create: function(req, done) {
+    create: function (req, done) {
         return req.args && req.args.orgId ? createOrgHook(req, done) : createRepoHook(req, done);
     },
 
-    remove: function(req, done) {
-        this.get(req, function(err, hook){
+    remove: function (req, done) {
+        this.get(req, function (err, hook) {
             if (err || !hook) {
                 done(err || 'No webhook found with base url ' + url.baseWebhook);
                 return;
             }
+            var githubArgs = extractGithubArgs(req.args);
+            githubArgs.arg.id = hook.id;
+
             github.call({
-                obj: 'repos',
+                obj: githubArgs.obj,
                 fun: 'deleteHook',
-                arg: {
-                    user: req.args.user,
-                    repo: req.args.repo,
-                    id: hook.id
-                },
+                arg: githubArgs.arg,
                 token: req.user.token
             }, done);
         });

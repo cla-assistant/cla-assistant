@@ -14,7 +14,7 @@ passport.use(new Strategy({
         userProfileURL: url.githubProfile()
         // scope: config.server.github.scopes
     },
-    function(accessToken, refreshToken, profile, done) {
+    function(accessToken, refreshToken, params, profile, done) {
         models.User.update({
             uuid: profile.id
         }, {
@@ -40,7 +40,8 @@ passport.use(new Strategy({
             }
         });
         done(null, merge(profile._json, {
-            token: accessToken
+            token: accessToken,
+            scope: params.scope
         }));
     }
 ));

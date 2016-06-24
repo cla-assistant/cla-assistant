@@ -189,7 +189,7 @@ app.all('/api/:obj/:fun', function(req, res) {
             return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
         }
         if (obj) {
-            obj = req.params.obj === 'repo' ? cleanup.cleanObject(obj) : obj;
+            obj = cleanup.cleanObject(obj);
             res.send(JSON.stringify(obj));
         } else {
             res.send();

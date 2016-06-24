@@ -17,7 +17,7 @@
     </div>
 
     <div class="center-block row" style="font-size:18px;" ng-show="linkStatus == 'linked'">
-    	<p><b>{{selectedGist.gist.name}}</b> and <b>{{selectedRepo.repo.full_name}}</b> <br>
+    	<p><b>{{selected.gist.name}}</b> and <b>{{selected.item.full_name ? selected.item.full_name : selected.item.login}}</b> <br>
     	are now linked
     	</p>
     </div>

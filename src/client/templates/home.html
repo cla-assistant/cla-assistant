@@ -42,7 +42,7 @@
 
 		<h5 ng-if="!user.value.org_admin" class="col-xs-12 link-topic-2">
 			<span class="link-topic-number">2</span>&nbsp;Choose a repository
-            <span class="clickable" ng-click="addScope()" style="font-size:12px; text-decoration:underline">(want link an org?)</span>
+            <span class="clickable" ng-click="addScope()" style="font-size:12px; text-decoration:underline">(want to link an org?)</span>
 		</h5>
 		<h5 ng-if="user.value.org_admin" class="col-xs-12 link-topic-2">
 			<span class="link-topic-number">2</span>&nbsp;Choose an org or a repo
@@ -54,7 +54,7 @@
 					<ui-select-match placeholder="select">
 									<button class="fa fa-times clear-button" ng-click="clear($event, 'repo')" ng-show="$select.selected.name"></button>
 									{{$select.selected.full_name || $select.selected.login}}</ui-select-match>
-					<ui-select-choices  group-by="groupOrgs" repeat="item in reposAndOrgs | filter: $select.search |notIn:claRepos">
+					<ui-select-choices  group-by="groupOrgs" repeat="item in reposAndOrgs | filter: $select.search | notIn:claRepos | notIn:claOrgs">
 						  <span ng-if="item.full_name" class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"/>
 						  <span ng-if="item.full_name" ng-bind-html="item.full_name | highlight: $select.search"></span>
 						  <span ng-if="!item.full_name"><img src="{{item.avatar_url}}" alt="" style="width:20px"></span>
@@ -107,10 +107,10 @@
 					</div>
 				</td>
 			</tr>
-			<tr ng-repeat="claOrg in claOrgs | orderBy:'repo' ">
+			<tr ng-repeat="claOrg in claOrgs | orderBy:'org' ">
 				<td>
 					<div class="row">
-						<settings item="claOrg" user="user" class="settings"></settings>
+						<settings item="claOrg" repos="repos" user="user" class="settings"></settings>
 					</div>
 				</td>
 			</tr>
