@@ -19,7 +19,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.contributors = [];
         var webhook = {};
 
-        $scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At'];
+        $scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation'];
 
         function gistArgs() {
             var args = {
@@ -74,12 +74,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     data.value.forEach(function (signature) {
                         var contributor = {};
                         contributor.user_name = signature.user;
-                        contributor.repo_owner = $scope.item.owner;
-                        contributor.repo_name = $scope.item.repo;
+                        contributor.repo_owner = signature.owner;
+                        contributor.repo_name = signature.repo;
                         contributor.gist_name = $scope.getGistName();
-                        contributor.gist_url = $scope.gist.url;
+                        contributor.gist_url = signature.gist_url;
                         contributor.gist_version = signature.gist_version;
                         contributor.signed_at = signature.created_at;
+                        contributor.org_cla = signature.org_cla;
                         $scope.contributors.push(contributor);
                     });
                 }

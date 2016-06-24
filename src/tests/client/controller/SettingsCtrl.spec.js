@@ -210,24 +210,56 @@ describe('Settings Controller', function () {
         });
 
         it('should get all contributors signed this cla', function () {
-            var repo = settingsCtrl.scope.item;
-
             testResp.cla.getAll = [{
+                owner: 'octocat',
+                repo: 'Hello-World',
                 user: 'login',
-                gist_version: '57a7f021a713b1c5a6a199b54cc514735d2d462f',
-                created_at: '2010-04-16T02:15:15Z'
+                gist_url: testGistData.url,
+                gist_version: testGistData.history[0].version,
+                created_at: '2010-04-16T02:15:15Z',
+                org_cla: 'false'
             }];
 
             settingsCtrl.scope.getContributors();
 
             (settingsCtrl.scope.contributors.length).should.be.equal(1);
             (settingsCtrl.scope.contributors[0].user_name).should.be.equal('login');
-            (settingsCtrl.scope.contributors[0].repo_owner).should.be.equal(repo.owner);
-            (settingsCtrl.scope.contributors[0].repo_name).should.be.equal(repo.repo);
+            (settingsCtrl.scope.contributors[0].repo_owner).should.be.equal('octocat');
+            (settingsCtrl.scope.contributors[0].repo_name).should.be.equal('Hello-World');
             (settingsCtrl.scope.contributors[0].gist_name).should.be.equal('ring.erl');
             (settingsCtrl.scope.contributors[0].gist_url).should.be.equal(testGistData.url);
             (settingsCtrl.scope.contributors[0].gist_version).should.be.equal(testGistData.history[0].version);
             (settingsCtrl.scope.contributors[0].signed_at).should.be.equal('2010-04-16T02:15:15Z');
+            (settingsCtrl.scope.contributors[0].org_cla).should.be.equal('false');
+        });
+
+        it('should fill all relevant fields for org cla', function () {
+            settingsCtrl.scope.item = {
+                orgId: 1,
+                gist: testGistData.url
+            };
+
+            testResp.cla.getAll = [{
+                owner: 'octocat',
+                repo: 'Hello-World',
+                user: 'login',
+                gist_url: testGistData.url,
+                gist_version: testGistData.history[0].version,
+                created_at: '2010-04-16T02:15:15Z',
+                org_cla: 'true'
+            }];
+
+            settingsCtrl.scope.getContributors();
+
+            (settingsCtrl.scope.contributors.length).should.be.equal(1);
+            (settingsCtrl.scope.contributors[0].user_name).should.be.equal('login');
+            (settingsCtrl.scope.contributors[0].repo_owner).should.be.equal('octocat');
+            (settingsCtrl.scope.contributors[0].repo_name).should.be.equal('Hello-World');
+            (settingsCtrl.scope.contributors[0].gist_name).should.be.equal('ring.erl');
+            (settingsCtrl.scope.contributors[0].gist_url).should.be.equal(testGistData.url);
+            (settingsCtrl.scope.contributors[0].gist_version).should.be.equal(testGistData.history[0].version);
+            (settingsCtrl.scope.contributors[0].signed_at).should.be.equal('2010-04-16T02:15:15Z');
+            (settingsCtrl.scope.contributors[0].org_cla).should.be.equal('true');
         });
 
         it('should get gist from github on getGist function', function () {
