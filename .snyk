@@ -1,0 +1,14 @@
+version: v1.5.0
+ignore:
+  'npm:minimatch:20160620':
+    - node-sass-middleware > node-sass > node-gyp > minimatch:
+        reason: None given
+        expires: '2016-07-27T07:34:18.241Z'
+  'npm:negotiator:20160616':
+    - socket.io > engine.io > accepts > negotiator:
+        reason: None given
+        expires: '2016-07-27T07:34:18.241Z'
+patch:
+  'npm:minimatch:20160620':
+    - node-sass-middleware > node-sass > node-gyp > glob > minimatch:
+        patched: '2016-06-27T07:33:43.289Z'

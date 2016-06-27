@@ -33,8 +33,10 @@
     "express-session": "^1.13.0",
     "github": "^1.4.0",
     "glob": "^7.0.5",
+    "karma": "^1.1.0",
+    "karma-mocha": "^1.1.1",
     "merge": "^1.2.0",
-    "mongoose": "^4.5.1",
+    "mongoose": "^4.5.2",
     "node-sass-middleware": "^0.9.8",
     "nodemailer": "^2.4.2",
     "nodemailer-sendmail-transport": "^1.0.0",
@@ -81,6 +83,10 @@
   },
   "scripts": {
     "start": "node app.js",
-    "postinstall": "bower install"
-  }
+    "postinstall": "bower install",
+    "test": "snyk test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
