@@ -75,6 +75,10 @@ module.exports = function(config) {
         // web server port
         port: 9876,
 
+        // to avoid DISCONNECTED messages
+        browserDisconnectTimeout : 10000, // default 2000
+        browserDisconnectTolerance : 1, // default 0
+        browserNoActivityTimeout : 60000, //default 10000
 
         // enable / disable colors in the output (reporters and logs)
         colors: true,

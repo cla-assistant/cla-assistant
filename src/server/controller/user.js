@@ -12,7 +12,7 @@ function checkReturnTo(req, res, next) {
     scope = null;
 
     if (req.query.public  === 'true') {
-        scope = config.server.github.public_scope;
+        scope = config.server.github.user_scope;
     }
     if (req.query.admin === 'true') {
         scope = config.server.github.admin_scope;
