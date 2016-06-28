@@ -74,6 +74,9 @@ module.exports = {
     },
     get: function (args, done) {
         Repo.findOne(selection(args), function (err, repo) {
+            if(!err && !repo){
+                err = 'Repository not found in Database'
+            }
             done(err, repo);
         });
     },
@@ -246,6 +249,8 @@ module.exports = {
                 github.direct_call(params, function (e, ghRepository) {
                     done(e, ghRepository.data);
                 });
+            } else {
+                done('GH Repo not found');
             }
         });
     }
