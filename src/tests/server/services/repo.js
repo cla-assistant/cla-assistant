@@ -96,6 +96,33 @@ describe('repo:check', function () {
     });
 });
 
+describe('repo:get', function () {
+    var response = {};
+    afterEach(function () {
+        Repo.findOne.restore();
+    });
+    it('should find the cla repo', function(it_done){
+        sinon.stub(Repo, 'findOne', function (args, done) {
+            done(null, response);
+        });
+        repo.get({ repoId: 123 }, function(err, obj){
+            assert(err == null);
+            assert(obj === response);
+            it_done();
+        });
+    });
+    it('should raise an error, if the cla repo was not found', function(it_done){
+        sinon.stub(Repo, 'findOne', function (args, done) {
+            done(null, null);
+        });
+        repo.get({ repoId: 123 }, function(err, obj){
+            assert(err === 'Repository not found in Database');
+            assert(obj == null);
+            it_done();
+        });
+    });
+});
+
 describe('repo:getAll', function () {
     var arg;
     var response;

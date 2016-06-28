@@ -14,6 +14,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		$scope.params = $stateParams;
 		$scope.user = {};
 		$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
+		$scope.noLinkedItemError = false;
 
 		function getCLA() {
 			return $RPCService.call('cla', 'get', {
@@ -44,6 +45,9 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 				repo: $stateParams.repo,
 				owner: $stateParams.user
 			}, function (err, linkedItem) {
+				if(err){
+					$scope.noLinkedItemError = true;
+				}
 				callback(linkedItem.value);
 			});
 		}

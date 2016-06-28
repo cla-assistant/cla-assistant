@@ -1,7 +1,12 @@
 <div class="row main" style="margin-top: 70px;">
 	<div class="container-fluid">
 
-		<div class="row content-block" ng-hide="signed">
+		<div class="row center-block content-block" ng-show="noLinkedItemError">
+			<h1>Error</h1>
+			<p>There is no CLA to sign for {{params.user}}/{{params.repo}}</p>
+		</div>
+
+		<div class="row content-block" ng-hide="signed || noLinkedItemError">
 			<div class="col-md-8 col-md-offset-2" >
 				<h4>Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
 				<div class="cla-box well">

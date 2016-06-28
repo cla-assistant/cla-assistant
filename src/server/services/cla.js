@@ -190,19 +190,24 @@ module.exports = function () {
             });
         } else {
             repoService.getGHRepo({ owner: owner, repo: repo, token: token }, function (e, ghRepo) {
-                orgService.get({ orgId: ghRepo.owner.id }, function (err, linkedOrg) {
-                    if (!linkedOrg) {
-                        repoService.get({ repoId: ghRepo.id }, function (error, linkedRepo) {
-                            if (linkedRepo) {
-                                deferred.resolve(linkedRepo);
-                            } else {
-                                deferred.reject(error);
-                            }
-                        });
-                    } else {
-                        deferred.resolve(linkedOrg);
-                    }
-                });
+                if(e){
+                    // could not find the GH Repo
+                    deferred.reject(e);
+                } else {
+                    orgService.get({ orgId: ghRepo.owner.id }, function (err, linkedOrg) {
+                        if (!linkedOrg) {
+                            repoService.get({ repoId: ghRepo.id }, function (error, linkedRepo) {
+                                if (linkedRepo) {
+                                    deferred.resolve(linkedRepo);
+                                } else {
+                                    deferred.reject(error);
+                                }
+                            });
+                        } else {
+                            deferred.resolve(linkedOrg);
+                        }
+                    });                    
+                }
             });
         }
         return deferred.promise;
