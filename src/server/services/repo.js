@@ -75,7 +75,7 @@ module.exports = {
     get: function (args, done) {
         Repo.findOne(selection(args), function (err, repo) {
             if(!err && !repo){
-                err = 'Repository not found in Database'
+                err = 'Repository not found in Database';
             }
             done(err, repo);
         });

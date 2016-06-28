@@ -109,9 +109,17 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
                 url: '',
                 templateUrl: '/templates/cla.html',
                 controller: 'ClaController'
+            })
+            
+            //
+            // 404 Error
+            //
+            .state('404', {
+                url: '/404',
+                templateUrl: '/templates/404.html'
             });
 
-            $urlRouterProvider.otherwise('/');
+            $urlRouterProvider.otherwise('/404');
 
             $locationProvider.html5Mode({
                 enabled: true,
