@@ -975,4 +975,21 @@ describe('cla:getLinkedItem', function () {
             repo_service.getGHRepo.restore();
         });
     });
+    it('should return an error, if the GH Repo does not exist', function (it_done) {
+        var testArgs = {
+            repo: 'DoesNotExist',
+            owner: 'NoOne'
+        };
+        sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+            assert(testArgs.repo === args.repo);
+            assert(testArgs.owner === args.owner);
+            done('GH Repo not found', null);
+        });
+
+        cla.getLinkedItem(testArgs, function(err, obj){
+            assert(err == 'GH Repo not found');
+            repo_service.getGHRepo.restore();
+            it_done();
+        });
+    });
 });
