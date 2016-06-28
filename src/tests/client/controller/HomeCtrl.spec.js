@@ -127,8 +127,84 @@ describe('Home Controller', function () {
             'id': 2
         }
     ];
+
+    var testDataMemberships = {
+        admin:
+        {
+            'url': 'https://api.github.com/orgs/octocat/memberships/defunkt',
+            'state': 'active',
+            'role': 'admin',
+            'organization_url': 'https://api.github.com/orgs/octocat',
+            'organization': {
+                'login': 'octocat',
+                'url': 'https://api.github.com/orgs/octocat',
+                'id': 1,
+                'repos_url': 'https://api.github.com/users/octocat/repos',
+                'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
+                'members_url': 'https://api.github.com/users/octocat/members{/member}',
+                'public_members_url': 'https://api.github/com/users/octocat/public_members{/member}',
+                'avatar_url': 'https://secure.gravatar.com/avatar/7ad39074b0584bc555d0417ae3e7d974?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png'
+            },
+            'user': {
+                'login': 'defunkt',
+                'id': 3,
+                'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
+                'gravatar_id': '',
+                'url': 'https://api.github.com/users/defunkt',
+                'html_url': 'https://github.com/defunkt',
+                'followers_url': 'https://api.github.com/users/defunkt/followers',
+                'following_url': 'https://api.github.com/users/defunkt/following{/other_user}',
+                'gists_url': 'https://api.github.com/users/defunkt/gists{/gist_id}',
+                'starred_url': 'https://api.github.com/users/defunkt/starred{/owner}{/repo}',
+                'subscriptions_url': 'https://api.github.com/users/defunkt/subscriptions',
+                'organizations_url': 'https://api.github.com/users/defunkt/orgs',
+                'repos_url': 'https://api.github.com/users/defunkt/repos',
+                'events_url': 'https://api.github.com/users/defunkt/events{/privacy}',
+                'received_events_url': 'https://api.github.com/users/defunkt/received_events',
+                'type': 'User',
+                'site_admin': false
+            }
+        },
+        member :
+        {
+            'url': 'https://api.github.com/orgs/octocat/memberships/login',
+            'state': 'active',
+            'role': 'member',
+            'organization_url': 'https://api.github.com/orgs/octocat',
+            'organization': {
+                'login': 'octocat',
+                'url': 'https://api.github.com/orgs/octocat',
+                'id': 1,
+                'repos_url': 'https://api.github.com/users/octocat/repos',
+                'events_url': 'https://api.github.com/users/octocat/events{/privacy}',
+                'members_url': 'https://api.github.com/users/octocat/members{/member}',
+                'public_members_url': 'https://api.github/com/users/octocat/public_members{/member}',
+                'avatar_url': 'https://secure.gravatar.com/avatar/7ad39074b0584bc555d0417ae3e7d974?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png'
+            },
+            'user': {
+                'login': 'login',
+                'id': 3,
+                'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
+                'gravatar_id': '',
+                'url': 'https://api.github.com/users/login',
+                'html_url': 'https://github.com/login',
+                'followers_url': 'https://api.github.com/users/login/followers',
+                'following_url': 'https://api.github.com/users/login/following{/other_user}',
+                'gists_url': 'https://api.github.com/users/login/gists{/gist_id}',
+                'starred_url': 'https://api.github.com/users/login/starred{/owner}{/repo}',
+                'subscriptions_url': 'https://api.github.com/users/login/subscriptions',
+                'organizations_url': 'https://api.github.com/users/login/orgs',
+                'repos_url': 'https://api.github.com/users/login/repos',
+                'events_url': 'https://api.github.com/users/login/events{/privacy}',
+                'received_events_url': 'https://api.github.com/users/login/received_events',
+                'type': 'User',
+                'site_admin': false
+            }
+        }
+    };
+
     var calledApi;
-    var expRes = { RPC: {} };
+    var expRes = { RPC: {}};
     var getAllReposData;
     var getAllReposError;
     var rpcRepoGetAllData;
@@ -167,7 +243,9 @@ describe('Home Controller', function () {
             }
 
             if (obj === 'users' && fun === 'getOrgs') {
-                response.value = testDataOrgs;
+                response.value = expRes.HUB ? expRes.HUB.getOrgs : testDataOrgs;
+            } else if (obj === 'users' && fun === 'getOrganizationMembership') {
+                response.value = expRes.HUB ? expRes.HUB.getOrgMembership : testDataMemberships.admin;
             } else {
                 return hubCall(obj, fun, args, cb);
             }
@@ -327,6 +405,26 @@ describe('Home Controller', function () {
         (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
     });
 
+    it('should get only github orgs where user has admin rights, normal membership is not enough', function () {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
+        httpBackend.flush();
+
+        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
+        ($HUB.call.calledWithMatch('users', 'getOrganizationMembership')).should.be.equal(true);
+        (homeCtrl.scope.claOrgs.length).should.be.equal(1);
+    });
+
+    it('should not get github orgs where user has NO admin rights but normal membership', function () {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        expRes.HUB = { getOrgMembership: testDataMemberships.member };
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
+        httpBackend.flush();
+
+        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
+        (homeCtrl.scope.claOrgs.length).should.be.equal(0);
+    });
+
     it('should get claOrgs and github orgs but not add them to reposAndOrgs array if user has no admin:org_hook rights', function () {
         expRes.RPC.org = { getForUser: { value: [{orgId: 1}] } };
         httpBackend.flush();
@@ -345,7 +443,7 @@ describe('Home Controller', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.user.value.org_admin).should.be.equal(false);
-        (homeCtrl.scope.orgs).should.be.equal(testDataOrgs);
+        (homeCtrl.scope.orgs).should.not.be.equal(testDataOrgs);
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
     });
 
@@ -353,7 +451,7 @@ describe('Home Controller', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
         httpBackend.flush();
 
-        (homeCtrl.scope.orgs).should.be.equal(testDataOrgs);
+        (homeCtrl.scope.orgs.length).should.be.equal(testDataOrgs.length);
         (homeCtrl.scope.repos.length).should.be.equal(2);
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(4);
     });

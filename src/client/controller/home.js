@@ -164,15 +164,33 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
 
         var getOrgs = function() {
-            // var deferred = $q.defer();
+            var deferred = $q.defer();
             // var promise = $scope.user.value.org_admin ? $HUBService.call('users', 'getOrgs', {}) : deferred.promise;
-            var promise = $HUBService.call('users', 'getOrgs', {});
+            var promises = [];
+            $HUBService.call('users', 'getOrgs', {}).then(function (data) {
+                var orgs = data.value;
+                var adminOrgs = [];
+                // $scope.orgs = data && data.value ? data.value : $scope.orgs;
 
-            // deferred.resolve();
-            promise.then(function(data) {
-                $scope.orgs = data && data.value ? data.value : $scope.orgs;
+                if (orgs instanceof Array) {
+                    orgs.forEach(function (org) {
+                        var promise = $HUBService.call('users', 'getOrganizationMembership', { org: org.login }).then(function (info) {
+                            if (info && info.value && info.value.role === 'admin') {
+                                adminOrgs.push(org);
+                            }
+                        });
+                        promises.push(promise);
+                    });
+                    $q.all(promises).then(function () {
+                        $scope.orgs = adminOrgs;
+                        deferred.resolve(adminOrgs);
+                    });
+
+                } else {
+                    deferred.reject(data && data.value ? data.value.message : 'Could not find github orgs');
+                }
             });
-            return promise;
+            return deferred.promise;
         };
 
         // var validateLinkedRepos = function(){
