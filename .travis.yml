@@ -10,5 +10,6 @@ before_script:
 - gem install scss_lint
 after_script:
 - grunt uglify && grunt mocha_istanbul && grunt coveralls
+- if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'v1.1' ]]; then ./.cf.sh cla-assistant-feature; fi
 - if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'master' ]]; then ./.cf.sh cla-assistant-staging; fi
 - if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'release' ]]; then ./.cf.sh cla-assistant; fi
