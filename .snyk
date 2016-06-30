@@ -1,0 +1,8 @@
+version: v1.5.0
+ignore: {}
+patch:
+  'npm:minimatch:20160620':
+    - node-sass > node-gyp > glob > minimatch:
+        patched: '2016-06-23T16:43:49.465Z'
+    - node-sass-middleware > node-sass > node-gyp > glob > minimatch:
+        patched: '2016-06-23T16:43:49.465Z'
