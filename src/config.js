@@ -71,8 +71,7 @@ module.exports = {
         slack_url: process.env.SLACK_URL,
 
         static: [
-            path.join(__dirname, 'bower'),
-            path.join(__dirname, 'client')
+            './dist'
         ],
 
         api: [

@@ -1,0 +1,80 @@
+.linked-clas-heading{
+  margin: 25px 0;
+  padding-left: 0;
+}
+
+.linked-clas-list{
+  padding-top:25px;
+}
+
+.linked-clas-list-heading{
+  padding: 0;
+}
+
+.linked-clas-list-first-col{
+  padding-left:0;
+}
+
+.linked-clas-show-contrib-col{
+  text-align: center;
+  text-decoration: underline;
+}
+
+.is-link-active-img{
+  height: 20px;
+}
+
+// cm=> contributor modal css
+.cm-show-contrib-loading{
+  min-height: 400px;
+}
+
+.cm-show-contrib-loading-img{
+  margin: 10px;
+  margin-top: 150px;
+}
+
+.cm-signed-contrib-text{
+  text-align: center;
+  font-size: 26px;
+  margin-top: 20px;
+}
+
+.cm-contrib-list-outer{
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.cm-repo-link-info{
+  position: relative;
+  padding-top: 0;
+  padding-bottom: 25px;
+}
+
+.cm-gist-name-outer{
+  text-align: right;
+}
+
+.cm-info-inner .cm-repo-inner{
+  display: inline-block;
+  vertical-align: bottom;
+  line-height: 1.2;
+}
+
+.cm-info-link-div{
+  position: absolute;
+  width: 100%;
+}
+
+.cm-info-link-img{
+  height:17px;
+}
+
+.cm-contrib-list-heading{
+  margin-top: 10px;
+}
+
+.cm-contrib-list-col{
+  border-bottom: solid 1px lightgray;
+  padding-bottom: 10px;
+}

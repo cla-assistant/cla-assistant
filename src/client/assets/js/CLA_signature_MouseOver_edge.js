@@ -3,10 +3,10 @@
 (function (compId) {
 
     "use strict";
-    var im='assets/images/CLA_sign/',
+    var im='/client/assets/images/CLA_sign/',
         aud='media/',
         vid='media/',
-        js='assetes/js/',
+        js='/client/assets/js/',
         fonts = {
         },
         opts = {
@@ -1386,5 +1386,5 @@
 
     AdobeEdge.registerCompositionDefn(compId, symbols, fonts, scripts, resources, opts);
 
-    if (!window.edge_authoring_mode) AdobeEdge.getComposition(compId).load("assets/js/CLA_signature_MouseOver_edgeActions.js");
+    if (!window.edge_authoring_mode) AdobeEdge.getComposition(compId).load("/client/assets/js/CLA_signature_MouseOver_edgeActions.js");
 })("EDGE-110781156");

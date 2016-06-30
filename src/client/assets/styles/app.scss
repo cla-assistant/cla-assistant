@@ -116,7 +116,7 @@ $label-default-bg: $brand-info;
 $label-color: $brand-primary;
 
 // import bootstrap
-@import '../../../bower/bootstrap-sass-official/assets/stylesheets/bootstrap.scss';
+@import '../../../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 // import our files
 @import 'animation';
@@ -124,7 +124,6 @@ $label-color: $brand-primary;
 @import 'browser';
 @import 'btn';
 @import 'landing-page';
-@import 'link';
 @import 'list-group';
 @import 'modal';
 @import 'navbar';
@@ -133,6 +132,10 @@ $label-color: $brand-primary;
 @import 'table';
 @import 'tabs';
 @import 'well';
+@import 'home';
+@import 'clalink';
+@import 'repo';
+
 
 
 //
@@ -445,7 +448,7 @@ small {
 
 // _popover
 .popover-inner{
-  // display: -moz-grid-line;
+  display: -moz-grid-line;
   i {
       width: 100%;
   }

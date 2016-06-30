@@ -1,10 +1,14 @@
+.lp-main{
+  overflow-x: hidden;
+}
+
 .lp-background-main {
   position: fixed;
   z-index: -1;
   bottom: 0;
   height: 100vH;
   width: 100%;
-  background-image: url('/assets/images/background.jpg');
+  background-image: url('/client/assets/images/background.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -14,6 +18,10 @@
   background:black;
   opacity:0.5;
   height:100%;
+}
+
+.lp-main-cla-img{
+  width:200px;
 }
 
 .lp-header {
@@ -36,6 +44,32 @@
 	right:10px;
   }
 }
+
+.cla-logo{
+  width: 55px;
+}
+
+.lp-first-block{
+  font-size: 25px;
+  font-weight: 200;
+  line-height: 36px;
+  margin-top: 30px;
+}
+
+.lp-signin-button{
+  margin-top: 20px;
+  width: 195px;
+  font-size: 16px
+}
+
+.lp-features-outer-div{
+  margin-bottom:50px
+}
+
+.lp-second-block{
+  font-size: 25px;
+}
+
 
 .lp-start-view {
   position: relative;
@@ -238,12 +272,69 @@ a.lp-signin:hover, a.lp-signin:focus {
 	margin: 30px auto;
 }
 
+.lp-feature{
+  display: inline-block;
+}
+
+.lp-hassle-free-signing-outer{
+  font-size:18px;
+}
+
+.lp-hassle-free-signing-list{
+  padding: 0;
+  list-style-position: inside;
+}
+
+.lp-activity{
+  height: 400px;
+}
+
+.lp-activity-content{
+  text-align: center;
+  margin-top: 3em;
+}
+
+.lp-howto-img{
+  height: 150px;
+}
+
+.lp-howto1-outer{
+  margin-top: 75px;
+}
+
+
+.lp-howto-main-text{
+  font-size: 24px;
+  color: #009245;
+  margin-top: 1em;
+}
+
+.lp-howto-sub-text{
+  font-size: 18px;
+}
+
+.lp-preview{
+  margin-bottom:40px;
+}
+
 .next-step-show {
   opacity: 1;
 }
 
 .next-step-show.ng-hide {
   opacity: 0;
+}
+
+.footer-copyright{
+  margin-bottom: 0px;
+}
+
+.footer-made-by{
+  z-index:-1;
+}
+
+.footer-terms-of-service{
+  margin-right: 10px;
 }
 
 @media(min-width: 768px){
@@ -292,6 +383,7 @@ a.lp-signin:hover, a.lp-signin:focus {
 	text-align: left;
   }
 }
+
 
 @media(max-width: 599px){
   .lp-header{
