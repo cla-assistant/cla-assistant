@@ -41,15 +41,15 @@ router.all('/static/*', function(req, res) {
 });
 
 router.all('/*', function(req, res) {
-	var filePath;
-	if (req.user || req.path !== '/') {
-		filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
-	}
-	else {
-		filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
-	}
+	// var filePath;
+	// if (req.user || req.path !== '/') {
+	// 	filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
+	// }
+	// else {
+	// 	filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
+	// }
 	res.setHeader('Last-Modified', (new Date()).toUTCString());
-	res.status(200).sendFile(filePath);
+	res.status(200).sendFile(path.join(__dirname, '..', '..', 'client', 'index.html'));
 });
 
 module.exports = router;

@@ -1,27 +1,33 @@
 <html>
   <head>
-    <title>Angular 2 QuickStart</title>
+    <base href=".">
+    <title>CLA assistant</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- 1. Load libraries -->
-     <!-- Polyfill(s) for older browsers -->
+    <script src="lib/systemjs/dist/system.src.js"></script>
     <script src="lib/core-js/client/shim.min.js"></script>
+    <script src="lib/rxjs/bundles/Rx.js"></script>
     <script src="lib/zone.js/dist/zone.js"></script>
     <script src="lib/reflect-metadata/Reflect.js"></script>
-    <script src="lib/systemjs/dist/system.src.js"></script>
     <script src="lib/jquery/dist/jquery.min.js"></script>
     <script src="lib/bootstrap/dist/js/bootstrap.js"></script>
     
-    
-    <!-- 2. Configure SystemJS -->
+
     <script src="systemjs.config.js"></script>
     <script>
       System.import('app').catch(function(err){ console.error(err); });
     </script>
+
+    <!-- COMPONENT STYLESHEETS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600" rel="stylesheet" type="text/css">
+    <link href="/assets/styles/app.css" rel="stylesheet">
   </head>
-  <!-- 3. Display the application -->
+
   <body>
-    <my-app>Loading...</my-app>
+    <app>Loading...</app>
   </body>
 </html>
