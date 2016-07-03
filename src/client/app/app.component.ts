@@ -5,7 +5,6 @@ import { ROUTER_DIRECTIVES }  from '@angular/router';
   selector: 'app',
   directives: [ROUTER_DIRECTIVES],
   template: `
-    <a [routerLink]="['/login']">Login</a>
     <router-outlet></router-outlet>
   `
 })

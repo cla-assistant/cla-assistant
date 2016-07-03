@@ -15,13 +15,10 @@ export class Login {
   public numberStars: number;
   public time = '5000';
 
-  private _window: Window;
 
   constructor(
-    private window: Window,
     private authService: AuthService,
     private router: Router) {
-    this._window = window;
 
     this.active = 0;
     this._updateNumberOfRepos();
@@ -32,11 +29,7 @@ export class Login {
 
   public logAdminIn() {
     // this._window.location.href = '/auth/github?admin=true';
-    this.authService.doLogin().subscribe(() => {
-      if (this.authService.isLoggedIn) {
-        this.router.navigate(['/']);
-      }
-    });
+    this.authService.doLogin('admin');
   }
 
   private _updateNumberOfRepos() {
