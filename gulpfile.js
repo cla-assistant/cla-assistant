@@ -17,6 +17,7 @@ const tsc = require('gulp-typescript');
 const sourcemaps = require('gulp-sourcemaps');
 const tsProject = tsc.createProject('tsconfig.json');
 const tslint = require('gulp-tslint');
+const Builder = require('systemjs-builder');
 // const tscOptions = tsc.createProject('tsconfig.json');
 // const inlineNg2Template = require('gulp-inline-ng2-template');
 // const assets = require('gulp-assets');
@@ -65,17 +66,26 @@ gulp.task('libs', () => {
     'core-js/client/shim.min.js',
     'zone.js/dist/zone.js',
     'reflect-metadata/Reflect.js',
-    'rxjs/bundles/Rx.js',
     'systemjs/dist/system.src.js',
     'jquery/dist/jquery.min.js',
     'bootstrap/dist/js/bootstrap.js',
-    '@angular/*/bundles/*.umd.min.js',
-    'rxjs/bundles/*'
   ], { cwd: 'node_modules/**' })
     .pipe(gulp.dest('./dist/client/lib'));
 });
+gulp.task('bundle', ['compile-ts'], function() {
+    var builder = new Builder('', 'src/client/systemjs.config.js');
+    return builder
+        .buildStatic('app/main.js', 'dist/client/app/bundle.js', { minify: false, sourceMaps: true})
+        .then(function() {
+            console.log('Build complete');
+        })
+        .catch(function(err) {
+            console.log('Build error');
+            console.log(err);
+        });
+});
 gulp.task('watch', function () {
-  gulp.watch(['src/client/**/*.ts'], ['compile-ts']).on('change', function (e) {
+  gulp.watch(['src/client/**/*.ts'], ['bundle']).on('change', function (e) {
     console.log('TypeScript file ' + e.path + ' has been changed. Compiling.');
   });
   gulp.watch(['src/client/assets/styles/*.scss'], ['compile-css']).on('change', function (e) {
@@ -85,7 +95,7 @@ gulp.task('watch', function () {
     console.log('Resource file ' + e.path + ' has been changed. Updating.');
   });
 });
-gulp.task('build', ['compile-ts', 'copy-resources', 'compile-css', 'libs'], () => {
+gulp.task('build', ['bundle', 'copy-resources', 'compile-css', 'libs'], () => {
   console.log('Building the project ...');
 });
 

@@ -1,0 +1,54 @@
+<div>
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-home-left">
+        <div *ngIf="user">
+          <a bind-href="user.html_url" target="spcae">
+            <img bind-src="user.avatar_url" class="user-avatar" />
+            <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.login }}</b>!</a>
+          </a>
+        </div>
+      </div>
+      <div class="nav navbar-home-right">
+        <a *ngIf="user" (click)="logout.emit()" class="octicon octicon-sign-out home-logout" data-toggle="tooltip"
+          data-placement="left" title="Sign out" activate-tooltip tooltip-placement="left"></a>
+      </div>
+      <div class="navbar-center">
+        <a href="/">
+          <img class="center-block img-responsive cla-logo" src="/assets/images/logo_b.svg">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <ng-content></ng-content>
+
+  <div class="navbar navbar-default navbar-fixed-bottom">
+    <div class="navbar-top-border">
+      <div class="container-fluid">
+        <div class="navbar-text navbar-left">
+          <p class="footer-copyright">© 2015 SAP SE</p>
+        </div>
+        <div class="navbar-text navbar-center footer-made-by">
+          <p class="hidden-xs hidden-sm footer-copyright">
+            Made with <span class="octicon octicon-heart"></span> from the GitHub team at SAP
+          </p>
+        </div>
+        <div class="center-block">
+          <div class="navbar-text navbar-right">
+            <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+              <span class="octicon octicon-mark-github"></span> Open an issue
+            </a>
+          </div>
+        </div>
+        <div class="center-block">
+          <div class="navbar-text navbar-right">
+            <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" class="footer-terms-of-service">
+                    Terms of Service &amp Privacy Policy
+                  </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

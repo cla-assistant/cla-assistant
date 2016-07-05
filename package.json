@@ -11,6 +11,11 @@
     "github",
     "cla"
   ],
+  "scripts": {
+    "snyk-test": "snyk test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -19,16 +24,14 @@
   "bugs": "https://github.com/cla-assistant/cla-assistant/issues",
   "contributors": [],
   "dependencies": {
-    "@angular/common": "2.0.0-rc.3",
-    "@angular/compiler": "2.0.0-rc.3",
-    "@angular/core": "2.0.0-rc.3",
-    "@angular/forms": "0.1.1",
-    "@angular/http": "2.0.0-rc.3",
-    "@angular/platform-browser": "2.0.0-rc.3",
-    "@angular/platform-browser-dynamic": "2.0.0-rc.3",
-    "@angular/router": "3.0.0-alpha.8",
-    "@angular/router-deprecated": "2.0.0-rc.2",
-    "@angular/upgrade": "2.0.0-rc.3",
+    "@angular/common": "2.0.0-rc.4",
+    "@angular/compiler": "2.0.0-rc.4",
+    "@angular/core": "2.0.0-rc.4",
+    "@angular/forms": "0.2.0",
+    "@angular/http": "2.0.0-rc.4",
+    "@angular/platform-browser": "2.0.0-rc.4",
+    "@angular/platform-browser-dynamic": "2.0.0-rc.4",
+    "@angular/router": "^3.0.0-beta.2",
     "async": "^2.0.0-rc.6",
     "body-parser": "^1.15.2",
     "bootstrap": "^3.3.6",
@@ -43,15 +46,20 @@
     "express": "^4.14.0",
     "github": "^2.0.1",
     "glob": "^7.0.5",
+    "gulp-eslint": "^2.1.0",
     "jquery": "^2.1.3",
+    "merge": "^1.2.0",
     "mongoose": "^4.5.2",
+    "ng2-select": "^1.0.3",
     "node-sass-middleware": "^0.9.8",
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
     "q": "^1.4.1",
     "reflect-metadata": "^0.1.3",
+    "rewire": "^2.5.2",
     "rxjs": "5.0.0-beta.6",
     "systemjs": "0.19.27",
+    "tslint": "^3.13.0",
     "x-frame-options": "^1.0.0",
     "zone.js": "^0.6.12"
   },
@@ -68,21 +76,22 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tslint": "^5.0.0",
     "gulp-typescript": "^2.13.6",
+    "jasmine-core": "^2.4.1",
+    "karma": "^1.1.0",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-coverage": "^1.0.0",
+    "karma-jasmine": "^1.0.2",
     "path": "^0.12.7",
+    "remap-istanbul": "^0.6.4",
     "rewire": "^2.5.1",
     "sinon": "^1.17.4",
     "snyk": "^1.16.0",
+    "systemjs-builder": "^0.15.23",
     "tslint": "^3.12.1",
     "typescript": "^1.8.10"
   },
   "engines": {
     "node": "0.10.x"
-  },
-  "scripts": {
-    "start": "node app.js",
-    "test": "snyk test",
-    "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
   },
   "snyk": true
 }
