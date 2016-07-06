@@ -5,7 +5,7 @@ import { ClaLinkForm } from './claLinkForm.component';
 @Component({
   selector: 'cla-link',
   directives: [ClaLinkForm],
-  templateUrl: 'app/home/claLink/claLink.html'
+  templateUrl: './claLink.html'
 })
 export class ClaLink implements OnInit {
   private linkFormVisible: boolean = false;

@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { GithubService } from '../../shared/github/github.service';
 import { Observable } from 'rxjs';
 import { SELECT_DIRECTIVES } from 'ng2-select';
+import { Gist } from '../../shared/github/gist';
 
 
 @Component({

@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 
 @Component({
   selector: 'login',
-  templateUrl: 'app/login/login.html'
+  templateUrl: './login.html'
 })
 export class Login {
   @Input() public active: number;

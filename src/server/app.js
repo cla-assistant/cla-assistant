@@ -7,6 +7,7 @@ var passport = require('passport');
 var path = require('path');
 var sass_middleware = require('node-sass-middleware');
 var cleanup = require('./middleware/cleanup');
+
 // var sass_middleware = require('node-sass-middleware');
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +23,15 @@ global.config = require('./../config');
 var app = express();
 var api = {};
 var webhooks = {};
+
+// Use webpack dev server
+if (process.env.NODE_ENV !== 'production') {
+    var webpack = require('webpack')
+    var webpackDevMiddleware = require('webpack-dev-middleware')
+    var webpackConfig = require('../../webpack.config')
+    var compiler = webpack(webpackConfig)
+    app.use(webpackDevMiddleware(compiler, { noInfo: false, publicPath: webpackConfig.output.publicPath }))
+}
 
 // redirect from http to https
 app.use(function(req, res, next) {

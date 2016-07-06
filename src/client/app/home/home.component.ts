@@ -3,6 +3,7 @@ import { AuthService } from '../login/auth.service';
 import { AppFrame } from '../appFrame/appFrame.component';
 import { GithubService } from '../shared/github/github.service';
 import { ClaLink } from './claLink/claLink.component';
+import { User } from '../shared/github/user';
 
 @Component({
   selector: 'home',

@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { User } from '../shared/github/user';
 
 @Component({
   selector: 'app-frame',
-  templateUrl: 'app/appFrame/appFrame.html'
+  templateUrl: './appFrame.html'
 })
 export class AppFrame {
     @Input() public user: User = null;

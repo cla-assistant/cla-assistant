@@ -1,13 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Http } from '@angular/http';
 
 
 @Injectable()
 export class AuthService {
-
+  private window: Window;
   constructor(
     private http: Http,
-    private window: Window) { }
+    @Inject('Window') window) {
+      this.window = window;
+    }
 
   public isLoggedIn() {
     return this.http.get('/loggedin').map((res) => {
