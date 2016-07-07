@@ -103,6 +103,10 @@ $nav-tabs-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-bg: $gray-lighter;
 
+//margin
+$margin-small: 15px;
+$margin-medium: 30px;
+
 // navbar
 
 // breadcrumb
@@ -173,11 +177,11 @@ h4{
   padding-left: 0;
 }
 
-h5 {
-  font-weight: 600;
+label {
+  margin-top: $margin-small;
 }
 
-h5.required:after {
+label.required:after {
   content: " *";
 }
 
@@ -460,5 +464,5 @@ small {
 }
 
 .margin-top-medium {
-  margin-top: 30px;
+  margin-top: $margin-medium;
 }

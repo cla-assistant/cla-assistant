@@ -1,4 +1,4 @@
-<h5 ng-class="{'required': required}">{{name}}</h5>
+<label ng-class="{'required': required}">{{title || name}}</label>
 <div ng-show="type === 'boolean'">
     <checkbox class="form-control" ng-model="value" placeholder="" title="description"></checkbox>
 </div>

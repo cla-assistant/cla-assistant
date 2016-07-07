@@ -140,6 +140,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			key: '=',
 			name: '=',
 			required: '=',
+			title: '=',
 			type: '=',
 			value: '='
 		}
