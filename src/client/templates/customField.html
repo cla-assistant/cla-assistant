@@ -1,0 +1,7 @@
+<h5 ng-class="{'required': required}">{{name}}</h5>
+<div ng-show="type === 'boolean'">
+    <checkbox class="form-control" ng-model="value" placeholder="" title="description"></checkbox>
+</div>
+<div ng-show="type != 'boolean'">
+    <input class="form-control" ng-model="value" placeholder="" title="{{description}}" type="{{type}}" min="{{min}}" max="{{max}}"></input>
+</div>

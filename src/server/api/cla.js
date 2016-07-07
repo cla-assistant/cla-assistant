@@ -1,5 +1,6 @@
 // modules
 var async = require('async');
+var q = require('q');
 
 // services
 var github = require('../services/github');
@@ -11,6 +12,68 @@ var prService = require('../services/pullRequest');
 var log = require('../services/logger');
 
 var token;
+
+var markdownRender = function (content, token) {
+    var deferred = q.defer();
+    var args = {
+        obj: 'misc',
+        fun: 'renderMarkdown',
+        arg: {
+            text: content
+        },
+        token: token
+    };
+
+    github.call(args, function (error, response) {
+        var callback_error;
+        if (!response || response.statusCode !== 200) {
+            callback_error = response && response.message ? response.message : error;
+            if (callback_error) {
+                deferred.reject(callback_error);
+                return;
+            }
+        }
+        if (response) {
+            deferred.resolve({
+                raw: response.body || response.data || response
+            });
+        } else {
+            deferred.reject(callback_error);
+        }
+
+    });
+    return deferred.promise;
+};
+
+var renderFiles = function (files, renderToken) {
+    var deferred = q.defer();
+    try {
+        var content = files[Object.keys(files)[0]].content;
+    } catch (e) {
+        deferred.reject(e);
+        return deferred.promise;
+    }
+    var metadata = files && files['metadata'] ? files['metadata'].content : undefined;
+
+    var gistContent = {}, contentPromise, metaPromise;
+    contentPromise = markdownRender(content, renderToken).then(function (data) {
+        return data.raw;
+    });
+    if (metadata) {
+        metaPromise = markdownRender(metadata, renderToken).then(function (data) {
+            return data.raw;
+        });
+    }
+    q.all([contentPromise, metaPromise]).then(function (data) {
+        gistContent.raw = data[0];
+        gistContent.meta = data[1];
+        deferred.resolve(gistContent);
+    },
+        function (msg) {
+            deferred.reject(msg);
+        });
+    return deferred.promise;
+};
 
 module.exports = {
     getGist: function (req, done) {
@@ -53,39 +116,16 @@ module.exports = {
                 done(err);
                 return;
             }
-            try {
-                var args = {
-                    obj: 'misc',
-                    fun: 'renderMarkdown',
-                    arg: {
-                        text: res.files[Object.keys(res.files)[0]].content
-                    }
-                };
-            } catch (e) {
-                log.warn(e, ' Args: ', req.args);
-                done(e);
-                return;
-            }
-
-            args.token = req.user && req.user.token ? req.user.token : token;
-
-            github.call(args, function (error, response) {
-                var callback_error;
-                if (!response || response.statusCode !== 200) {
-                    callback_error = response && response.message ? response.message : error;
-                    if (callback_error) {
-                        log.error(callback_error);
-                    }
+            var renderToken = req.user && req.user.token ? req.user.token : token;
+            renderFiles(res.files, renderToken).then(
+                function success (gistContent) {
+                    done(null, gistContent);
+                },
+                function error(msg) {
+                    log.warn(msg, ' Args: ', req.args);
+                    done(msg);
                 }
-                if (response) {
-                    done(callback_error, {
-                        raw: response.body || response.data || response
-                    });
-                } else {
-                    done(callback_error);
-                }
-
-            });
+            );
         });
     },
 

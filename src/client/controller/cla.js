@@ -9,12 +9,14 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 	function ($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q) {
 
 		$scope.cla = null;
-		$scope.signed = false;
+		$scope.customFields = {};
+		$scope.customValues = {};
 		$scope.linkedItem = null;
-		$scope.params = $stateParams;
-		$scope.user = {};
-		$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
 		$scope.noLinkedItemError = false;
+		$scope.params = $stateParams;
+		$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
+		$scope.user = {};
+		$scope.signed = false;
 
 		function getCLA() {
 			return $RPCService.call('cla', 'get', {
@@ -23,6 +25,20 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			}, function (err, cla) {
 				if (!err) {
 					$scope.claText = cla.value.raw;
+
+					if (cla.value.meta) {
+						// use timeout in order to run the next digest.
+						$timeout(function () {
+							var metaString = cla.value.meta.replace(/<p>|<\/p>|\n|\t/g, '');
+							try {
+								$scope.customFields = JSON.parse(metaString);
+								$scope.customKeys = Object.keys($scope.customFields.properties);
+							} catch (ex) {
+								$scope.noLinkedItemError = true;
+								console.log(ex);
+							}
+						});
+					}
 				}
 			});
 		}
@@ -84,6 +100,21 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			}
 		});
 
+		$scope.isValid = function () {
+			if (!$scope.customFields.required || $scope.customFields.required.length <= 0) {
+				return true;
+			}
+
+			var valid = true;
+			$scope.customFields.required.some(function (key) {
+				var value = $scope.customValues[key];
+				var property = $scope.customFields.properties[key];
+				valid = value && typeof value == property.type;
+				return !valid;
+			});
+			return valid;
+		};
+
 		$q.all([userPromise, repoPromise]).then(function () {
 			if ($stateParams.pullRequest) {
 				$scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
@@ -100,4 +131,17 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			}
 		});
 	}
-]);
+])
+.directive('customfield', [function() {
+	return {
+		templateUrl: '/templates/customField.html',
+		scope: {
+			description: '=',
+			key: '=',
+			name: '=',
+			required: '=',
+			type: '=',
+			value: '='
+		}
+	};
+}]);

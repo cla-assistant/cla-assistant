@@ -235,6 +235,26 @@ describe('', function () {
 
         });
 
+        it('should render metadata-file with custom fields if provided', function (it_done) {
+            var req = {
+                args: {
+                    repo: 'Hello-World',
+                    owner: 'octocat'
+                }
+            };
+
+            cla_api.get(req, function (err, gistContent) {
+                assert.ifError(err);
+                assert(github.call.calledTwice);
+                assert(gistContent.raw);
+                assert(gistContent.meta);
+                // assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: testData.repo_from_db.token }));
+
+                it_done();
+            });
+
+        });
+
         describe('in case of failing github api', function () {
             var req = {
                 args: {

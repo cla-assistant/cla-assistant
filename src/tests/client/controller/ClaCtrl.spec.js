@@ -3,7 +3,7 @@
 
 angular.module('app');
 describe('CLA Controller', function() {
-    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, _HUBService;
+    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, claTextWithMeta, _HUBService;
     var linkedItem;
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
@@ -38,6 +38,7 @@ describe('CLA Controller', function() {
         user.meta = {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'};
         claSigned = true;
         claText = { raw: '<p>cla text</p>' };
+        claTextWithMeta = { raw: '<p>cla text</p>', meta: '<p>{ "title": "Custom Fields", "type": "object", "properties": {"name": {"type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email"},"age": {"description": "Age in years","type": "number","minimum": "0"}},"required": ["email", "age"]}</p>' };
         linkedItem = { repoId: 1 };
 
 
@@ -73,6 +74,89 @@ describe('CLA Controller', function() {
 
         _timeout.flush();
         (claController.scope.claText).should.be.ok;
+    });
+
+    it('should get CLA text with meta data', function() {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+        (claController.scope.customFields).should.be.ok;
+        (claController.scope.customKeys).should.be.ok;
+        // (claController.scope.customValues.a).should.be.ok;
+    });
+
+    it('should validate customFields', function () {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        claController.scope.customValues.name = '';
+        claController.scope.customValues.email = 'any email';
+        claController.scope.customValues.age = 23;
+
+        (claController.scope.customFields).should.be.ok;
+        (claController.scope.isValid()).should.be.ok;
+    });
+
+    it('should be invalid if not all required fields are filled', function () {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        claController.scope.customValues.name = 'any name';
+        claController.scope.customValues.email = '';
+        claController.scope.customValues.age = 23;
+
+        (claController.scope.customFields).should.be.ok;
+        (claController.scope.isValid()).should.not.be.ok;
+    });
+
+    it('should not fail on validate if there are no requiredKeys', function () {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        claController.scope.customFields.required = undefined;
+
+        (claController.scope.isValid()).should.be.equal(true);
+    });
+
+    it('should handle wrong meta data', function () {
+        claTextWithMeta.meta = '{"invalid": "json" "without":"comma"}';
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+        (claController.scope.noLinkedItemError).should.be.ok;
+        (!!claController.scope.customFields.length).should.not.be.ok;
     });
 
     it('should get CLA text with orgid', function() {

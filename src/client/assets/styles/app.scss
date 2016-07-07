@@ -173,6 +173,14 @@ h4{
   padding-left: 0;
 }
 
+h5 {
+  font-weight: 600;
+}
+
+h5.required:after {
+  content: " *";
+}
+
 .text-body {
   color: $text-color;
 }
@@ -449,4 +457,8 @@ small {
   i {
       width: 100%;
   }
+}
+
+.margin-top-medium {
+  margin-top: 30px;
 }
