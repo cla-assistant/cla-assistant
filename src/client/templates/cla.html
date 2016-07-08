@@ -12,21 +12,28 @@
 				<div class="cla-box well">
 					<div ng-bind-html="cla"></div>
 				</div>
-				<div ng-repeat="key in customKeys">
+				<form ng-if="hasCustomFields">
+					<p class="text-center">
+						<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub</button>
+					</p>
 					<customfield
+						class="form-group"
 						description="customFields.properties[key].description"
+						logged="user.value"
 						min="customFields.properties[key].minimum"
 						max="customFields.properties[key].maximum"
 						name="key"
-						title="customFields.properties[key].title"
-						type="customFields.properties[key].type"
-						value="customValues[key]"
+						ng-repeat="key in customKeys"
 						required="!!customFields.required && customFields.required.indexOf(key) >= 0"
+						title="customFields.properties[key].title"
+						type="customFields.properties[key].type == 'boolean' ? 'checkbox' : customFields.properties[key].type"
+						value="customValues"
 						>
 					</customfield>
-				</div>
+				</form>
 				<p class="text-center">
-					<button class="btn btn-info margin-top-medium" ng-show="!signed && linkedItem && claText" ng-disabled="customFields && !isValid()" ng-click="agree()" style="width:100%; height:45px;">Sign in with GitHub to agree</button>
+					<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
+					<button class="btn btn-info sign-btn" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
 				</p>
 			</div>
 		</form>

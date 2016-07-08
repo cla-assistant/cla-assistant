@@ -311,8 +311,11 @@ module.exports = {
             repo: req.args.repo,
             owner: req.args.owner,
             user: req.user.login,
-            userId: req.user.id
+            userId: req.user.id,
         };
+        if (req.args.custom_fields) {
+            args.custom_fields = req.args.custom_fields;
+        }
         var self = this;
 
         cla.sign(args, function (err, signed) {

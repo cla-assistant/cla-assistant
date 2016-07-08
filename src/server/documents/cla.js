@@ -2,16 +2,17 @@ var mongoose = require('mongoose');
 var logger = require('../services/logger');
 
 var CLASchema = mongoose.Schema({
-    repo: String,
-    repoId: String,
-    owner: String,
-    ownerId: String,
-    user: String,
-    userId: String,
+    created_at: Date,
+    custom_fields: String,
     gist_url: String,
     gist_version: String,
-    created_at: Date,
+    owner: String,
+    ownerId: String,
+    repo: String,
+    repoId: String,
     org_cla: {type: Boolean, default: false },
+    user: String,
+    userId: String,
 });
 
 var index = {

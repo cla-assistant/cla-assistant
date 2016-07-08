@@ -206,7 +206,7 @@ module.exports = function () {
                         } else {
                             deferred.resolve(linkedOrg);
                         }
-                    });                    
+                    });
                 }
             });
         }
@@ -330,6 +330,7 @@ module.exports = function () {
                         argsToCreate.repoId = repo ? repo.repoId : undefined;
                         argsToCreate.user = args.user;
                         argsToCreate.userId = args.userId;
+                        argsToCreate.custom_fields = args.custom_fields;
 
                         self.create(argsToCreate, function (error) {
                             if (error) {
@@ -457,7 +458,8 @@ module.exports = function () {
                 gist_url: args.gist,
                 gist_version: args.gist_version,
                 created_at: now,
-                org_cla: args.org_cla
+                org_cla: args.org_cla,
+                custom_fields: args.custom_fields
             }, function (err, res) {
                 done(err, res);
             });

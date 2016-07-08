@@ -2,7 +2,6 @@
 // CLA Controller
 //
 // tmpl: cla.html
-// path: /:repoId/:prId
 // *****************************************************
 
 module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q',
@@ -11,6 +10,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		$scope.cla = null;
 		$scope.customFields = {};
 		$scope.customValues = {};
+		$scope.hasCustomFields = false;
 		$scope.linkedItem = null;
 		$scope.noLinkedItemError = false;
 		$scope.params = $stateParams;
@@ -33,6 +33,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 							try {
 								$scope.customFields = JSON.parse(metaString);
 								$scope.customKeys = Object.keys($scope.customFields.properties);
+								$scope.hasCustomFields = true;
 							} catch (ex) {
 								$scope.noLinkedItemError = true;
 								console.log(ex);
@@ -82,10 +83,38 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			});
 		};
 
+		var redirect = function () {
+			if ($stateParams.pullRequest) {
+				$scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
+			}
+			$http.get('/logout?noredirect=true');
+			$timeout(function () {
+				$window.location.href = $scope.redirect;
+			}, 5000);
+		};
+
 		$scope.agree = function () {
-			var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
-			acceptUrl = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
-			$window.location.href = acceptUrl;
+			if (!$scope.hasCustomFields) {
+				var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
+				acceptUrl = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
+				$window.location.href = acceptUrl;
+			} else if ($scope.user.value && $scope.hasCustomFields) {
+				$RPCService.call('cla', 'sign', {
+					repo: $stateParams.repo,
+					owner: $stateParams.user,
+					custom_fields: JSON.stringify($scope.customValues)
+				}, function (err, signed) {
+					$scope.signed = signed.value;
+					if ($scope.signed) {
+						redirect();
+					}
+				});
+			}
+		};
+
+		$scope.signIn = function () {
+			var acceptUrl = '/signin/' + $stateParams.user + '/' + $stateParams.repo;
+			$window.location.href = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
 		};
 
 		var userPromise = getUser();
@@ -116,16 +145,10 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		};
 
 		$q.all([userPromise, repoPromise]).then(function () {
-			if ($stateParams.pullRequest) {
-				$scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
-			}
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
 				checkCLA().then(function (signed) {
 					if (signed.value) {
-						$http.get('/logout?noredirect=true');
-						$timeout(function () {
-							$window.location.href = $scope.redirect;
-						}, 5000);
+						redirect();
 					}
 				});
 			}
@@ -138,11 +161,12 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		scope: {
 			description: '=',
 			key: '=',
+			logged: '=',
 			name: '=',
 			required: '=',
 			title: '=',
 			type: '=',
-			value: '='
+			value: '=',
 		}
 	};
 }]);

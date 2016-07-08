@@ -1,7 +1,10 @@
-<label ng-class="{'required': required}">{{title || name}}</label>
-<div ng-show="type === 'boolean'">
-    <checkbox class="form-control" ng-model="value" placeholder="" title="description"></checkbox>
+<div ng-if="type != 'checkbox'">
+    <label ng-class="{'required': required}">{{title || name}}</label>
+    <input ng-disabled="!logged" class="form-control" ng-model="value[name]" placeholder="" title="{{description}}" type="{{type}}" min="{{min}}" max="{{max}}"></input>
 </div>
-<div ng-show="type != 'boolean'">
-    <input class="form-control" ng-model="value" placeholder="" title="{{description}}" type="{{type}}" min="{{min}}" max="{{max}}"></input>
+<div ng-if="type == 'checkbox'" class="checkbox">
+    <label ng-class="{'required': required}">
+        <input ng-disabled="!logged" ng-model="value[name]" title="{{description}}" type="{{type}}"/>
+        {{title || name}}
+    </label>
 </div>

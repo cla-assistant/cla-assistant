@@ -28,6 +28,13 @@ router.use('/accept/:owner/:repo', function(req, res) {
     }
 });
 
+router.use('/signin/:owner/:repo', function (req, res) {
+	var redirectUrl = path.join(path.sep, req.params.owner, req.params.repo);
+	req.session.next = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
+
+	return res.redirect('/auth/github?public=true');
+});
+
 router.all('/static/*', function(req, res) {
 	var filePath;
 	if (req.user && req.path === '/static/cla-assistant.json') {

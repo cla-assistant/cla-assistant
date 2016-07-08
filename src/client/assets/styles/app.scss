@@ -181,7 +181,8 @@ label {
   margin-top: $margin-small;
 }
 
-label.required:after {
+label.required:after,
+.checkbox label.required:after {
   content: " *";
 }
 
@@ -464,5 +465,10 @@ small {
 }
 
 .margin-top-medium {
+}
+
+.sign-btn {
   margin-top: $margin-medium;
+  width:100%;
+  height:45px;
 }

@@ -326,7 +326,7 @@ describe('', function () {
     });
 
     describe('cla:sign', function () {
-        var req;
+        var req, expArgs;
         beforeEach(function () {
             req = {
                 user: {
@@ -339,6 +339,14 @@ describe('', function () {
                     gist: testData.repo_from_db.gist
                 }
             };
+            expArgs = {
+                claSign: {
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    user: 'user',
+                    userId: 3
+                }
+            };
             // reqArgs.cla.getLinkedItem
             resp.cla.getLinkedItem = resp.repoService.get;
             reqArgs.cla.getLinkedItem = { repo: 'Hello-World', owner: 'octocat' };
@@ -347,12 +355,7 @@ describe('', function () {
                 assert(args.signed);
             });
             sinon.stub(cla, 'sign', function (args, cb) {
-                assert.deepEqual(args, {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    user: 'user',
-                    userId: 3
-                });
+                assert.deepEqual(args, expArgs.claSign);
                 cb(null, 'done');
             });
             sinon.stub(cla, 'check', function (args, cb) {
@@ -370,6 +373,18 @@ describe('', function () {
 
         it('should call cla service on sign', function (it_done) {
 
+            cla_api.sign(req, function (err) {
+                assert.ifError(err);
+                assert(cla.sign.called);
+
+                it_done();
+            });
+        });
+
+        it('should call cla service on sign with custom fields', function (it_done) {
+            expArgs.claSign.custom_fields = '{"json":"as", "a":"string"}';
+
+            req.args.custom_fields = '{"json":"as", "a":"string"}';
             cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(cla.sign.called);

@@ -20,7 +20,6 @@ function checkReturnTo(req, res, next) {
     if (req.query.org_admin === 'true') {
         scope.push('admin:org_hook');
     }
-
     var returnTo = req.query.public === 'true' ?  req.session.next : '/';
     if (returnTo) {
         if (!req.session) {

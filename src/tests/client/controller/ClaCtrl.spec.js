@@ -3,7 +3,7 @@
 
 angular.module('app');
 describe('CLA Controller', function() {
-    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, claTextWithMeta, _HUBService;
+    var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, claTextWithMeta, _HUBService, _RPCService;
     var linkedItem;
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
@@ -13,12 +13,13 @@ describe('CLA Controller', function() {
 
     user = {value: {}};
 
-    beforeEach(angular.mock.inject(function($injector, $rootScope, $controller, $window, $timeout, $q, $HUBService) {
+    beforeEach(angular.mock.inject(function($injector, $rootScope, $controller, $window, $timeout, $q, $HUBService, $RPCService) {
         // $provide.value($window, {location: {href: 'href'}});
         _window = $window;
         _timeout = $timeout;
         _q = $q;
         _HUBService = $HUBService;
+        _RPCService = $RPCService;
 
         sinon.stub($HUBService, 'call', function(o, functn, data, cb){
             var deferred = _q.defer();
@@ -26,6 +27,15 @@ describe('CLA Controller', function() {
             cb(null, user);
 
             return deferred.promise;
+        });
+
+        var rpcCall = $RPCService.call;
+        sinon.stub($RPCService, 'call', function(o, functn, data, cb){
+            if (o === 'cla' && functn === 'sign') {
+                cb(null, true);
+            } else {
+                return rpcCall(o, functn, data, cb);
+            }
         });
 
         httpBackend = $injector.get('$httpBackend');
@@ -61,6 +71,7 @@ describe('CLA Controller', function() {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
         _HUBService.call.restore();
+        _RPCService.call.restore();
 
     });
 
@@ -282,7 +293,7 @@ describe('CLA Controller', function() {
         (claController.scope.signed).should.not.be.ok;
     });
 
-    it('should redirect to accept url on agree', function(){
+    it('should redirect to accept url on agree if there are no customFields', function(){
         claSigned = false;
 
         claController = createCtrl();
@@ -291,6 +302,24 @@ describe('CLA Controller', function() {
 
         claController.scope.agree();
         (_window.location.href).should.be.equal('/accept/login/myRepo');
+    });
+
+    it('should call cla:sign on agree if there are customFields and user is logged in', function(){
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {};
+        user.meta = {};
+        claSigned = false;
+        claController = createCtrl();
+
+        httpBackend.flush();
+        _timeout.flush();
+
+        claController.scope.user.value = {login: 'testUser', id: 123};
+
+        claController.scope.agree();
+
+        (_window.location.href).should.not.be.equal('/accept/login/myRepo');
+        (_RPCService.call.calledWithMatch('cla', 'sign')).should.be.ok;
     });
 
     it('should not load cla if no linked item exists', function(){
