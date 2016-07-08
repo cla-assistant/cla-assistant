@@ -1,0 +1,8 @@
+version: v1.5.0
+ignore: {}
+patch:
+  'npm:ws:20160624':
+    - socket.io > engine.io > ws:
+        patched: '2016-07-08T13:51:50.282Z'
+    - socket.io > socket.io-client > engine.io-client > ws:
+        patched: '2016-07-08T13:51:50.282Z'
