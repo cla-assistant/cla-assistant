@@ -18,6 +18,17 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		$scope.user = {};
 		$scope.signed = false;
 
+		function getGithubValues() {
+			if ($scope.hasCustomFields && $scope.user.value) {
+				$scope.customKeys.forEach(function (key) {
+					var githubKey = $scope.customFields.properties[key].githubKey;
+					if (githubKey && $scope.user.value[githubKey]) {
+						$scope.customValues[key] = $scope.user.value[githubKey];
+					}
+				});
+			}
+		};
+
 		function getCLA() {
 			return $RPCService.call('cla', 'get', {
 				repoId: $scope.linkedItem.repoId,
@@ -34,6 +45,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 								$scope.customFields = JSON.parse(metaString);
 								$scope.customKeys = Object.keys($scope.customFields.properties);
 								$scope.hasCustomFields = true;
+								getGithubValues();
 							} catch (ex) {
 								$scope.noLinkedItemError = true;
 								console.log(ex);
@@ -146,6 +158,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		$q.all([userPromise, repoPromise]).then(function () {
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
+
 				checkCLA().then(function (signed) {
 					if (signed.value) {
 						redirect();

@@ -98,9 +98,25 @@ describe('CLA Controller', function() {
 
         _timeout.flush();
         (claController.scope.claText).should.be.ok;
-        (claController.scope.customFields).should.be.ok;
+        (claController.scope.hasCustomFields).should.be.equal(true);
         (claController.scope.customKeys).should.be.ok;
         // (claController.scope.customValues.a).should.be.ok;
+    });
+
+    it('should fill customFields with github values', function() {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {name: 'Test User'};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+        (claController.scope.customFields).should.be.ok;
+        (claController.scope.customKeys).should.be.ok;
+        (claController.scope.customValues.name).should.be.equal(claController.scope.user.value.name);
     });
 
     it('should validate customFields', function () {
