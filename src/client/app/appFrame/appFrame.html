@@ -3,14 +3,14 @@
     <div class="container-fluid">
       <div class="navbar-home-left">
         <div *ngIf="user">
-          <a bind-href="user.html_url" target="spcae">
+          <a id="app-frame-user-greet" bind-href="user.html_url" target="spcae">
             <img bind-src="user.avatar_url" class="user-avatar" />
             <a class="navbar-text-hide">&nbsp; Hey, <b>{{ user.login }}</b>!</a>
           </a>
         </div>
       </div>
       <div class="nav navbar-home-right">
-        <a *ngIf="user" (click)="logout.emit()" class="octicon octicon-sign-out home-logout" data-toggle="tooltip"
+        <a id="app-frame-logout-button" *ngIf="user" (click)="logout.emit()" class="octicon octicon-sign-out home-logout" data-toggle="tooltip"
           data-placement="left" title="Sign out" activate-tooltip tooltip-placement="left"></a>
       </div>
       <div class="navbar-center">

@@ -9,27 +9,23 @@ function root(args) {
 var helpers = { root: root };
 
 module.exports = {
-  entry: {
-    'polyfills': helpers.root('src','client','polyfills.ts'),
-    'vendor': helpers.root('src','client','vendor.ts'),
-    'app': helpers.root('src','client','main.ts')
-  },
-
   resolve: {
-    extensions: ['', '.js', '.ts']
+    extensions: ['', '.js', '.ts'],
+    root: helpers.root('src/client/'),
   },
 
   // externals: {
   //   "jquery": "jQuery"
   // },
-  devtool: 'cheap-module-source-map',
+  devtool: 'eval-source-map',
 
   module: {
     loaders: [
       {
         test: /\.ts$/,
-        loaders: ['awesome-typescript-loader', 'angular2-template-loader'],
-        exclude: [/\.(spec|e2e)\.ts$/]
+        loaders: ['awesome-typescript-loader?tsconfig=tsconfig.test.json' , 'angular2-template-loader'],
+        exclude: [/\.e2e\.ts$/]
+
       },
       {
         test: /\.html$/,
@@ -51,18 +47,24 @@ module.exports = {
         loaders: ['to-string-loader', 'css-loader']
       }
 
+    ],
+    postLoaders: [
+      {
+        test: /\.ts$/,
+        include: helpers.root('src', 'client'),
+        loader: 'istanbul-instrumenter-loader',
+        exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /node_modules/]
+      }
     ]
   },
+  
   output: {
-    path: helpers.root('dist','client'),
+    path: helpers.root('dist', 'client'),
     filename: '[name].js',
     publicPath: '/'
   },
 
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-      name: ['app', 'vendor', 'polyfills']
-    }),
     // new webpack.optimize.UglifyJsPlugin({
     //   beautify: false,
     //   mangle: { screw_ie8 : true }, 

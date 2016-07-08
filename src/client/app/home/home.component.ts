@@ -12,9 +12,9 @@ import { User } from '../shared/github/user';
   <app-frame [user] = "user" (logout)="onLogout()">
     <div class="container-fluid home-content-outer">
       <div class="home-content-inner">
-          <section class="col-md-8 col-md-offset-2">
-            <cla-link></cla-link>
-          </section>
+        <section class="col-md-8 col-md-offset-2">
+          <cla-link></cla-link>
+        </section>
       </div>
     </div>    
   </app-frame>

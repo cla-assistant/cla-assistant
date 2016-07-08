@@ -30,10 +30,7 @@ export class GithubService {
       .map(res => {
         return res.json();
       })
-      .map(data => data['default-cla'])
-      .do((params) => {
-        console.log(params);
-      });
+      .map(data => data['default-cla']);
   }
 
   private call(obj: string, fun: string, args: Object): Observable<any> {
