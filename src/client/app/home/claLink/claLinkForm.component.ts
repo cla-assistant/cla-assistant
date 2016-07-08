@@ -1,17 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { GistsDropdown } from './gistsDropdown.component';
+import { Gist } from '../../shared/github/gist';
 
 @Component({
   selector: 'cla-link-form',
   directives: [GistsDropdown],
   templateUrl: './claLinkForm.html'
 })
-export class ClaLinkForm implements OnInit {
+export class ClaLinkForm {
+  @Output() public onClose: EventEmitter<void>;
 
-  constructor() { }
+  private selectedGist: Gist;
 
-  public ngOnInit() {
-    
+  constructor() {
+    this.onClose = new EventEmitter<void>();
+    this.clearSelectedGist();
   }
 
+  public handleGistSelected(event) {
+    if (event) {
+      this.selectedGist = event;
+    } else {
+      this.clearSelectedGist();
+    }
+  }
+
+  public info() {
+    console.log('Not implemented');
+  }
+
+  private clearSelectedGist() {
+    this.selectedGist = {
+      name: null,
+      url: ''
+    };
+  }
 }

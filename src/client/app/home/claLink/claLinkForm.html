@@ -1,6 +1,6 @@
  <div >
     <div class="well row new-link-form-well" >
-      <div (click)="toggleLinkForm()" class="fa fa-times close-button new-link-close"></div>
+      <div (click)="onClose.emit()" class="fa fa-times close-button new-link-close"></div>
 
       <h5 class="new-link-choose-cla-outer">
         <span class="new-link-choose-cla-inner">1</span>&nbsp;Choose a CLA
@@ -9,18 +9,15 @@
         <div class="new-link-select-gist">Select from Gist &nbsp;
           <span class="clickable new-link-select-gist-info" (click)="info()">(don't have one?)</span>
         </div>
-        <gists-dropdown></gists-dropdown>
-        <!--<div class="form-group has-feedback new-link-select-gist-dd-outer">
-
-          <select [ngModel]="selectedGist.gist.url" (change)="onGistSelected($event)" class="form-control">
-					<option *ngFor="#gist of gists" [value]="gist.url"> {{gist.name}}</option>
-				</select>
-
-        </div>
+        <gists-dropdown (onGistSelected)="handleGistSelected($event)"></gists-dropdown>
         <div class="new-link-select-gist-sep">- or -</div>
         <div class="new-link-gist-url-outer">Paste a URL from a Gist</div>
-        <input bind-disabled="selectedGist.gist.name" class="form-control" [(ngModel)]="selectedGist.gist.url" placeholder="https://gist.github.com/<your cla gist id>"
-        />-->
+        <input #urlInput 
+          [disabled]="selectedGist.name" 
+          class="form-control" 
+          (onchange)="selectedGist.url = urlInput.value"
+          [value]="selectedGist.url"
+          placeholder="https://gist.github.com/<your cla gist id>"/>
       </div>
 
       <h5 class="col-xs-12 new-link-choose-repo-outer">

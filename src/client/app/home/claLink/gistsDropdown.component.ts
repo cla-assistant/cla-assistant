@@ -22,12 +22,14 @@ import { Gist } from '../../shared/github/gist';
   `
 })
 export class GistsDropdown implements OnInit {
-  @Output() public gistSelected: EventEmitter<Gist>;
+  @Output() public onGistSelected: EventEmitter<Gist>;
 
   private gists: any[] = [];
   private gistsDropdownItems: any[] = [];
 
-  constructor(private githubService: GithubService) { }
+  constructor(private githubService: GithubService) {
+    this.onGistSelected = new EventEmitter<Gist>();
+  }
 
   public ngOnInit() {
     Observable.combineLatest(
@@ -47,16 +49,16 @@ export class GistsDropdown implements OnInit {
   }
 
   public selected(event) {
-    this.gistSelected.emit(this.gists[event.id]);
+    this.onGistSelected.emit(this.gists[event.id - 1]);
   }
   public removed() {
-    this.gistSelected.emit(null);
+    this.onGistSelected.emit(null);
   }
 
   private createDropdownItems(defaultGists: Gist[], userGists: Gist[]) {
     function createChildItems(gists: Gist[], idOffset: number) {
       return gists.map((gist, index) => ({
-        id: idOffset + index,
+        id: idOffset + index + 1, // id 0 is an invalid id
         text: gist.name
       }));
     }

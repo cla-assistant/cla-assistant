@@ -6,6 +6,6 @@
   <div class="row" [hidden]="!linkFormVisible">
     <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">Create new link</h4>
   </div>
-  <cla-link-form [hidden]="!linkFormVisible"></cla-link-form>
+  <cla-link-form (onClose)="toggleLinkForm()" [hidden]="!linkFormVisible"></cla-link-form>
 
 </div>
