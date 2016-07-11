@@ -12,10 +12,10 @@ function checkReturnTo(req, res, next) {
     scope = null;
 
     if (req.query.public  === 'true') {
-        scope = config.server.github.user_scope;
+        scope = config.server.github.user_scope.admin.concat();
     }
     if (req.query.admin === 'true') {
-        scope = config.server.github.admin_scope;
+        scope = config.server.github.admin_scope.concat();
     }
     if (req.query.org_admin === 'true') {
         scope.push('admin:org_hook');

@@ -23,8 +23,27 @@ describe('CLA Controller', function() {
 
         sinon.stub($HUBService, 'call', function(o, functn, data, cb){
             var deferred = _q.defer();
-            deferred.resolve(user);
-            cb(null, user);
+            if (o === 'users' && functn === 'get') {
+                deferred.resolve(user);
+                cb(null, user);
+            } else if (o === 'users' && functn === 'getEmails') {
+                var emails = {
+                    value: [
+                        {
+                            'email': 'octocat@gmail.com',
+                            'verified': true,
+                            'primary': false
+                        },
+                        {
+                            'email': 'octocat@github.com',
+                            'verified': true,
+                            'primary': true
+                        }
+                    ]
+                };
+                deferred.resolve(emails);
+                cb(null, emails);
+            }
 
             return deferred.promise;
         });
@@ -117,6 +136,22 @@ describe('CLA Controller', function() {
         (claController.scope.customFields).should.be.ok;
         (claController.scope.customKeys).should.be.ok;
         (claController.scope.customValues.name).should.be.equal(claController.scope.user.value.name);
+    });
+
+    it('should call github if user profile has no email and custom fields expect email', function() {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {name: 'Test User', email: ''};
+        user.meta = {};
+        claSigned = false;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+        (claController.scope.customFields).should.be.ok;
+        (claController.scope.customKeys).should.be.ok;
+        (claController.scope.customValues.email).should.be.equal('octocat@github.com');
     });
 
     it('should validate customFields', function () {

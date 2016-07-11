@@ -18,16 +18,33 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		$scope.user = {};
 		$scope.signed = false;
 
+		function getUserEmail(key) {
+			$HUBService.call('users', 'getEmails', {}, function (err, data) {
+				if (data && data.value)
+				{
+							console.log(key, data);
+					data.value.some(function (email) {
+
+						$scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];
+						return email.primary;
+					});
+				}
+			});
+		}
+
 		function getGithubValues() {
 			if ($scope.hasCustomFields && $scope.user.value) {
 				$scope.customKeys.forEach(function (key) {
 					var githubKey = $scope.customFields.properties[key].githubKey;
-					if (githubKey && $scope.user.value[githubKey]) {
+					if (githubKey) {
 						$scope.customValues[key] = $scope.user.value[githubKey];
+						if (githubKey === 'email' && !$scope.user.value.email) {
+							getUserEmail(key);
+						}
 					}
 				});
 			}
-		};
+		}
 
 		function getCLA() {
 			return $RPCService.call('cla', 'get', {
