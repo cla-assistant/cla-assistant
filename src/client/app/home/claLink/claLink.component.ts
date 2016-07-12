@@ -21,6 +21,7 @@ export class ClaLink {
 
   public link(e) {
     this.homeService.link(e.selectedGist, e.selectedRepoOrOrg);
+    this.toggleLinkForm();
   }
 
 }

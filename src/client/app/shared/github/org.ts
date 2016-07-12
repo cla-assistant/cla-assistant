@@ -4,7 +4,7 @@ export interface Org {
 
 export function createOrgsFromApiResponse(response): Org[] {
   return response.data
-    .filter(membership => membership.role === 'member')
+    .filter(membership => membership.role === 'admin')
     .map(membership => ({
       login: membership.organization.login
     }));

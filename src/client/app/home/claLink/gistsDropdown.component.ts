@@ -1,13 +1,13 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SELECT_DIRECTIVES } from 'ng2-select';
+import { SelectComponent } from 'ng2-select';
 import { HomeCacheService } from '../homeCache.service';
 import { Gist } from '../../shared/github/gist';
 
 
 @Component({
   selector: 'gists-dropdown',
-  directives: [SELECT_DIRECTIVES],
+  directives: [SelectComponent],
   host: {
     'class': 'form-group new-link-select-gist-dd-outer'
   },
@@ -23,6 +23,7 @@ import { Gist } from '../../shared/github/gist';
 })
 export class GistsDropdown implements OnInit {
   @Output() public onGistSelected: EventEmitter<Gist>;
+  @ViewChild(SelectComponent) public selectComp: SelectComponent;
 
   private gists: any[] = [];
   private gistsDropdownItems: any[] = [];
@@ -46,6 +47,10 @@ export class GistsDropdown implements OnInit {
       },
       error => console.error(error)
     );
+  }
+
+  public clear() {
+    this.selectComp.remove(null);
   }
 
   public selected(event) {

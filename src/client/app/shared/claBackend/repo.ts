@@ -1,7 +1,7 @@
 import { GithubRepo } from '../github/repo';
 
 export interface ClaRepo {
-  repoId: number;
+  repoId: string;
   repo: string;
   owner: string;
   gist: string;
@@ -12,7 +12,7 @@ export function fromGithubRepo(
   githubRepo: GithubRepo,
   gistUrl: string): ClaRepo {
   return {
-    repoId: githubRepo.id,
+    repoId: githubRepo.id.toString(),
     repo: githubRepo.name,
     owner: githubRepo.owner.login,
     gist: gistUrl,

@@ -1,12 +1,14 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { SelectComponent } from 'ng2-select';
 import { HomeCacheService } from '../homeCache.service';
-import { SELECT_DIRECTIVES } from 'ng2-select';
+import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
 import { Org } from '../../shared/github/org';
+import { ClaRepo } from '../../shared/claBackend/repo';
 
 @Component({
   selector: 'repo-org-dropdown',
-  directives: [SELECT_DIRECTIVES],
+  directives: [SelectComponent],
   host: {
     'class': 'form-group has-feedback'
   },
@@ -26,6 +28,7 @@ export class RepoOrgDropdown implements OnInit {
 
   @Input() public isUserOrgAdmin: boolean;
   @Output() public onSelect: EventEmitter<GithubRepo | Org>;
+  @ViewChild(SelectComponent) public selectComp: SelectComponent;
 
   private repos: GithubRepo[];
   private orgs: Org[];
@@ -33,9 +36,15 @@ export class RepoOrgDropdown implements OnInit {
   private repoItems: any[] = [];
   private orgItems: any[] = [];
 
-  constructor(private homeCacheService: HomeCacheService) {
+  constructor(
+    private homeCacheService: HomeCacheService,
+    private homeService: HomeService) {
     this.onSelect = new EventEmitter<GithubRepo | Org>();
     this.updateDropdownItems();
+  }
+
+  public clear() {
+    this.selectComp.remove(null);
   }
 
   public ngOnInit() {
@@ -57,14 +66,18 @@ export class RepoOrgDropdown implements OnInit {
   }
 
   private requestRepos() {
-    this.homeCacheService.currentUserRepos.subscribe(repos => {
-      this.repos = repos;
-      this.repoItems = repos.map((repo, index) => ({
-        id: index + 1,
-        text: repo.fullName
-      }));
-      this.updateDropdownItems();
-    });
+    this.homeCacheService.currentUserRepos
+      .combineLatest(this.homeService.getLinkedRepos(), (ghRepos: GithubRepo[], claRepos: ClaRepo[]) => {
+        return ghRepos.filter(ghRepo => !claRepos.some(claRepo => claRepo.repoId === ghRepo.id.toString()));
+      })
+      .subscribe(repos => {
+        this.repos = repos;
+        this.repoItems = repos.map((repo, index) => ({
+          id: index + 1,
+          text: repo.fullName
+        }));
+        this.updateDropdownItems();
+      });
   }
 
   private requestOrgs() {

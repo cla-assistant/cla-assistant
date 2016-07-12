@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Gist } from '../../shared/github/gist';
 import { GithubRepo } from '../../shared/github/repo';
 import { Org } from '../../shared/github/org';
@@ -20,6 +20,9 @@ export class ClaLinkForm {
   @Input() public isUserOrgAdmin: boolean;
   @Output() public onClose: EventEmitter<void>;
   @Output() public onLink: EventEmitter<Link>;
+  @ViewChild(GistsDropdown) public gistsDropdown: GistsDropdown;
+  @ViewChild(RepoOrgDropdown) public repoOrgDropdown: RepoOrgDropdown;
+  
 
   private selectedGist: Gist;
   private selectedRepoOrOrg: GithubRepo | Org;
@@ -30,12 +33,20 @@ export class ClaLinkForm {
     this.clearSelectedGist();
   }
 
+  public clear() {
+    this.gistsDropdown.clear();
+    this.repoOrgDropdown.clear();
+    this.clearSelectedGist();
+  }
+
   public link() {
     this.onLink.emit({
       selectedGist: this.selectedGist,
       selectedRepoOrOrg: this.selectedRepoOrOrg
     });
+    this.clear();
   }
+
 
   public handleGistSelected(event) {
     if (event) {

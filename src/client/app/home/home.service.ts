@@ -33,15 +33,22 @@ export class HomeService {
   public linkRepo(gist: Gist, repo: GithubRepo) {
     const claRepo: ClaRepo = fromGithubRepo(repo, gist.url);
     this.claBackendService.linkClaToRepo(claRepo).subscribe(
-      () => this.addLinkedRepo(claRepo),
-      (error) => console.log(error)
+      () => this.addLinkedRepos([claRepo]),
+      (error) => {
+        const errBody = error.json();
+        if (errBody.errmsg.match(/.*duplicate key error.*/)) {
+          console.log('This repository is already set up.');
+        }else {
+          console.log(errBody.errmsg);
+        }
+      }
     );
   }
   private linkOrg(gist, repo) {
 
   }
-  private addLinkedRepo(newRepo: ClaRepo): void {
-    this.linkedRepos.next([...this.linkedRepos.value, newRepo]);
+  private addLinkedRepos(newRepos: ClaRepo[]): void {
+    this.linkedRepos.next(this.linkedRepos.value.concat(newRepos));
   }
 
 
@@ -52,7 +59,7 @@ export class HomeService {
       error => console.log(error),
       () => {
         this.claBackendService.getLinkedRepos(githubRepos).subscribe((data) => {
-          this.addLinkedRepo(data);
+          this.addLinkedRepos(data);
         });
       }
     );
