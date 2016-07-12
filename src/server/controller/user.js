@@ -42,9 +42,11 @@ router.get('/auth/github/callback', passport.authenticate('github', { failureRed
         res.redirect(req.session.returnTo || '/');
         req.session.next = null;
     });
+
 router.get('/loggedin', (req, res) => {
     res.send(req.isAuthenticated() ? '1' : '0'); 
 });
+
 router.get('/logout',
     function(req, res, next) {
         req.logout();

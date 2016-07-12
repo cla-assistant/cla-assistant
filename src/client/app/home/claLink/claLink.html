@@ -1,4 +1,4 @@
-<div id="activated_cla" class="row content-block">
+
 
   <div class="row new-link" [hidden]="linkFormVisible">
     <button class="btn btn-info new-link-btn" (click)="toggleLinkForm()">Create new link</button>
@@ -6,6 +6,10 @@
   <div class="row" [hidden]="!linkFormVisible">
     <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">Create new link</h4>
   </div>
-  <cla-link-form (onClose)="toggleLinkForm()" [hidden]="!linkFormVisible"></cla-link-form>
+  <cla-link-form
+    (onClose)="toggleLinkForm()"
+    (onLink)="link($event)"
+    [hidden]="!linkFormVisible" 
+    [isUserOrgAdmin]="user.roles.orgAdmin">
+  </cla-link-form>
 
-</div>

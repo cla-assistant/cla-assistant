@@ -28,8 +28,7 @@ export class Login {
   }
 
   public logAdminIn() {
-    // this._window.location.href = '/auth/github?admin=true';
-    this.authService.doLogin('admin');
+    this.authService.doLogin(true, false);
   }
 
   private _updateNumberOfRepos() {

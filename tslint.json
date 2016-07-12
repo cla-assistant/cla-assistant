@@ -9,8 +9,7 @@
         "class-name": true,
         "comment-format": [
             true,
-            "check-space",
-            "check-lowercase"
+            "check-space"
         ],
         "curly": true,
         "eofline": true,
@@ -27,12 +26,6 @@
             140
         ],
         "member-access": true,
-        "member-ordering": [
-            true,
-            "public-before-private",
-            "static-before-instance",
-            "variables-before-functions"
-        ],
         "no-any": false,
         "no-arg": true,
         "no-bitwise": true,

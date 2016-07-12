@@ -17,8 +17,8 @@ export class AuthService {
     });
   }
 
-  public doLogin(loginAs: string) {
-    let url = `/auth/github?${loginAs}=true`;
+  public doLogin(requestAdmin, requestOrgAdmin) {
+    let url = `/auth/github?admin=${requestAdmin}&org_admin=${requestOrgAdmin}`;
     this.window.location.replace(url);
   }
 

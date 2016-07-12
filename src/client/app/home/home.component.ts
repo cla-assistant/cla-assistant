@@ -1,19 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../login/auth.service';
 import { AppFrame } from '../appFrame/appFrame.component';
-import { GithubService } from '../shared/github/github.service';
+import { HomeCacheService } from './homeCache.service';
+import { HomeService } from './home.service';
 import { ClaLink } from './claLink/claLink.component';
 import { User } from '../shared/github/user';
+
 
 @Component({
   selector: 'home',
   directives: [AppFrame, ClaLink],
+  providers: [HomeCacheService, HomeService],
   template: `
-  <app-frame [user] = "user" (logout)="onLogout()">
+  <app-frame [user] = "user" (logout)="handleLogout()">
     <div class="container-fluid home-content-outer">
       <div class="home-content-inner">
         <section class="col-md-8 col-md-offset-2">
-          <cla-link></cla-link>
+          <div *ngIf="user" id="activated_cla" class="row content-block">
+            <cla-link [user]="user"></cla-link>
+          </div>
         </section>
       </div>
     </div>    
@@ -25,19 +30,20 @@ export class Home implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private githubService: GithubService) { }
+    private homeCacheService: HomeCacheService,
+    private homeService: HomeService) { }
 
   public ngOnInit() {
-    this.githubService.getUser().subscribe(
+    this.homeCacheService.currentUser.subscribe(
       (user) => {
         this.user = user;
-      },
-      (error) => {
-        console.log(error);
       });
+    this.homeService.getLinkedRepos().subscribe((claRepos) => {
+      console.log(claRepos);
+    });
   }
 
-  public onLogout() {
+  public handleLogout() {
     this.authService.doLogout();
   }
 }

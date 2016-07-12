@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { GithubService } from '../../shared/github/github.service';
 import { Observable } from 'rxjs';
 import { SELECT_DIRECTIVES } from 'ng2-select';
+import { HomeCacheService } from '../homeCache.service';
 import { Gist } from '../../shared/github/gist';
 
 
@@ -27,14 +27,14 @@ export class GistsDropdown implements OnInit {
   private gists: any[] = [];
   private gistsDropdownItems: any[] = [];
 
-  constructor(private githubService: GithubService) {
+  constructor(private homeCacheService: HomeCacheService) {
     this.onGistSelected = new EventEmitter<Gist>();
   }
 
   public ngOnInit() {
     Observable.combineLatest(
-      this.githubService.getUserGists(),
-      this.githubService.getDefaultGists(),
+      this.homeCacheService.currentUserGists,
+      this.homeCacheService.defaultGists,
       (userGists: Gist[], defaultGists: Gist[]) => ({
         gists: defaultGists.concat(userGists),
         dropDownItems: this.createDropdownItems(defaultGists, userGists)

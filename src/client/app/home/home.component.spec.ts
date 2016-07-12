@@ -1,38 +1,50 @@
 import { beforeEachProviders, inject, async, ComponentFixture } from '@angular/core/testing';
 import { OverridingTestComponentBuilder } from '@angular/compiler/testing';
 import { provide } from '@angular/core';
-import { Observable } from 'rxjs';
+import { createFakeObservable } from '../testUtils/observable';
+
 
 import { Home } from './home.component';
 import { AuthService } from '../login/auth.service';
-import { GithubService } from '../shared/github/github.service';
+import { HomeCacheService } from './homeCache.service';
 
-
-
-describe('Home', () => {
+describe('Home Component', () => {
   let fixture: ComponentFixture<Home>;
 
-  const authServiceMock = jasmine.createSpyObj('AuthServiceMock', ['doLogout']);
-  const githubServiceMock = jasmine.createSpyObj('GithubServiceMock', ['getUser']);
   const testUser = {};
-  githubServiceMock.getUser.and.returnValue(Observable.of(testUser));
+  const authServiceMock = jasmine.createSpyObj('AuthServiceMock', ['doLogout']);
+  const homeCacheServiceMock = {
+    currentUser: createFakeObservable(testUser)
+  };
 
   beforeEachProviders(() => [
     OverridingTestComponentBuilder,
-    provide(AuthService, { useValue: authServiceMock }),
-    provide(GithubService, { useValue: githubServiceMock })
+    provide(AuthService, { useValue: authServiceMock })
   ]);
 
   beforeEach(async(inject([OverridingTestComponentBuilder], (tcb: OverridingTestComponentBuilder) => {
     return tcb
       .overrideTemplate(Home, '<div></div>')
+      .overrideProviders(Home, [provide(HomeCacheService, { useValue: homeCacheServiceMock })])
       .createAsync(Home)
       .then(f => fixture = f);
   })));
 
+  afterEach(() => {
+    homeCacheServiceMock.currentUser.resetTimesUsed();
+  });
+
   it('should request the current user on init', () => {
     fixture.detectChanges();
+    expect(homeCacheServiceMock.currentUser.getTimesUsed()).toEqual(1);
     expect(fixture.componentInstance.user).toBe(testUser);
-    expect(githubServiceMock.getUser).toHaveBeenCalledTimes(1);
   });
+
+  describe('handleLogout', () => {
+    it('should log out the user', () => {
+      fixture.componentInstance.handleLogout();
+      expect(authServiceMock.doLogout).toHaveBeenCalledTimes(1);
+    });
+  });
+
 });

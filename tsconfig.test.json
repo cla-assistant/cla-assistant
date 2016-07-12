@@ -9,6 +9,7 @@
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "inlineSourceMap": true,
+        "sourceMap":false,
         "noEmitHelpers": true
     },
     "exclude": [

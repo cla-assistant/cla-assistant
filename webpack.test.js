@@ -17,7 +17,7 @@ module.exports = {
   // externals: {
   //   "jquery": "jQuery"
   // },
-  devtool: 'eval-source-map',
+  //devtool: 'eval-source-map',
 
   module: {
     loaders: [
@@ -53,7 +53,7 @@ module.exports = {
         test: /\.ts$/,
         include: helpers.root('src', 'client'),
         loader: 'istanbul-instrumenter-loader',
-        exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /node_modules/]
+        exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /node_modules/, /testUtils/]
       }
     ]
   },

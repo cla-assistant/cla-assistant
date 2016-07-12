@@ -1,8 +1,15 @@
 import { beforeEachProviders, TestComponentBuilder, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
 import { AppFrame } from './appFrame.component';
+import { User } from '../shared/github/user';
 
 describe('AppFrame', () => {
   let fixture: ComponentFixture<AppFrame>;
+  const testUser: User = {
+    htmlUrl: 'test html url',
+    avatarUrl: 'test avatar url',
+    login: 'TestUser',
+    roles: { admin: true, orgAdmin: true }
+  };
 
   beforeEachProviders(() => [
     TestComponentBuilder
@@ -15,11 +22,7 @@ describe('AppFrame', () => {
 
   it('should greet the user', () => {
     let appFrame: AppFrame = fixture.componentInstance;
-    appFrame.user = {
-      html_url: 'test html url',
-      avatar_url: 'test avatar url',
-      login: 'TestUser'
-    };
+    appFrame.user = testUser;
     fixture.detectChanges();
 
     let greetText: HTMLElement = fixture.nativeElement.querySelector('#app-frame-user-greet > a');
@@ -30,11 +33,7 @@ describe('AppFrame', () => {
     const appFrame: AppFrame = fixture.componentInstance;
     const onLogout = jasmine.createSpy('onLogout');
     appFrame.logout.subscribe(onLogout);
-    appFrame.user = {
-      html_url: 'test html url',
-      avatar_url: 'test avatar url',
-      login: 'TestUser'
-    };
+    appFrame.user = testUser;
     fixture.detectChanges();
     let logoutButton: HTMLElement = fixture.nativeElement.querySelector('#app-frame-logout-button');
     logoutButton.click();
