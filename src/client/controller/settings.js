@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q', 'utils',
+    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q, utils) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
@@ -54,6 +54,25 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }, cb);
         };
 
+        var getCustomFields = function (linkedItem, gist_version, cb) {
+            utils.getGistContent(linkedItem.repoId, linkedItem.orgId, linkedItem.gist, gist_version).then(
+                function(gistContent) {
+                    if (gistContent.hasCustomFields) {
+                        gistContent.customKeys.forEach(function (key) {
+                            var property = gistContent.customFields.properties[key];
+                            $scope.csvHeader.push(property.title || key);
+                        });
+                        cb(null, gistContent.customKeys);
+                    } else {
+                        cb();
+                    }
+                },
+                function fail(err) {
+                    cb(err);
+                }
+            );
+        };
+
         var getWebhook = function () {
             return $RPCService.call('webhook', 'get', {
                 repo: $scope.item.repo,
@@ -67,24 +86,39 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getContributors = function (gist_version) {
-            return $scope.getSignatures($scope.item, gist_version, function (err, data) {
-                $scope.contributors = [];
-                if (data && data.value && data.value.length > 0) {
-                    data.value.forEach(function (signature) {
-                        var contributor = {};
-                        contributor.user_name = signature.user;
-                        contributor.repo_owner = signature.owner;
-                        contributor.repo_name = signature.repo;
-                        contributor.gist_name = $scope.getGistName();
-                        contributor.gist_url = signature.gist_url;
-                        contributor.gist_version = signature.gist_version;
-                        contributor.signed_at = signature.created_at;
-                        contributor.org_cla = signature.org_cla;
-                        $scope.contributors.push(contributor);
-                    });
-                }
+        $scope.getContributors = function (gist_version, cb) {
+            var customKeys;
+            getCustomFields($scope.item, gist_version, function (err, keys) {
+                customKeys = keys ? keys : customKeys;
+
+                $scope.getSignatures($scope.item, gist_version, function (err, data) {
+                    $scope.contributors = [];
+                    if (data && data.value && data.value.length > 0) {
+                        data.value.forEach(function (signature) {
+                            var contributor = {};
+                            contributor.user_name = signature.user;
+                            contributor.repo_owner = signature.owner;
+                            contributor.repo_name = signature.repo;
+                            contributor.gist_name = $scope.getGistName();
+                            contributor.gist_url = signature.gist_url;
+                            contributor.gist_version = signature.gist_version;
+                            contributor.signed_at = signature.created_at;
+                            contributor.org_cla = signature.org_cla;
+                            if (customKeys && signature.custom_fields) {
+                                var customFields = JSON.parse(signature.custom_fields);
+                                customKeys.forEach(function (key) {
+                                    contributor[key] = customFields[key];
+                                });
+                            }
+                            $scope.contributors.push(contributor);
+                        });
+                    }
+                    if (typeof cb == 'function') {
+                        cb();
+                    }
+                });
             });
+
         };
 
         $scope.getGist = function () {

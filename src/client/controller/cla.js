@@ -4,8 +4,8 @@
 // tmpl: cla.html
 // *****************************************************
 
-module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q',
-	function ($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q) {
+module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
+	function ($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
 
 		$scope.cla = null;
 		$scope.customFields = {};
@@ -22,9 +22,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			$HUBService.call('users', 'getEmails', {}, function (err, data) {
 				if (data && data.value)
 				{
-							console.log(key, data);
 					data.value.some(function (email) {
-
 						$scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];
 						return email.primary;
 					});
@@ -47,30 +45,21 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		}
 
 		function getCLA() {
-			return $RPCService.call('cla', 'get', {
-				repoId: $scope.linkedItem.repoId,
-				orgId: $scope.linkedItem.orgId
-			}, function (err, cla) {
-				if (!err) {
-					$scope.claText = cla.value.raw;
+			utils.getGistContent($scope.linkedItem.repoId, $scope.linkedItem.orgId).then(
+				function success(gistContent) {
+					$scope.cla = $sce.trustAsHtml(gistContent.claText);
+					$scope.cla.text = gistContent.claText;
+					$scope.claText = gistContent.claText;
 
-					if (cla.value.meta) {
-						// use timeout in order to run the next digest.
-						$timeout(function () {
-							var metaString = cla.value.meta.replace(/<p>|<\/p>|\n|\t/g, '');
-							try {
-								$scope.customFields = JSON.parse(metaString);
-								$scope.customKeys = Object.keys($scope.customFields.properties);
-								$scope.hasCustomFields = true;
-								getGithubValues();
-							} catch (ex) {
-								$scope.noLinkedItemError = true;
-								console.log(ex);
-							}
-						});
-					}
+					$scope.customFields = gistContent.customFields;
+					$scope.customKeys = gistContent.customKeys;
+					$scope.hasCustomFields = gistContent.hasCustomFields;
+					getGithubValues();
+				},
+				function error(err) {
+					$scope.noLinkedItemError = true;
 				}
-			});
+			);
 		}
 
 		function checkCLA() {
@@ -151,10 +140,11 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		var repoPromise = getLinkedItem(function (linkedItem) {
 			$scope.linkedItem = linkedItem;
 			if ($scope.linkedItem) {
-				getCLA().then(function (data) {
-					$scope.cla = $sce.trustAsHtml(data.value.raw);
-					$scope.cla.text = data.value.raw;
-				});
+				getCLA();
+				// getCLA().then(function (data) {
+				// 	$scope.cla = $sce.trustAsHtml(data.value.raw);
+				// 	$scope.cla.text = data.value.raw;
+				// });
 			}
 		});
 

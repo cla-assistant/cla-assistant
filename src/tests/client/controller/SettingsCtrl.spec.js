@@ -104,6 +104,8 @@ describe('Settings Controller', function () {
                 }];
                 error = testErr.cla.getAll || null;
                 response.value = testResp.cla.getAll || resp;
+            } else if (obj === 'cla' && fun === 'get') {
+                response.value = { raw: '<p>cla text</p>', meta: '<p>{ "title": "Custom Fields", "type": "object", "properties": {"name": {"title":"Full Name","type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email"},"age": {"description": "Age in years","type": "number","minimum": "0"}},"required": ["email", "age"]}</p>' };
             } else if (obj === 'cla' && fun === 'getGist') {
                 (args.repo).should.be.equal(scope.item.repo);
                 (args.owner).should.be.equal(scope.item.owner);
@@ -209,7 +211,45 @@ describe('Settings Controller', function () {
             (settingsCtrl.scope.signatures.value.length).should.be.equal(1);
         });
 
+        it('should prepare csv header for custom fields', function () {
+            testResp.cla.getAll = [{
+                owner: 'octocat',
+                repo: 'Hello-World',
+                user: 'login',
+                gist_url: testGistData.url,
+                gist_version: testGistData.history[0].version,
+                created_at: '2010-04-16T02:15:15Z',
+                org_cla: 'false',
+                custom_fields: '{ "name": "Test User", "email": "testEmail" }'
+            }];
+
+            settingsCtrl.scope.getContributors(testGistData.history[0].version);
+            settingsCtrl.scope.$apply();
+
+            (settingsCtrl.scope.csvHeader.indexOf('Full Name')).should.be.greaterThan(-1);
+            (settingsCtrl.scope.csvHeader.indexOf('email')).should.be.greaterThan(-1);
+        });
+
         it('should get all contributors signed this cla', function () {
+            testResp.cla.getAll = [{
+                owner: 'octocat',
+                repo: 'Hello-World',
+                user: 'login',
+                gist_url: testGistData.url,
+                gist_version: testGistData.history[0].version,
+                created_at: '2010-04-16T02:15:15Z',
+                org_cla: 'false',
+                custom_fields: '{ "name": "Test User", "email": "testEmail" }'
+            }];
+
+            settingsCtrl.scope.getContributors(testGistData.history[0].version);
+            settingsCtrl.scope.$apply();
+
+            (settingsCtrl.scope.contributors[0].name).should.be.equal('Test User');
+            (settingsCtrl.scope.contributors[0].email).should.be.equal('testEmail');
+        });
+
+        it('should fill custom fields if there are some', function () {
             testResp.cla.getAll = [{
                 owner: 'octocat',
                 repo: 'Hello-World',
@@ -220,7 +260,8 @@ describe('Settings Controller', function () {
                 org_cla: 'false'
             }];
 
-            settingsCtrl.scope.getContributors();
+            settingsCtrl.scope.getContributors(testGistData.history[0].version);
+            settingsCtrl.scope.$apply();
 
             (settingsCtrl.scope.contributors.length).should.be.equal(1);
             (settingsCtrl.scope.contributors[0].user_name).should.be.equal('login');
@@ -249,7 +290,8 @@ describe('Settings Controller', function () {
                 org_cla: 'true'
             }];
 
-            settingsCtrl.scope.getContributors();
+            settingsCtrl.scope.getContributors(testGistData.history[0].version);
+            settingsCtrl.scope.$apply();
 
             (settingsCtrl.scope.contributors.length).should.be.equal(1);
             (settingsCtrl.scope.contributors[0].user_name).should.be.equal('login');
@@ -401,6 +443,7 @@ describe('Settings Controller', function () {
                 $timeout.flush();
 
                 settingsCtrl.scope.getReport();
+                settingsCtrl.scope.$apply();
 
                 settingsCtrl.scope.contributors.length.should.be.equal(1);
             });

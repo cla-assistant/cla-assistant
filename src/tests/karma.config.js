@@ -37,8 +37,8 @@ module.exports = function(config) {
             // Client code
             'src/client/app.js',
             'src/client/api.js',
-            'src/client/controller/**/*.js',
             'src/client/services/**/*.js',
+            'src/client/controller/**/*.js',
 
             // Client templates
             'src/client/**/*.html',

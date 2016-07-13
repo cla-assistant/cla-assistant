@@ -56,7 +56,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.orgs.some(function (org) {
                 if (org.id == claOrg.orgId) {
                     claOrg.avatar_url = org.avatar_url;
-                    console.log(org.avatar_url);
                     return true;
                 }
             });

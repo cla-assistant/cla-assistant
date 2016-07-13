@@ -216,8 +216,8 @@ describe('CLA Controller', function() {
         httpBackend.flush();
 
         _timeout.flush();
-        (claController.scope.claText).should.be.ok;
         (claController.scope.noLinkedItemError).should.be.ok;
+        (!!claController.scope.claText).should.not.be.ok;
         (!!claController.scope.customFields.length).should.not.be.ok;
     });
 

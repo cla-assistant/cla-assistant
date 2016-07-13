@@ -910,6 +910,19 @@ describe('cla:getAll', function () {
             it_done();
         });
     });
+
+    it('should handle wrong args', function (it_done) {
+        var args = {
+            repoId: testData.repo.id,
+            gist: undefined
+        };
+
+        cla.getAll(args, function (err, arr) {
+            assert(err);
+
+            it_done();
+        });
+    });
 });
 
 describe('cla:getGist', function () {

@@ -431,6 +431,10 @@ module.exports = function () {
         //	gist.gist_url (mandatory)
         //	gist.gist_version (optional)
         getAll: function (args, done) {
+            if (!args.gist || !args.gist.gist_url || (!args.repoId && !args.orgId)) {
+                done('Wrong arguments, gist url or repo id are missing');
+                return;
+            }
             var selection = { gist_url: args.gist.gist_url };
             if (args.gist.gist_version) {
                 selection.gist_version = args.gist.gist_version;
