@@ -75,6 +75,7 @@ export class GithubService {
       .scan((result: Org[], part: Org[]) => result.concat(part), []);
   }
 
+
   private callAndGetMore(requestBody: { obj: string, fun: string, arg: any }, page = 1) {
     requestBody.arg.page = page;
     // return this.call(requestBody)

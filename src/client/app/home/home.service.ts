@@ -38,9 +38,19 @@ export class HomeService {
         const errBody = error.json();
         if (errBody.errmsg.match(/.*duplicate key error.*/)) {
           console.log('This repository is already set up.');
-        }else {
+        } else {
           console.log(errBody.errmsg);
         }
+      }
+    );
+  }
+  public unlinkRepo(repo: ClaRepo) {
+    this.claBackendService.unlinkClaFromRepo(repo).subscribe(
+      () => {
+        this.removeLinkedRepo(repo);
+      },
+      (error) => {
+        console.log(error);
       }
     );
   }
@@ -49,6 +59,12 @@ export class HomeService {
   }
   private addLinkedRepos(newRepos: ClaRepo[]): void {
     this.linkedRepos.next(this.linkedRepos.value.concat(newRepos));
+  }
+  private removeLinkedRepo(removedRepo: ClaRepo): void {
+    const nextValue = this.linkedRepos.value.filter((linkedRepo) => {
+      return linkedRepo.repoId !== removedRepo.repoId;
+    });
+    this.linkedRepos.next(nextValue);
   }
 
 
