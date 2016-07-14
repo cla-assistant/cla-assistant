@@ -1,16 +1,19 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 
 import { ClaLinkForm } from './claLinkForm.component';
 import { User } from '../../shared/github/user';
 import { HomeService } from '../home.service';
+import { LinkStatusModal } from './linkStatusModal.component';
 
 @Component({
   selector: 'cla-link',
-  directives: [ClaLinkForm],
+  directives: [ClaLinkForm, LinkStatusModal],
   templateUrl: './claLink.html'
 })
 export class ClaLink {
   @Input() public user: User = null;
+  @ViewChild(LinkStatusModal)
+  private linkStatusModal: LinkStatusModal;
   private linkFormVisible: boolean = false;
 
   constructor(private homeService: HomeService) { }
@@ -20,8 +23,16 @@ export class ClaLink {
   }
 
   public link(e) {
-    this.homeService.link(e.selectedGist, e.selectedRepoOrOrg);
-    this.toggleLinkForm();
+    this.linkStatusModal.open(e.selectedGist, e.selectedRepoOrOrg);
+    this.homeService
+      .link(e.selectedGist, e.selectedRepoOrOrg)
+      .subscribe(
+        () => {
+          this.linkStatusModal.linkSuccess();
+          this.toggleLinkForm();
+        },
+        (error) => this.linkStatusModal.linkFailed()
+      );
   }
 
 }

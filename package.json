@@ -12,7 +12,7 @@
     "cla"
   ],
   "scripts": {
-    "test-client": "karma start",    
+    "test-client": "karma start",
     "test-client:watch": "npm run test-client -- --auto-watch --no-single-run",
     "test-with-coverage-client": "karma start --reporters mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
     "snyk-test": "snyk test",
@@ -53,6 +53,7 @@
     "jquery": "^2.2.4",
     "merge": "^1.2.0",
     "mongoose": "^4.5.2",
+    "ng2-bs3-modal": "^0.6.1",
     "ng2-select": "^1.0.3",
     "node-sass-middleware": "^0.9.8",
     "passport": "^0.3.2",

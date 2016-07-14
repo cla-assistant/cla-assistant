@@ -1,52 +1,68 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, Observer, BehaviorSubject } from 'rxjs';
 
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
 import { HomeCacheService } from './homeCache.service';
 import { GithubRepo } from '../shared/github/repo';
 import { Org } from '../shared/github/org';
 import { Gist } from '../shared/github/gist';
-import { ClaRepo, fromGithubRepo} from '../shared/claBackend/repo';
+import { fromGithubRepo} from '../shared/claBackend/repo';
+import { LinkedItem, LinkedRepo } from '../shared/claBackend/linkedItem';
 
 @Injectable()
 export class HomeService {
-  private linkedRepos: BehaviorSubject<ClaRepo[]>;
+  private linkedRepos: BehaviorSubject<LinkedRepo[]>;
 
   constructor(
     private homeCacheService: HomeCacheService,
     private claBackendService: ClaBackendService) {
-    this.linkedRepos = new BehaviorSubject<ClaRepo[]>([]);
+    this.linkedRepos = new BehaviorSubject<LinkedRepo[]>([]);
     this.requestReposFromBackend();
   }
 
-  public getLinkedRepos(): Observable<ClaRepo[]> {
+  public getLinkedRepos(): Observable<LinkedRepo[]> {
     return this.linkedRepos.asObservable();
   }
-  public link(gist: Gist, repoOrOrg: GithubRepo | Org) {
+  public link(gist: Gist, repoOrOrg: GithubRepo | Org): Observable<LinkedItem> {
     function isRepo(obj) {
       return obj.fullName !== undefined;
     }
     if (isRepo(repoOrOrg)) {
-      this.linkRepo(gist, repoOrOrg as GithubRepo);
+      return this.linkRepo(gist, repoOrOrg as GithubRepo);
     }
   }
-  public linkRepo(gist: Gist, repo: GithubRepo) {
-    const claRepo: ClaRepo = fromGithubRepo(repo, gist.url);
-    this.claBackendService.linkClaToRepo(claRepo).subscribe(
-      () => this.addLinkedRepos([claRepo]),
-      (error) => {
-        const errBody = error.json();
-        if (errBody.errmsg.match(/.*duplicate key error.*/)) {
-          console.log('This repository is already set up.');
-        } else {
-          console.log(errBody.errmsg);
-        }
+  private linkRepo(gist: Gist, repo: GithubRepo): Observable<LinkedRepo> {
+    return new Observable<LinkedRepo>(
+      (observer: Observer<LinkedRepo>) => {
+        const linkedRepo = new LinkedRepo(fromGithubRepo(repo, gist.url));
+        this.claBackendService.linkCla(linkedRepo).subscribe(
+          () => {
+            this.claBackendService.addWebhook(linkedRepo).subscribe(
+              () => {
+                this.addLinkedRepos([linkedRepo]);
+                observer.next(linkedRepo);
+              },
+              (error) => observer.error(error),
+              () => observer.complete()
+            );
+          },
+          (error) => {
+            this.addLinkedRepos([linkedRepo]);
+            const errBody = error.json();
+            if (errBody.errmsg.match(/.*duplicate key error.*/)) {
+              console.log('This repository is already set up.');
+            } else {
+              console.log(errBody.errmsg);
+            }
+          }
+        );
       }
     );
   }
-  public unlinkRepo(repo: ClaRepo) {
-    this.claBackendService.unlinkClaFromRepo(repo).subscribe(
+  public unlinkRepo(repo: LinkedRepo) {
+    this.claBackendService.unlinkCla(repo).subscribe(
       () => {
+        this.claBackendService.removeWebhook(repo).subscribe();
         this.removeLinkedRepo(repo);
       },
       (error) => {
@@ -57,12 +73,12 @@ export class HomeService {
   private linkOrg(gist, repo) {
 
   }
-  private addLinkedRepos(newRepos: ClaRepo[]): void {
+  private addLinkedRepos(newRepos: LinkedRepo[]): void {
     this.linkedRepos.next(this.linkedRepos.value.concat(newRepos));
   }
-  private removeLinkedRepo(removedRepo: ClaRepo): void {
+  private removeLinkedRepo(removedRepo: LinkedRepo): void {
     const nextValue = this.linkedRepos.value.filter((linkedRepo) => {
-      return linkedRepo.repoId !== removedRepo.repoId;
+      return linkedRepo.id !== removedRepo.id;
     });
     this.linkedRepos.next(nextValue);
   }

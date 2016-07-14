@@ -4,43 +4,64 @@ import { Observable } from 'rxjs';
 
 import { GithubRepo } from '../github/repo';
 import { ClaRepo } from './repo';
+import { LinkedItem, LinkedRepo } from './linkedItem';
 
 @Injectable()
 export class ClaBackendService {
 
   constructor(private http: Http) { }
 
-  public getLinkedRepos(githubRepos: GithubRepo[]) {
+  public getLinkedRepos(githubRepos: GithubRepo[]): Observable<LinkedRepo[]> {
     const repoSet = githubRepos.map(repo => ({
       repoId: repo.id,
       owner: repo.owner.login,
       repo: repo.name
     }));
-    function isFork(claRepo: ClaRepo) {
+    function isFork(claRepo: ClaRepo): boolean {
       const result = githubRepos.find(ghRepo => ghRepo.id.toString() === claRepo.repoId);
       return result && result.fork;
     }
     return this
       .call('repo', 'getAll', { set: repoSet })
-      .map(repos => repos.map(repo => Object.assign({}, repo, {fork: isFork(repo)})));
+      // Add fork property
+      .map(repos => repos.map(repo => Object.assign({}, repo, { fork: isFork(repo) })))
+      // Create LinkedRepo instance
+      .map(repos => repos.map(repo => new LinkedRepo(repo)));
   }
 
-  public linkClaToRepo(repo: ClaRepo) {
-    return this.call('repo', 'create', repo);
+  public linkCla(item: LinkedItem) {
+    return this.call(item.getType(), 'create', item.getCompleteObject());
   }
 
-  public unlinkClaFromRepo(repo: ClaRepo) {
-    return this.call('repo', 'remove', { repoId: repo.repoId });
+  public unlinkCla(item: LinkedItem) {
+    return this.call(item.getType(), 'remove', item.getIdObject());
   }
 
-  public getGistInfo(repo: ClaRepo) {
+  public getGistInfo(item: LinkedItem) {
     return this.call('cla', 'getGist', {
-      repo: repo.repo,
-      owner: repo.owner,
-      gist: { gist_url: repo.gist }
+      gist: { gist_url: item.gist }
     });
   }
 
+  public getClaSignatures(item: LinkedItem, version: string) {
+    const arg = Object.assign(item.getIdObject(), {
+      gist: {
+        gist_url: item.gist,
+        gist_version: version
+      }
+    });
+    return this.call('cla', 'getAll', arg);
+  }
+
+  public addWebhook(item: LinkedItem) {
+    return this.call('webhook', 'create', item.getCompleteObject());
+  }
+  public removeWebhook(item: LinkedItem) {
+    return this.call('webhook', 'remove', item.getNameObject());
+  }
+  public getWebhook(item: LinkedItem) {
+    return this.call('webhook', 'get', item.getNameObject());
+  }
 
   private call(obj, fun, arg): Observable<any> {
     let headers = new Headers();
@@ -50,7 +71,7 @@ export class ClaBackendService {
     let body = JSON.stringify(arg);
     return this.http.post(`/api/${obj}/${fun}`, body, { headers: headers })
       .map(res => {
-        return res.json();
+        return res.text() === '' ? null : res.json();
       });
   }
 }

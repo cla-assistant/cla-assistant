@@ -4,7 +4,7 @@ import { HomeCacheService } from '../homeCache.service';
 import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
 import { Org } from '../../shared/github/org';
-import { ClaRepo } from '../../shared/claBackend/repo';
+import { LinkedRepo } from '../../shared/claBackend/linkedItem';
 
 @Component({
   selector: 'repo-org-dropdown',
@@ -67,8 +67,8 @@ export class RepoOrgDropdown implements OnInit {
 
   private requestRepos() {
     this.homeCacheService.currentUserRepos
-      .combineLatest(this.homeService.getLinkedRepos(), (ghRepos: GithubRepo[], claRepos: ClaRepo[]) => {
-        return ghRepos.filter(ghRepo => !claRepos.some(claRepo => claRepo.repoId === ghRepo.id.toString()));
+      .combineLatest(this.homeService.getLinkedRepos(), (ghRepos: GithubRepo[], claRepos: LinkedRepo[]) => {
+        return ghRepos.filter(ghRepo => !claRepos.some(claRepo => claRepo.id === ghRepo.id.toString()));
       })
       .subscribe(repos => {
         this.repos = repos;

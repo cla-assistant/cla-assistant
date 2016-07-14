@@ -5,6 +5,9 @@ import { Org } from '../../shared/github/org';
 import { AuthService } from '../../login/auth.service';
 import { GistsDropdown } from './gistsDropdown.component';
 import { RepoOrgDropdown } from './repoOrgDropdown.component';
+import { InfoModal } from './infoModal.component';
+import { ConfirmAddModal } from './confirmAddModal.component';
+
 
 interface Link {
   selectedGist: Gist;
@@ -13,7 +16,7 @@ interface Link {
 
 @Component({
   selector: 'cla-link-form',
-  directives: [GistsDropdown, RepoOrgDropdown],
+  directives: [GistsDropdown, RepoOrgDropdown, InfoModal, ConfirmAddModal],
   templateUrl: './claLinkForm.html'
 })
 export class ClaLinkForm {
@@ -22,7 +25,8 @@ export class ClaLinkForm {
   @Output() public onLink: EventEmitter<Link>;
   @ViewChild(GistsDropdown) public gistsDropdown: GistsDropdown;
   @ViewChild(RepoOrgDropdown) public repoOrgDropdown: RepoOrgDropdown;
-  
+  @ViewChild(ConfirmAddModal)
+  public confirmAddModal: ConfirmAddModal;
 
   private selectedGist: Gist;
   private selectedRepoOrOrg: GithubRepo | Org;
@@ -40,6 +44,9 @@ export class ClaLinkForm {
   }
 
   public link() {
+    this.confirmAddModal.open();
+  }
+  public confirmAddClosed(confirmed: boolean) {
     this.onLink.emit({
       selectedGist: this.selectedGist,
       selectedRepoOrOrg: this.selectedRepoOrOrg

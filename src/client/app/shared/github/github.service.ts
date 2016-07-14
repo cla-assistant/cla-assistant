@@ -14,7 +14,7 @@ export class GithubService {
 
   constructor(
     private http: Http,
-    private router: Router) { }
+    private router: Router) {}
   // TODO: handle errors
   public getUser(): Observable<User> {
     const requestBody = {

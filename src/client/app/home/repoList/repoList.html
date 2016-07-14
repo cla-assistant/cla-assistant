@@ -29,7 +29,7 @@
     </tr>
     <tr *ngFor="let claRepo of claRepos | async">
       <td>
-          <cla-repo-row [repo]="claRepo" (onUnlink)="unlinkRepo($event)"></cla-repo-row>
+          <linked-item-row [item]="claRepo" (onUnlink)="unlinkRepo($event)"></linked-item-row>
       </td>
     </tr>
   </table>

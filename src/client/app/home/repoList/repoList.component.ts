@@ -1,23 +1,24 @@
 import {Component, Input} from '@angular/core';
 import { HomeService } from '../home.service';
-import { ClaRepo } from '../../shared/claBackend/repo';
+import { LinkedItem } from '../../shared/claBackend/linkedItem';
 import { Observable } from 'rxjs';
-import { ClaRepoRow } from './claRepoRow.component';
+import { LinkedItemRow } from './claRepoRow.component';
 //import {ContributorsModal} from './contributors.modal';
 
 @Component({
-    selector: 'repo-list',
-    directives: [ClaRepoRow],
-    templateUrl: './repoList.html',
+  selector: 'repo-list',
+  directives: [LinkedItemRow],
+  templateUrl: './repoList.html'
 })
-
 export class RepoList {
-    private claRepos: Observable<ClaRepo[]>;
-    constructor(private homeService: HomeService) {
-        this.claRepos = homeService.getLinkedRepos();
-    }
+  private claRepos: Observable<LinkedItem[]>;
+  constructor(private homeService: HomeService) {
+    this.claRepos = homeService
+      .getLinkedRepos();
 
-    public unlinkRepo(repo) {
-        this.homeService.unlinkRepo(repo);
-    }
+  }
+
+  public unlinkRepo(repo) {
+    this.homeService.unlinkRepo(repo);
+  }
 }

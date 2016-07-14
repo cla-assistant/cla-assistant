@@ -7,7 +7,8 @@
     </h5>
     <div class="col-xs-12">
       <div class="new-link-select-gist">Select from Gist &nbsp;
-        <span class="clickable new-link-select-gist-info" (click)="info()">(don't have one?)</span>
+        <span class="clickable new-link-select-gist-info" (click)="infoModal.open()">(don't have one?)</span>
+        <info-modal #infoModal></info-modal>
       </div>
       <gists-dropdown (onGistSelected)="handleGistSelected($event)"></gists-dropdown>
       <div class="new-link-select-gist-sep">- or -</div>
@@ -44,5 +45,11 @@
       <img src="/assets/images/link_button.svg" class="link-img">
       LINK
 		</button>
+    <confirm-add-modal 
+      [gist]="selectedGist"
+      [item]="selectedRepoOrOrg"
+      (onClose)="confirmAddClosed($event)">
+    </confirm-add-modal>
   </div>
 </div>
+<!--Modals-->

@@ -40,9 +40,6 @@ export class Home implements OnInit {
       (user) => {
         this.user = user;
       });
-    this.homeService.getLinkedRepos().subscribe((claRepos) => {
-      console.log(claRepos);
-    });
   }
 
   public handleLogout() {

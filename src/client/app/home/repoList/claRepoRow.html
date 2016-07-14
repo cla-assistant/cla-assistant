@@ -1,9 +1,13 @@
 <div class="row col-xs-12 linked-clas-list-heading">
     <div class="col-xs-12 col-sm-3 col-lg-2 linked-clas-list-first-col">
         <div class="text clickable">
-            <a bind-href="'https://github.com/'+repo.owner+'/'+ repo.repo" target="space">
-                <i class="octicon" [ngClass]="{false:'octicon-repo', true:'octicon-repo-forked'}[repo.fork]"></i> {{ repo.owner }} / {{ repo.repo }}
-            </a>
+            <repository-link
+                *ngIf="item.getType() === 'repo'" 
+                [repo]="item.getCompleteObject()">
+            </repository-link>
+            <!--<a *ngIf="item.getType() === 'org'" ng-href="https://github.com/{{ item.org }}" target="space">
+                <img src="{{item.avatar_url}}" alt="" class="org">&nbsp; {{ item.org }}
+            </a>-->
         </div>
     </div>
 
@@ -22,7 +26,7 @@
     </div>
 
     <div class="col-xs-4 col-sm-2 col-lg-1 linked-clas-show-contrib-col">
-        <!--<a (click)="showContributorsReport()" class="clickable">{{signatures.value.length}}</a>-->
+        <a class="clickable">{{signatures.length}}</a>
     </div>
 
     <!-- <script type="text/ng-template" id="validateLink.html">
@@ -31,6 +35,8 @@
     </script> -->
     <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
         <!--<img   class="is-link-active-img" [src]="isLinkActive() ? '/client/assets/images/link_active.svg' : '/client/assets/images/link_inactive.svg'" popover-placement="right" popover-template="'validateLink.html'" popover-trigger="mouseenter" popover-popup-delay="300">-->
+        <img class="is-link-active-img" [src]="isValid() ? '/assets/images/link_active.svg' : '/assets/images/link_inactive.svg'">
+    
     </div>
 
     <!-- <script type="text/ng-template" id="moreActions.html">
@@ -39,7 +45,7 @@
         <button class="btn btn-info" ng-click="getBadge(repo)" style="margin-top:5px; width:100%">Get Badge</button>
     </script> -->
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
-        <i class="fa fa-trash-o action-icon" style="font-size:18px" (click)="onUnlink.emit(repo)" data-toggle="tooltip" data-placement="bottom" title="Unlink" activate-tooltip ></i>
+        <i class="fa fa-trash-o action-icon" style="font-size:18px" (click)="onUnlink.emit(item)" data-toggle="tooltip" data-placement="bottom" title="Unlink" activate-tooltip ></i>
         <!--<i class="fa fa-ellipsis-h action-icon"  data-toggle="tooltip" data-placement="bottom" title="More..." activate-tooltip
              popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
         -->
