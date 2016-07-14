@@ -35,8 +35,8 @@
     "glob": "^6.0.4",
     "merge": "^1.2.0",
     "mongoose": "^4.4.6",
-    "node-sass": "^3.5.0-beta.1",
-    "node-sass-middleware": "^0.9.7",
+    "node-sass": "^3.8.0",
+    "node-sass-middleware": "^0.9.8",
     "nodemailer": "^2.3.0",
     "nodemailer-sendmail-transport": "^1.0.0",
     "nodemailer-smtp-transport": "^2.4.1",
@@ -44,18 +44,18 @@
     "passport-github": "^1.1.0",
     "q": "^1.4.1",
     "request": "^2.69.0",
+    "snyk": "^1.17.0",
     "socket.io": "^1.4.5",
     "valid-url": "^1.0.9",
-    "x-frame-options": "^1.0.0",
-    "snyk": "^1.17.0"
+    "x-frame-options": "^1.0.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-coveralls": "1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-coveralls": "^1.0.1",
     "grunt-eslint": "17.3.1",
     "grunt-http": "2.0.0",
     "grunt-karma": "^0.12.1",
@@ -84,7 +84,8 @@
     "start": "node app.js",
     "postinstall": "bower install",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "prepublish": "npm run snyk-protect",
+    "test": "snyk test"
   },
   "snyk": true
 }
