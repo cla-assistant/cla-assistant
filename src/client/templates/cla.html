@@ -14,7 +14,7 @@
 				</div>
 				<form ng-if="hasCustomFields">
 					<p class="text-center">
-						<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub</button>
+						<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
 					</p>
 					<customfield
 						class="form-group"
@@ -24,6 +24,7 @@
 						max="customFields.properties[key].maximum"
 						name="key"
 						ng-repeat="key in customKeys"
+						ng-show="user.value"
 						required="!!customFields.required && customFields.required.indexOf(key) >= 0"
 						title="customFields.properties[key].title"
 						type="customFields.properties[key].type == 'boolean' ? 'checkbox' : customFields.properties[key].type"
@@ -32,7 +33,7 @@
 					</customfield>
 				</form>
 				<p class="text-center">
-					<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
+					<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
 					<button class="btn btn-info sign-btn" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
 				</p>
 			</div>
