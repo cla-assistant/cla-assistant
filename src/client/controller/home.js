@@ -23,8 +23,8 @@ var deleteFromArray = function(item, array) {
     }
 };
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location',
-    function($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', 'utils',
+    function($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, utils) {
 
         $scope.active = 0;
         $scope.claRepos = [];
@@ -152,8 +152,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 if (data && data.value) {
                     data.value.forEach(function(gist) {
                         var gistFile = {};
-                        gistFile.name = Object.keys(gist.files)[0];
-                        gistFile.name = gist.files[gistFile.name].filename ? gist.files[gistFile.name].filename : gistFile.name;
+                        gistFile.name = utils.getGistAttribute(gist, 'filename');
                         gistFile.url = gist.html_url;
                         $scope.gists.push(gistFile);
                     });

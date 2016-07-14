@@ -177,8 +177,9 @@ h4{
   padding-left: 0;
 }
 
-label {
+label, .checkbox label {
   margin-top: $margin-small;
+  font-weight: 100;
 }
 
 label.required:after,
@@ -462,9 +463,6 @@ small {
   i {
       width: 100%;
   }
-}
-
-.margin-top-medium {
 }
 
 .sign-btn {

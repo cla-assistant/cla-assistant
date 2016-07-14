@@ -14,6 +14,9 @@ describe('Settings Controller', function () {
         },
         'user': null,
         'files': {
+            'metadata': {
+                'content': ''
+            },
             'ring.erl': {
                 'content': 'contents of gist'
             }
@@ -190,7 +193,7 @@ describe('Settings Controller', function () {
             (calledApi.RPC.webhook.get).should.be.equal(true);
         });
 
-        it('should get gist file name and store it in scope.gist object', function () {
+        it('should get gist file name and store it in scope.gist object, ignore metadata file', function () {
             var gistName = settingsCtrl.scope.getGistName();
 
             (gistName).should.be.equal('ring.erl');

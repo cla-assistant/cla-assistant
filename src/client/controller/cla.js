@@ -57,7 +57,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 					getGithubValues();
 				},
 				function error(err) {
-					$scope.noLinkedItemError = true;
+					$scope.noLinkedItemError = err.message || err;
 				}
 			);
 		}
@@ -81,7 +81,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 				owner: $stateParams.user
 			}, function (err, linkedItem) {
 				if(err){
-					$scope.noLinkedItemError = true;
+					$scope.noLinkedItemError = err.message || err;
 				}
 				callback(linkedItem.value);
 			});

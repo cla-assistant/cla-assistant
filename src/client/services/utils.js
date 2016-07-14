@@ -1,4 +1,5 @@
 'use strict';
+var reservedGistFileNames = ['metadata'];
 
 module.factory('utils', ['$q', '$RPCService',
     function($q, $RPCService) {
@@ -6,7 +7,12 @@ module.factory('utils', ['$q', '$RPCService',
             getGistAttribute: function(gist, attribute) {
                 var attr;
                 if (gist && gist.files) {
-                    attr = Object.keys(gist.files)[0];
+                    Object.keys(gist.files).some(function (file) {
+                        if (reservedGistFileNames.indexOf(file) < 0) {
+                            attr = file;
+                            return true;
+                        }
+                    });
                     attr = gist.files[attr][attribute] ? gist.files[attr][attribute] : attr;
                 }
                 return attr;

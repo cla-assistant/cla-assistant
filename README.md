@@ -21,6 +21,14 @@ CLA assistant is provided by SAP as a free hosted offering under: https://cla-as
 
 For SAP open source projects please use the [SAP Individual Contributor License Agreement] (https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
 
+
+Request more information from the CLA signer
+===
+If you need to collect detaild information about your contributors you can add so called "custom fields" to your CLA.
+This can be done by providing CLA assistant with some metadata that describes the data you are going to collect.
+CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
+You can also define which of the required iformation can be taken from user's github account. In that case CLA assistant will present allready prefilled form to the user.
+
 FAQ
 ===
 #### Where is the list of signees stored?

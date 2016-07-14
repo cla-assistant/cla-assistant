@@ -136,16 +136,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getGistName = function () {
-            var fileName = '';
-            if ($scope.gist.fileName) {
-                fileName = $scope.gist.fileName;
-            }
-            else if ($scope.gist && $scope.gist.files) {
-                fileName = Object.keys($scope.gist.files)[0];
-                fileName = $scope.gist.files[fileName].filename ? $scope.gist.files[fileName].filename : fileName;
-                $scope.gist.fileName = fileName;
-            }
-            return fileName;
+            $scope.gist.fileName = $scope.gist.fileName ? $scope.gist.fileName : utils.getGistAttribute($scope.gist, 'filename');
+            return $scope.gist.fileName;
         };
 
         // var showErrorMessage = function(text) {

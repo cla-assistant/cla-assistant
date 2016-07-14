@@ -48,7 +48,11 @@ var markdownRender = function (content, token) {
 var renderFiles = function (files, renderToken) {
     var deferred = q.defer();
     try {
-        var content = files[Object.keys(files)[0]].content;
+        var content;
+        Object.keys(files).some(function (name) {
+            content = name != 'metadata' ? files[name].content : content;
+            return name != 'metadata';
+        });
     } catch (e) {
         deferred.reject(e);
         return deferred.promise;
