@@ -5,7 +5,7 @@ Contributor License Agreement assistant
 ===
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
 
-To get started, simply store your CLA as a GitHub Gist file then link it with the repository in CLA assistant. Then sit back and relax while CLA assistant:
+To get started, simply store your CLA as a GitHub Gist file then link it with the repository/organisation in CLA assistant. Then sit back and relax while CLA assistant:
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
 - Allows contributors to sign a CLA from within a pull request
@@ -27,7 +27,35 @@ Request more information from the CLA signer
 If you need to collect detaild information about your contributors you can add so called "custom fields" to your CLA.
 This can be done by providing CLA assistant with some metadata that describes the data you are going to collect.
 CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
-You can also define which of the required iformation can be taken from user's github account. In that case CLA assistant will present allready prefilled form to the user.
+
+Following steps need to be done:
+ - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://github.com/cla-assistant/cla-assistant/blob/master/src/client/assets/images/add_custom_fields.gif))
+ - describe custom fields in JSON format (according to the [JSON Schema](http://json-schema.org/))
+
+        {
+            "title": "Custom Fields",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Full Name",
+                    "type": "string",
+                    "githubKey": "name"
+                },
+                "email": {
+                    "title": "Email Address",
+                    "type": "string",
+                    "githubKey": "email"
+                },
+                "agreement": {
+                    "title": "I have read and agree to the CLA",
+                    "type": "boolean"
+                }
+            },
+            "required": ["email", "agreement"]
+        }
+
+You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
+The possible values for "githubKey"-property you can find in the [GitHub-Api description](https://developer.github.com/v3/users/#get-a-single-user)
 
 FAQ
 ===
