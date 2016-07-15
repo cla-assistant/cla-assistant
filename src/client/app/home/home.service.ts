@@ -6,7 +6,7 @@ import { HomeCacheService } from './homeCache.service';
 import { GithubRepo } from '../shared/github/repo';
 import { Org } from '../shared/github/org';
 import { Gist } from '../shared/github/gist';
-import { fromGithubRepo} from '../shared/claBackend/repo';
+import { fromGithubRepo } from '../shared/claBackend/repo';
 import { LinkedItem, LinkedRepo } from '../shared/claBackend/linkedItem';
 
 @Injectable()
@@ -17,7 +17,6 @@ export class HomeService {
     private homeCacheService: HomeCacheService,
     private claBackendService: ClaBackendService) {
     this.linkedRepos = new BehaviorSubject<LinkedRepo[]>([]);
-    this.requestReposFromBackend();
   }
 
   public getLinkedRepos(): Observable<LinkedRepo[]> {
@@ -47,7 +46,6 @@ export class HomeService {
             );
           },
           (error) => {
-            this.addLinkedRepos([linkedRepo]);
             const errBody = error.json();
             if (errBody.errmsg.match(/.*duplicate key error.*/)) {
               console.log('This repository is already set up.');

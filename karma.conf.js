@@ -14,7 +14,16 @@ module.exports = function (config) {
     preprocessors: { './config/spec-bundle.js': ['coverage', 'webpack', 'sourcemap'] },
 
     webpack: testWebpackConfig,
- 
+
+    jasmineDiffReporter: {
+      pretty: true,
+      multiline: {
+        before: 1,
+        after: 1,
+        indent: 2
+      }
+    },
+
     mochaReporter: {
       colors: {
         success: 'green',
@@ -51,7 +60,7 @@ module.exports = function (config) {
     webpackServer: { noInfo: true },
 
 
-    reporters: ['mocha'],
+    reporters: ['jasmine-diff', 'mocha'],
 
     port: 9876,
 

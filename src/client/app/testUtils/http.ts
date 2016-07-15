@@ -18,22 +18,22 @@ export function getHttpMockServices() {
 }
 
 interface FakeConnection {
-  expectedUrl: string;
-  expectedBody: Object;
-  fakeResponseBody: Object;
+  expectedUrl?: string;
+  expectedBody?: Object;
+  fakeResponseBody?: Object;
 }
 export function setupFakeConnection(mockBackend, ...fakeConnections: FakeConnection[]) {
   if (fakeConnections.length === 0) { return; }
   let count = 0;
   mockBackend.connections.subscribe((conn: MockConnection) => {
-      if (fakeConnections[count].expectedUrl) {
+      if (typeof fakeConnections[count].expectedUrl !== 'undefined') {
         expect(conn.request.url).toEqual(fakeConnections[count].expectedUrl);
       }
-      if (fakeConnections[count].expectedBody) {
+      if (typeof fakeConnections[count].expectedBody !== 'undefined') {
         let expectedBody = fakeConnections[count].expectedBody;
-        expect(conn.request.text()).toEqual(JSON.stringify(expectedBody));
+        expect(JSON.parse(conn.request.text())).toEqual(expectedBody);
       }
-      if (fakeConnections[count].fakeResponseBody) {
+      if (typeof fakeConnections[count].fakeResponseBody !== 'undefined') {
         const responseOptions = new ResponseOptions({
           body: fakeConnections[count].fakeResponseBody
         });

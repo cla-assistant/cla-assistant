@@ -7,7 +7,6 @@ export interface GithubRepo {
   fork: boolean;
   owner: {
     login: string;
-    avatarUrl: string;
   };
 }
 export function createReposFromApiResponse(response): GithubRepo[] {
@@ -17,8 +16,7 @@ export function createReposFromApiResponse(response): GithubRepo[] {
     name: repo.name,
     fork: repo.fork,
     owner: {
-      login: repo.owner.login,
-      avatarUrl: repo.owner.avatar_url
+      login: repo.owner.login
     }
   }));
 }

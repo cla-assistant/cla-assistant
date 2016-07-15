@@ -22,7 +22,7 @@ class GithubServiceMock {
   public getUserRepos() { return this.getUserReposObservable; }
 };
 
-describe('Home Service', () => {
+describe('Home Cache Service', () => {
   let homeCacheService: HomeCacheService, mockBackend: MockBackend;
   const githubServiceMock = new GithubServiceMock();
 
@@ -49,8 +49,7 @@ describe('Home Service', () => {
       const fakeResponseBody = {};
       fakeResponseBody['default-cla'] = expectedResponse;
 
-      setupFakeConnection({
-        mockBackend,
+      setupFakeConnection(mockBackend, {
         expectedUrl,
         fakeResponseBody
       });

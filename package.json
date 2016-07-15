@@ -14,7 +14,7 @@
   "scripts": {
     "test-client": "karma start",
     "test-client:watch": "npm run test-client -- --auto-watch --no-single-run",
-    "test-with-coverage-client": "karma start --reporters mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
+    "test-with-coverage-client": "karma start --reporters jasmine-diff,mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
     "snyk-test": "snyk test",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect"
@@ -88,6 +88,7 @@
     "karma": "^1.1.0",
     "karma-coverage": "^1.0.0",
     "karma-jasmine": "^1.0.2",
+    "karma-jasmine-diff-reporter": "^0.5.0",
     "karma-mocha-reporter": "^2.0.4",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^1.7.0",

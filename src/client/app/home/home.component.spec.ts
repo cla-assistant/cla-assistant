@@ -7,6 +7,7 @@ import { createFakeObservable } from '../testUtils/observable';
 import { Home } from './home.component';
 import { AuthService } from '../login/auth.service';
 import { HomeCacheService } from './homeCache.service';
+import { HomeService } from './home.service';
 
 describe('Home Component', () => {
   let fixture: ComponentFixture<Home>;
@@ -16,6 +17,7 @@ describe('Home Component', () => {
   const homeCacheServiceMock = {
     currentUser: createFakeObservable(testUser)
   };
+  const homeServiceMock = jasmine.createSpyObj('homeServiceMock', ['requestReposFromBackend']);
 
   beforeEachProviders(() => [
     OverridingTestComponentBuilder,
@@ -25,7 +27,10 @@ describe('Home Component', () => {
   beforeEach(async(inject([OverridingTestComponentBuilder], (tcb: OverridingTestComponentBuilder) => {
     return tcb
       .overrideTemplate(Home, '<div></div>')
-      .overrideProviders(Home, [provide(HomeCacheService, { useValue: homeCacheServiceMock })])
+      .overrideProviders(Home, [
+        provide(HomeCacheService, { useValue: homeCacheServiceMock }),
+        provide(HomeService, { useValue: homeServiceMock })
+      ])
       .createAsync(Home)
       .then(f => fixture = f);
   })));

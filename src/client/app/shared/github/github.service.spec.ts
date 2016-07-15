@@ -1,13 +1,16 @@
-import { beforeEachProviders, async, inject } from '@angular/core/testing';
-import { MockBackend } from '@angular/http/testing';
+import { beforeEachProviders, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { Router } from '@angular/router';
+import { Response, ResponseOptions, ResponseType } from '@angular/http';
+import { MockBackend, MockConnection } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../testUtils/http';
+
 
 import { GithubService } from './github.service';
 import { User } from './user';
 import { Gist } from './gist';
 import { GithubRepo } from './repo';
+import { Org } from './org';
 
 
 describe('GithubSerive', () => {
@@ -25,6 +28,22 @@ describe('GithubSerive', () => {
     mockBackend = mb;
   }));
 
+  it('should redirect to login page when request returns with status code 401', fakeAsync(() => {
+    mockBackend.connections.subscribe((conn: MockConnection) => {
+        const responseOptions = new ResponseOptions({
+          status: 401,
+          type: ResponseType.Error
+        });
+        conn.mockError(<any>new Response(responseOptions)); // cast to any is workaround
+    });
+    const spy = jasmine.createSpy('observer');
+    githubService.getUser().subscribe(spy);
+    tick();
+    expect(spy.calls.count()).toEqual(0);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['login']);
+
+  }));
+
   describe('getUser', () => {
 
     it('should return the currently logged in user', async(() => {
@@ -35,7 +54,7 @@ describe('GithubSerive', () => {
         avatarUrl: 'test avater url',
         login: 'test user name',
         roles: {
-          admin: false,
+          admin: true,
           orgAdmin: false
         }
       };
@@ -44,6 +63,9 @@ describe('GithubSerive', () => {
           html_url: 'test url',
           avatar_url: 'test avater url',
           login: 'test user name'
+        },
+        meta: {
+          scopes: '....write:repo_hook....'
         }
       };
       setupFakeConnection(
@@ -156,18 +178,19 @@ describe('GithubSerive', () => {
       const expectedBody = {
         obj: 'repos',
         fun: 'getAll',
-        arg: { per_page: 100, affiliation: 'owner,organization_member', page: 1 }
+        //,organization_member
+        arg: { per_page: 100, affiliation: 'owner', page: 1 }
       };
-      const expectedResponse: GithubRepo[] = [
-        { fullName: 'myRepo' },
-        { fullName: 'myRepo2' }
-      ];
       const fakeResponseBody = {
         data: [
-          { full_name: 'myRepo' },
-          { full_name: 'myRepo2' }
+          { id: 123, fork: true, full_name: 'test/myRepo', name: 'myRepo', owner: { login: 'test' } },
+          { id: 456, fork: true, full_name: 'test/myRepo2', name: 'myRepo2', owner: { login: 'test' } }
         ]
       };
+      const expectedResult: GithubRepo[] = [
+        { id: 123, fork: true, fullName: 'test/myRepo', name: 'myRepo', owner: { login: 'test' } },
+        { id: 456, fork: true, fullName: 'test/myRepo2', name: 'myRepo2', owner: { login: 'test' } }
+      ];
       setupFakeConnection(
         mockBackend,
         {
@@ -177,7 +200,40 @@ describe('GithubSerive', () => {
         }
       );
       githubService.getUserRepos().subscribe((result) => {
-        expect(result).toEqual(expectedResponse);
+        expect(result).toEqual(expectedResult);
+      });
+    }));
+
+  });
+
+  describe('getUserOrgs', () => {
+
+    it('should return all orgs of the logged in user where he has admin rights', async(() => {
+      const expectedUrl = '/api/github/call';
+      const expectedBody = {
+        obj: 'orgs',
+        fun: 'getOrganizationMemberships',
+        arg: { per_page: 100, page: 1 }
+      };
+      const fakeResponseBody = {
+        data: [
+          { role: 'admin', organization: { login: 'MyOrg' } },
+          { role: 'member', organization: { login: 'MyOrg2' } }
+        ]
+      };
+      const expectedResult: Org[] = [
+        { login: 'MyOrg' }
+      ];
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl,
+          expectedBody,
+          fakeResponseBody
+        }
+      );
+      githubService.getUserOrgs().subscribe((result) => {
+        expect(result).toEqual(expectedResult);
       });
     }));
 

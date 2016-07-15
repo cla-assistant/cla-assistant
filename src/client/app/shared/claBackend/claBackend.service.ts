@@ -29,7 +29,7 @@ export class ClaBackendService {
       .map(repos => repos.map(repo => new LinkedRepo(repo)));
   }
 
-  public linkCla(item: LinkedItem) {
+  public linkCla(item: LinkedItem): Observable<LinkedRepo> {
     return this.call(item.getType(), 'create', item.getCompleteObject());
   }
 

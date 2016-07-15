@@ -40,6 +40,8 @@ export class Home implements OnInit {
       (user) => {
         this.user = user;
       });
+    this.homeService.requestReposFromBackend();
+
   }
 
   public handleLogout() {
