@@ -29,7 +29,7 @@ This can be done by providing CLA assistant with some metadata that describes th
 CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
 
 Following steps need to be done:
- - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://github.com/cla-assistant/cla-assistant/blob/master/src/client/assets/images/add_custom_fields.gif))
+ - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/add_custom_fields.gif))
  - describe custom fields in JSON format (according to the [JSON Schema](http://json-schema.org/))
 
         {
@@ -55,7 +55,7 @@ Following steps need to be done:
         }
 
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
-The possible values for "githubKey"-property you can find in the [GitHub-Api description](https://developer.github.com/v3/users/#get-a-single-user)
+The possible values for the "githubKey"-property can be found in the [GitHub-Api description](https://developer.github.com/v3/users/#get-a-single-user)
 
 FAQ
 ===
