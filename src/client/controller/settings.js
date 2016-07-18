@@ -132,6 +132,9 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                 if (!err && data.value) {
                     $scope.gist = data.value;
                     $scope.valid.gist = $scope.gist && $scope.gist.id ? true : false;
+                    getCustomFields($scope.item, gistArgs().gist_version, function (err) {
+                        $scope.valid.gist = err ? false : $scope.valid.gist;
+                    });
                 }
                 $scope.gist.linked = true;
             });
