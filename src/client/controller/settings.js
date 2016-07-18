@@ -19,7 +19,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.contributors = [];
         var webhook = {};
 
-        $scope.csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation'];
+        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation'];
+        $scope.csvHeader = csvHeader.concat();
 
         function gistArgs() {
             var args = {
@@ -58,6 +59,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             utils.getGistContent(linkedItem.repoId, linkedItem.orgId, linkedItem.gist, gist_version).then(
                 function(gistContent) {
                     if (gistContent.hasCustomFields) {
+                        $scope.csvHeader = csvHeader.concat();
                         gistContent.customKeys.forEach(function (key) {
                             var property = gistContent.customFields.properties[key];
                             $scope.csvHeader.push(property.title || key);
