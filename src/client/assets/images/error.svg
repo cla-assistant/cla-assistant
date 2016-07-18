@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 956 708" enable-background="new 0 0 956 708" xml:space="preserve">
+<g id="Layer_2" display="none">
+</g>
+<g id="Layer_1">
+	<path fill="#E6E6E6" d="M618.7,613.1H295.5c-24.8,0-45-20.2-45-45V175c0-24.8,20.2-45,45-45h323.2c24.8,0,45,20.2,45,45v393.1
+		C663.7,592.8,643.4,613.1,618.7,613.1z"/>
+	<path fill="#878787" d="M629,613.2H284.9c-18.9,0-34.4-15.5-34.4-34.4V513l413.2,0l-0.3,65.7C663.4,597.7,647.9,613.2,629,613.2z"
+		/>
+	<linearGradient id="SVGID_1_" gradientUnits="userSpaceOnUse" x1="602.0401" y1="634.9893" x2="498.9667" y2="456.461">
+		<stop  offset="0" style="stop-color:#FFFFFF;stop-opacity:0"/>
+		<stop  offset="0.1062" style="stop-color:#DCDCDC;stop-opacity:7.434703e-02"/>
+		<stop  offset="0.357" style="stop-color:#8F8F8F;stop-opacity:0.2499"/>
+		<stop  offset="0.5808" style="stop-color:#525252;stop-opacity:0.4066"/>
+		<stop  offset="0.7692" style="stop-color:#252525;stop-opacity:0.5384"/>
+		<stop  offset="0.9148" style="stop-color:#0A0A0A;stop-opacity:0.6403"/>
+		<stop  offset="1" style="stop-color:#000000;stop-opacity:0.7"/>
+	</linearGradient>
+	<path fill="url(#SVGID_1_)" d="M399.9,513.6l98.6,99.5l108.1-0.1l26-0.1c21.8,0,31-22.7,31-32.4l0-67.5L399.9,513.6z"/>
+	<polygon fill="#C1C1C1" points="250.5,513 438.5,552.7 452.3,513 	"/>
+	<polygon fill="#C1C1C1" points="663.7,513 475.3,552.4 461.6,513 	"/>
+	<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="670.5226" y1="346.6787" x2="581.717" y2="192.8629">
+		<stop  offset="0" style="stop-color:#FFFFFF;stop-opacity:0"/>
+		<stop  offset="0.1541" style="stop-color:#DEDEDE;stop-opacity:0.1078"/>
+		<stop  offset="0.4952" style="stop-color:#888888;stop-opacity:0.3466"/>
+		<stop  offset="0.9961" style="stop-color:#010101;stop-opacity:0.6973"/>
+		<stop  offset="1" style="stop-color:#000000;stop-opacity:0.7"/>
+	</linearGradient>
+	<polygon fill="url(#SVGID_2_)" points="533.1,221 664,350.4 664,223 	"/>
+	<g>
+		<circle fill="#E74C3C" cx="602.8" cy="132.8" r="102.4"/>
+		<path fill="#E74C3C" d="M523.3,212.3c-43.8-43.8-43.8-115.2,0-159s115.2-43.8,159,0c43.8,43.8,43.8,115.2,0,159
+			C638.5,256.1,567.1,256.1,523.3,212.3z M668.2,67.4c-36-36-94.7-36-130.7,0s-36,94.7,0,130.7s94.7,36,130.7,0
+			S704.2,103.5,668.2,67.4z"/>
+	</g>
+	<path fill="#24669B" d="M494.5,286.5c-16.1,0-29.2-13.1-29.2-29.2s13.1-29.2,29.2-29.2s29.2,13.1,29.2,29.2
+		S510.6,286.5,494.5,286.5z M494.5,241.1c-8.9,0-16.2,7.3-16.2,16.2s7.3,16.2,16.2,16.2s16.2-7.3,16.2-16.2S503.5,241.1,494.5,241.1
+		z"/>
+	<path fill="#24669B" d="M416.3,422.9l-8.7-9.6c0.9-0.8,21.3-19.3,46.3-36.1c35.1-23.7,61.4-31.9,78-24.5l6.6,3l-17.2,29.3
+		l25.2,14.4l-6.5,11.3l-36.6-21l15.6-26.7c-13-0.3-33.1,8.2-58,25C436.8,404.3,416.5,422.7,416.3,422.9z"/>
+	<path fill="#24669B" d="M377.3,310.5c-22.6,0-41-18.4-41-41c0-22.6,18.4-41,41-41c22.6,0,41,18.4,41,41
+		C418.3,292.1,399.9,310.5,377.3,310.5z M377.3,241.6c-15.4,0-28,12.5-28,28s12.5,28,28,28s28-12.5,28-28S392.7,241.6,377.3,241.6z"
+		/>
+	<g>
+		<g>
+			<g>
+				<path fill="#FFFFFF" d="M617,61.6c0-3.8-4.6-8.7-10.5-8.7c-5.9,0-10.5,4.9-10.5,8.7v103.1c0,3.8,4.6,8.9,10.5,8.9
+					c5.9,0,10.5-5.1,10.5-8.9V61.6z"/>
+			</g>
+		</g>
+		<circle fill="#FFFFFF" cx="606.2" cy="198.4" r="14.3"/>
+	</g>
+	<g>
+		<polygon fill="#FFFFFF" points="621.3,571.5 617.7,568.4 610.9,585.8 		"/>
+		<polygon fill="#FFFFFF" points="593.7,572.1 604.6,585.7 596.9,568.9 		"/>
+		<polygon fill="#0071BC" points="592.8,555.3 597.5,565.5 605,558 		"/>
+		<polygon fill="#0071BC" points="620.8,555.2 608.6,558 616.9,565.1 		"/>
+		<polygon fill="#2E3192" points="616.1,567.1 606.8,559.1 598.4,567.4 607.9,588 		"/>
+		<path d="M624,552.5l-17.3,3.9l-17.3-3.9L596,567l-5,5l17,21.1l16-21.9l-5.5-4.7L624,552.5z M592.8,555.3L605,558l-7.5,7.5
+			L592.8,555.3z M593.7,572.1l3.2-3.2l7.7,16.7L593.7,572.1z M607.9,588l-9.5-20.6l8.4-8.4l9.3,8L607.9,588z M621.3,571.5
+			l-10.4,14.2l6.8-17.3L621.3,571.5z M608.6,558l12.2-2.7l-3.9,9.9L608.6,558z"/>
+	</g>
+	<circle fill="#2C3E50" cx="495.4" cy="258.2" r="5"/>
+	<path fill="#2C3E50" d="M372.4,291.5c-10.5,0-19-8.5-19-19c0-10.5,8.5-19,19-19s19,8.5,19,19C391.4,283,382.9,291.5,372.4,291.5z
+		 M372.4,266.5c-3.3,0-6,2.7-6,6c0,3.3,2.7,6,6,6s6-2.7,6-6C378.4,269.2,375.7,266.5,372.4,266.5z"/>
+</g>
+</svg>

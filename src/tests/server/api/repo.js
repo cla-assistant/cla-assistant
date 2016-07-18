@@ -16,31 +16,130 @@ var repo_api = require('../../../server/api/repo');
 
 
 describe('repo', function () {
-    it('should create repo via service', function (it_done) {
-        var repoCreateStub = sinon.stub(repo, 'create', function (args, done) {
-            assert.deepEqual(args, {
-                repo: 'myRepo',
-                owner: 'login',
-                gist: 1234,
-                token: 'abc'
+    describe('on repo:create', function() {
+        var req, res;
+        beforeEach(function () {
+            req = {
+                args: {
+                    repoId: 123,
+                    repo: 'myRepo',
+                    owner: 'login',
+                    gist: 1234
+                },
+                user: {
+                    token: 'abc'
+                }
+            };
+            res = {
+                repoGet: {
+                    err: null,
+                    data: null
+                },
+                repoGetGHRepo: {
+                    err: null,
+                    data: null
+                },
+                repoUpdate: {
+                    err: null,
+                    data: null
+                }
+            };
+            sinon.stub(repo, 'get', function (args, done) {
+                done(res.repoGet.err, res.repoGet.data);
             });
-            done();
+            sinon.stub(repo, 'getGHRepo', function (args, done) {
+                done(res.repoGetGHRepo.err, res.repoGetGHRepo.data);
+            });
+            sinon.stub(repo, 'create', function (args, done) {
+                done();
+            });
+            sinon.stub(repo, 'update', function (args, done) {
+                done(res.repoUpdate.err, res.repoUpdate.data);
+            });
+        });
+        afterEach(function () {
+            repo.create.restore();
+            repo.get.restore();
+            repo.getGHRepo.restore();
+            repo.update.restore();
         });
 
-        var req = {
-            args: {
-                repo: 'myRepo',
-                owner: 'login',
-                gist: 1234
-            },
-            user: {
-                token: 'abc'
-            }
-        };
+        it('should create repo via service', function (it_done) {
+            repo_api.create(req, function () {
+                assert(repo.get.called);
+                assert.equal(repo.create.calledWith({
+                    repoId: 123,
+                    repo: 'myRepo',
+                    owner: 'login',
+                    gist: 1234,
+                    token: 'abc'
+                }), true);
 
-        repo_api.create(req, function () {
-            repoCreateStub.restore();
-            it_done();
+                it_done();
+            });
+        });
+
+        it('should update repo if there is one and it is not valid any more', function (it_done) {
+            res.repoGet.data = {
+                repoId: 321,
+                repo: 'myRepo',
+                owner: 'login'
+            };
+            res.repoGetGHRepo.err = 'Repo is not valid anymore';
+            repo_api.create(req, function () {
+                assert(repo.get.called);
+                assert(repo.getGHRepo.called);
+                assert.equal(repo.update.calledWith({
+                    repoId: 123,
+                    repo: 'myRepo',
+                    owner: 'login',
+                    gist: 1234,
+                    token: 'abc'
+                }), true);
+
+                it_done();
+            });
+        });
+
+        it('should update repo if there is one and it is not valid any more', function (it_done) {
+            res.repoGet.data = {
+                repoId: 321,
+                repo: 'myRepo',
+                owner: 'login'
+            };
+            res.repoGetGHRepo.data = {
+                id: 123
+            };
+            repo_api.create(req, function () {
+                assert(repo.get.called);
+                assert(repo.getGHRepo.called);
+                assert.equal(repo.update.calledWith({
+                    repoId: 123,
+                    repo: 'myRepo',
+                    owner: 'login',
+                    gist: 1234,
+                    token: 'abc'
+                }), true);
+
+                it_done();
+            });
+        });
+
+        it('should fail to create if there is a valid one already', function (it_done) {
+            res.repoGet.data = {
+                repoId: 123,
+                repo: 'myRepo',
+                owner: 'login'
+            };
+            res.repoGetGHRepo.data = {
+                id: 123
+            };
+            repo_api.create(req, function (err) {
+                assert(err);
+                assert(repo.getGHRepo.called);
+
+                it_done();
+            });
         });
     });
 

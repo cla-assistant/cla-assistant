@@ -199,7 +199,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var error = text;
             $timeout(function() {
                 deleteFromArray(error, $scope.errorMsg);
-            }, 3000);
+            }, 5000);
 
             $scope.errorMsg.push(error);
         };
@@ -359,11 +359,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         var linkItem = function(obj, item) {
             var linkedArray = obj === 'org' ? $scope.claOrgs : $scope.claRepos;
             var promise1 = $RPCService.call(obj, 'create', item, function(err, data) {
-                if (err && err.err.match(/.*duplicate key error.*/)) {
+                if (err && err.errmsg.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 }
                 else if (err || !data.value) {
-                    err && err.err ? showErrorMessage(err.err) : null;
+                    err && err.errmsg ? showErrorMessage(err.errmsg) : null;
                     $scope.removeWebhook(item);
                     deleteFromArray(item, linkedArray);
                 } else {

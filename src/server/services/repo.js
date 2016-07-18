@@ -99,11 +99,16 @@ module.exports = {
         });
     },
     update: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
+        var repoArgs = {
+            repo: args.repo,
+            owner: args.owner
+        };
+        Repo.findOne(repoArgs, function (err, repo) {
             if (err) {
                 done(err);
                 return;
             }
+            repo.repoId = args.repoId;
             repo.gist = args.gist;
             repo.save(done);
         });

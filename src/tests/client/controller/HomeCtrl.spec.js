@@ -665,7 +665,7 @@ describe('Home Controller', function () {
 
         rpcRepoCreate = {
             error: {
-                err: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'
+                errmsg: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'
             }
         };
 
@@ -692,7 +692,7 @@ describe('Home Controller', function () {
 
         rpcRepoCreate = {
             error: {
-                err: 'any other error'
+                errmsg: 'any other error'
             }
         };
 
