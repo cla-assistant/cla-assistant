@@ -425,6 +425,16 @@ describe('Home Controller', function () {
         (homeCtrl.scope.claOrgs.length).should.be.equal(0);
     });
 
+    it('should get github repos even if user has NO admin rights on any org', function () {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        expRes.HUB = { getOrgMembership: testDataMemberships.member };
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
+        httpBackend.flush();
+
+        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
+        (homeCtrl.scope.repos.length).should.be.equal(2);
+    });
+
     it('should get claOrgs and github orgs but not add them to reposAndOrgs array if user has no admin:org_hook rights', function () {
         expRes.RPC.org = { getForUser: { value: [{orgId: 1}] } };
         httpBackend.flush();

@@ -305,6 +305,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             getOrgs().then(function () {
                 getLinkedOrgs();
                 getRepos();
+            }, function () {
+                getRepos();
             });
             getGists();
         }, function() {
