@@ -33,22 +33,20 @@ module.exports = {
       },
       {
         test: /\.html$/,
-        loader: 'raw-loader',
+        loader: 'raw',
         exclude: [helpers.root('src', 'client', 'index.html')]
       },
-      // {
-      //   test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
-      //   loader: 'file?name=assets/[name].[hash].[ext]'
-      // },
-      // {
-      //   test: /\.scss$/,
-      //   exclude: helpers.root('src', 'app'),
-      //   loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
-      // },
+      { 
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        loader: 'url-loader?limit=100000'
+      },
+      {
+        test: /\.scss$/,      
+        loaders: ['css-to-string-loader', 'css', 'sass']
+      },
       {
         test: /\.css$/,
-        include: helpers.root('src', 'client', 'app'),
-        loaders: ['to-string-loader', 'css-loader']
+        loaders: ['css-to-string-loader', 'css']
       }
 
     ]

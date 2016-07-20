@@ -117,9 +117,12 @@ $label-default-bg: $brand-info;
 $label-color: $brand-primary;
 
 // import bootstrap
-@import '../../../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss';
+// use ~ to tell webpack, that this is not a relative path
+//@import "~bootstrap-sass/assets/stylesheets/bootstrap";
+@import "../../../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
 
-// import our files
+
+// // import our files
 @import 'animation';
 @import 'breadcrumb';
 @import 'browser';

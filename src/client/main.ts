@@ -6,10 +6,6 @@ import { HTTP_PROVIDERS } from '@angular/http';
 import { GithubService } from './app/shared/github/github.service';
 import { ClaBackendService } from './app/shared/claBackend/claBackend.service';
 
-
-
-
-
 bootstrap(AppComponent, [
   APP_ROUTER_PROVIDERS,
   HTTP_PROVIDERS,
