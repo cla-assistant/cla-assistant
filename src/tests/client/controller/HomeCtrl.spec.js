@@ -245,6 +245,9 @@ describe('Home Controller', function () {
             if (obj === 'users' && fun === 'getOrgs') {
                 response.value = expRes.HUB ? expRes.HUB.getOrgs : testDataOrgs;
             } else if (obj === 'users' && fun === 'getOrganizationMembership') {
+                if (args.org === 'notAdmin') {
+                    expRes.HUB = { getOrgMembership: testDataMemberships.member };
+                }
                 response.value = expRes.HUB ? expRes.HUB.getOrgMembership : testDataMemberships.admin;
             } else {
                 return hubCall(obj, fun, args, cb);
@@ -440,6 +443,15 @@ describe('Home Controller', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
+    });
+
+    it('should get claOrgs but not add them to the scope if user has no admin rights on it in GitHub', function () {
+        githubResponse.meta.scopes += ', admin:org_hook';
+        // expRes.HUB = { getOrgMembership: testDataMemberships.admin };
+        expRes.RPC.org = { getForUser: { value: [{orgId: '1', org: 'notAdmin'}] } };
+        httpBackend.flush();
+
+        (homeCtrl.scope.claOrgs.length).should.be.equal(0);
     });
 
     it('should check whether the user has admin:org_hook right', function () {

@@ -62,10 +62,18 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var getLinkedOrgs = function () {
+            $scope.claOrgs = [];
             $RPCService.call('org', 'getForUser', {}, function (err, data) {
-                $scope.claOrgs = data && data.value ? data.value : $scope.claOrgs;
-
-                $scope.claOrgs.forEach(mixOrgData);
+                if (data && data.value) {
+                    data.value.forEach(function (org) {
+                        $HUBService.call('users', 'getOrganizationMembership', { org: org.org }).then(function (info) {
+                            if (info && info.value && info.value.role === 'admin') {
+                                mixOrgData(org);
+                                $scope.claOrgs.push(org);
+                            }
+                        });
+                    });
+                }
             });
         };
 
