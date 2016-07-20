@@ -78,6 +78,9 @@
     "sinon": "^1.17.4",
     "supertest": "1.2.0"
   },
+  "engines": {
+    "node": "5.7.x"
+  },
   "scripts": {
     "start": "node app.js",
     "postinstall": "bower install",
