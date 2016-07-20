@@ -1,7 +1,12 @@
 sudo: false
 language: node_js
-cache: false
-slack: sap-tools:wXhP1Sbbb9awgdb2wyYpUl9r
+node_js:
+   - "5.7"
+cache:
+  directories:
+  - src/bower
+notifications:
+  slack: sap-tools:wXhP1Sbbb9awgdb2wyYpUl9r
 before_script:
 - bower install
 - gem install scss_lint
