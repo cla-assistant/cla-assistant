@@ -47,19 +47,22 @@ module.exports = function (req, res) {
 		};
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
 
-		repoService.get(args, function(e, repo){
-            if (repo) {
-                args.token = repo.token;
+        orgService.get({ orgId: args.orgId }, function(err, org) {
+            if (org) {
+                args.token = org.token;
+                args.gist = org.gist; //TODO: Test it!!
                 handleWebHook(args);
             } else {
-                orgService.get({ orgId: args.orgId }, function(err, org) {
-                    if (org) {
-                        args.token = org.token;
+                args.orgId = undefined;
+                repoService.get(args, function(e, repo){
+                    if (repo) {
+                        args.token = repo.token;
+                        args.gist = repo.gist; //TODO: Test it!!
                         handleWebHook(args);
                     }
                 });
             }
-		});
+        });
 	}
 
     res.status(200).send('OK');

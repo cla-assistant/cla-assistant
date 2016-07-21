@@ -247,7 +247,7 @@ describe('webhook pull request', function () {
 		}
 	};
 
-	var test_req;
+	var test_req, testRes;
 
 	beforeEach(function () {
 		test_req = {
@@ -257,6 +257,12 @@ describe('webhook pull request', function () {
 				number: testData.number,
 				action: 'opened'
 			}
+		};
+		testRes = {
+			getPRCommitters: [{
+				id: 1,
+				name: 'login'
+			}]
 		};
 
 		sinon.stub(cla, 'check', function (args, done) {
@@ -278,10 +284,7 @@ describe('webhook pull request', function () {
 			assert(args.repo);
 			assert(args.owner);
 			assert(args.number);
-			done(null, [{
-				id: 1,
-				name: 'login'
-			}]);
+			done(null, testRes.getPRCommitters);
 		});
 
 		sinon.stub(pullRequest, 'badgeComment', function () {});
@@ -336,6 +339,14 @@ describe('webhook pull request', function () {
 		it_done();
 	});
 
+	xit('should check twice if there are multiple committers', function (it_done) {
+		// testRes.getPRCommitters.push();
+		pull_request(test_req, res);
+
+		assert(cla.check.calledTwice);
+		it_done();
+	});
+
 	it('should update status of pull request if signed', function (it_done) {
 		cla.check.restore();
 		sinon.stub(cla, 'check', function (args, done) {
@@ -354,6 +365,7 @@ describe('webhook pull request', function () {
 		it_done();
 	});
 
+
 	it('should do nothing if the pull request has no committers', function (it_done) {
 		repoService.getPRCommitters.restore();
 		sinon.stub(repoService, 'getPRCommitters', function (args, done) {
@@ -370,9 +382,23 @@ describe('webhook pull request', function () {
 		it_done();
 	});
 
-    it('should update status of PR even if repo is unknown but from known org', function() {
-		repoService.get.restore();
-		sinon.stub(repoService, 'get', function (args, done) {
+    // it('should update status of PR even if repo is unknown but from known org', function() {
+	// 	repoService.get.restore();
+	// 	sinon.stub(repoService, 'get', function (args, done) {
+	// 		done(null, null);
+	// 	});
+
+	// 	pull_request(test_req, res);
+
+	// 	assert.equal(repoService.get.called, false);
+	// 	assert.equal(orgService.get.called, true);
+	// 	assert.equal(repoService.getPRCommitters.called, true);
+	// 	assert.equal(cla.check.called, true);
+    // });
+
+    it('should update status of PR even if org is unknown but from known repo', function() {
+		orgService.get.restore();
+		sinon.stub(orgService, 'get', function (args, done) {
 			done(null, null);
 		});
 
