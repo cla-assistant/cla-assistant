@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SelectComponent } from 'ng2-select';
-import { HomeCacheService } from '../homeCache.service';
+import { HomeCacheService } from '../home-cache.service';
 import { Gist } from '../../shared/github/gist';
 
 
@@ -21,7 +21,7 @@ import { Gist } from '../../shared/github/gist';
     </ng-select>
   `
 })
-export class GistsDropdown implements OnInit {
+export class GistsDropdownComponent implements OnInit {
   @Output() public onGistSelected: EventEmitter<Gist>;
   @ViewChild(SelectComponent) public selectComp: SelectComponent;
 

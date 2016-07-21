@@ -9,6 +9,6 @@ import { ClaRepo } from '../../shared/claBackend/repo';
       &nbsp; {{ repo.owner }} / {{ repo.repo }}
   </a>`
 })
-export class RepositoryLink {
+export class RepoLink {
   @Input() public repo: ClaRepo;
 }

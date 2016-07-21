@@ -2,16 +2,16 @@ import { Component, Input, ViewChild } from '@angular/core';
 import { HomeService } from '../home.service';
 import { LinkedItem } from '../../shared/claBackend/linkedItem';
 import { Observable } from 'rxjs';
-import { LinkedItemRow } from './claRepoRow.component';
-import { ConfirmRemoveModal } from './confirmRemoveModal.component';
+import { LinkedItemRowComponent } from './linked-item-row.component';
+import { ConfirmRemoveModal } from './confirm-remove.modal';
 // import {ContributorsModal} from './contributors.modal';
 
 @Component({
   selector: 'repo-list',
-  directives: [LinkedItemRow, ConfirmRemoveModal],
-  templateUrl: './repoList.html'
+  directives: [LinkedItemRowComponent, ConfirmRemoveModal],
+  templateUrl: './repo-list.component.html'
 })
-export class RepoList {
+export class RepoListComponent {
   @ViewChild(ConfirmRemoveModal)
   private confirmRemoveModal: ConfirmRemoveModal;
 

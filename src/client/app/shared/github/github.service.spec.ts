@@ -3,7 +3,7 @@ import { provide } from '@angular/core';
 import { Router } from '@angular/router';
 import { Response, ResponseOptions, ResponseType } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { getHttpMockServices, setupFakeConnection } from '../../testUtils/http';
+import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 
 
 import { GithubService } from './github.service';

@@ -1,10 +1,10 @@
 import { beforeEachProviders, inject, async } from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { MockBackend } from '@angular/http/testing';
-import { getHttpMockServices, setupFakeConnection } from '../testUtils/http';
-import { createFakeObservable } from '../testUtils/observable';
+import { getHttpMockServices, setupFakeConnection } from '../test-utils/http';
+import { createFakeObservable } from '../test-utils/observable';
 
-import { HomeCacheService } from './homeCache.service';
+import { HomeCacheService } from './home-cache.service';
 import { GithubService } from '../shared/github/github.service';
 
 

@@ -1,9 +1,10 @@
 import { beforeEachProviders, async, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
-import { getHttpMockServices, setupFakeConnection } from '../../testUtils/http';
+import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 
 import { ClaBackendService } from './claBackend.service';
 import { LinkedRepo } from './linkedItem';
+
 
 const testData = {
   linkedRepo: [

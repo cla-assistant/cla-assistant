@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../login/auth.service';
-import { AppFrame } from '../appFrame/appFrame.component';
-import { RepoList } from './repoList/repoList.component';
-import { HomeCacheService } from './homeCache.service';
+import { AppFrameComponent } from '../app-frame/app-frame.component';
+import { RepoListComponent } from './repo-list/repo-list.component';
+import { HomeCacheService } from './home-cache.service';
 import { HomeService } from './home.service';
-import { ClaLink } from './claLink/claLink.component';
+import { ClaLinkComponent } from './cla-link/cla-link.component';
 import { User } from '../shared/github/user';
 
 
 @Component({
   selector: 'home',
-  directives: [AppFrame, ClaLink, RepoList],
+  directives: [AppFrameComponent, ClaLinkComponent, RepoListComponent],
   providers: [HomeCacheService, HomeService],
   template: `
   <app-frame [user] = "user" (logout)="handleLogout()">
@@ -27,7 +27,7 @@ import { User } from '../shared/github/user';
   </app-frame>
   `
 })
-export class Home implements OnInit {
+export class HomeComponent implements OnInit {
   private user: User = null;
 
   constructor(

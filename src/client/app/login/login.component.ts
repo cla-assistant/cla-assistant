@@ -4,9 +4,9 @@ import { AuthService } from './auth.service';
 
 @Component({
   selector: 'login',
-  templateUrl: './login.html'
+  templateUrl: './login.component.html'
 })
-export class Login {
+export class LoginComponent {
   @Input() public active: number;
 
   // text slider

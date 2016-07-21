@@ -1,15 +1,15 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import { ClaBackendService } from '../../shared/claBackend/claBackend.service';
 import { LinkedItem } from '../../shared/claBackend/linkedItem';
-import { RepositoryLink } from './repositoryLink.component';
+import { RepoLink } from './repo-link.component';
 
 @Component({
   selector: 'linked-item-row',
-  directives: [RepositoryLink],
-  templateUrl: 'claRepoRow.html'
+  directives: [RepoLink],
+  templateUrl: 'linked-item-row.component.html'
 })
 
-export class LinkedItemRow implements OnInit {
+export class LinkedItemRowComponent implements OnInit {
   @Input() public item: LinkedItem;
   @Output() public onUnlink: EventEmitter<LinkedItem>;
 

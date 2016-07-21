@@ -2,9 +2,9 @@ import { beforeEachProviders, inject} from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { createFakeObservable } from '../testUtils/observable';
+import { createFakeObservable } from '../test-utils/observable';
 import { HomeService } from './home.service';
-import { HomeCacheService } from './homeCache.service';
+import { HomeCacheService } from './home-cache.service';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
 import { LinkedRepo } from '../shared/claBackend/linkedItem';
 

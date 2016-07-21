@@ -1,9 +1,9 @@
 import { beforeEachProviders, TestComponentBuilder, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
-import { AppFrame } from './appFrame.component';
+import { AppFrameComponent } from './app-frame.component';
 import { User } from '../shared/github/user';
 
 describe('AppFrame', () => {
-  let fixture: ComponentFixture<AppFrame>;
+  let fixture: ComponentFixture<AppFrameComponent>;
   const testUser: User = {
     htmlUrl: 'test html url',
     avatarUrl: 'test avatar url',
@@ -16,12 +16,12 @@ describe('AppFrame', () => {
   ]);
   beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
     return tcb
-      .createAsync(AppFrame)
+      .createAsync(AppFrameComponent)
       .then(f => fixture = f);
   })));
 
   it('should greet the user', () => {
-    let appFrame: AppFrame = fixture.componentInstance;
+    let appFrame: AppFrameComponent = fixture.componentInstance;
     appFrame.user = testUser;
     fixture.detectChanges();
 
@@ -30,7 +30,7 @@ describe('AppFrame', () => {
   });
 
   it('should emit a logout event when the logout button is clicked', fakeAsync(() => {
-    const appFrame: AppFrame = fixture.componentInstance;
+    const appFrame: AppFrameComponent = fixture.componentInstance;
     const onLogout = jasmine.createSpy('onLogout');
     appFrame.logout.subscribe(onLogout);
     appFrame.user = testUser;

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SelectComponent } from 'ng2-select';
-import { HomeCacheService } from '../homeCache.service';
+import { HomeCacheService } from '../home-cache.service';
 import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
 import { Org } from '../../shared/github/org';
@@ -22,7 +22,7 @@ import { LinkedRepo } from '../../shared/claBackend/linkedItem';
     </ng-select>
   `
 })
-export class RepoOrgDropdown implements OnInit {
+export class RepoOrgDropdownComponent implements OnInit {
   private static REPO_ID = 1;
   private static ORG_ID = 2;
 
@@ -55,9 +55,9 @@ export class RepoOrgDropdown implements OnInit {
   }
 
   public selected(event) {
-    if (event.parent.id === RepoOrgDropdown.REPO_ID) {
+    if (event.parent.id === RepoOrgDropdownComponent.REPO_ID) {
       this.onSelect.emit(this.repos[event.id - 1]);
-    } else if (event.parent.id === RepoOrgDropdown.ORG_ID) {
+    } else if (event.parent.id === RepoOrgDropdownComponent.ORG_ID) {
       this.onSelect.emit(this.orgs[event.id - 1]);
     }
   }
@@ -95,14 +95,14 @@ export class RepoOrgDropdown implements OnInit {
     this.dropdownItems = [];
     if (this.orgItems.length > 0) {
       this.dropdownItems.push({
-        id: RepoOrgDropdown.ORG_ID,
+        id: RepoOrgDropdownComponent.ORG_ID,
         text: 'Organizations',
         children: this.orgItems
       });
     }
     if (this.repoItems.length > 0) {
       this.dropdownItems.push({
-        id: RepoOrgDropdown.REPO_ID,
+        id: RepoOrgDropdownComponent.REPO_ID,
         text: 'Repositories',
         children: this.repoItems
       });

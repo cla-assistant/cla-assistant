@@ -3,10 +3,10 @@ import { Gist } from '../../shared/github/gist';
 import { GithubRepo } from '../../shared/github/repo';
 import { Org } from '../../shared/github/org';
 import { AuthService } from '../../login/auth.service';
-import { GistsDropdown } from './gistsDropdown.component';
-import { RepoOrgDropdown } from './repoOrgDropdown.component';
-import { InfoModal } from './infoModal.component';
-import { ConfirmAddModal } from './confirmAddModal.component';
+import { GistsDropdownComponent } from './gist-dropdown.component';
+import { RepoOrgDropdownComponent } from './repo-org-dropdown.component';
+import { InfoModal } from './info.modal';
+import { ConfirmAddModal } from './confirm-add.modal';
 
 
 interface Link {
@@ -16,15 +16,15 @@ interface Link {
 
 @Component({
   selector: 'cla-link-form',
-  directives: [GistsDropdown, RepoOrgDropdown, InfoModal, ConfirmAddModal],
-  templateUrl: './claLinkForm.html'
+  directives: [GistsDropdownComponent, RepoOrgDropdownComponent, InfoModal, ConfirmAddModal],
+  templateUrl: './cla-link-form.component.html'
 })
-export class ClaLinkForm {
+export class ClaLinkFormComponent {
   @Input() public isUserOrgAdmin: boolean;
   @Output() public onClose: EventEmitter<void>;
   @Output() public onLink: EventEmitter<Link>;
-  @ViewChild(GistsDropdown) public gistsDropdown: GistsDropdown;
-  @ViewChild(RepoOrgDropdown) public repoOrgDropdown: RepoOrgDropdown;
+  @ViewChild(GistsDropdownComponent) public gistsDropdown: GistsDropdownComponent;
+  @ViewChild(RepoOrgDropdownComponent) public repoOrgDropdown: RepoOrgDropdownComponent;
   @ViewChild(ConfirmAddModal)
   public confirmAddModal: ConfirmAddModal;
 

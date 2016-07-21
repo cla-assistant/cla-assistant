@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Observer, BehaviorSubject } from 'rxjs';
 
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
-import { HomeCacheService } from './homeCache.service';
+import { HomeCacheService } from './home-cache.service';
 import { GithubRepo } from '../shared/github/repo';
 import { Org } from '../shared/github/org';
 import { Gist } from '../shared/github/gist';

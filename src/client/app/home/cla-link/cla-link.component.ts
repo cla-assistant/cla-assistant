@@ -1,16 +1,16 @@
 import { Component, Input, ViewChild } from '@angular/core';
 
-import { ClaLinkForm } from './claLinkForm.component';
+import { ClaLinkFormComponent } from './cla-link-form.component';
 import { User } from '../../shared/github/user';
 import { HomeService } from '../home.service';
-import { LinkStatusModal } from './linkStatusModal.component';
+import { LinkStatusModal } from './link-status.modal';
 
 @Component({
   selector: 'cla-link',
-  directives: [ClaLinkForm, LinkStatusModal],
-  templateUrl: './claLink.html'
+  directives: [ClaLinkFormComponent, LinkStatusModal],
+  templateUrl: './cla-link.component.html'
 })
-export class ClaLink {
+export class ClaLinkComponent {
   @Input() public user: User = null;
   @ViewChild(LinkStatusModal)
   private linkStatusModal: LinkStatusModal;
