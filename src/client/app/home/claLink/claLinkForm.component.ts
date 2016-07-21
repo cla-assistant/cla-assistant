@@ -44,9 +44,11 @@ export class ClaLinkForm {
   }
 
   public link() {
-    this.confirmAddModal.open();
+    this.confirmAddModal.open().subscribe(
+      confirmed => confirmed && this.confirmAddClosed()
+    );
   }
-  public confirmAddClosed(confirmed: boolean) {
+  public confirmAddClosed() {
     this.onLink.emit({
       selectedGist: this.selectedGist,
       selectedRepoOrOrg: this.selectedRepoOrOrg

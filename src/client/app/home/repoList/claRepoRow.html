@@ -1,4 +1,4 @@
-<div class="row col-xs-12 linked-clas-list-heading">
+<div class="row linked-clas-list-heading settings">
     <div class="col-xs-12 col-sm-3 col-lg-2 linked-clas-list-first-col">
         <div class="text clickable">
             <repository-link
@@ -45,6 +45,7 @@
         <button class="btn btn-info" ng-click="getBadge(repo)" style="margin-top:5px; width:100%">Get Badge</button>
     </script> -->
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
+        <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."></i>
         <i class="fa fa-trash-o action-icon" style="font-size:18px" (click)="onUnlink.emit(item)" data-toggle="tooltip" data-placement="bottom" title="Unlink" activate-tooltip ></i>
         <!--<i class="fa fa-ellipsis-h action-icon"  data-toggle="tooltip" data-placement="bottom" title="More..." activate-tooltip
              popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>

@@ -10,7 +10,7 @@ import { Gist } from '../../shared/github/gist';
   directives: [MODAL_DIRECTIVES],
   template: `
     <modal class="confirm-add">
-      <modal-body *ngIf="visible">
+      <modal-body class="modal-primary" *ngIf="visible">
         <div (click)="cancel()" class="fa fa-times close-button"></div>
         <div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
             Would you like to link this CLA<br> to your {{item.fullName ? 'repository' : 'organization'}}?
@@ -54,6 +54,7 @@ export class ConfirmAddModal {
   public open() {
     this.visible = true;
     this.modal.open();
+    return this.onClose;
   }
   public confirm() {
     this.modal.close();
