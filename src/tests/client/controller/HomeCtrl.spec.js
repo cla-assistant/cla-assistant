@@ -2,7 +2,7 @@
 /*global angular, describe, xit, it, beforeEach, afterEach*/
 
 describe('Home Controller', function () {
-    var scope, httpBackend, createCtrl, homeCtrl, githubResponse, $HUB, $RAW, $RPCService;
+    var scope, httpBackend, createCtrl, homeCtrl, githubResponse, $HUB, $RAW, $RPCService, _timeout;
 
     var testDataRepos = {
         data: [{
@@ -205,6 +205,7 @@ describe('Home Controller', function () {
 
     var calledApi;
     var expRes = { RPC: {}};
+    var expErr;
     var getAllReposData;
     var getAllReposError;
     var rpcRepoGetAllData;
@@ -214,9 +215,10 @@ describe('Home Controller', function () {
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
-    beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_, _$RAW_) {
+    beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, _$HUB_, _$RPCService_, _$RAW_, $q, $timeout) {
         $HUB = _$HUB_;
         $RAW = _$RAW_;
+        _timeout = $timeout;
         $RPCService = _$RPCService_;
         httpBackend = $injector.get('$httpBackend');
 
@@ -230,6 +232,7 @@ describe('Home Controller', function () {
         expRes = {
             RPC: {}
         };
+        expErr = { RPC: {} };
 
         var hubCall = $HUB.call;
         sinon.stub($HUB, 'call', function (obj, fun, args, cb) {
@@ -244,11 +247,11 @@ describe('Home Controller', function () {
 
             if (obj === 'users' && fun === 'getOrgs') {
                 response.value = expRes.HUB ? expRes.HUB.getOrgs : testDataOrgs;
-            } else if (obj === 'users' && fun === 'getOrganizationMembership') {
-                if (args.org === 'notAdmin') {
-                    expRes.HUB = { getOrgMembership: testDataMemberships.member };
-                }
-                response.value = expRes.HUB ? expRes.HUB.getOrgMembership : testDataMemberships.admin;
+            // } else if (obj === 'users' && fun === 'getOrganizationMembership') {
+            //     if (args.org === 'notAdmin') {
+            //         expRes.HUB = { getOrgMembership: testDataMemberships.member };
+            //     }
+            //     response.value = expRes.HUB ? expRes.HUB.getOrgMembership : testDataMemberships.admin;
             } else {
                 return hubCall(obj, fun, args, cb);
             }
@@ -311,6 +314,15 @@ describe('Home Controller', function () {
                 response = expRes.RPC.org && expRes.RPC.org.create ? expRes.RPC.org.create : { value: true };
             } else if (o === 'org' && f === 'getForUser') {
                 response = expRes.RPC.org && expRes.RPC.org.getForUser ? expRes.RPC.org.getForUser : { value: [] };
+            } else if (o === 'org' && f === 'getGHOrgsForUser') {
+                var deferred = $q.defer();
+                response = expRes.RPC.org && expRes.RPC.org.getGHOrgForUser ? expRes.RPC.org.getGHOrgForUser : { value: testDataOrgs };
+                if (expErr.RPC.org && expErr.RPC.org.getGHOrgForUser) {
+                    deferred.reject(expErr.RPC.org.getGHOrgForUser);
+                } else {
+                    deferred.resolve(response);
+                }
+                return deferred.promise;
             } else if (o === 'org' && f === 'remove') {
                 response = expRes.RPC.org && expRes.RPC.org.remove ? expRes.RPC.org.remove : { value: true };
             } else if (o === 'webhook' && f === 'create') {
@@ -404,6 +416,8 @@ describe('Home Controller', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
         expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
         httpBackend.flush();
+        _timeout.flush();
+
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
         (homeCtrl.scope.claOrgs[0].avatar_url).should.be.equal(testDataOrgs[0].avatar_url);
     });
@@ -412,29 +426,22 @@ describe('Home Controller', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
         expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
         httpBackend.flush();
+        _timeout.flush();
 
-        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
-        ($HUB.call.calledWithMatch('users', 'getOrganizationMembership')).should.be.equal(true);
+        ($RPCService.call.calledWithMatch('org', 'getForUser')).should.be.equal(true);
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
     });
 
-    it('should not get github orgs where user has NO admin rights but normal membership', function () {
+    it('should get github repos even if user has NO github orgs', function () {
         githubResponse.meta.scopes += ', admin:org_hook';
-        expRes.HUB = { getOrgMembership: testDataMemberships.member };
-        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
+        expRes.RPC.org = { getForUser: { value: [] } };
+        expErr.RPC = {
+            org: { getGHOrgForUser: 'no orgs' }
+        };
         httpBackend.flush();
 
-        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
-        (homeCtrl.scope.claOrgs.length).should.be.equal(0);
-    });
-
-    it('should get github repos even if user has NO admin rights on any org', function () {
-        githubResponse.meta.scopes += ', admin:org_hook';
-        expRes.HUB = { getOrgMembership: testDataMemberships.member };
-        expRes.RPC.org = { getForUser: { value: [{orgId: '1'}] } };
-        httpBackend.flush();
-
-        ($HUB.call.calledWithMatch('users', 'getOrgs')).should.be.equal(true);
+        ($RPCService.call.calledWithMatch('org', 'getForUser')).should.be.equal(false);
+        ($RPCService.call.calledWithMatch('org', 'getGHOrgsForUser')).should.be.equal(true);
         (homeCtrl.scope.repos.length).should.be.equal(2);
     });
 
@@ -443,15 +450,6 @@ describe('Home Controller', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
-    });
-
-    it('should get claOrgs but not add them to the scope if user has no admin rights on it in GitHub', function () {
-        githubResponse.meta.scopes += ', admin:org_hook';
-        // expRes.HUB = { getOrgMembership: testDataMemberships.admin };
-        expRes.RPC.org = { getForUser: { value: [{orgId: '1', org: 'notAdmin'}] } };
-        httpBackend.flush();
-
-        (homeCtrl.scope.claOrgs.length).should.be.equal(0);
     });
 
     it('should check whether the user has admin:org_hook right', function () {

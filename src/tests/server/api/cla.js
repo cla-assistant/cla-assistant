@@ -131,26 +131,6 @@ describe('', function () {
     });
 
     describe('cla:get', function () {
-        it('should get gist and render it with user token', function (it_done) {
-            reqArgs.repoService.get = { repoId: 1 };
-            var req = {
-                args: {
-                    // repo: 'Hello-World',
-                    // owner: 'octocat'
-                    repoId: 1
-                },
-                user: {
-                    token: 'user_token'
-                }
-            };
-
-            cla_api.get(req, function () {
-                assert(repo_service.get.called);
-                assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: 'user_token' }));
-                it_done();
-            });
-        });
-
         it('should get gist and render it with repo token', function (it_done) {
             var req = {
                 args: {

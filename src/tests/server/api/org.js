@@ -8,6 +8,7 @@ var sinon = require('sinon');
 var org = require('../../../server/services/org');
 var github = require('../../../server/services/github');
 var logger = require('../../../server/services/logger');
+var q = require('q');
 
 // test data
 var testData = require('../testData').data;
@@ -22,9 +23,18 @@ describe('org api', function () {
     beforeEach(function () {
         testErr.githubCall = null;
         testRes.githubCall = testData.orgs;
+        testErr.githubGetMembershipp = null;
+        testRes.githubGetMembershipp = { data: {role: 'admin'}};
 
         sinon.stub(github, 'call', function (args, done) {
-            done(testErr.githubCall, testRes.githubCall);
+            if (args.fun === 'getOrgs') {
+                done(testErr.githubCall, testRes.githubCall);
+            }
+            if (args.fun === 'getOrganizationMembership') {
+                var deferred = q.defer();
+                deferred.resolve(testRes.githubGetMembershipp);
+                return deferred.promise;
+            }
         });
         sinon.stub(org, 'getMultiple', function (args, done) {
             done(null, [{}, {}]);
@@ -77,11 +87,13 @@ describe('org api', function () {
             };
 
             org_api.getForUser(req, function (err, orgs) {
+                                            console.log('tested');
                 assert.equal(github.call.calledWithMatch({
                     obj: 'users',
-                    fun: 'getOrgs',
+                    fun: 'getOrganizationMembership',
                     token: 'abc'
                 }), true);
+
                 assert.equal(org.getMultiple.calledWithMatch({ orgId: [1, 2] }), true);
                 assert.equal(orgs.length, 2);
                 it_done();

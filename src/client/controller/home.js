@@ -66,12 +66,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $RPCService.call('org', 'getForUser', {}, function (err, data) {
                 if (data && data.value) {
                     data.value.forEach(function (org) {
-                        $HUBService.call('users', 'getOrganizationMembership', { org: org.org }).then(function (info) {
-                            if (info && info.value && info.value.role === 'admin') {
-                                mixOrgData(org);
-                                $scope.claOrgs.push(org);
-                            }
-                        });
+                            mixOrgData(org);
+                            $scope.claOrgs.push(org);
                     });
                 }
             });
@@ -104,7 +100,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
                 $scope.claRepos = data.value;
                 $scope.claRepos.forEach(function(claRepo) {
-                    // claRepo.active = claRepo.gist ? true : false;
                     claRepo = mixRepoData(claRepo);
                 });
             });
@@ -125,8 +120,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
 
                 $scope.user = res;
-                $scope.user.value.admin = res.meta.scopes.indexOf('write:repo_hook') > -1 ? true : false;
-                $scope.user.value.org_admin = res.meta.scopes.indexOf('admin:org_hook') > -1 ? true : false;
+                $scope.user.value.admin = res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1 ? true : false;
+                $scope.user.value.org_admin = res.meta.scopes && res.meta.scopes.indexOf('admin:org_hook') > -1 ? true : false;
                 $rootScope.user = $scope.user;
                 $rootScope.$broadcast('user');
             });
@@ -168,40 +163,15 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             });
         };
 
-
-        var getOrgs = function() {
+        var getOrgs = function () {
             var deferred = $q.defer();
-            // var promise = $scope.user.value.org_admin ? $HUBService.call('users', 'getOrgs', {}) : deferred.promise;
-            var promises = [];
-            $HUBService.call('users', 'getOrgs', {}).then(function (data) {
-                var orgs = data.value;
-                var adminOrgs = [];
-                // $scope.orgs = data && data.value ? data.value : $scope.orgs;
-
-                if (orgs instanceof Array) {
-                    orgs.forEach(function (org) {
-                        var promise = $HUBService.call('users', 'getOrganizationMembership', { org: org.login }).then(function (info) {
-                            if (info && info.value && info.value.role === 'admin') {
-                                adminOrgs.push(org);
-                            }
-                        });
-                        promises.push(promise);
-                    });
-                    $q.all(promises).then(function () {
-                        $scope.orgs = adminOrgs;
-                        deferred.resolve(adminOrgs);
-                    });
-
-                } else {
-                    deferred.reject(data && data.value ? data.value.message : 'Could not find github orgs');
+            deferred.reject();
+            return $scope.user.value.org_admin ? $RPCService.call('org', 'getGHOrgsForUser').then(function (res) {
+                if (res && res.value){
+                    $scope.orgs = res.value;
                 }
-            });
-            return deferred.promise;
+            }) : deferred.promise;
         };
-
-        // var validateLinkedRepos = function(){
-
-        // };
 
         var showErrorMessage = function(text) {
             var error = text;

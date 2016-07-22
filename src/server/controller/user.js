@@ -10,6 +10,7 @@ var scope;
 
 function checkReturnTo(req, res, next) {
     scope = null;
+    req.session.requiredScope = null;
     if (!req.session) {
         req.session = {};
     }

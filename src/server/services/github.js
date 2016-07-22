@@ -10,12 +10,13 @@ var GitHubApi = require('github');
 module.exports = {
 
     call: function(call, done) {
-
         var obj = call.obj;
         var fun = call.fun;
         var arg = call.arg || {};
         var token = call.token;
         var basicAuth = call.basicAuth;
+        var deferred = q.defer();
+        var error;
 
         var github = new GitHubApi({
             protocol: config.server.github.protocol,
@@ -25,11 +26,21 @@ module.exports = {
         });
 
         if (!obj || !github[obj]) {
-            return done('obj required/obj not found');
+            error = 'obj required/obj not found';
+            deferred.reject(error);
+            if (typeof done === 'function') {
+                done(error);
+            };
+            return;
         }
 
         if (!fun || !github[obj][fun]) {
-            return done('fun required/fun not found');
+            error = 'fun required/fun not found';
+            deferred.reject(error);
+            if (typeof done === 'function') {
+                done(error);
+            };
+            return;
         }
 
         if (token) {
@@ -60,12 +71,14 @@ module.exports = {
                 meta = null;
             }
 
+            deferred.resolve({ data: res, meta: meta });
             if (typeof done === 'function') {
                 done(err, res, meta);
             }
 
         });
 
+        return deferred.promise;
     },
 
     hasNextPage: function(link) {
