@@ -105,9 +105,9 @@ describe('url:claURL', function() {
         done();
     });
 
-    it('should be http://cla-assistant.io/:owner/:repo?pullRequest=:number if number provided', function(done) {
+    it('should be http://cla-assistant.io/:owner/:repo;pullRequest=:number if number provided', function(done) {
         assert.equal(url.claURL('owner', 'repo', 1),
-            'http://cla-assistant.io/owner/repo?pullRequest=1');
+            'http://cla-assistant.io/owner/repo;pullRequest=1');
         done();
     });
 });

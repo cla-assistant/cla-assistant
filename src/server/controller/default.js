@@ -1,5 +1,6 @@
 var express = require('express');
 var path = require('path');
+var url = require('url')
 var cla = require('./../api/cla');
 var logger = require('./../services/logger');
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,8 +18,8 @@ router.use('/accept/:owner/:repo', function(req, res) {
 			if (err) {
 				logger.error(err);
 			}
-			var redirectUrl = path.join(path.sep, req.args.owner, req.args.repo);
-			redirectUrl = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
+			var redirectUrl = '/' + req.args.owner + '/' + req.args.repo;
+			redirectUrl = req.query.pullRequest ? redirectUrl + ';pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});
 
@@ -40,7 +41,7 @@ router.all('/static/*', function(req, res) {
 	res.status(200).sendFile(filePath);
 });
 
-router.all('/*', function(req, res) {
+router.all('*', function(req, res) {
 	res.setHeader('Last-Modified', (new Date()).toUTCString());
 	res.status(200).sendFile(path.join(__dirname, '..', '..', 'client', 'index.html'));
 });

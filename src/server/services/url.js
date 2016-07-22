@@ -30,7 +30,7 @@ module.exports = function() {
         baseWebhook: url.resolve(baseUrl, '/github/webhook/'),
         claURL: function(user, repo, number) {
             var claUrl = url.resolve(baseUrl, '/' + user + '/' + repo);
-            claUrl = number ? claUrl + '?pullRequest=' + number : claUrl;
+            claUrl = number ? claUrl + ';pullRequest=' + number : claUrl;
             return claUrl;
         },
         githubBase: githubBase,
