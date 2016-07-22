@@ -13,12 +13,14 @@ router.use('/accept/:owner/:repo', function(req, res) {
 	req.args = {owner: req.params.owner, repo: req.params.repo};
 
     if (req.isAuthenticated()) {
-		cla.sign(req, function(err){
+		cla.sign(req, function (err) {
+			var signed = true;
 			if (err) {
 				logger.error(err);
+				signed = false;
 			}
-			var redirectUrl = path.join(path.sep, req.args.owner, req.args.repo);
-			redirectUrl = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
+			var redirectUrl = path.join(path.sep, req.args.owner, req.args.repo) + '?redirect=true';
+			redirectUrl = req.query.pullRequest ? redirectUrl + '&pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});
 
@@ -49,7 +51,7 @@ router.all('/static/*', function(req, res) {
 
 router.all('/*', function(req, res) {
 	var filePath;
-	if (req.user || req.path !== '/') {
+	if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
 		filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
 	}
 	else {

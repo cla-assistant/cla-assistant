@@ -14,7 +14,6 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		$scope.linkedItem = null;
 		$scope.noLinkedItemError = false;
 		$scope.params = $stateParams;
-		$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
 		$scope.user = {};
 		$scope.signed = false;
 
@@ -31,7 +30,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		}
 
 		function getGithubValues() {
-			if ($scope.hasCustomFields && $scope.user.value) {
+			if ($scope.hasCustomFields && $scope.user.value && !$scope.signed) {
 				$scope.customKeys.forEach(function (key) {
 					var githubKey = $scope.customFields.properties[key].githubKey;
 					if (githubKey) {
@@ -102,10 +101,11 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		};
 
 		var redirect = function () {
+			$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
 			if ($stateParams.pullRequest) {
 				$scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
 			}
-			$http.get('/logout?noredirect=true');
+			// $http.get('/logout?noredirect=true');
 			$timeout(function () {
 				$window.location.href = $scope.redirect;
 			}, 5000);
@@ -167,7 +167,8 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
 
 				checkCLA().then(function (signed) {
-					if (signed.value) {
+					$scope.customValues = signed.value ? {} : $scope.customValues;
+					if (signed.value && $stateParams.redirect) {
 						redirect();
 					}
 				});
@@ -186,6 +187,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			max: '=',
 			name: '=',
 			required: '=',
+			signed: '=',
 			title: '=',
 			type: '=',
 			value: '=',

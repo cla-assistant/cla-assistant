@@ -7,9 +7,10 @@
 			<p>({{noLinkedItemError}})</p>
 		</div>
 
-		<form class="row content-block" ng-hide="signed || noLinkedItemError">
+		<form class="row content-block" ng-hide="!!redirect || noLinkedItemError">
 			<div class="col-md-8 col-md-offset-2" >
-				<h4>Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
+				<h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
+				<h4 ng-show="signed">CLA for {{params.user}}/{{params.repo}}</h4>
 				<div class="cla-box well">
 					<div ng-bind-html="cla"></div>
 				</div>
@@ -27,27 +28,26 @@
 						ng-repeat="key in customKeys"
 						ng-show="user.value"
 						required="!!customFields.required && customFields.required.indexOf(key) >= 0"
+						signed="signed"
 						title="customFields.properties[key].title"
 						type="customFields.properties[key].type == 'boolean' ? 'checkbox' : customFields.properties[key].type"
 						value="customValues"
 						>
 					</customfield>
 				</form>
-				<p class="text-center">
+				<p class="text-center" ng-hide="signed"" >
 					<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
 					<button class="btn btn-info sign-btn" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
 				</p>
 			</div>
 		</form>
 
-		<div class="row center-block content-block" ng-show="signed">
+		<div class="row center-block content-block" ng-show="signed && !!redirect">
 			<h3>Thank you {{user.login}}</h3>
 			<h4>for signing the CLA!</h4>
 			</br>
-			<h4 ng-if="!showRedirect" ng-show="!!redirect">we are now taking you back to GitHub</h4>
-			<h4 ng-if="showRedirect" ng-show="!!redirect">we are now taking you back to CLA-Assistant</h4>
+			<h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
 			<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
 		</div>
-
 	</div>
 </div>

@@ -98,7 +98,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
             //
             .state('repo', {
                 abstract: true,
-                url: '/:user/:repo?pullRequest',
+                url: '/:user/:repo?pullRequest&redirect',
                 template: '<section ui-view></section>'
             })
 
@@ -110,7 +110,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
                 templateUrl: '/templates/cla.html',
                 controller: 'ClaController'
             })
-            
+
             //
             // 404 Error
             //

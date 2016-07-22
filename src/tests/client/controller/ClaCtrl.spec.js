@@ -251,7 +251,6 @@ describe('CLA Controller', function() {
           return deferred.promise;
       });
 
-      httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
       httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(function(){
         claCheckWasCalled = true;
         return false;
@@ -290,15 +289,14 @@ describe('CLA Controller', function() {
         claController = createCtrl();
 
         httpBackend.expect('POST', '/api/cla/getLinkedItem', { repo: stateParams.repo, owner: stateParams.user }).respond(linkedItem);
-        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
     });
 
-    it('should check whether user has signed CLA already or not and logout user if already signed', function(){
-        claController = createCtrl();
+    it('should check whether user has signed CLA already or not and redirect if redirect param set to true', function(){
+        stateParams.redirect = true;
 
-        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
+        claController = createCtrl();
 
         httpBackend.flush();
         _timeout.flush();
@@ -309,14 +307,26 @@ describe('CLA Controller', function() {
 
     it('should redirect to pullRequest if given', function(){
         stateParams.pullRequest = 1;
+        stateParams.redirect = true;
 
         claController = createCtrl();
-        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
 
         httpBackend.flush();
         _timeout.flush();
 
         (_window.location.href).should.be.equal('https://github.com/login/myRepo/pull/1');
+        (claController.scope.signed).should.be.ok;
+    });
+
+    it('should not redirect to pullRequest if not just signed (no param redirect)', function(){
+        stateParams.pullRequest = 1;
+
+        claController = createCtrl();
+
+        httpBackend.flush();
+        _timeout.flush();
+
+        (_window.location.href).should.not.be.equal('https://github.com/login/myRepo/pull/1');
         (claController.scope.signed).should.be.ok;
     });
 
@@ -395,25 +405,4 @@ describe('CLA Controller', function() {
 
         (claCheckWasCalled).should.not.be.ok;
     });
-
-    it('should generate redirect url if pull request number is given', function(){
-        scope.user = null;
-        stateParams.pullRequest = 1;
-        claController = createCtrl();
-
-        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
-        httpBackend.flush();
-
-        (claController.scope.redirect).should.be.ok;
-    });
-
-    it('should redirect to github mainpage if pull request number is not given', function(){
-        claController = createCtrl();
-
-        httpBackend.expect('GET', '/logout?noredirect=true').respond(true);
-        httpBackend.flush();
-
-        (claController.scope.redirect).should.be.ok;
-    });
-
 });
