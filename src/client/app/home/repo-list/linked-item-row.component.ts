@@ -43,8 +43,8 @@ export class LinkedItemRowComponent implements OnInit {
     this.claBackendService.getWebhook(this.item).subscribe(
       webhook => {
         if (webhook) { this.webhookValid = webhook.active; }
-      }
-
+      },
+      () => this.webhookValid = false
     );
   }
 

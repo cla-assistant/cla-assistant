@@ -10,7 +10,7 @@ import { GithubService } from './github.service';
 import { User } from './user';
 import { Gist } from './gist';
 import { GithubRepo } from './repo';
-import { Org } from './org';
+import { GithubOrg } from './org';
 
 
 describe('GithubSerive', () => {
@@ -221,7 +221,7 @@ describe('GithubSerive', () => {
           { role: 'member', organization: { login: 'MyOrg2' } }
         ]
       };
-      const expectedResult: Org[] = [
+      const expectedResult: GithubOrg[] = [
         { login: 'MyOrg' }
       ];
       setupFakeConnection(

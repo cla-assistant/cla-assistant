@@ -4,30 +4,38 @@ import { Observable, Observer, BehaviorSubject } from 'rxjs';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
 import { HomeCacheService } from './home-cache.service';
 import { GithubRepo } from '../shared/github/repo';
-import { Org } from '../shared/github/org';
+import { GithubOrg } from '../shared/github/org';
 import { Gist } from '../shared/github/gist';
 import { fromGithubRepo } from '../shared/claBackend/repo';
-import { LinkedItem, LinkedRepo } from '../shared/claBackend/linkedItem';
+import { fromGithubOrg } from '../shared/claBackend/org';
+import { LinkedItem, LinkedRepo, LinkedOrg } from '../shared/claBackend/linkedItem';
 
 @Injectable()
 export class HomeService {
   private linkedRepos: BehaviorSubject<LinkedRepo[]>;
+  private linkedOrgs: BehaviorSubject<LinkedOrg[]>;
 
   constructor(
     private homeCacheService: HomeCacheService,
     private claBackendService: ClaBackendService) {
     this.linkedRepos = new BehaviorSubject<LinkedRepo[]>([]);
+    this.linkedOrgs = new BehaviorSubject<LinkedOrg[]>([]);
   }
 
   public getLinkedRepos(): Observable<LinkedRepo[]> {
     return this.linkedRepos.asObservable();
   }
-  public link(gist: Gist, repoOrOrg: GithubRepo | Org): Observable<LinkedItem> {
+  public getLinkedOrgs(): Observable<LinkedOrg[]> {
+    return this.linkedOrgs.asObservable();
+  }
+  public link(gist: Gist, repoOrOrg: GithubRepo | GithubOrg): Observable<LinkedItem> {
     function isRepo(obj) {
       return obj.fullName !== undefined;
     }
     if (isRepo(repoOrOrg)) {
       return this.linkRepo(gist, repoOrOrg as GithubRepo);
+    } else {
+      return this.linkOrg(gist, repoOrOrg as GithubOrg);
     }
   }
   private linkRepo(gist: Gist, repo: GithubRepo): Observable<LinkedRepo> {
@@ -45,40 +53,77 @@ export class HomeService {
               () => observer.complete()
             );
           },
-          (error) => {
-            const errBody = error.json();
+          (errBody) => {
             if (errBody.errmsg.match(/.*duplicate key error.*/)) {
               console.log('This repository is already set up.');
             } else {
               console.log(errBody.errmsg);
             }
+            observer.error(errBody);
           }
         );
       }
     );
   }
-  public unlinkRepo(repo: LinkedRepo) {
-    this.claBackendService.unlinkCla(repo).subscribe(
+  private linkOrg(gist: Gist, org: GithubOrg): Observable<LinkedOrg> {
+    return new Observable<LinkedOrg>(
+      (observer: Observer<LinkedOrg>) => {
+        const linkedOrg = new LinkedOrg(fromGithubOrg(org, gist.url));
+        this.claBackendService.linkCla(linkedOrg).subscribe(
+          () => {
+            this.claBackendService.addWebhook(linkedOrg).subscribe(
+              () => {
+                this.addLinkedOrgs([linkedOrg]);
+                observer.next(linkedOrg);
+              },
+              (error) => observer.error(error),
+              () => observer.complete()
+            );
+          },
+          (errBody) => {
+            if (errBody.errmsg.match(/.*duplicate key error.*/)) {
+              console.log('This organization is already set up.');
+            } else {
+              console.log(errBody.errmsg);
+            }
+            observer.error(errBody);
+          }
+        );
+      }
+    );
+  }
+  public unlinkItem(item: LinkedItem) {
+    this.claBackendService.unlinkCla(item).subscribe(
       () => {
-        this.claBackendService.removeWebhook(repo).subscribe();
-        this.removeLinkedRepo(repo);
+        this.claBackendService.removeWebhook(item).subscribe();
+        if (item instanceof LinkedRepo) {
+          this.removeLinkedRepo(item);
+        }else if (item instanceof LinkedOrg) {
+          this.removeLinkedOrg(item);
+        }
       },
       (error) => {
         console.log(error);
       }
     );
   }
-  private linkOrg(gist, repo) {
-
-  }
   private addLinkedRepos(newRepos: LinkedRepo[]): void {
     this.linkedRepos.next(this.linkedRepos.value.concat(newRepos));
+  }
+  private addLinkedOrgs(newOrgs: LinkedOrg[]): void {
+    this.linkedOrgs.next(this.linkedOrgs.value.concat(newOrgs));
   }
   private removeLinkedRepo(removedRepo: LinkedRepo): void {
     const nextValue = this.linkedRepos.value.filter((linkedRepo) => {
       return linkedRepo.id !== removedRepo.id;
     });
     this.linkedRepos.next(nextValue);
+  }
+  private removeLinkedOrg(removedOrg: LinkedOrg): void {
+    const nextValue = this.linkedOrgs.value.filter((linkedOrg) => {
+      return linkedOrg.id !== removedOrg.id;
+    });
+    this.linkedOrgs.next(nextValue);
   }
 
 
@@ -90,6 +135,18 @@ export class HomeService {
       () => {
         this.claBackendService.getLinkedRepos(githubRepos).subscribe((data) => {
           this.addLinkedRepos(data);
+        });
+      }
+    );
+  }
+  public requestOrgsFromBackend() {
+    let githubOrgs = null;
+    this.homeCacheService.currentUserOrgs.subscribe(
+      orgs => githubOrgs = orgs,
+      error => console.log(error),
+      () => {
+        this.claBackendService.getLinkedOrgs(githubOrgs).subscribe((data) => {
+          this.addLinkedOrgs(data);
         });
       }
     );

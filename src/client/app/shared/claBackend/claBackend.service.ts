@@ -3,8 +3,10 @@ import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs';
 
 import { GithubRepo } from '../github/repo';
+import { GithubOrg } from '../github/org';
 import { ClaRepo } from './repo';
-import { LinkedItem, LinkedRepo } from './linkedItem';
+import { ClaOrg } from './org';
+import { LinkedItem, LinkedRepo, LinkedOrg } from './linkedItem';
 
 @Injectable()
 export class ClaBackendService {
@@ -27,6 +29,19 @@ export class ClaBackendService {
       .map(repos => repos.map(repo => Object.assign({}, repo, { fork: isFork(repo) })))
       // Create LinkedRepo instance
       .map(repos => repos.map(repo => new LinkedRepo(repo)));
+  }
+
+  public getLinkedOrgs(githubOrgs: GithubOrg[]): Observable<LinkedOrg[]> {
+    function getAvatar(claOrg: ClaOrg) {
+      const result = githubOrgs.find(ghOrg => ghOrg.id.toString() === claOrg.orgId);
+      return result ? result.avatarUrl : '';
+    }
+    return this
+      .call('org', 'getForUser', {})
+      // Add avatarUrl property
+      .map(orgs => orgs.map(org => Object.assign({}, org, { avatarUrl: getAvatar(org) })))
+      // Create LinkedOrg instance
+      .map(orgs => orgs.map(org => new LinkedOrg(org)));
   }
 
   public linkCla(item: LinkedItem): Observable<LinkedRepo> {
@@ -71,7 +86,7 @@ export class ClaBackendService {
       if (linkedItem.repoId) {
         return new LinkedRepo(linkedItem);
       } else {
-        // return new LinkedOrg(linkedItem)
+        return new LinkedOrg(linkedItem);
       }
     });
   }
@@ -113,7 +128,8 @@ export class ClaBackendService {
     let errMsg;
     if (error.message) {
       errMsg = error.message;
-    } else {
+    }
+    else {
       try {
         errMsg = error.json();
       } catch (e) {

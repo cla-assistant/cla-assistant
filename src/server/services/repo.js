@@ -85,7 +85,7 @@ module.exports = {
         var repoIds = [];
         args.set.forEach(function (repo) {
             repoIds.push({ repoId: repo.repoId });
-        });
+        });        
         Repo.find({
             $or: repoIds
         }, function (err, dbRepos) {

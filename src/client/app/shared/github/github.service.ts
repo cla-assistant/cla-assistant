@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { User, createUserFromApiResponse } from './user';
 import { Gist, createGistsFromApiResponse } from './gist';
 import { GithubRepo, createReposFromApiResponse } from './repo';
-import { Org, createOrgsFromApiResponse } from './org';
+import { GithubOrg, createOrgsFromApiResponse } from './org';
 
 
 @Injectable()
 export class GithubService {
 
   constructor(
-    private http: Http,
-    private router: Router) {}
+    private http: Http) {}
   // TODO: handle errors
   public getUser(): Observable<User> {
     const requestBody = {
@@ -63,7 +61,7 @@ export class GithubService {
       .map(createReposFromApiResponse)
       .scan((result: GithubRepo[], part: GithubRepo[]) => result.concat(part), []);
   }
-  public getUserOrgs(): Observable<Org[]> {
+  public getUserOrgs(): Observable<GithubOrg[]> {
     const args = { per_page: 100 };
     const requestBody = {
       obj: 'orgs',
@@ -72,7 +70,7 @@ export class GithubService {
     };
     return this.callAndGetMore(requestBody)
       .map(createOrgsFromApiResponse)
-      .scan((result: Org[], part: Org[]) => result.concat(part), []);
+      .scan((result: GithubOrg[], part: GithubOrg[]) => result.concat(part), []);
   }
 
 
@@ -102,13 +100,6 @@ export class GithubService {
 
     let body = JSON.stringify(requestBody);
     return this.http.post('/api/github/call', body, { headers: headers })
-      // .catch((err) => {
-      //   if (err.status === 401) {
-      //     this.router.navigate(['login']);
-      //     return Observable.empty();
-      //   }
-      //   return Observable.throw(err);
-      // })
       .map(res => {
         return res.json();
       });

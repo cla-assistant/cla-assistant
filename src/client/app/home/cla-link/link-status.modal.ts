@@ -1,7 +1,7 @@
 import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { GithubRepo } from '../../shared/github/repo';
-import { Org } from '../../shared/github/org';
+import { GithubOrg } from '../../shared/github/org';
 import { Gist } from '../../shared/github/gist';
 
 
@@ -53,7 +53,7 @@ import { Gist } from '../../shared/github/gist';
 export class LinkStatusModal {
   @Output() private onClose = new EventEmitter<boolean>();
   private gist: Gist;
-  private item: GithubRepo | Org;
+  private item: GithubRepo | GithubOrg;
   private linkStatus: string;
 
   @ViewChild(ModalComponent)
@@ -61,7 +61,7 @@ export class LinkStatusModal {
 
   private visible = false;
 
-  public open(gist: Gist, item: GithubRepo | Org) {
+  public open(gist: Gist, item: GithubRepo | GithubOrg) {
     this.gist = gist;
     this.item = item;
     this.linkStatus = 'loading';

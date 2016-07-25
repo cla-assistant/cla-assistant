@@ -1,7 +1,7 @@
 import { Component, ViewChild, Output, Input, EventEmitter } from '@angular/core';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { GithubRepo } from '../../shared/github/repo';
-import { Org } from '../../shared/github/org';
+import { GithubOrg } from '../../shared/github/org';
 import { Gist } from '../../shared/github/gist';
 
 

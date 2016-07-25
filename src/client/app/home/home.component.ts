@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../login/auth.service';
 import { AppFrameComponent } from '../app-frame/app-frame.component';
-import { RepoListComponent } from './repo-list/repo-list.component';
+import { RepoListComponent } from './repo-list/linked-item-list.component';
 import { HomeCacheService } from './home-cache.service';
 import { HomeService } from './home.service';
 import { ClaLinkComponent } from './cla-link/cla-link.component';
@@ -19,7 +19,8 @@ import { User } from '../shared/github/user';
         <section class="col-md-8 col-md-offset-2">
           <div *ngIf="user" id="activated_cla" class="row content-block">
             <cla-link [user]="user"></cla-link>
-            <repo-list></repo-list>
+            <linked-item-list [itemType]="'org'"></linked-item-list>
+            <linked-item-list [itemType]="'repo'"></linked-item-list>
           </div>
         </section>
       </div>
@@ -41,7 +42,7 @@ export class HomeComponent implements OnInit {
         this.user = user;
       });
     this.homeService.requestReposFromBackend();
-
+    this.homeService.requestOrgsFromBackend();
   }
 
   public handleLogout() {

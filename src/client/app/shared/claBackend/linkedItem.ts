@@ -1,4 +1,5 @@
 import { ClaRepo } from './repo';
+import { ClaOrg } from './org';
 
 export abstract class LinkedItem {
   constructor(public id: string, public gist: string) { }
@@ -31,3 +32,23 @@ export class LinkedRepo extends LinkedItem {
   }
 }
 
+export class LinkedOrg extends LinkedItem {
+  constructor(private org: ClaOrg) {
+    super(org.orgId, org.gist);
+  }
+
+  public getType(): string {
+    return 'org';
+  }
+  public getIdObject(): Object {
+    return { orgId: this.org.orgId };
+  }
+  public getNameObject(): Object {
+    return {
+      org: this.org.org
+    };
+  }
+  public getCompleteObject(): ClaOrg {
+    return this.org;
+  }
+}

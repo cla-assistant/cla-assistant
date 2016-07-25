@@ -5,9 +5,9 @@
                 *ngIf="item.getType() === 'repo'" 
                 [repo]="item.getCompleteObject()">
             </repository-link>
-            <!--<a *ngIf="item.getType() === 'org'" ng-href="https://github.com/{{ item.org }}" target="space">
-                <img src="{{item.avatar_url}}" alt="" class="org">&nbsp; {{ item.org }}
-            </a>-->
+            <a *ngIf="item.getType() === 'org'" href="https://github.com/{{ item.getCompleteObject().org }}" target="space">
+                <img src="{{item.getCompleteObject().avatarUrl}}" alt="" class="org">&nbsp; {{ item.getCompleteObject().org }}
+            </a>
         </div>
     </div>
 

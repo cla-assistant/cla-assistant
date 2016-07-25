@@ -1,24 +1,31 @@
 import { Injectable } from '@angular/core';
 import { GithubService } from '../shared/github/github.service';
 import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { Http } from '@angular/http';
 
 
 import { User } from '../shared/github/user';
 import { Gist } from '../shared/github/gist';
 import { GithubRepo } from '../shared/github/repo';
-import { Org } from '../shared/github/org';
+import { GithubOrg } from '../shared/github/org';
 
 @Injectable()
 export class HomeCacheService {
 
-  constructor(private githubService: GithubService, private http: Http) {
+  constructor(
+    private githubService: GithubService,
+    private router: Router,
+    private http: Http) {
   }
 
   private _currentUser = null;
   public get currentUser(): Observable<User> {
     if (!this._currentUser) {
-      this._currentUser = this.githubService.getUser().cache(1);
+      this._currentUser = this.githubService
+        .getUser()
+        .catch((err) => this.handle401(err))
+        .cache(1);
     }
     return this._currentUser;
   }
@@ -26,7 +33,10 @@ export class HomeCacheService {
   private _currentUserGists = null;
   public get currentUserGists(): Observable<Gist[]> {
     if (!this._currentUserGists) {
-      this._currentUserGists = this.githubService.getUserGists().cache(1);
+      this._currentUserGists = this.githubService
+        .getUserGists()
+        .catch((err) => this.handle401(err))
+        .cache(1);
     }
     return this._currentUserGists;
   }
@@ -48,17 +58,31 @@ export class HomeCacheService {
   private _currentUserRepos = null;
   public get currentUserRepos(): Observable<GithubRepo[]> {
     if (!this._currentUserRepos) {
-      this._currentUserRepos = this.githubService.getUserRepos().cache(1);
+      this._currentUserRepos = this.githubService
+        .getUserRepos()
+        .catch((err) => this.handle401(err))
+        .cache(1);
     }
     return this._currentUserRepos;
   }
 
   private _currentUserOrgs = null;
-  public get currentUserOrgs(): Observable<Org[]> {
+  public get currentUserOrgs(): Observable<GithubOrg[]> {
     if (!this._currentUserOrgs) {
-      this._currentUserOrgs = this.githubService.getUserOrgs().cache(1);
+      this._currentUserOrgs = this.githubService
+        .getUserOrgs()
+        .catch((err) => this.handle401(err))
+        .cache(1);
     }
     return this._currentUserOrgs;
+  }
+
+  private handle401(err): Observable<{}> {
+    if (err.status === 401) {
+      this.router.navigate(['login']);
+      return Observable.empty();
+    }
+    return Observable.throw(err);
   }
 
   // private invalidateCache() {

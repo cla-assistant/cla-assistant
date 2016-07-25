@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Gist } from '../../shared/github/gist';
 import { GithubRepo } from '../../shared/github/repo';
-import { Org } from '../../shared/github/org';
+import { GithubOrg } from '../../shared/github/org';
 import { AuthService } from '../../login/auth.service';
 import { GistsDropdownComponent } from './gist-dropdown.component';
 import { RepoOrgDropdownComponent } from './repo-org-dropdown.component';
@@ -11,7 +11,7 @@ import { ConfirmAddModal } from './confirm-add.modal';
 
 interface Link {
   selectedGist: Gist;
-  selectedRepoOrOrg: GithubRepo | Org;
+  selectedRepoOrOrg: GithubRepo | GithubOrg;
 }
 
 @Component({
@@ -29,7 +29,7 @@ export class ClaLinkFormComponent {
   public confirmAddModal: ConfirmAddModal;
 
   private selectedGist: Gist;
-  private selectedRepoOrOrg: GithubRepo | Org;
+  private selectedRepoOrOrg: GithubRepo | GithubOrg;
 
   constructor(private authService: AuthService) {
     this.onClose = new EventEmitter<void>();

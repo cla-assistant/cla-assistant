@@ -3,7 +3,7 @@ import { SelectComponent } from 'ng2-select';
 import { HomeCacheService } from '../home-cache.service';
 import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
-import { Org } from '../../shared/github/org';
+import { GithubOrg } from '../../shared/github/org';
 import { LinkedRepo } from '../../shared/claBackend/linkedItem';
 
 @Component({
@@ -27,11 +27,11 @@ export class RepoOrgDropdownComponent implements OnInit {
   private static ORG_ID = 2;
 
   @Input() public isUserOrgAdmin: boolean;
-  @Output() public onSelect: EventEmitter<GithubRepo | Org>;
+  @Output() public onSelect: EventEmitter<GithubRepo | GithubOrg>;
   @ViewChild(SelectComponent) public selectComp: SelectComponent;
 
   private repos: GithubRepo[];
-  private orgs: Org[];
+  private orgs: GithubOrg[];
   private dropdownItems: any[] = [];
   private repoItems: any[] = [];
   private orgItems: any[] = [];
@@ -39,7 +39,7 @@ export class RepoOrgDropdownComponent implements OnInit {
   constructor(
     private homeCacheService: HomeCacheService,
     private homeService: HomeService) {
-    this.onSelect = new EventEmitter<GithubRepo | Org>();
+    this.onSelect = new EventEmitter<GithubRepo | GithubOrg>();
     this.updateDropdownItems();
   }
 
