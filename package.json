@@ -44,7 +44,7 @@
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
     "q": "^1.4.1",
-    "request": "^2.72.0",
+    "request": "^2.74.0",
     "snyk": "^1.17.1",
     "socket.io": "^1.4.8",
     "valid-url": "^1.0.9",

@@ -21,32 +21,18 @@ patch:
   'npm:minimatch:20160620':
     - node-sass-middleware > node-sass > node-gyp > glob > minimatch:
         patched: '2016-06-27T07:44:47.254Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream > rimraf > glob > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > fstream > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > fstream > rimraf > glob > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > rimraf > glob > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar > fstream > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > tar > fstream > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - node-sass-middleware > node-sass > node-gyp > glob > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > rimraf > glob > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > rimraf > glob > minimatch:
         patched: '2016-06-27T07:43:31.076Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > minimatch:
-        patched: '2016-07-19T07:44:32.981Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream > rimraf > glob > minimatch:
         patched: '2016-07-14T08:12:26.746Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > fstream > rimraf > glob > minimatch:
@@ -61,12 +47,34 @@ patch:
         patched: '2016-07-14T08:12:26.746Z'
     - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > minimatch:
         patched: '2016-07-14T08:12:26.746Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > fstream > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar > fstream > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > tar > fstream > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > rimraf > glob > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > fstream-ignore > minimatch:
+        patched: '2016-07-19T07:44:32.981Z'
   'npm:ws:20160624':
     - karma > socket.io > socket.io-client > engine.io-client > ws:
-        patched: '2016-07-19T07:44:32.981Z'
+        patched: '2016-07-25T08:23:48.823Z'
     - karma > socket.io > engine.io > ws:
-        patched: '2016-07-19T07:44:32.981Z'
+        patched: '2016-07-25T08:23:48.823Z'
     - socket.io > socket.io-client > engine.io-client > ws:
-        patched: '2016-07-19T07:44:32.981Z'
+        patched: '2016-07-25T08:23:48.823Z'
     - socket.io > engine.io > ws:
-        patched: '2016-07-19T07:44:32.981Z'
+        patched: '2016-07-25T08:23:48.823Z'
+  'npm:negotiator:20160616':
+    - karma > socket.io > engine.io > accepts > negotiator:
+        patched: '2016-07-25T08:23:48.823Z'
+    - socket.io > engine.io > accepts > negotiator:
+        patched: '2016-07-25T08:23:48.823Z'
+  'npm:tough-cookie:20160722':
+    - karma > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
+        patched: '2016-07-25T08:23:48.823Z'
