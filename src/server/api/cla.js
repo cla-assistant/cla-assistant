@@ -193,7 +193,8 @@ module.exports = {
             } else {
                 repoService.get(req.args, function (err, repo) {
                     if (err || !repo) {
-                        cb();
+                        cb(err + ' There is no such repo');
+                        log.info(err, 'There is no such repo for args: ', req.args);
                     }
                     params.token = repo.token;
                     params.gist = params.gist && params.gist.gist_url ? params.gist : {
@@ -206,7 +207,11 @@ module.exports = {
                 });
             }
         }
-        function count() {
+        function count(err) {
+            if (err) {
+                done(err);
+                return;
+            }
             cla.getAll(params, function (err, clas) {
                 done(err, clas.length);
             });
