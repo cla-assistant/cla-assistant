@@ -120,8 +120,9 @@ module.exports = {
                 done(err);
                 return;
             }
-            // var renderToken = req.user && req.user.token ? req.user.token : token;
-            renderFiles(res.files, token).then(
+
+            var renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
+            renderFiles(res.files, renderToken).then(
                 function success (gistContent) {
                     done(null, gistContent);
                 },

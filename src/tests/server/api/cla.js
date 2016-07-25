@@ -147,7 +147,7 @@ describe('', function () {
             });
         });
 
-        it('should get gist and render it without user token', function (it_done) {
+        it('should get gist and render it without user and repo token', function (it_done) {
             resp.repoService.get.token = undefined;
 
             var req = {
@@ -161,6 +161,26 @@ describe('', function () {
                 assert(repo_service.get.called);
                 assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: undefined }));
 
+                it_done();
+            });
+        });
+
+        it('should get gist and render it with user token if there is no repo token', function (it_done) {
+            reqArgs.repoService.get = { repoId: 1 };
+            resp.repoService.get.token = undefined;
+
+            var req = {
+                args: {
+                    repoId: 1
+                },
+                user: {
+                    token: 'user_token'
+                }
+            };
+
+            cla_api.get(req, function () {
+                assert(repo_service.get.called);
+                assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: 'user_token' }));
                 it_done();
             });
         });
