@@ -2,6 +2,11 @@ require('../documents/org');
 var mongoose = require('mongoose');
 var Org = mongoose.model('Org');
 
+var selection = function (args) {
+    var selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
+    return selectArguments;
+};
+
 module.exports = {
     create: function (args, done) {
         Org.create({
@@ -15,7 +20,7 @@ module.exports = {
     },
 
     get: function (args, done) {
-        Org.findOne({ orgId: args.orgId }, done);
+        Org.findOne(selection(args), done);
     },
 
     getMultiple: function (args, done) {
@@ -23,6 +28,6 @@ module.exports = {
     },
 
     remove: function (args, done) {
-        Org.remove(args, done);
+        Org.remove(selection(args), done);
     }
 };
