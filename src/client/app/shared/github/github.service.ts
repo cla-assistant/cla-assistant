@@ -102,13 +102,13 @@ export class GithubService {
 
     let body = JSON.stringify(requestBody);
     return this.http.post('/api/github/call', body, { headers: headers })
-      .catch((err) => {
-        if (err.status === 401) {
-          this.router.navigate(['login']);
-          return Observable.empty();
-        }
-        return Observable.throw(err);
-      })
+      // .catch((err) => {
+      //   if (err.status === 401) {
+      //     this.router.navigate(['login']);
+      //     return Observable.empty();
+      //   }
+      //   return Observable.throw(err);
+      // })
       .map(res => {
         return res.json();
       });

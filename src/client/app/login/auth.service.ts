@@ -8,8 +8,8 @@ export class AuthService {
   constructor(
     private http: Http,
     @Inject('Window') window) {
-      this.window = window;
-    }
+    this.window = window;
+  }
 
   public isLoggedIn() {
     return this.http.get('/loggedin').map((res) => {
@@ -22,7 +22,11 @@ export class AuthService {
     this.window.location.replace(url);
   }
 
-  public doLogout() {
-    this.window.location.replace('/logout');
+  public doLogout(noRedirect = false) {
+    if (noRedirect) {
+      this.http.get(`/logout?noredirect=${noRedirect}`).subscribe();
+    } else {
+      this.window.location.replace(`/logout?noredirect=${noRedirect}`);
+    }
   }
 }

@@ -4,9 +4,9 @@ export abstract class LinkedItem {
   constructor(public id: string, public gist: string) { }
 
   public abstract getType(): string;
-  public abstract getIdObject(): Object;
-  public abstract getNameObject(): Object;
-  public abstract getCompleteObject(): Object;
+  public abstract getIdObject(): any;
+  public abstract getNameObject(): any;
+  public abstract getCompleteObject(): any;
 }
 
 export class LinkedRepo extends LinkedItem {

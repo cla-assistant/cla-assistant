@@ -63,6 +63,39 @@ export class ClaBackendService {
     return this.call('webhook', 'get', item.getNameObject());
   }
 
+  public getLinkedItem(userName: string, repoName: string): Observable<LinkedItem> {
+    return this.call('cla', 'getLinkedItem', {
+      owner: userName,
+      repo: repoName
+    }).map((linkedItem) => {
+      if (linkedItem.repoId) {
+        return new LinkedRepo(linkedItem);
+      } else {
+        // return new LinkedOrg(linkedItem)
+      }
+    });
+  }
+
+  public getGistContent(linkedItem: LinkedItem, gistUrl?, gistVersion?): Observable<string> {
+    const arg = linkedItem.getIdObject();
+    if (gistUrl) {
+      arg.gist = {
+        gist_url: gistUrl,
+        gist_version: gistVersion
+      };
+    }
+    return this.call('cla', 'get', arg).map(
+      claText => claText.raw
+    );
+  }
+
+  public checkCla(userName: string, repoName: string): Observable<boolean> {
+    return this.call('cla', 'check', {
+      owner: userName,
+      repo: repoName
+    });
+  }
+
   private call(obj, fun, arg): Observable<any> {
     let headers = new Headers();
 
@@ -70,8 +103,23 @@ export class ClaBackendService {
 
     let body = JSON.stringify(arg);
     return this.http.post(`/api/${obj}/${fun}`, body, { headers: headers })
+      .catch(this.handleError)
       .map(res => {
         return res.text() === '' ? null : res.json();
       });
+  }
+
+  private handleError(error: any) {
+    let errMsg;
+    if (error.message) {
+      errMsg = error.message;
+    } else {
+      try {
+        errMsg = error.json();
+      } catch (e) {
+        errMsg = error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+      }
+    }
+    return Observable.throw(errMsg);
   }
 }
