@@ -111,7 +111,7 @@ module.exports = {
         if (!req.args || (!req.args.repo && !req.args.repoId && !req.args.orgId)) {
             log.info('args: ', req.args);
             log.info('request headers: ', req.headers);
-            done('Please, provide owner and repo name');
+            done('Please, provide owner and repo name or orgId');
             return;
         }
         this.getGist(req, function (err, res) {
@@ -126,7 +126,7 @@ module.exports = {
                     done(null, gistContent);
                 },
                 function error(msg) {
-                    log.warn(msg, ' Args: ', req.args);
+                    log.warn(new Error(msg).stack, ' Args: ', req.args);
                     done(msg);
                 }
             );
