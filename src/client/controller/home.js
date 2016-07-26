@@ -87,8 +87,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var repoSet = [];
             $scope.repos.forEach(function(repo) {
                 repoSet.push({
-                    owner: repo.owner.login,
-                    repo: repo.name,
                     repoId: repo.id
                 });
             });

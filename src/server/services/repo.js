@@ -98,6 +98,11 @@ module.exports = {
             }
         });
     },
+
+    getByOwner: function (owner, done) {
+        Repo.find({ owner: owner }, done);
+    },
+
     update: function (args, done) {
         var repoArgs = {
             repo: args.repo,

@@ -289,7 +289,6 @@ describe('Home Controller', function () {
             var response;
             var error;
             if (o === 'repo' && f === 'getAll') {
-                args.set[0].repo.should.be.ok;
                 args.set[0].repoId.should.be.ok;
 
                 response = rpcRepoGetAllData || {
