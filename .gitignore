@@ -5,7 +5,7 @@ coverage/*
 venv
 .env
 .env.json
-report
+./report
 npm-debug.log
 test
 coverage

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { SelectComponent } from 'ng2-select';
+
 import { HomeCacheService } from '../home-cache.service';
 import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
@@ -10,7 +11,8 @@ import { LinkedRepo } from '../../shared/claBackend/linkedItem';
   selector: 'repo-org-dropdown',
   directives: [SelectComponent],
   host: {
-    'class': 'form-group has-feedback'
+    'class': 'form-group has-feedback',
+    'style': 'display:block'
   },
   template: `
     <ng-select 
@@ -18,7 +20,7 @@ import { LinkedRepo } from '../../shared/claBackend/linkedItem';
       [items]="dropdownItems"
       (selected)="selected($event)"
       (removed)="removed($event)"
-      placeholder="Select Gist">
+      placeholder="select">
     </ng-select>
   `
 })

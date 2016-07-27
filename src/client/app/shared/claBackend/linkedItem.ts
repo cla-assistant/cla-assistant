@@ -5,6 +5,7 @@ export abstract class LinkedItem {
   constructor(public id: string, public gist: string) { }
 
   public abstract getType(): string;
+  public abstract getFullName(): string;
   public abstract getIdObject(): any;
   public abstract getNameObject(): any;
   public abstract getCompleteObject(): any;
@@ -17,6 +18,9 @@ export class LinkedRepo extends LinkedItem {
 
   public getType(): string {
     return 'repo';
+  }
+  public getFullName(): string {
+    return `${this.repo.owner}/${this.repo.repo}`;
   }
   public getIdObject(): Object {
     return { repoId: this.repo.repoId };
@@ -39,6 +43,9 @@ export class LinkedOrg extends LinkedItem {
 
   public getType(): string {
     return 'org';
+  }
+  public getFullName(): string {
+    return this.org.org;
   }
   public getIdObject(): Object {
     return { orgId: this.org.orgId };

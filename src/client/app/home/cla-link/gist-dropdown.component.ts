@@ -17,7 +17,7 @@ import { Gist } from '../../shared/github/gist';
       [items]="gistsDropdownItems"
       (selected)="selected($event)"
       (removed)="removed($event)"
-      placeholder="Select Gist">
+      placeholder="select">
     </ng-select>
   `
 })

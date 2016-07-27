@@ -1,11 +1,24 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {TOOLTIP_DIRECTIVES} from 'ng2-tooltip';
+import {POPOVER_DIRECTIVES} from 'ng2-popover';
+
+
 import { ClaBackendService } from '../../shared/claBackend/claBackend.service';
 import { LinkedItem } from '../../shared/claBackend/linkedItem';
 import { RepoLink } from './repo-link.component';
+import { OrgLink } from './org-link.component';
+import { StatusIndicatorComponent } from './status-indicator.component';
+import { ReportModal } from './report/report.modal';
 
 @Component({
   selector: 'linked-item-row',
-  directives: [RepoLink],
+  directives: [
+    RepoLink,
+    OrgLink,
+    StatusIndicatorComponent,
+    ReportModal,
+    TOOLTIP_DIRECTIVES,
+    POPOVER_DIRECTIVES],
   templateUrl: 'linked-item-row.component.html'
 })
 
@@ -14,9 +27,10 @@ export class LinkedItemRowComponent implements OnInit {
   @Output() public onUnlink: EventEmitter<LinkedItem>;
 
   private gist: any = {
-    fullName: '',
+    fileName: '',
     html_url: '',
-    updated_at: null
+    updated_at: null,
+    history: []
   };
   private gistValid: boolean = false;
   private webhookValid: boolean = false;
@@ -52,6 +66,10 @@ export class LinkedItemRowComponent implements OnInit {
     this.claBackendService.getClaSignatures(this.item, version).subscribe(
       signatures => this.signatures = signatures
     );
+  }
+
+  public notImplemented() {
+    console.log('not implemented');
   }
 
 

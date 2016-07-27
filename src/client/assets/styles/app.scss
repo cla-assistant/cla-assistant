@@ -303,11 +303,17 @@ small {
 
 // _activate cla screen
 
-.selectize-input{
+// .selectize-input{
+//   height: 33px;
+// }
+.ui-select-match{
   height: 33px;
 }
 
-.selectize-dropdown .optgroup-header {
+// .selectize-dropdown .optgroup-header {
+//   color: $gray-dark;
+// }
+.ui-select-placeholder {
   color: $gray-dark;
 }
 

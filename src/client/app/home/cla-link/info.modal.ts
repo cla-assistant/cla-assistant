@@ -29,7 +29,7 @@ import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 })
 export class InfoModal {
   @ViewChild('infoModal')
-  public modal: ModalComponent;
+  private modal: ModalComponent;
 
   public open() {
     this.modal.open();
