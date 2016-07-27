@@ -1,8 +1,8 @@
 sudo: false
 language: node_js
-cache:
-  directories:
-  - node_modules
+node_js:
+   - "5.12.0"
+language: node_js
 notifications:
   slack: sap-tools:wXhP1Sbbb9awgdb2wyYpUl9r
 after_script:
