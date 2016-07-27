@@ -1,0 +1,11 @@
+sudo: false
+language: node_js
+cache:
+  directories:
+  - node_modules
+notifications:
+  slack: sap-tools:wXhP1Sbbb9awgdb2wyYpUl9r
+after_script:
+- if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'v1.1' ]]; then ./.cf.sh cla-assistant-feature; fi
+- if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'master' ]]; then ./.cf.sh cla-assistant-staging; fi
+- if [[ $TRAVIS_PULL_REQUEST == 'false' && $TRAVIS_BRANCH == 'release' ]]; then ./.cf.sh cla-assistant; fi

@@ -74,7 +74,9 @@ module.exports = function (config) {
 
 
     browsers: [
-      'Chrome'
+      // Uncomment this to run the tests in Chrome
+      //'Chrome',
+      'PhantomJS'
     ],
 
     client: {

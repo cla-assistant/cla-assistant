@@ -1,14 +1,12 @@
 'use strict';
 
 const gulp = require('gulp');
-const eslint = require('gulp-eslint');
-const nodemon = require('gulp-nodemon');
 const env = require('gulp-env');
-const mocha = require('gulp-mocha');
+const eslint = require('gulp-eslint');
 const istanbul = require('gulp-istanbul');
+const mocha = require('gulp-mocha');
+const nodemon = require('gulp-nodemon');
 const plumber = require('gulp-plumber');
-
-const sass = require('gulp-sass'); 
 
 const del = require('del');
 
@@ -18,12 +16,6 @@ gulp.task('source', () => {
 
 gulp.task('clean', (cb) => {
   return del(['./dist'], cb);
-});
-
-gulp.task('compile-css', function () {
-  gulp.src('src/client/assets/styles/*.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest('./dist/client/assets/styles'));
 });
 
 gulp.task('start-server-debug', ['source'], () => {
