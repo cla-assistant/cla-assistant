@@ -1,41 +1,55 @@
-import { beforeEachProviders, inject, async } from '@angular/core/testing';
+import { beforeEachProviders, inject, async, fakeAsync, tick } from '@angular/core/testing';
 import { provide } from '@angular/core';
-import { MockBackend } from '@angular/http/testing';
+import { MockBackend, MockConnection } from '@angular/http/testing';
+import { Http, Response, ResponseOptions, ResponseType } from '@angular/http';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { getHttpMockServices, setupFakeConnection } from '../test-utils/http';
-import { createFakeObservable } from '../test-utils/observable';
 
 import { HomeCacheService } from './home-cache.service';
 import { GithubService } from '../shared/github/github.service';
 
 
-class GithubServiceMock {
-  public fakeUser: { login: 'testUser' };
-  public getUserObservable = createFakeObservable(this.fakeUser);
-  public getUser() { return this.getUserObservable; }
-
-  public fakeGists: [{ name: 'gist1' }, { name: 'gist2' }];
-  public getUserGistsObservable = createFakeObservable(this.fakeGists);
-  public getUserGists() { return this.getUserGistsObservable; }
-
-  public fakeRepos: [{ fullName: 'repo1' }, { fullName: 'repo2' }];
-  public getUserReposObservable = createFakeObservable(this.fakeRepos);
-  public getUserRepos() { return this.getUserReposObservable; }
+const fakeGithubData = {
+  user: { login: 'testUser' },
+  gists: [{ name: 'gist1' }, { name: 'gist2' }],
+  repos: [{ fullName: 'repo1' }, { fullName: 'repo2' }]
 };
+function createGithubServiceMock() {
+  return jasmine.createSpyObj('GithubSeriveMock', [
+    'getUser',
+    'getUserGists',
+    'getUserRepos'
+  ]);
+}
+function createRouterMock() {
+  return jasmine.createSpyObj('RouterMock', ['navigate']);
+}
 
 describe('Home Cache Service', () => {
-  let homeCacheService: HomeCacheService, mockBackend: MockBackend;
-  const githubServiceMock = new GithubServiceMock();
+  let githubServiceMock;
+  let routerMock;
+  let mockBackend: MockBackend;
+  let homeCacheService: HomeCacheService;
 
   beforeEachProviders(() => [
-    HomeCacheService,
-    provide(GithubService, { useValue: githubServiceMock }),
-
     ...getHttpMockServices()
   ]);
 
-  beforeEach(inject([HomeCacheService, MockBackend], (hs, mb) => {
-    homeCacheService = hs;
+  beforeEach(inject([Http, MockBackend], (http, mb) => {
+    githubServiceMock = createGithubServiceMock();
+    routerMock = createRouterMock();
+    homeCacheService = new HomeCacheService(githubServiceMock, routerMock, http);
     mockBackend = mb;
+  }));
+
+  it('should redirect to login page when request returns with status code 401', fakeAsync(() => {
+    githubServiceMock.getUser.and.returnValue(Observable.throw({ status: 401}));
+    const spy = jasmine.createSpy('observer');
+    homeCacheService.currentUser.subscribe(spy);
+    tick();
+    expect(spy.calls.count()).toEqual(0);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['login']);
   }));
 
   describe('defaultGists', () => {
@@ -60,51 +74,47 @@ describe('Home Cache Service', () => {
   });
 
   describe('currentUser', () => {
-
     it('it should get the current user from the github serive and cache the result', () => {
+      githubServiceMock.getUser.and.returnValue(Observable.of(fakeGithubData.user));
       homeCacheService.currentUser.subscribe((user) => {
-        expect(user).toBe(githubServiceMock.fakeUser);
+        expect(user).toBe(fakeGithubData.user);
       });
-      expect(githubServiceMock.getUserObservable.getTimesUsed())
-        .toEqual(1, 'Did not request the user on first access');
+      expect(githubServiceMock.getUser).toHaveBeenCalledTimes(1);
       // Second time should be cached and not call the github service again
       homeCacheService.currentUser.subscribe((user) => {
-        expect(user).toBe(githubServiceMock.fakeUser);
+        expect(user).toBe(fakeGithubData.user);
       });
-      expect(githubServiceMock.getUserObservable.getTimesUsed())
-        .toEqual(1, 'Did not cache the user on second access');
+      expect(githubServiceMock.getUser).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('currentUserGists', () => {
     it('it should get the current user\'s gists from the github serive and cache the result', () => {
+      githubServiceMock.getUserGists.and.returnValue(Observable.of(fakeGithubData.gists));
       homeCacheService.currentUserGists.subscribe((gist) => {
-        expect(gist).toBe(githubServiceMock.fakeGists);
+        expect(gist).toBe(fakeGithubData.gists);
       });
-      expect(githubServiceMock.getUserGistsObservable.getTimesUsed())
-        .toEqual(1, 'Did not request the user\'s gists on first access');
+      expect(githubServiceMock.getUserGists).toHaveBeenCalledTimes(1);
       // Second time should be cached and not call the github service again
       homeCacheService.currentUserGists.subscribe((gist) => {
-        expect(gist).toBe(githubServiceMock.fakeGists);
+        expect(gist).toBe(fakeGithubData.gists);
       });
-      expect(githubServiceMock.getUserGistsObservable.getTimesUsed())
-        .toEqual(1, 'Did not cache the user\'s gists on second access');
+      expect(githubServiceMock.getUserGists).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('currentUserRepos', () => {
     it('it should get the current user\'s repos from the github serive and cache the result', () => {
+      githubServiceMock.getUserRepos.and.returnValue(Observable.of(fakeGithubData.repos));
       homeCacheService.currentUserRepos.subscribe((repos) => {
-        expect(repos).toBe(githubServiceMock.fakeRepos);
+        expect(repos).toBe(fakeGithubData.repos);
       });
-      expect(githubServiceMock.getUserReposObservable.getTimesUsed())
-        .toEqual(1, 'Did not request the user\'s repos on first access');
+      expect(githubServiceMock.getUserRepos).toHaveBeenCalledTimes(1);
       // Second time should be cached and not call the github service again
       homeCacheService.currentUserRepos.subscribe((repos) => {
-        expect(repos).toBe(githubServiceMock.fakeRepos);
+        expect(repos).toBe(fakeGithubData.repos);
       });
-      expect(githubServiceMock.getUserReposObservable.getTimesUsed())
-        .toEqual(1, 'Did not cache the user\'s repos on second access');
+      expect(githubServiceMock.getUserRepos).toHaveBeenCalledTimes(1);
     });
   });
 });

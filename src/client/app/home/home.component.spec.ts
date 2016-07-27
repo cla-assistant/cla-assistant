@@ -1,8 +1,6 @@
 import { beforeEachProviders, inject, async, ComponentFixture } from '@angular/core/testing';
 import { OverridingTestComponentBuilder } from '@angular/compiler/testing';
 import { provide } from '@angular/core';
-import { createFakeObservable } from '../test-utils/observable';
-
 
 import { HomeComponent } from './home.component';
 import { AuthService } from '../login/auth.service';
@@ -15,9 +13,12 @@ describe('Home Component', () => {
   const testUser = {};
   const authServiceMock = jasmine.createSpyObj('AuthServiceMock', ['doLogout']);
   const homeCacheServiceMock = {
-    currentUser: createFakeObservable(testUser)
+    currentUser: jasmine.createSpyObj('currentUser', ['subscribe'])
   };
-  const homeServiceMock = jasmine.createSpyObj('homeServiceMock', ['requestReposFromBackend']);
+  const homeServiceMock = jasmine.createSpyObj('homeServiceMock', [
+    'requestReposFromBackend',
+    'requestOrgsFromBackend'
+  ]);
 
   beforeEachProviders(() => [
     OverridingTestComponentBuilder,
@@ -35,14 +36,9 @@ describe('Home Component', () => {
       .then(f => fixture = f);
   })));
 
-  afterEach(() => {
-    homeCacheServiceMock.currentUser.resetTimesUsed();
-  });
-
   it('should request the current user on init', () => {
     fixture.detectChanges();
-    expect(homeCacheServiceMock.currentUser.getTimesUsed()).toEqual(1);
-    expect(fixture.componentInstance.user).toBe(testUser);
+    expect(homeCacheServiceMock.currentUser.subscribe).toHaveBeenCalledTimes(1);
   });
 
   describe('handleLogout', () => {

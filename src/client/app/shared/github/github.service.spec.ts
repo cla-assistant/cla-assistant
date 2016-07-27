@@ -1,8 +1,5 @@
 import { beforeEachProviders, async, fakeAsync, tick, inject } from '@angular/core/testing';
-import { provide } from '@angular/core';
-import { Router } from '@angular/router';
-import { Response, ResponseOptions, ResponseType } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
+import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 
 
@@ -14,34 +11,16 @@ import { GithubOrg } from './org';
 
 
 describe('GithubSerive', () => {
-  const mockRouter = jasmine.createSpyObj('MockRouter', ['navigate']);
   let githubService, mockBackend;
   beforeEachProviders(() => {
     return [
       GithubService,
-      provide(Router, { useValue: mockRouter }),
       ...getHttpMockServices()
     ];
   });
   beforeEach(inject([GithubService, MockBackend], (gs, mb) => {
     githubService = gs;
     mockBackend = mb;
-  }));
-
-  it('should redirect to login page when request returns with status code 401', fakeAsync(() => {
-    mockBackend.connections.subscribe((conn: MockConnection) => {
-        const responseOptions = new ResponseOptions({
-          status: 401,
-          type: ResponseType.Error
-        });
-        conn.mockError(<any>new Response(responseOptions)); // cast to any is workaround
-    });
-    const spy = jasmine.createSpy('observer');
-    githubService.getUser().subscribe(spy);
-    tick();
-    expect(spy.calls.count()).toEqual(0);
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['login']);
-
   }));
 
   describe('getUser', () => {
@@ -217,12 +196,16 @@ describe('GithubSerive', () => {
       };
       const fakeResponseBody = {
         data: [
-          { role: 'admin', organization: { login: 'MyOrg' } },
+          { role: 'admin', organization: { login: 'MyOrg', id: 123, avatar_url: 'avatar url' } },
           { role: 'member', organization: { login: 'MyOrg2' } }
         ]
       };
       const expectedResult: GithubOrg[] = [
-        { login: 'MyOrg' }
+        {
+          login: 'MyOrg',
+          id: 123,
+          avatarUrl: 'avatar url'
+        }
       ];
       setupFakeConnection(
         mockBackend,
