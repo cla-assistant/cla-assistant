@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizationService, SafeHtml } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 
+import { AppFrameComponent } from '../app-frame/app-frame.component';
 import { LinkedItem } from '../shared/claBackend/linkedItem';
 import { User } from '../shared/github/user';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
@@ -11,6 +12,7 @@ import { AuthService } from '../login/auth.service';
 
 @Component({
   selector: 'sign-cla',
+  directives: [AppFrameComponent],
   templateUrl: 'sign-cla.component.html'
 })
 export class SignClaComponent implements OnInit {
@@ -85,7 +87,7 @@ export class SignClaComponent implements OnInit {
 
   public agree(): void {
     let acceptUrl = `/accept/${this.userName}/${this.repoName}`;
-    acceptUrl = this.pullRequest ? acceptUrl + `;pullRequest=${this.pullRequest}` : acceptUrl;
+    acceptUrl = this.pullRequest ? acceptUrl + `?pullRequest=${this.pullRequest}` : acceptUrl;
     this.window.location.href = acceptUrl;
   }
 

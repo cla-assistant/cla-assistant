@@ -1,36 +1,38 @@
-<div class="row main" style="margin-top: 70px;">
-	<div class="container-fluid">
+<app-frame>
+	<div class="row main" style="margin-top: 70px;">
+		<div class="container-fluid">
 
-		<div class="row center-block content-block" *ngIf="noLinkedItemError">
-			<h1>Error</h1>
-			<p>There is no CLA to sign for {{fullRepoName}}</p>
-			<p>({{noLinkedItemError}})</p>
-		</div>
-
-		<div class="row content-block" *ngIf="!signed && !noLinkedItemError">
-			<div class="col-md-8 col-md-offset-2" >
-				<h4>Please sign the CLA for {{fullRepoName}}</h4>
-				<div class="cla-box well">
-					<div [innerHtml]="claText"></div>
-				</div>
-				<p class="text-center">
-					<button 
-            class="btn btn-info sign-btn" 
-            *ngIf="!hasCustomFields && !signed && claText" 
-            (click)="agree()">
-            Sign in with GitHub to agree
-          </button>
-				</p>
+			<div class="row center-block content-block" *ngIf="noLinkedItemError">
+				<h1>Error</h1>
+				<p>There is no CLA to sign for {{fullRepoName}}</p>
+				<p>({{noLinkedItemError}})</p>
 			</div>
-		</div>
 
-		<div class="row center-block content-block" *ngIf="signed">
-			<h3>Thank you {{loggedInUser.login}}</h3>
-			<h4>for signing the CLA!</h4>
-			<br>
-			<h4>we are now taking you back to GitHub</h4>
-			<!--<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>-->
-		</div>
+			<div class="row content-block" *ngIf="!signed && !noLinkedItemError">
+				<div class="col-md-8 col-md-offset-2" >
+					<h4>Please sign the CLA for {{fullRepoName}}</h4>
+					<div class="cla-box well">
+						<div [innerHtml]="claText"></div>
+					</div>
+					<p class="text-center">
+						<button 
+							class="btn btn-info sign-btn" 
+							*ngIf="!hasCustomFields && !signed && claText" 
+							(click)="agree()">
+							Sign in with GitHub to agree
+						</button>
+					</p>
+				</div>
+			</div>
 
+			<div class="row center-block content-block" *ngIf="signed">
+				<h3>Thank you {{loggedInUser.login}}</h3>
+				<h4>for signing the CLA!</h4>
+				<br>
+				<h4>we are now taking you back to GitHub</h4>
+				<!--<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>-->
+			</div>
+
+		</div>
 	</div>
-</div>
+</app-frame>
