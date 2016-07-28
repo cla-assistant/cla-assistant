@@ -61,7 +61,8 @@ describe('', function () {
                 callUser: {
                     id: 1,
                     login: 'one'
-                }
+                },
+                callRepos: testData.orgRepos.concat({ id: 2, owner: { login: 'org' } })
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
@@ -110,7 +111,9 @@ describe('', function () {
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
             } else if (args.obj === 'users') {
-                cb(error.github.markdown, resp.github.callUser);
+                cb(error.github.user, resp.github.callUser);
+            } else if (args.obj === 'repos' && args.fun === 'getForOrg') {
+                cb(error.github.repos, resp.github.callRepos);
             }
         });
         sinon.stub(repo_service, 'get', function (args, cb) {
@@ -405,11 +408,25 @@ describe('', function () {
 
         it('should update status of pull request using token of linked org', function (it_done) {
             resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
 
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(statusService.update.called);
+
+                it_done();
+            });
+        });
+
+        it('should update status of all repos of the org', function (it_done) {
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                assert.equal(statusService.update.callCount, 4);
 
                 it_done();
             });

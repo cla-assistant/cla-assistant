@@ -13,7 +13,7 @@ var log = require('../services/logger');
 
 var token;
 
-var markdownRender = function (content, token) {
+function markdownRender (content, token) {
     var deferred = q.defer();
     var args = {
         obj: 'misc',
@@ -43,9 +43,9 @@ var markdownRender = function (content, token) {
 
     });
     return deferred.promise;
-};
+}
 
-var renderFiles = function (files, renderToken) {
+function renderFiles (files, renderToken) {
     var deferred = q.defer();
     try {
         var content;
@@ -77,7 +77,7 @@ var renderFiles = function (files, renderToken) {
             deferred.reject(msg);
         });
     return deferred.promise;
-};
+}
 
 module.exports = {
     getGist: function (req, done) {
@@ -219,6 +219,36 @@ module.exports = {
         getMissingParams(count);
     },
 
+    validateOrgPullRequests: function (req, done) {
+        var self = this;
+        github.call({
+            obj: 'repos',
+            fun: 'getForOrg',
+            arg: {
+                org: req.args.org,
+                per_page: 100
+            },
+            token: req.args.token
+        }, function (err, repos) {
+            if (repos && !repos.message && repos.length > 0) {
+                repos.forEach(function (repo) {
+                    var validateRequest = {
+                        args: {
+                            owner: repo.owner.login,
+                            repo: repo.name,
+                            token: req.args.token
+                        },
+                        user: req.user
+                    };
+                    self.validatePullRequests(validateRequest);
+                });
+            }
+            if (typeof done === 'function') {
+                done(repos.message || err, true);
+            }
+        });
+    },
+
     validatePullRequests: function (req, done) {
         var pullRequests = [];
         var token = req.args.token ? req.args.token : req.user.token;
@@ -246,6 +276,7 @@ module.exports = {
                         token: token
                     };
                     status_args.number = pullRequest.number;
+
                     cla.check(status_args, function (cla_err, all_signed, user_map) {
                         if (cla_err) {
                             log.error(cla_err);
@@ -278,42 +309,6 @@ module.exports = {
             },
             token: token
         }, collectData);
-
-        // github.direct_call({
-        //     url: url.githubPullRequests(req.args.owner, req.args.repo, 'open'),
-        //     token: req.args.token ? req.args.token : req.user.token
-        // }, function (error, res) {
-        //     if (error) {
-        //         log.error(error);
-        //     }
-
-        //     if (res && res.data && !error) {
-        //         res.data.forEach(function (pullRequest) {
-        //             var status_args = {
-        //                 repo: req.args.repo,
-        //                 owner: req.args.owner
-        //             };
-        //             status_args.number = pullRequest.number;
-        //             cla.check(status_args, function (cla_err, all_signed, user_map) {
-        //                 if (cla_err) {
-        //                     log.error(cla_err);
-        //                 }
-        //                 status_args.signed = all_signed;
-        //                 status.update(status_args);
-        //                 prService.editComment({
-        //                     repo: req.args.repo,
-        //                     owner: req.args.owner,
-        //                     number: status_args.number,
-        //                     signed: all_signed,
-        //                     user_map: user_map
-        //                 });
-        //             });
-        //         });
-        //     }
-        //     if (typeof done === 'function') {
-        //         done(error);
-        //     }
-        // });
     },
 
     sign: function (req, done) {
@@ -342,7 +337,12 @@ module.exports = {
                     log.error(e);
                 }
                 req.args.token = item.token;
-                self.validatePullRequests(req);
+                if (item.org) {
+                    req.args.org = item.org;
+                    self.validateOrgPullRequests(req);
+                } else {
+                    self.validatePullRequests(req);
+                }
             });
             done(err, signed);
         });

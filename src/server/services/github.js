@@ -7,6 +7,16 @@ var q = require('q');
 
 var GitHubApi = require('github');
 
+
+function callGithub(github, obj, fun, arg, done) {
+    github[obj][fun](arg, function (err, res) {
+        if (typeof done === 'function') {
+            done(err, res);
+        }
+
+    });
+}
+
 module.exports = {
 
     call: function(call, done) {
@@ -17,6 +27,7 @@ module.exports = {
         var basicAuth = call.basicAuth;
         var deferred = q.defer();
         var error;
+        var data = null;
 
         var github = new GitHubApi({
             protocol: config.server.github.protocol,
@@ -24,6 +35,34 @@ module.exports = {
             host: config.server.github.api,
             pathPrefix: config.server.github.enterprise ? '/api/v3' : null
         });
+
+        function collectData(err, res) {
+            // if (res && !err) {
+            if (res) {
+                data = data ? data : res instanceof Array ? [] : {};
+                data = res instanceof Array ? data.concat(res) : res;
+            }
+
+            var meta = {};
+
+            try {
+                meta.link = res.meta.link;
+                meta.hasMore = !!github.hasNextPage(res.meta.link);
+                meta.scopes = res.meta['x-oauth-scopes'];
+                delete res.meta;
+            } catch (ex) {
+                meta = null;
+            }
+
+            if (meta && meta.link && github.hasNextPage(meta.link)) {
+                github.getNextPage(meta.link, collectData);
+            } else {
+                if (typeof done === 'function') {
+                    done(err, data, meta);
+                }
+                deferred.resolve({ data: data, meta: meta });
+            }
+        }
 
         if (!obj || !github[obj]) {
             error = 'obj required/obj not found';
@@ -58,25 +97,7 @@ module.exports = {
             });
         }
 
-        github[obj][fun](arg, function(err, res) {
-
-            var meta = {};
-
-            try {
-                meta.link = res.meta.link;
-                meta.hasMore = !!github.hasNextPage(res.meta.link);
-                meta.scopes = res.meta['x-oauth-scopes'];
-                delete res.meta;
-            } catch (ex) {
-                meta = null;
-            }
-
-            deferred.resolve({ data: res, meta: meta });
-            if (typeof done === 'function') {
-                done(err, res, meta);
-            }
-
-        });
+        callGithub(github, obj, fun, arg, collectData);
 
         return deferred.promise;
     },

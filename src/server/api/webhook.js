@@ -44,12 +44,15 @@ function getHook(obj, arg, token, done) {
     }, function callback(err, hooks) {
         var hook = null;
 
-        if (!err) {
+        if (!err && hooks && hooks.length > 0) {
             hooks.forEach(function (webhook) {
                 if (webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
                     hook = webhook;
                 }
             });
+        } else if (hooks.message) {
+            err = err + hooks.message;
+
         }
         done(err, hook);
     });

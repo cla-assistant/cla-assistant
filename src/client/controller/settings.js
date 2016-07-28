@@ -208,27 +208,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
         var validateOrgPr = function (linkedItem) {
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/validatePr.html',
-                controller: 'ValidatePrCtrl',
-                windowClass: 'validatePr',
-                scope: $scope,
-                resolve: {
-                    item: function () {
-                        return linkedItem;
-                    },
-                    repos: function () {
-                        return $scope.repos;
-                    }
-                }
+            $RPCService.call('cla', 'validateOrgPullRequests', {
+                org: linkedItem.org,
+                token: linkedItem.token
+            }).then(function(){
+                $scope.popoverIsOpen = false;
             });
-
-            $scope.popoverIsOpen = false;
-
-            modal.result.then(function (selectedRepo) {
-                validateRepoPr(selectedRepo.name, selectedRepo.owner.login);
-            });
-
         };
 
         $scope.recheck = function (linkedItem) {

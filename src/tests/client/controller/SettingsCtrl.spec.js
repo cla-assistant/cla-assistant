@@ -409,21 +409,12 @@ describe('Settings Controller', function () {
             });
 
             it('should get a repo for linked org which should be checked', function () {
-                sinon.stub(modal, 'open', function () {
-                    return {
-                        result: {
-                            then: function (cb) {
-                                var selectedRepo = { name: 'Hello-World', owner: { login: 'octocat' } };
-                                cb(selectedRepo);
-                    }}};
-                });
-
                 settingsCtrl.scope.recheck({
-                    org: 'octocat'
+                    org: 'octocat',
+                    token: 'org_token'
                 });
 
-                (modal.open.called).should.be.equal(true);
-                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'Hello-World', owner: 'octocat'})).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validateOrgPullRequests', {org: 'octocat', token: 'org_token'})).should.be.equal(true);
             });
         });
 
