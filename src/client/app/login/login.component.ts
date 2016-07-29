@@ -24,7 +24,7 @@ export class LoginComponent {
     this._updateNumberOfRepos();
     this._updateNumberOfCLAs();
     this._updateNumberOfStars();
-    this._TiggerSlider();
+    this._TriggerSlider();
   }
 
   public logAdminIn() {
@@ -43,11 +43,11 @@ export class LoginComponent {
     this.numberStars = 5;
   }
 
-  private _TiggerSlider() {
+  private _TriggerSlider() {
     setTimeout(
       (time) => {
         this.active = +this.active + 1 === 3 ? 0 : +this.active + 1;
-        this._TiggerSlider();
+        this._TriggerSlider();
       },
       this.time);
   }

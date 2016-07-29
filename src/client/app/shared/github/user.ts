@@ -1,3 +1,6 @@
+/**
+ * Definition of the necessary attributes of an GitHub Api user response
+ */
 export interface User {
   htmlUrl: string;
   avatarUrl: string;
@@ -8,7 +11,26 @@ export interface User {
   };
 }
 
-export function createUserFromApiResponse(response): User {
+/**
+ * Type definition of GitHub Api repo response
+ */
+type ApiUserResponse = {
+  data: {
+    html_url: string,
+    avatar_url: string,
+    login: string
+  }
+  meta: {
+    scopes: string
+  }
+}
+/**
+ * Maps the GitHub API response to the attributes defined in [[User]].
+ * 
+ * @param response The GitHub response returned from an API call
+ * @returns User with necessary org information
+ */
+export function createUserFromApiResponse(response: ApiUserResponse): User {
   let admin = false;
   let orgAdmin = false;
   if (response.meta && response.meta.scopes) {

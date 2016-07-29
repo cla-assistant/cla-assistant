@@ -84,8 +84,10 @@ export class ClaLinkFormComponent {
 
   private clearSelectedGist() {
     this.selectedGist = {
-      name: null,
-      url: ''
+      fileName: null,
+      url: '',
+      updatedAt: '',
+      history: []
     };
   }
 }

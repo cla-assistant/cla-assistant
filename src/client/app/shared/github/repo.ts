@@ -1,19 +1,40 @@
-
-
+/**
+ * Definition of the necessary attributes of an GitHub Api repo response
+ */
 export interface GithubRepo {
   id: number;
-  fullName: string;
   name: string;
+  /** owner/name */
+  fullName: string;
   fork: boolean;
   owner: {
     login: string;
   };
 }
-export function createReposFromApiResponse(response): GithubRepo[] {
+
+/**
+ * Type definition of GitHub Api repo response
+ */
+type ApiRepoResponse = {
+  data: Array<{
+    id: number,
+    name: string
+    full_name: string,
+    fork: boolean,
+    owner: { login: string }
+  }>
+}
+/**
+ * Maps the GitHub API response to the attributes defined in [[GithubRepo]].
+ * 
+ * @param response The GitHub response returned from an API call
+ * @returns Repo array with necessary repo information
+ */
+export function createReposFromApiResponse(response: ApiRepoResponse): GithubRepo[] {
   return response.data.map(repo => ({
     id: repo.id,
-    fullName: repo.full_name,
     name: repo.name,
+    fullName: repo.full_name,
     fork: repo.fork,
     owner: {
       login: repo.owner.login

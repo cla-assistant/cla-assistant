@@ -64,7 +64,7 @@ export class GistsDropdownComponent implements OnInit {
     function createChildItems(gists: Gist[], idOffset: number) {
       return gists.map((gist, index) => ({
         id: idOffset + index + 1, // id 0 is an invalid id
-        text: gist.name
+        text: gist.fileName
       }));
     }
     return [

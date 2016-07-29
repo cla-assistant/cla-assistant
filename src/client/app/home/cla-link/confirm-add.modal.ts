@@ -19,7 +19,7 @@ import { Gist } from '../../shared/github/gist';
         <div class="row" style="margin:50px; margin-bottom: 20px;">
           <div class="col-sm-12 well center-block">
             <img src="/assets/images/popup_link.svg" class="icon">
-            <p class="col-sm-6">{{gist.name}}</p>
+            <p class="col-sm-6">{{gist.fileName}}</p>
             <p class="col-sm-6">{{item.fullName ? item.fullName : item.login}}</p>
           </div>
         </div>

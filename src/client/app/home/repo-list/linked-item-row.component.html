@@ -15,15 +15,15 @@
   </div>
 
   <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md text">
-    <a bind-href="gist.html_url" target="space">{{gist.html_url}}</a>
+    <a bind-href="gist.html_url" target="space">{{gist.url}}</a>
   </div>
 
   <div class="col-xs-12 col-sm-2 col-lg-2 text">
-    {{gist.updated_at | date:'longDate'}}
+    {{gist.updatedAt | date:'longDate'}}
   </div>
 
   <div class="col-xs-4 col-sm-2 col-lg-1 linked-clas-show-contrib-col">
-    <a (click)="repoModal.open()" class="clickable">{{signatures.length}}</a>
+    <a (click)="repoModal.open()" class="clickable">{{numOfSignatures}}</a>
   </div>
   <report-modal #repoModal
     [claItem]="item"

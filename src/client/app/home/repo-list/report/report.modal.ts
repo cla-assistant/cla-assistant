@@ -2,7 +2,7 @@ import { Component, ViewChild, Input } from '@angular/core';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { SelectComponent } from 'ng2-select';
 
-import { LinkedItem } from '../../../shared/claBackend/linkedItem';
+import { LinkedItem, Signature } from '../../../shared/claBackend';
 import { VersionDropdownComponent } from './version-dropdown.component';
 import { ClaBackendService } from '../../../shared/claBackend/claBackend.service';
 
@@ -17,7 +17,7 @@ export class ReportModal {
   @ViewChild('reportModal')
   private modal: ModalComponent;
 
-  private contributors;
+  private contributors: Signature[];
   private selectedVersion: string;
   private visible: boolean = false;
   private reverse: boolean;
@@ -52,16 +52,7 @@ export class ReportModal {
       signatures => {
         this.contributors = [];
         if (signatures && signatures.length > 0) {
-          this.contributors = signatures.map(signature => ({
-            user_name: signature.user,
-            repo_owner: signature.owner,
-            repo_name: signature.repo,
-            gist_name: this.getGistName(),
-            gist_url: signature.gist_url,
-            gist_version: signature.gist_version,
-            signed_at: signature.created_at,
-            org_cla: signature.org_cla
-          }));
+          this.contributors = signatures;
         }
       }
     );

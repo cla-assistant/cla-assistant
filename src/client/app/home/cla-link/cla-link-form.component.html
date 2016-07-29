@@ -13,12 +13,7 @@
       <gists-dropdown (onGistSelected)="handleGistSelected($event)"></gists-dropdown>
       <div class="new-link-select-gist-sep">- or -</div>
       <div class="new-link-gist-url-outer">Paste a URL from a Gist</div>
-      <input #urlInput 
-        [disabled]="selectedGist.name"
-        class="form-control"
-        (keyup)="selectedGist.url = urlInput.value"
-        [value]="selectedGist.url"
-        placeholder="https://gist.github.com/<your cla gist id>" />
+      <input #urlInput [disabled]="selectedGist.fileName" class="form-control" (keyup)="selectedGist.url = urlInput.value" [value]="selectedGist.url" placeholder="https://gist.github.com/<your cla gist id>" />
     </div>
 
     <h5 *ngIf="!isUserOrgAdmin" class="col-xs-12 new-link-choose-repo-outer">
@@ -29,25 +24,18 @@
       <span class="new-link-choose-repo-inner">2</span>&nbsp;Choose an org or a repo
     </h5>
     <div class="col-xs-12">
-			<div></div>
-			<repo-org-dropdown 
-        [isUserOrgAdmin]="isUserOrgAdmin"
-        (onSelect)="handleRepoOrOrgSelected($event)">
+      <div></div>
+      <repo-org-dropdown [isUserOrgAdmin]="isUserOrgAdmin" (onSelect)="handleRepoOrOrgSelected($event)">
       </repo-org-dropdown>
-		</div>
-    
+    </div>
+
   </div>
   <div class="row link-div">
-    <button 
-      class="btn btn-info col-xs-12 link-btn" 
-      (click)="link()" 
-      [disabled]="!validateInput()">        
+    <button class="btn btn-info col-xs-12 link-btn" (click)="link()" [disabled]="!validateInput()">        
       <img src="/assets/images/link_button.svg" class="link-img">
       LINK
 		</button>
-    <confirm-add-modal 
-      [gist]="selectedGist"
-      [item]="selectedRepoOrOrg">
+    <confirm-add-modal [gist]="selectedGist" [item]="selectedRepoOrOrg">
     </confirm-add-modal>
   </div>
 </div>

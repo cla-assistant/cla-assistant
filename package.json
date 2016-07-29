@@ -12,12 +12,14 @@
     "cla"
   ],
   "scripts": {
+    "postinstall": "typings install",
     "start": "gulp start-server-debug",
     "test": "npm run snyk-test && npm run test-server && npm run test-client",
     "test-server": "gulp test-server",
     "test-client": "karma start",
     "test-client-watch": "npm run test-client -- --auto-watch --no-single-run",
     "test-client-with-coverage": "karma start --reporters jasmine-diff,mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
+    "docs": "typedoc ./src/client/main.ts --out doc --ignoreCompilerErrors --mode file",
     "snyk-test": "snyk test",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect"
@@ -84,6 +86,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-nodemon": "^2.1.0",
     "gulp-plumber": "^1.1.0",
+    "gulp-typedoc": "^2.0.0",
     "istanbul-instrumenter-loader": "^0.2.0",
     "jasmine": "^2.4.1",
     "karma": "^1.1.0",
@@ -104,6 +107,7 @@
     "sinon": "^1.17.4",
     "snyk": "^1.16.0",
     "tslint": "^3.12.1",
+    "typedoc": "^0.4.4",
     "typescript": "^1.8.10",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1",

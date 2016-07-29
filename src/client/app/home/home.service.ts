@@ -6,8 +6,6 @@ import { HomeCacheService } from './home-cache.service';
 import { GithubRepo } from '../shared/github/repo';
 import { GithubOrg } from '../shared/github/org';
 import { Gist } from '../shared/github/gist';
-import { fromGithubRepo } from '../shared/claBackend/repo';
-import { fromGithubOrg } from '../shared/claBackend/org';
 import { LinkedItem, LinkedRepo, LinkedOrg } from '../shared/claBackend/linkedItem';
 
 @Injectable()
@@ -41,9 +39,8 @@ export class HomeService {
   private linkRepo(gist: Gist, repo: GithubRepo): Observable<LinkedRepo> {
     return new Observable<LinkedRepo>(
       (observer: Observer<LinkedRepo>) => {
-        const linkedRepo = new LinkedRepo(fromGithubRepo(repo, gist.url));
-        this.claBackendService.linkCla(linkedRepo).subscribe(
-          () => {
+        this.claBackendService.linkRepo(repo, gist).subscribe(
+          (linkedRepo: LinkedRepo) => {
             this.claBackendService.addWebhook(linkedRepo).subscribe(
               () => {
                 this.addLinkedRepos([linkedRepo]);
@@ -68,9 +65,8 @@ export class HomeService {
   private linkOrg(gist: Gist, org: GithubOrg): Observable<LinkedOrg> {
     return new Observable<LinkedOrg>(
       (observer: Observer<LinkedOrg>) => {
-        const linkedOrg = new LinkedOrg(fromGithubOrg(org, gist.url));
-        this.claBackendService.linkCla(linkedOrg).subscribe(
-          () => {
+        this.claBackendService.linkOrg(org, gist).subscribe(
+          (linkedOrg: LinkedOrg) => {
             this.claBackendService.addWebhook(linkedOrg).subscribe(
               () => {
                 this.addLinkedOrgs([linkedOrg]);

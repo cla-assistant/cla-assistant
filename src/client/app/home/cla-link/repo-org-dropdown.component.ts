@@ -5,7 +5,7 @@ import { HomeCacheService } from '../home-cache.service';
 import { HomeService } from '../home.service';
 import { GithubRepo } from '../../shared/github/repo';
 import { GithubOrg } from '../../shared/github/org';
-import { LinkedRepo } from '../../shared/claBackend/linkedItem';
+import { LinkedRepo, LinkedOrg } from '../../shared/claBackend/linkedItem';
 
 @Component({
   selector: 'repo-org-dropdown',
@@ -83,14 +83,18 @@ export class RepoOrgDropdownComponent implements OnInit {
   }
 
   private requestOrgs() {
-    this.homeCacheService.currentUserOrgs.subscribe(orgs => {
-      this.orgs = orgs;
-      this.orgItems = orgs.map((org, index) => ({
-        id: index + 1,
-        text: org.login
-      }));
-      this.updateDropdownItems();
-    });
+    this.homeCacheService.currentUserOrgs
+      .combineLatest(this.homeService.getLinkedOrgs(), (ghOrgs: GithubOrg[], claOrgs: LinkedOrg[]) => {
+        return ghOrgs.filter(ghOrg => !claOrgs.some(claOrg => claOrg.id === ghOrg.id.toString()));
+      })
+      .subscribe(orgs => {
+        this.orgs = orgs;
+        this.orgItems = orgs.map((org, index) => ({
+          id: index + 1,
+          text: org.login
+        }));
+        this.updateDropdownItems();
+      });
   }
 
   private updateDropdownItems() {

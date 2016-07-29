@@ -38,7 +38,7 @@ import { Gist } from '../../shared/github/gist';
         </div>
 
         <div *ngIf="linkStatus === 'linked'" class="center-block row" style="font-size:18px;" >
-          <p><b>{{gist.name}}</b> and <b>{{item.fullName ? item.fullName : item.login}}</b> <br>
+          <p><b>{{gist.fileName}}</b> and <b>{{item.fullName ? item.fullName : item.login}}</b> <br>
           are now linked
           </p>
         </div>

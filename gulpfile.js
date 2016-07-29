@@ -7,6 +7,7 @@ const istanbul = require('gulp-istanbul');
 const mocha = require('gulp-mocha');
 const nodemon = require('gulp-nodemon');
 const plumber = require('gulp-plumber');
+const typedoc = require('gulp-typedoc')
 
 const del = require('del');
 
@@ -16,6 +17,25 @@ gulp.task('source', () => {
 
 gulp.task('clean', (cb) => {
   return del(['./dist'], cb);
+});
+
+gulp.task('docs', () => {
+  return gulp
+    .src(["src/client/**/*.ts"])
+    .pipe(typedoc({
+      module: "commonjs",
+      target: "es5",
+      includeDeclarations: true,
+      exclude: '**/*.spec.ts',
+      out: "./out",
+
+      externalPattern: 'node_modules',
+      excludeExternals: true,
+
+      // TypeDoc options (see typedoc docs) 
+      name: "cla-assistant",
+      ignoreCompilerErrors: false,
+    }))
 });
 
 gulp.task('start-server-debug', ['source'], () => {

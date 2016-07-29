@@ -2,13 +2,14 @@ import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {TOOLTIP_DIRECTIVES} from 'ng2-tooltip';
 import {POPOVER_DIRECTIVES} from 'ng2-popover';
 
-
-import { ClaBackendService } from '../../shared/claBackend/claBackend.service';
-import { LinkedItem } from '../../shared/claBackend/linkedItem';
 import { RepoLink } from './repo-link.component';
 import { OrgLink } from './org-link.component';
 import { StatusIndicatorComponent } from './status-indicator.component';
 import { ReportModal } from './report/report.modal';
+
+import { ClaBackendService } from '../../shared/claBackend/claBackend.service';
+import { GithubService, Gist } from '../../shared/github';
+import { LinkedItem } from '../../shared/claBackend/';
 
 @Component({
   selector: 'linked-item-row',
@@ -26,27 +27,29 @@ export class LinkedItemRowComponent implements OnInit {
   @Input() public item: LinkedItem;
   @Output() public onUnlink: EventEmitter<LinkedItem>;
 
-  private gist: any = {
+  private gist: Gist = {
     fileName: '',
-    html_url: '',
-    updated_at: null,
+    url: '',
+    updatedAt: null,
     history: []
   };
   private gistValid: boolean = false;
   private webhookValid: boolean = false;
-  private signatures = [];
+  private numOfSignatures = 0;
 
-  constructor(private claBackendService: ClaBackendService) {
+  constructor(
+    private claBackendService: ClaBackendService,
+    private githubService: GithubService
+  ) {
     this.onUnlink = new EventEmitter<LinkedItem>();
   }
 
   public ngOnInit() {
-    this.claBackendService.getGistInfo(this.item).subscribe(
-      (gist) => {
+    this.githubService.getGistInfo(this.item.gist).subscribe(
+      (gist: Gist) => {
         if (gist) {
           this.gist = gist;
-          this.normalizeGistName(this.gist);
-          this.gistValid = !!this.gist.id;
+          this.gistValid = true;
           this.getClaSignatures(gist.history[0].version);
         }
       },
@@ -64,25 +67,11 @@ export class LinkedItemRowComponent implements OnInit {
 
   private getClaSignatures(version: string) {
     this.claBackendService.getClaSignatures(this.item, version).subscribe(
-      signatures => this.signatures = signatures
+      signatures => this.numOfSignatures = signatures.length
     );
   }
-
-  public notImplemented() {
-    console.log('not implemented');
-  }
-
 
   public isValid() {
     return this.gistValid && this.webhookValid;
   }
-
-  private normalizeGistName(gist) {
-    if (!gist.fileName && gist.files) {
-      let fileName = Object.keys(gist.files)[0];
-      fileName = gist.files[fileName].filename ? gist.files[fileName].filename : fileName;
-      gist.fileName = fileName;
-    }
-  }
-
 }

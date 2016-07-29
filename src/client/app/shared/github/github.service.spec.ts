@@ -30,7 +30,7 @@ describe('GithubSerive', () => {
       const expectedBody = { obj: 'users', fun: 'get', arg: {} };
       const expectedResponse: User = {
         htmlUrl: 'test url',
-        avatarUrl: 'test avater url',
+        avatarUrl: 'test avatar url',
         login: 'test user name',
         roles: {
           admin: true,
@@ -40,7 +40,7 @@ describe('GithubSerive', () => {
       const fakeResponseBody = {
         data: {
           html_url: 'test url',
-          avatar_url: 'test avater url',
+          avatar_url: 'test avatar url',
           login: 'test user name'
         },
         meta: {
@@ -157,7 +157,7 @@ describe('GithubSerive', () => {
       const expectedBody = {
         obj: 'repos',
         fun: 'getAll',
-        //,organization_member
+        // ,organization_member
         arg: { per_page: 100, affiliation: 'owner', page: 1 }
       };
       const fakeResponseBody = {
