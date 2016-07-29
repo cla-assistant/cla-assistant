@@ -262,12 +262,26 @@ module.exports = function () {
         //Get last signature of the user for given repository and gist url
         getLastSignature: function (args, done) {
             var deferred = q.defer();
-            CLA.findOne({ repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url }, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
-                if (!err && cla) {
-                    deferred.resolve(cla);
+            getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
+                var query = { owner: args.owner, user: args.user, gist_url: item.gist };
+                if (item.orgId) {
+                    query.org_cla = true;
+                } else if (item.repoId) {
+                    query.repoId = item.repoId;
                 }
+
+                CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                    if (!err && cla) {
+                        deferred.resolve(cla);
+                    }
+                    if (typeof done === 'function') {
+                        done(err, cla);
+                    }
+                });
+            }, function (err) {
+                deferred.reject(err);
                 if (typeof done === 'function') {
-                    done(err, cla);
+                    done(err);
                 }
             });
             return deferred.promise;

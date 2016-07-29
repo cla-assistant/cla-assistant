@@ -52,6 +52,12 @@ describe('CLA Controller', function() {
         sinon.stub($RPCService, 'call', function(o, functn, data, cb){
             if (o === 'cla' && functn === 'sign') {
                 cb(null, true);
+            } else if (o === 'cla' && functn === 'getLastSignature') {
+                cb(null, {
+                    value: {
+                        custom_fields: '{"name": "Test User"}'
+                    }
+                });
             } else {
                 return rpcCall(o, functn, data, cb);
             }
@@ -136,6 +142,22 @@ describe('CLA Controller', function() {
         (claController.scope.customFields).should.be.ok;
         (claController.scope.customKeys).should.be.ok;
         (claController.scope.customValues.name).should.be.equal(claController.scope.user.value.name);
+    });
+
+    it('should fill customFields with signed values if cla signed', function () {
+        httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claTextWithMeta);
+        user.value = {name: 'Test User'};
+        user.meta = {};
+        claSigned = true;
+
+        claController = createCtrl();
+        httpBackend.flush();
+
+        _timeout.flush();
+        (claController.scope.claText).should.be.ok;
+        (claController.scope.customFields).should.be.ok;
+        console.log(claController.scope.customValues);
+        (claController.scope.customValues.name).should.be.equal('Test User');
     });
 
     it('should call github if user profile has no email and custom fields expect email', function() {

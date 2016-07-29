@@ -504,12 +504,6 @@ describe('', function () {
 
         it('should call cla service on getLastSignature', function (it_done) {
             sinon.stub(cla, 'getLastSignature', function (args, cb) {
-                assert.deepEqual(args, {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    user: 'user',
-                    gist_url: testData.repo_from_db.gist
-                });
                 cb(null, {});
             });
 
@@ -517,10 +511,11 @@ describe('', function () {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
+            req.user = { login: 'testUser' };
 
             cla_api.getLastSignature(req, function (err) {
                 assert.ifError(err);
-                assert(cla.getLastSignature.called);
+                assert(cla.getLastSignature.calledWithMatch({repo: 'Hello-World', owner: 'octocat', user: 'testUser'}));
 
                 cla.getLastSignature.restore();
                 it_done();

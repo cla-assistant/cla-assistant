@@ -43,8 +43,19 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			}
 		}
 
+		function getSignedValues() {
+			$RPCService.call('cla', 'getLastSignature', { repo: $stateParams.repo, owner: $stateParams.user}, function (err, res) {
+				if (res && res.value && res.value.custom_fields) {
+					var customFields = JSON.parse(res.value.custom_fields);
+					$scope.customKeys.forEach(function (key) {
+						$scope.customValues[key] = customFields[key];
+					});
+				}
+			});
+		}
+
 		function getCLA() {
-			utils.getGistContent($scope.linkedItem.repoId, $scope.linkedItem.orgId).then(
+			return utils.getGistContent($scope.linkedItem.repoId, $scope.linkedItem.orgId).then(
 				function success(gistContent) {
 					$scope.cla = $sce.trustAsHtml(gistContent.claText);
 					$scope.cla.text = gistContent.claText;
@@ -53,7 +64,6 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 					$scope.customFields = gistContent.customFields;
 					$scope.customKeys = gistContent.customKeys;
 					$scope.hasCustomFields = gistContent.hasCustomFields;
-					getGithubValues();
 				},
 				function error(err) {
 					$scope.noLinkedItemError = err.message || err;
@@ -139,13 +149,13 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		var repoPromise = getLinkedItem(function (linkedItem) {
 			$scope.linkedItem = linkedItem;
-			if ($scope.linkedItem) {
-				getCLA();
-				// getCLA().then(function (data) {
-				// 	$scope.cla = $sce.trustAsHtml(data.value.raw);
-				// 	$scope.cla.text = data.value.raw;
-				// });
-			}
+			// if ($scope.linkedItem) {
+			// 	getCLA();
+			// 	// getCLA().then(function (data) {
+			// 	// 	$scope.cla = $sce.trustAsHtml(data.value.raw);
+			// 	// 	$scope.cla.text = data.value.raw;
+			// 	// });
+			// }
 		});
 
 		$scope.isValid = function () {
@@ -165,11 +175,18 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		$q.all([userPromise, repoPromise]).then(function () {
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
-
-				checkCLA().then(function (signed) {
-					$scope.customValues = signed.value ? {} : $scope.customValues;
+				var claPromise = getCLA();
+				var signedPromise = checkCLA().then(function (signed) {
+					// $scope.customValues = signed.value ? {} : $scope.customValues;
 					if (signed.value && $stateParams.redirect) {
 						redirect();
+					}
+				});
+				$q.all([claPromise, signedPromise]).then(function () {
+					if ($scope.signed && $scope.hasCustomFields) {
+						getSignedValues();
+					} else {
+						getGithubValues();
 					}
 				});
 			}

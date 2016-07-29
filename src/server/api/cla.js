@@ -144,21 +144,9 @@ module.exports = {
     //Get users last signature for given repository (if repo is currently linked)
     //Parameters: repo, owner (mandatory)
     getLastSignature: function (req, done) {
-        repoService.get(req.args, function (err, repo) {
-            if (err || !repo) {
-                log.warn(err);
-                done(err);
-                return;
-            }
-            var args = {
-                repo: req.args.repo,
-                owner: req.args.owner,
-                user: req.user.login,
-                gist_url: repo.gist
-            };
-
-            cla.getLastSignature(args, done);
-        });
+        var args = req.args;
+        args.user = req.user.login;
+        cla.getLastSignature(args, done);
     },
 
     //Fihnd linked item using reponame and owner as parameters
