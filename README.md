@@ -24,7 +24,7 @@ For SAP open source projects please use the [SAP Individual Contributor License 
 
 Request more information from the CLA signer
 ===
-If you need to collect detaild information about your contributors you can add so called "custom fields" to your CLA.
+If you need to collect detailed information about your contributors you can add so called "custom fields" to your CLA.
 This can be done by providing CLA assistant with some metadata that describes the data you are going to collect.
 CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
 
