@@ -263,8 +263,9 @@ module.exports = function () {
         getLastSignature: function (args, done) {
             var deferred = q.defer();
             getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
-                var query = { owner: args.owner, user: args.user, gist_url: item.gist };
+                var query = { user: args.user, gist_url: item.gist };
                 if (item.orgId) {
+                    query.ownerId = item.orgId;
                     query.org_cla = true;
                 } else if (item.repoId) {
                     query.repoId = item.repoId;

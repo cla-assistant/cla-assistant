@@ -146,16 +146,12 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		};
 
 		var userPromise = getUser();
-
+		var claPromise;
 		var repoPromise = getLinkedItem(function (linkedItem) {
 			$scope.linkedItem = linkedItem;
-			// if ($scope.linkedItem) {
-			// 	getCLA();
-			// 	// getCLA().then(function (data) {
-			// 	// 	$scope.cla = $sce.trustAsHtml(data.value.raw);
-			// 	// 	$scope.cla.text = data.value.raw;
-			// 	// });
-			// }
+			if ($scope.linkedItem) {
+				claPromise = getCLA();
+			}
 		});
 
 		$scope.isValid = function () {
@@ -175,7 +171,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		$q.all([userPromise, repoPromise]).then(function () {
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
-				var claPromise = getCLA();
+				// var claPromise = getCLA();
 				var signedPromise = checkCLA().then(function (signed) {
 					// $scope.customValues = signed.value ? {} : $scope.customValues;
 					if (signed.value && $stateParams.redirect) {
