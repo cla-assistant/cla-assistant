@@ -2,7 +2,7 @@ import { beforeEachProviders, fakeAsync, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 
-import { observableMatchers } from '../../test-utils/observable';
+import { observableMatchers } from '../../test-utils/observableMatcher';
 import { ClaBackendService } from './claBackend.service';
 import { LinkedRepo } from './linkedItem';
 

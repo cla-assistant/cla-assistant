@@ -1,7 +1,7 @@
 import { beforeEachProviders, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
-import { observableMatchers } from '../../test-utils/observable';
+import { observableMatchers } from '../../test-utils/observableMatcher';
 
 
 import { GithubService } from './github.service';

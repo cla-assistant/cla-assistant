@@ -2,7 +2,7 @@ import { beforeEachProviders, inject, fakeAsync} from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { observableMatchers } from '../test-utils/observable';
+import { observableMatchers } from '../test-utils/observableMatcher';
 import { HomeService } from './home.service';
 import { HomeCacheService } from './home-cache.service';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';

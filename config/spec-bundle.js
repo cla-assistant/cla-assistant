@@ -25,8 +25,10 @@ testing.setBaseTestProviders(
   browser.TEST_BROWSER_DYNAMIC_APPLICATION_PROVIDERS
 );
 
+require('../src/client/app/app.component.ts')
+require('../src/client/app/app.routes.ts')
 
-var testContext = require.context('../src/client/app', true, /\.ts/);
+var testContext = require.context('../src/client/app', true, /\.spec.ts/);
 
 function requireAll(requireContext) {
   return requireContext.keys().map(requireContext);

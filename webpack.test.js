@@ -51,7 +51,7 @@ module.exports = {
         test: /\.ts$/,
         include: helpers.root('src', 'client'),
         loader: 'istanbul-instrumenter-loader',
-        exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /node_modules/, /testUtils/]
+        exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /\.d\.ts$/, /node_modules/, /testUtils/]
       }
     ]
   },
