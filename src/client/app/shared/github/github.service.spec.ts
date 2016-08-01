@@ -1,6 +1,7 @@
-import { beforeEachProviders, async, fakeAsync, tick, inject } from '@angular/core/testing';
+import { beforeEachProviders, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
+import { observableMatchers } from '../../test-utils/observable';
 
 
 import { GithubService } from './github.service';
@@ -10,8 +11,8 @@ import { GithubRepo } from './repo';
 import { GithubOrg } from './org';
 
 
-describe('GithubSerive', () => {
-  let githubService, mockBackend;
+describe('GithubService', () => {
+  let githubService: GithubService, mockBackend;
   beforeEachProviders(() => {
     return [
       GithubService,
@@ -21,11 +22,43 @@ describe('GithubSerive', () => {
   beforeEach(inject([GithubService, MockBackend], (gs, mb) => {
     githubService = gs;
     mockBackend = mb;
+    jasmine.addMatchers(observableMatchers);
   }));
+
+  describe('getGistInfo', () => {
+    it('should return information about the gist of the linkedItem', fakeAsync(() => {
+      const expectedUrl = '/api/github/call';
+      const expectedBody = { obj: 'gists', fun: 'get', arg: { id: 'v1234' } };
+      const expectedResponse: Gist = {
+        fileName: 'myGist',
+        url: 'gist url',
+        updatedAt: '2011-06-20T11:34:15Z',
+        history: []
+      };
+      const fakeResponseBody = {
+        data: {
+          files: { myGist: {} },
+          html_url: 'gist url',
+          updated_at: '2011-06-20T11:34:15Z',
+          history: []
+        }
+      };
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl,
+          expectedBody,
+          fakeResponseBody
+        }
+      );
+      const resultObservable = githubService.getGistInfo('http://gist.github.com/bla/v1234');
+      expect(resultObservable).toEmitValues(expectedResponse);
+    }));
+  });
 
   describe('getUser', () => {
 
-    it('should return the currently logged in user', async(() => {
+    it('should return the currently logged in user', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody = { obj: 'users', fun: 'get', arg: {} };
       const expectedResponse: User = {
@@ -55,34 +88,40 @@ describe('GithubSerive', () => {
           fakeResponseBody
         }
       );
-
-      githubService.getUser().subscribe((result) => {
-        expect(result).toEqual(expectedResponse);
-      });
+      const resultObservable = githubService.getUser();
+      expect(resultObservable).toEmitValues(expectedResponse);
     }));
 
   });
 
   describe('getUserGists', () => {
 
-    it('should return all gists of the logged in user', async(() => {
+    it('should return all gists of the logged in user', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody = { obj: 'gists', fun: 'getAll', arg: { per_page: 100, page: 1 } };
       const fakeResponseBody = {
         data: [{
           files: { myGist: {} },
-          html_url: 'gist url'
+          html_url: 'gist url',
+          updated_at: '2011-06-20T11:34:15Z',
+          history: []
         }, {
             files: { myCLA: { filename: 'myCLA.txt' }, otherFile: {} },
-            html_url: 'gist 2 url'
+            html_url: 'gist 2 url',
+            updated_at: '2011-06-21T11:34:15Z',
+            history: []
           }]
       };
       const expectedResponse: Gist[] = [{
-        name: 'myGist',
-        url: 'gist url'
+        fileName: 'myGist',
+        url: 'gist url',
+        updatedAt: '2011-06-20T11:34:15Z',
+        history: []
       }, {
-          name: 'myCLA.txt',
-          url: 'gist 2 url'
+          fileName: 'myCLA.txt',
+          url: 'gist 2 url',
+          updatedAt: '2011-06-21T11:34:15Z',
+          history: []
         }];
 
       setupFakeConnection(
@@ -93,39 +132,48 @@ describe('GithubSerive', () => {
           fakeResponseBody
         }
       );
-      githubService.getUserGists().subscribe((result) => {
-        expect(result).toEqual(expectedResponse);
-      });
+      const resultObservable = githubService.getUserGists();
+      expect(resultObservable).toEmitValues(expectedResponse);
     }));
 
-    it('should request more gists if meta.hasMore is set', async(() => {
+    it('should request more gists if meta.hasMore is set', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody1 = { obj: 'gists', fun: 'getAll', arg: { per_page: 100, page: 1 } };
       const expectedBody2 = { obj: 'gists', fun: 'getAll', arg: { per_page: 100, page: 2 } };
       const fakeResponseBody1 = {
         data: [{
           files: { myGist1: {} },
-          html_url: 'gist url1'
+          html_url: 'gist url1',
+          updated_at: '',
+          history: []
         }],
         meta: { hasMore: true }
       };
       const fakeResponseBody2 = {
         data: [{
           files: { myGist2: {} },
-          html_url: 'gist url2'
+          html_url: 'gist url2',
+          updated_at: '',
+          history: []
         }],
         meta: { hasMore: false }
       };
       const expectedResult1 = [{
-        name: 'myGist1',
-        url: 'gist url1'
+        fileName: 'myGist1',
+        url: 'gist url1',
+        updatedAt: '',
+        history: []
       }];
       const expectedResult2 = [{
-        name: 'myGist1',
-        url: 'gist url1'
+        fileName: 'myGist1',
+        url: 'gist url1',
+        updatedAt: '',
+        history: []
       }, {
-          name: 'myGist2',
-          url: 'gist url2'
+          fileName: 'myGist2',
+          url: 'gist url2',
+          updatedAt: '',
+          history: []
         }];
       setupFakeConnection(
         mockBackend,
@@ -140,19 +188,16 @@ describe('GithubSerive', () => {
           fakeResponseBody: fakeResponseBody2
         }
       );
-      let count = 1;
-      githubService.getUserGists().subscribe((result) => {
-        if (count === 1) { expect(result).toEqual(expectedResult1); }
-        else { expect(result).toEqual(expectedResult2); }
-        ++count;
-      });
+
+      const resultObservable = githubService.getUserGists();
+      expect(resultObservable).toEmitValues(expectedResult1, expectedResult2);
     }));
 
   });
 
   describe('getUserRepos', () => {
 
-    it('should return all repos of the logged in user', async(() => {
+    it('should return all repos of the logged in user', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody = {
         obj: 'repos',
@@ -178,16 +223,15 @@ describe('GithubSerive', () => {
           fakeResponseBody
         }
       );
-      githubService.getUserRepos().subscribe((result) => {
-        expect(result).toEqual(expectedResult);
-      });
+      const resultObservable = githubService.getUserRepos();
+      expect(resultObservable).toEmitValues(expectedResult);
     }));
 
   });
 
   describe('getUserOrgs', () => {
 
-    it('should return all orgs of the logged in user where he has admin rights', async(() => {
+    it('should return all orgs of the logged in user where he has admin rights', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody = {
         obj: 'orgs',
@@ -215,9 +259,8 @@ describe('GithubSerive', () => {
           fakeResponseBody
         }
       );
-      githubService.getUserOrgs().subscribe((result) => {
-        expect(result).toEqual(expectedResult);
-      });
+      const resultObservable = githubService.getUserOrgs();
+      expect(resultObservable).toEmitValues(expectedResult);
     }));
 
   });

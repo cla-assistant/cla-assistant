@@ -68,7 +68,7 @@ export class SignClaComponent implements OnInit {
   private getClaText(linkedItem: LinkedItem) {
     this.claBackendService.getGistContent(linkedItem).subscribe(
       claText => {
-        this.claText = this.domSanitizationService.bypassSecurityTrustHtml(claText)
+        this.claText = this.domSanitizationService.bypassSecurityTrustHtml(claText);
       },
       err => this.noLinkedItemError = err
     );

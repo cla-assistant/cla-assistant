@@ -17,10 +17,17 @@ module.exports = function (config) {
 
     jasmineDiffReporter: {
       pretty: true,
+      json: true,
       multiline: {
         before: 1,
         after: 1,
         indent: 2
+      },
+      matchers: { 
+        toEmitValues: {
+          pattern: /to emit ([\S\s]*?) but got ([\S\s]*?) \./,
+          pretty: true
+        } 
       }
     },
 

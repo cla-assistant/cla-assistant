@@ -1,8 +1,8 @@
-import { beforeEachProviders, inject} from '@angular/core/testing';
+import { beforeEachProviders, inject, fakeAsync} from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { createFakeObservable } from '../test-utils/observable';
+import { observableMatchers } from '../test-utils/observable';
 import { HomeService } from './home.service';
 import { HomeCacheService } from './home-cache.service';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
@@ -27,12 +27,16 @@ const testData = {
   ],
   gists: [
     {
-      name: 'myGist1',
-      url: 'https://gist.github.com/test1'
+      fileName: 'myGist1',
+      url: 'https://gist.github.com/test1',
+      updatedAt: '2010-04-14T02:15:15Z',
+      history: []
     },
     {
-      name: 'myGist2',
-      url: 'https://gist.github.com/test2'
+      fileName: 'myGist2',
+      url: 'https://gist.github.com/test2',
+      updatedAt: '2010-04-14T02:15:15Z',
+      history: []
     }
   ],
   githubRepos: [
@@ -65,7 +69,7 @@ function createHomeCacheServiceMock() {
 
 function createClaBackendService(linkedRepos) {
   return {
-    linkCla: jasmine.createSpy('linkCla').and.returnValue(Observable.of({})),
+    linkRepo: jasmine.createSpy('linkRepo').and.returnValue(Observable.of({})),
     unlinkCla: jasmine.createSpy('unlinkCla').and.returnValue(Observable.of({})),
     addWebhook: jasmine.createSpy('addWebhook').and.returnValue(Observable.of({})),
     removeWebhook: jasmine.createSpy('removeWebhook').and.returnValue(Observable.of({})),
@@ -82,65 +86,64 @@ describe('Home Service', () => {
   beforeEach(() => {
     homeCacheServiceMock = createHomeCacheServiceMock();
     claBackendServiceMock = createClaBackendService(testData.linkedRepos);
-
     homeService = new HomeService(homeCacheServiceMock, claBackendServiceMock);
+    jasmine.addMatchers(observableMatchers);
   });
 
   describe('link', () => {
-    it('should call the right backend methods and add a new linked repo', () => {
+    it('should call the right backend methods and add a new linked repo', fakeAsync(() => {
       let linkedRepos: LinkedRepo[];
       homeService.getLinkedRepos().subscribe(
         repos => linkedRepos = repos
       );
-      homeService.link(testData.gists[0], testData.githubRepos[0]).subscribe(
-        repo => expect(repo).toEqual(testData.linkedRepos[0])
-      );
+      claBackendServiceMock.linkRepo.and.returnValue(Observable.of(testData.linkedRepos[0]));
+      const resultObservable1 = homeService.link(testData.gists[0], testData.githubRepos[0]);
+
+      expect(resultObservable1).toEmitValues(testData.linkedRepos[0]);
       expect(linkedRepos).toEqual([testData.linkedRepos[0]]);
-      expect(claBackendServiceMock.linkCla).toHaveBeenCalledWith(testData.linkedRepos[0]);
+      expect(claBackendServiceMock.linkRepo).toHaveBeenCalledWith(testData.githubRepos[0], testData.gists[0]);
       expect(claBackendServiceMock.addWebhook).toHaveBeenCalledWith(testData.linkedRepos[0]);
 
-      homeService.link(testData.gists[1], testData.githubRepos[1]).subscribe(
-        repo => expect(repo).toEqual(testData.linkedRepos[1])
-      );
+      claBackendServiceMock.linkRepo.and.returnValue(Observable.of(testData.linkedRepos[1]));
+      const resultObservable2 = homeService.link(testData.gists[1], testData.githubRepos[1]);
+
+      expect(resultObservable2).toEmitValues(testData.linkedRepos[1]);
       expect(linkedRepos).toEqual([testData.linkedRepos[0], testData.linkedRepos[1]]);
-      expect(claBackendServiceMock.linkCla).toHaveBeenCalledWith(testData.linkedRepos[1]);
+      expect(claBackendServiceMock.linkRepo).toHaveBeenCalledWith(testData.githubRepos[1], testData.gists[1]);
       expect(claBackendServiceMock.addWebhook).toHaveBeenCalledWith(testData.linkedRepos[1]);
-    });
+    }));
   });
 
   describe('unlinkRepo', () => {
-    it('remove the linked repo', () => {
+    it('remove the linked repo', fakeAsync(() => {
       let linkedRepos: LinkedRepo[];
       homeService.getLinkedRepos().subscribe(
         repos => linkedRepos = repos
       );
+      claBackendServiceMock.linkRepo.and.returnValue(Observable.of(testData.linkedRepos[0]));
       homeService.link(testData.gists[0], testData.githubRepos[0]).subscribe();
+      claBackendServiceMock.linkRepo.and.returnValue(Observable.of(testData.linkedRepos[1]));
       homeService.link(testData.gists[1], testData.githubRepos[1]).subscribe();
       homeService.unlinkItem(testData.linkedRepos[0]);
-      expect(linkedRepos).toEqual([testData.linkedRepos[1]]);
+
+      expect(homeService.getLinkedRepos()).toEmitValues([testData.linkedRepos[1]]);
       expect(claBackendServiceMock.unlinkCla).toHaveBeenCalledWith(testData.linkedRepos[0]);
       expect(claBackendServiceMock.removeWebhook).toHaveBeenCalledWith(testData.linkedRepos[0]);
-    });
+    }));
   });
 
   describe('getLinkedRepos', () => {
-    it('should immediately call the observer with the initial value', () => {
-      homeService.getLinkedRepos().subscribe(
-        value => expect(value).toEqual([])
-      );
-    });
+    it('should immediately call the observer with the initial value', fakeAsync(() => {
+      expect(homeService.getLinkedRepos()).toEmitValues([]);
+    }));
   });
 
   describe('requestReposFromBackend', () => {
-    it('should wait for all GitHub repos to be fetched(multiple pages) and add the linked repos', () => {
-      let linkedRepos: LinkedRepo[];
-      homeService.getLinkedRepos().subscribe(
-        repos => linkedRepos = repos
-      );
+    it('should wait for all GitHub repos to be fetched(multiple pages) and add the linked repos', fakeAsync(() => {
       homeService.requestReposFromBackend();
-      expect(linkedRepos).toEqual(testData.linkedRepos);
-      expect(claBackendServiceMock.getLinkedRepos).toHaveBeenCalledWith(testData.githubRepos)
-    });
+      expect(homeService.getLinkedRepos()).toEmitValues(testData.linkedRepos);
+      expect(claBackendServiceMock.getLinkedRepos).toHaveBeenCalledWith(testData.githubRepos);
+    }));
   });
 
 });
