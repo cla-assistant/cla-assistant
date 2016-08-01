@@ -163,7 +163,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			$scope.customFields.required.some(function (key) {
 				var value = $scope.customValues[key];
 				var property = $scope.customFields.properties[key];
-				valid = value && typeof value == property.type;
+				valid = value && (typeof value == property.type || property.type.enum);
 				return !valid;
 			});
 			return valid;

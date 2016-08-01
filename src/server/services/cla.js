@@ -271,7 +271,8 @@ module.exports = function () {
                     query.repoId = item.repoId;
                 }
 
-                CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                // CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                CLA.findOne({ '$query': query, '$orderby': { 'created_at': -1 } }, function (err, cla) {
                     if (!err && cla) {
                         deferred.resolve(cla);
                     }
