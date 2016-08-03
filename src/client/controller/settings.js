@@ -61,8 +61,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                     if (gistContent.hasCustomFields) {
                         $scope.csvHeader = csvHeader.concat();
                         gistContent.customKeys.forEach(function (key) {
-                            var property = gistContent.customFields.properties[key];
-                            $scope.csvHeader.push(property.title || key);
+                            var field = gistContent.customFields[key];
+                            $scope.csvHeader.push(field.title || key);
                         });
                         cb(null, gistContent.customKeys);
                     } else {

@@ -32,7 +32,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		function getGithubValues() {
 			if ($scope.hasCustomFields && $scope.user.value && !$scope.signed) {
 				$scope.customKeys.forEach(function (key) {
-					var githubKey = $scope.customFields.properties[key].githubKey;
+					var githubKey = $scope.customFields[key].githubKey;
 					if (githubKey) {
 						$scope.customValues[key] = $scope.user.value[githubKey];
 						if (githubKey === 'email' && !$scope.user.value.email) {
@@ -155,15 +155,11 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		});
 
 		$scope.isValid = function () {
-			if (!$scope.customFields.required || $scope.customFields.required.length <= 0) {
-				return true;
-			}
-
 			var valid = true;
-			$scope.customFields.required.some(function (key) {
+			$scope.customKeys.some(function (key) {
 				var value = $scope.customValues[key];
-				var property = $scope.customFields.properties[key];
-				valid = value && (typeof value == property.type || property.type.enum);
+				var field = $scope.customFields[key];
+				valid = !field.required || (!!value && (typeof value == field.type || field.type.enum));
 				return !valid;
 			});
 			return valid;

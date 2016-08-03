@@ -20,17 +20,17 @@
 					</p>
 					<customfield
 						class="form-group"
-						description="customFields.properties[key].description"
+						description="customFields[key].description"
 						logged="user.value"
-						min="customFields.properties[key].minimum"
-						max="customFields.properties[key].maximum"
+						min="customFields[key].minimum"
+						max="customFields[key].maximum"
 						name="key"
 						ng-repeat="key in customKeys"
 						ng-show="user.value"
-						required="!!customFields.required && customFields.required.indexOf(key) >= 0"
+						required="customFields[key].required"
 						signed="signed"
-						title="customFields.properties[key].title"
-						type="customFields.properties[key].type == 'boolean' ? 'checkbox' : customFields.properties[key].type"
+						title="customFields[key].title"
+						type="customFields[key].type == 'boolean' ? 'checkbox' : customFields[key].type"
 						value="customValues"
 						>
 					</customfield>

@@ -1,6 +1,6 @@
 <div ng-if="type != 'checkbox' && !type.enum">
     <label ng-class="{'required': required}">{{title || name}}</label>
-    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" placeholder="" title="{{description}}" type="{{type}}" min="{{min}}" max="{{max}}"></input>
+    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" placeholder="{{description}}" title="{{description}}" type="{{type}}" min="{{min}}" max="{{max}}"></input>
 </div>
 <div ng-if="type == 'checkbox'" class="checkbox">
     <label ng-class="{'required': required}">
