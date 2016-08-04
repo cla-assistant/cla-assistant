@@ -11,7 +11,7 @@ var orgService = require('../services/org');
 var url = require('../services/url');
 
 var isTransferredRenamed = function (dbRepo, ghRepo) {
-    return ghRepo.repoId === dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
+    return ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
 };
 
 var compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
@@ -81,22 +81,13 @@ module.exports = {
         });
     },
     getAll: function (args, done) {
-        var ghRepos = args.set;
         var repoIds = [];
         args.set.forEach(function (repo) {
             repoIds.push({ repoId: repo.repoId });
         });
         Repo.find({
             $or: repoIds
-        }, function (err, dbRepos) {
-            if (dbRepos) {
-                compareAllRepos(ghRepos, dbRepos, function () {
-                    done(err, dbRepos);
-                });
-            } else {
-                done(err, dbRepos);
-            }
-        });
+        }, done);
     },
 
     getByOwner: function (owner, done) {
@@ -219,8 +210,14 @@ module.exports = {
             });
             that.getAll({
                 set: repoSet
-            }, function (error, result) {
-                done(error, result);
+            }, function (err, dbRepos) {
+                if (dbRepos) {
+                    compareAllRepos(repoSet, dbRepos, function () {
+                        done(err, dbRepos);
+                    });
+                } else {
+                    done(err);
+                }
             });
         });
     },
