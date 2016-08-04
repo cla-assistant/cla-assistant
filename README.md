@@ -30,28 +30,42 @@ CLA assistant will generate a form based on this metadata and contributors will 
 
 Following steps need to be done:
  - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/add_custom_fields.gif))
- - describe custom fields in JSON format (according to the [JSON Schema](http://json-schema.org/))
+ - describe custom fields in JSON format (according to the [JSON Schema](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/custom-fields-schema.json))
 
         {
-            "title": "Custom Fields",
-            "type": "object",
-            "properties": {
-                "name": {
-                    "title": "Full Name",
-                    "type": "string",
-                    "githubKey": "name"
-                },
-                "email": {
-                    "title": "Email Address",
-                    "type": "string",
-                    "githubKey": "email"
-                },
-                "agreement": {
-                    "title": "I have read and agree to the CLA",
-                    "type": "boolean"
-                }
+            "name": {
+                "title": "Full Name",
+                "type": "string",
+                "githubKey": "name"
             },
-            "required": ["email", "agreement"]
+            "email": {
+                "title": "E-Mail",
+                "type": "string",
+                "githubKey": "email",
+                "required": true
+            },
+            "age": {
+                "title": "Age",
+                "description": "Age in years",
+                "type": "number",
+                "minimum": 18,
+                "maximum": 99
+            },
+            "agreement": {
+                "title": "I have read and agree to the CLA",
+                "type": "boolean",
+                "required": true
+            },
+            "category": {
+                "title": "How do you sign?",
+                "type": {
+                    "enum": [
+                        "I am signing on behalf of myself.",
+                        "I am signing on behalf of my employer."
+                    ]
+                },
+                "required": true
+            }
         }
 
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
