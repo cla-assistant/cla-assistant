@@ -2,13 +2,14 @@ import { Component, ViewChild, Input } from '@angular/core';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { SelectComponent } from 'ng2-select';
 
+import { CsvDownloadService } from './csv-download.service';
 import { LinkedItem, Signature } from '../../../shared/claBackend';
 import { VersionDropdownComponent } from './version-dropdown.component';
 import { ClaBackendService } from '../../../shared/claBackend/claBackend.service';
-
 @Component({
   selector: 'report-modal',
   directives: [MODAL_DIRECTIVES, VersionDropdownComponent],
+  providers: [CsvDownloadService],
   templateUrl: './report.modal.html'
 })
 export class ReportModal {
@@ -23,7 +24,10 @@ export class ReportModal {
   private reverse: boolean;
   private column: string;
 
-  constructor(private claBackendService: ClaBackendService) { }
+  constructor(
+    private claBackendService: ClaBackendService,
+    private csvDownloadService: CsvDownloadService
+  ) { }
 
   public open() {
     this.contributors = null;
@@ -36,6 +40,15 @@ export class ReportModal {
   public close() {
     this.visible = false;
     this.modal.close();
+  }
+
+  private exportAsCsv() {
+    this.csvDownloadService.downloadAsCsv(
+      'cla-assistant.csv',
+      this.contributors,
+      ['user_name', 'repo_owner', 'repo_name', 'gist_name', 'gist_url', 'gist_version', 'signed_at', 'org_cla'],
+      ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation']
+    );
   }
 
   private loading() {

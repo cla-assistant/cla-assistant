@@ -7,11 +7,9 @@ import { Observable } from 'rxjs';
  */
 @Injectable()
 export class AuthService {
-  private window: Window;
   constructor(
     private http: Http,
-    @Inject('Window') window) {
-    this.window = window;
+    @Inject('Window') private window: Window) {
   }
 
   /**
