@@ -116,12 +116,20 @@ export class ClaBackendService {
    * by cla-assistant.
    * 
    * @param item The item (repo or org) to unlink.
-   * @returns Observable that will emit the http response or an error
+   * @returns Observable that emits the http response or an error
    */
   public unlinkCla(item: LinkedItem): Observable<{}> {
     return this.call(item.getType(), 'remove', item.getIdObject());
   }
 
+  /**
+   * Requests all signatures of the cla belonging to the linked item. 
+   * Only counts the signatures of the specified cla version.
+   * 
+   * @param item The item the cla belongs to
+   * @param version The version of the cla
+   * @returns Observable that emits an array of [[Signature]] objects  
+   */
   public getClaSignatures(
     item: LinkedItem,
     version: string
@@ -136,16 +144,41 @@ export class ClaBackendService {
       .map(createSignaturesFromApiResponse);
   }
 
+  /**
+   * Will register a webhook on GitHub for the linked item.
+   * 
+   * @param item A webhook for this item will be registered
+   * @returns Observable that emits the http response or an error
+   */
   public addWebhook(item: LinkedItem) {
     return this.call('webhook', 'create', item.getCompleteObject());
   }
+  /**
+   * Will remove a webhook on GitHub for the linked item.
+   * 
+   * @param item The corresponding webhook of this item will be removed
+   * @returns Observable that emits the http response or an error
+   */
   public removeWebhook(item: LinkedItem) {
     return this.call('webhook', 'remove', item.getNameObject());
   }
-  public getWebhook(item: LinkedItem) {
+  /**
+   * Requests the status of the webhook corresponding to the linked item.
+   * 
+   * @param item The corresponding webhook of this item will be removed
+   * @returns Observable that emits the status of the webhook
+   */
+  public getWebhook(item: LinkedItem): Observable<{ active: boolean }> {
     return this.call('webhook', 'get', item.getNameObject());
   }
 
+  /**
+   * Requests a linked item given a user and repo name
+   * 
+   * @param userName repo owner's name (organization or individual user) 
+   * @param repoName name of the repo
+   * @returns Observable that emits a [[LinkedItem]]
+   */
   public getLinkedItem(userName: string, repoName: string): Observable<LinkedItem> {
     return this.call('cla', 'getLinkedItem', {
       owner: userName,
@@ -159,6 +192,17 @@ export class ClaBackendService {
     });
   }
 
+  /**
+   * Requests the content of a gist. The content will be rendered as html by the
+   * GitHub markdown engine and is sanitized.
+   * 
+   * @param linkedItem The linked item whose gist will be returned 
+   * 
+   * 
+   * 
+   * 
+   * 
+   */
   public getGistContent(linkedItem: LinkedItem, gistUrl?, gistVersion?): Observable<string> {
     const arg = linkedItem.getIdObject();
     if (gistUrl) {
@@ -172,6 +216,15 @@ export class ClaBackendService {
     );
   }
 
+  /**
+   * Checks whether the current user has signed the cla belonging to the
+   * specified user and repo name.
+   * 
+   * @param userName repo owner's name (organization or individual user) 
+   * @param repoName name of the repo
+   * @returns Observable that emits a boolean indicating whether the cla has
+   * been signed   
+   */
   public checkCla(userName: string, repoName: string): Observable<boolean> {
     return this.call('cla', 'check', {
       owner: userName,
@@ -179,6 +232,16 @@ export class ClaBackendService {
     });
   }
 
+  /**
+   * Helper method that makes an http call to the github endpoint. It is 
+   * constructed from the provided parameters
+   * 
+   * @param obj The object which the request works with
+   * @param fun The function that will be applied to the object
+   * @param arg An object containing additional arguments 
+   * @returns An Observable that emits the body of the http response. It will be 
+   * parsed as json. If an empty response is received, null gets emitted
+   */
   private call(obj, fun, arg): Observable<any> {
     let headers = new Headers();
 
@@ -192,6 +255,11 @@ export class ClaBackendService {
       });
   }
 
+  /**
+   * Will be called when an http request threw an error.
+   * The error message will be extracted and a new Observable error will be 
+   * returned, so the subscriber can handle the error
+   */
   private handleError(error: any) {
     let errMsg;
     if (error.message) {
