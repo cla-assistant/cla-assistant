@@ -20,7 +20,11 @@ export class RepoListComponent implements OnInit {
   constructor(private homeService: HomeService) { }
 
   public ngOnInit() {
-    const setClaItems = claItems => this.claItems = claItems;
+    const setClaItems = (claItems: LinkedItem[]) => {
+      this.claItems = claItems.sort((a: LinkedItem, b: LinkedItem) => {
+        return a.getFullName().localeCompare(b.getFullName());
+      });
+    };
     if (this.itemType === 'repo') {
       this.homeService.getLinkedRepos().subscribe(setClaItems);
     } else {
