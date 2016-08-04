@@ -30,8 +30,8 @@
 
 .modal-primary{
     background-color: $gray-lighter;
-    color: $gray-darkest;
-    display: block;
+      color: $gray-darkest;
+      display: block;
 }
 
 .modal-primary-2nd{
@@ -86,9 +86,22 @@
     padding-bottom: 20px;
 }
 
+.howto .modal-body .btn,
+.validatePr .modal-body .btn
+{
+    margin: 20px 10px 0px 0px
+}
+
+.validatePr .modal-body .btn-info {
+    height: 45px;
+    width:100%;
+}
+
 .report .modal-body,
 .get-badge .modal-body,
-.upload .modal-body{
+.upload .modal-body,
+.validatePr .modal-body
+{
     padding: 15px 35px;
 
     .close-button{
@@ -113,4 +126,10 @@
     .selectize-input{
         height: 100%;
     }
+}
+
+.validatePr .title {
+    text-align: center;
+    font-size:26px;
+    margin: 20px;
 }

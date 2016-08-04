@@ -126,6 +126,7 @@ img.step-icon{
 //
 a.lp-signin:hover, a.lp-signin:focus {
   color: $text-invert;
+  cursor: pointer;
 }
 
 /*.feature-title-add, .feature-title-remove,
@@ -292,7 +293,7 @@ a.lp-signin:hover, a.lp-signin:focus {
 .lp-activity-content{
   text-align: center;
   margin-top: 3em;
-}
+    }
 
 .lp-howto-img{
   height: 150px;

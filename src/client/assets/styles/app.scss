@@ -104,6 +104,10 @@ $nav-tabs-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-border-color: $gray-light;
 $nav-tabs-active-link-hover-bg: $gray-lighter;
 
+//margin
+$margin-small: 15px;
+$margin-medium: 30px;
+
 // navbar
 
 // breadcrumb
@@ -117,17 +121,14 @@ $label-default-bg: $brand-info;
 $label-color: $brand-primary;
 
 // import bootstrap
-// use ~ to tell webpack, that this is not a relative path
-//@import "~bootstrap-sass/assets/stylesheets/bootstrap";
 @import "../../../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
-
-
-// // import our files
+// import our files
 @import 'animation';
 @import 'breadcrumb';
 @import 'browser';
 @import 'btn';
 @import 'landing-page';
+@import 'link';
 @import 'list-group';
 @import 'modal';
 @import 'navbar';
@@ -178,6 +179,16 @@ h4 {
 h4{
   margin: 25px 0;
   padding-left: 0;
+}
+
+label, .checkbox label {
+  margin-top: $margin-small;
+  font-weight: 100;
+}
+
+label.required:after,
+.checkbox label.required:after {
+  content: " *";
 }
 
 .text-body {
@@ -309,6 +320,7 @@ small {
 .ui-select-match{
   height: 33px;
 }
+
 
 // .selectize-dropdown .optgroup-header {
 //   color: $gray-dark;
@@ -458,8 +470,14 @@ small {
 
 // _popover
 .popover-inner{
-  display: -moz-grid-line;
+  // display: -moz-grid-line;
   i {
       width: 100%;
   }
+}
+
+.sign-btn {
+  margin-top: $margin-medium;
+  width:100%;
+  height:45px;
 }
