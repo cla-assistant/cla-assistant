@@ -763,6 +763,15 @@ var testData = {
         },
         'user': null,
         'files': {
+            'metadata': {
+                'filename': 'meta',
+                'type': 'text/plain',
+                'language': null,
+                'raw_url': 'https://gist.githubusercontent.com/KharitonOff/96ef0a16f11c8f11b41c/raw/e226bc4d854a1ffbbb4060138a673ed93ba16f45/meta',
+                'size': 424,
+                'truncated': false,
+                'content': '{\n    \"name\": {\n            \"type\": \"string\",\n            \"githubKey\": \"name\"\n        },\n        \"email\": {\n            \"type\": \"string\",\n            \"githubKey\": \"email\"\n        },\n        \"age\": {\n            \"description\": \"Age in years\",\n            \"type\": \"integer\",\n            \"minimum\": 0\n        }\n}'
+            },
             'ring.erl': {
                 'size': 932,
                 'raw_url': 'https://gist.githubusercontent.com/raw/365370/8c4d2d43d178df44f4c03a7f2ac0ff512853564e/ring.erl',

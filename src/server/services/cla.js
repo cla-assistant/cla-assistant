@@ -206,7 +206,7 @@ module.exports = function () {
                         } else {
                             deferred.resolve(linkedOrg);
                         }
-                    });                    
+                    });
                 }
             });
         }
@@ -262,12 +262,28 @@ module.exports = function () {
         //Get last signature of the user for given repository and gist url
         getLastSignature: function (args, done) {
             var deferred = q.defer();
-            CLA.findOne({ repo: args.repo, owner: args.owner, user: args.user, gist_url: args.gist_url }, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
-                if (!err && cla) {
-                    deferred.resolve(cla);
+            getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
+                var query = { user: args.user, gist_url: item.gist };
+                if (item.orgId) {
+                    query.ownerId = item.orgId;
+                    query.org_cla = true;
+                } else if (item.repoId) {
+                    query.repoId = item.repoId;
                 }
+
+                // CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                CLA.findOne({ '$query': query, '$orderby': { 'created_at': -1 } }, function (err, cla) {
+                    if (!err && cla) {
+                        deferred.resolve(cla);
+                    }
+                    if (typeof done === 'function') {
+                        done(err, cla);
+                    }
+                });
+            }, function (err) {
+                deferred.reject(err);
                 if (typeof done === 'function') {
-                    done(err, cla);
+                    done(err);
                 }
             });
             return deferred.promise;
@@ -330,6 +346,7 @@ module.exports = function () {
                         argsToCreate.repoId = repo ? repo.repoId : undefined;
                         argsToCreate.user = args.user;
                         argsToCreate.userId = args.userId;
+                        argsToCreate.custom_fields = args.custom_fields;
 
                         self.create(argsToCreate, function (error) {
                             if (error) {
@@ -430,6 +447,10 @@ module.exports = function () {
         //	gist.gist_url (mandatory)
         //	gist.gist_version (optional)
         getAll: function (args, done) {
+            if (!args.gist || !args.gist.gist_url || (!args.repoId && !args.orgId)) {
+                done('Wrong arguments, gist url or repo id are missing');
+                return;
+            }
             var selection = { gist_url: args.gist.gist_url };
             if (args.gist.gist_version) {
                 selection.gist_version = args.gist.gist_version;
@@ -457,7 +478,8 @@ module.exports = function () {
                 gist_url: args.gist,
                 gist_version: args.gist_version,
                 created_at: now,
-                org_cla: args.org_cla
+                org_cla: args.org_cla,
+                custom_fields: args.custom_fields
             }, function (err, res) {
                 done(err, res);
             });

@@ -1,6 +1,5 @@
 var express = require('express');
 var path = require('path');
-var url = require('url')
 var cla = require('./../api/cla');
 var logger = require('./../services/logger');
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,9 +13,11 @@ router.use('/accept/:owner/:repo', function(req, res) {
 	req.args = {owner: req.params.owner, repo: req.params.repo};
 
     if (req.isAuthenticated()) {
-		cla.sign(req, function(err){
+		cla.sign(req, function (err) {
+			var signed = true;
 			if (err) {
 				logger.error(err);
+				signed = false;
 			}
 			var redirectUrl = '/' + req.args.owner + '/' + req.args.repo;
 			redirectUrl = req.query.pullRequest ? redirectUrl + ';pullRequest=' + req.query.pullRequest : redirectUrl;
@@ -27,6 +28,13 @@ router.use('/accept/:owner/:repo', function(req, res) {
 		req.session.next = req.originalUrl;
 		return res.redirect('/auth/github?public=true');
     }
+});
+
+router.use('/signin/:owner/:repo', function (req, res) {
+	var redirectUrl = path.join(path.sep, req.params.owner, req.params.repo);
+	req.session.next = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
+
+	return res.redirect('/auth/github?public=true');
 });
 
 router.all('/static/*', function(req, res) {

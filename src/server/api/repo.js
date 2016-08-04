@@ -9,7 +9,24 @@ module.exports = {
     },
     create: function(req, done){
         req.args.token = req.user.token;
-        repo.create(req.args, done);
+        var repoArgs = {
+            repo: req.args.repo,
+            owner: req.args.owner,
+            token: req.args.token
+        };
+        repo.get(repoArgs, function (error, dbRepo) {
+            if (dbRepo) {
+                repo.getGHRepo(repoArgs, function (err, ghRepo) {
+                    if (err || (ghRepo && ghRepo.id != dbRepo.repoId)) {
+                        repo.update(req.args, done);
+                    } else {
+                        done('This repository is already linked.');
+                    }
+                });
+            } else {
+                repo.create(req.args, done);
+            }
+        });
     },
     // get: function(req, done){
     // 	repo.get(req.args, function(err, found_repo){

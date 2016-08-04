@@ -43,6 +43,58 @@ var expArgs = {};
 var testRes = {};
 var testErr = {};
 
+function stub() {
+    expArgs.claFindOne = {
+        repoId: 1296269,
+        user: 'login',
+        gist_url: 'gistUrl',
+        gist_version: 'xyz',
+        org_cla: false
+    };
+    testErr.claFindOne = null;
+    testErr.orgServiceGet = null;
+    testErr.repoServiceGet = null;
+    testErr.repoServiceGetCommitters = null;
+
+    testRes.claFindOne = {};
+    testRes.repoServiceGet = {
+        repoId: 123,
+        gist: 'url/gistId',
+        token: 'abc'
+    };
+    testRes.repoServiceGetCommitters = [{
+        name: 'login2'
+    }, {
+            name: 'login'
+        }];
+
+    sinon.stub(CLA, 'findOne', function (args, done) {
+        done(testErr.claFindOne, testRes.claFindOne);
+    });
+
+    sinon.stub(org_service, 'get', function (args, done) {
+        done(testErr.orgServiceGet, testRes.orgServiceGet);
+    });
+
+    sinon.stub(repo_service, 'get', function (args, done) {
+        done(testErr.repoServiceGet, testRes.repoServiceGet);
+    });
+
+    sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+        done(null, testData.repo);
+    });
+}
+
+function restore() {
+    testRes = {};
+    testErr = {};
+
+    CLA.findOne.restore();
+    org_service.get.restore();
+    repo_service.get.restore();
+    repo_service.getGHRepo.restore();
+}
+
 describe('cla:get', function () {
     var expClaFindOneArgs;
 
@@ -112,28 +164,40 @@ describe('cla:get', function () {
 });
 
 describe('cla:getLastSignature', function () {
+    beforeEach(function () {
+        stub();
+    });
     afterEach(function () {
-        CLA.findOne.restore();
+        restore();
+    });
+
+    it('should search for org clas if org is linked', function (it_done) {
+        testRes.repoServiceGet = null;
+        testRes.claFindOne = {
+            ownerId: 123,
+            user: 'login',
+            org_cla: true
+        };
+        testRes.orgServiceGet = { orgId: 1, org: 'org' };
+        var args = {
+            repo: undefined,
+            owner: 'org'
+        };
+
+        cla.getLastSignature(args, function () {
+            assert.equal(CLA.findOne.calledWithMatch({ '$query': { ownerId: 1, org_cla: true } }), true);
+            it_done();
+        });
     });
 
     it('should get cla entry for equal repo, user and gist url', function (it_done) {
-        sinon.stub(CLA, 'findOne', function (arg, projection, sort, done) {
-            assert.deepEqual(arg, {
-                repo: 'myRepo',
-                owner: 'owner',
-                user: 'login',
-                gist_url: 'gistUrl'
-            });
-            done(null, {});
-        });
-
         var args = {
             repo: 'myRepo',
-            owner: 'owner',
-            user: 'login',
-            gist_url: 'gistUrl'
+            owner: 'owner'
         };
+
         cla.getLastSignature(args, function () {
+            assert.equal(CLA.findOne.calledWithMatch({ '$query': { repoId: 123, gist_url: 'url/gistId' } }), true);
             it_done();
         });
     });
@@ -148,45 +212,8 @@ describe('cla:check', function () {
             callbacks.data(testGistData);
             callbacks.end();
         };
-        expArgs.claFindOne = {
-            repoId: 1296269,
-            user: 'login',
-            gist_url: 'gistUrl',
-            gist_version: 'xyz',
-            org_cla: false
-        };
-        testErr.claFindOne = null;
-        testErr.orgServiceGet = null;
-        testErr.repoServiceGet = null;
-        testErr.repoServiceGetCommitters = null;
 
-        testRes.claFindOne = {};
-        testRes.repoServiceGet = {
-            repoId: 123,
-            gist: 'url/gistId',
-            token: 'abc'
-        };
-        testRes.repoServiceGetCommitters = [{
-            name: 'login2'
-        }, {
-                name: 'login'
-            }];
-
-        sinon.stub(CLA, 'findOne', function (args, done) {
-            done(testErr.claFindOne, testRes.claFindOne);
-        });
-
-        sinon.stub(org_service, 'get', function (args, done) {
-            done(testErr.orgServiceGet, testRes.orgServiceGet);
-        });
-
-        sinon.stub(repo_service, 'get', function (args, done) {
-            done(testErr.repoServiceGet, testRes.repoServiceGet);
-        });
-
-        sinon.stub(repo_service, 'getGHRepo', function (args, done) {
-            done(null, testData.repo);
-        });
+        stub();
 
         sinon.stub(repo_service, 'getPRCommitters', function (arg, done) {
             assert(arg.number ? arg.number : arg.user);
@@ -218,13 +245,8 @@ describe('cla:check', function () {
     });
 
     afterEach(function () {
-        testRes = {};
-        testErr = {};
+        restore();
 
-        CLA.findOne.restore();
-        org_service.get.restore();
-        repo_service.get.restore();
-        repo_service.getGHRepo.restore();
         repo_service.getPRCommitters.restore();
         https.request.restore();
     });
@@ -905,6 +927,19 @@ describe('cla:getAll', function () {
         };
 
         cla.getAll(args, function (err) {
+            assert(err);
+
+            it_done();
+        });
+    });
+
+    it('should handle wrong args', function (it_done) {
+        var args = {
+            repoId: testData.repo.id,
+            gist: undefined
+        };
+
+        cla.getAll(args, function (err, arr) {
             assert(err);
 
             it_done();

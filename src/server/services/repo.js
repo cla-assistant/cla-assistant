@@ -85,7 +85,7 @@ module.exports = {
         var repoIds = [];
         args.set.forEach(function (repo) {
             repoIds.push({ repoId: repo.repoId });
-        });        
+        });
         Repo.find({
             $or: repoIds
         }, function (err, dbRepos) {
@@ -98,12 +98,22 @@ module.exports = {
             }
         });
     },
+
+    getByOwner: function (owner, done) {
+        Repo.find({ owner: owner }, done);
+    },
+
     update: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
+        var repoArgs = {
+            repo: args.repo,
+            owner: args.owner
+        };
+        Repo.findOne(repoArgs, function (err, repo) {
             if (err) {
                 done(err);
                 return;
             }
+            repo.repoId = args.repoId;
             repo.gist = args.gist;
             repo.save(done);
         });

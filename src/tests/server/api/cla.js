@@ -61,7 +61,8 @@ describe('', function () {
                 callUser: {
                     id: 1,
                     login: 'one'
-                }
+                },
+                callRepos: testData.orgRepos.concat({ id: 2, owner: { login: 'org' } })
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
@@ -110,7 +111,9 @@ describe('', function () {
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
             } else if (args.obj === 'users') {
-                cb(error.github.markdown, resp.github.callUser);
+                cb(error.github.user, resp.github.callUser);
+            } else if (args.obj === 'repos' && args.fun === 'getForOrg') {
+                cb(error.github.repos, resp.github.callRepos);
             }
         });
         sinon.stub(repo_service, 'get', function (args, cb) {
@@ -131,26 +134,6 @@ describe('', function () {
     });
 
     describe('cla:get', function () {
-        it('should get gist and render it with user token', function (it_done) {
-            reqArgs.repoService.get = { repoId: 1 };
-            var req = {
-                args: {
-                    // repo: 'Hello-World',
-                    // owner: 'octocat'
-                    repoId: 1
-                },
-                user: {
-                    token: 'user_token'
-                }
-            };
-
-            cla_api.get(req, function () {
-                assert(repo_service.get.called);
-                assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: 'user_token' }));
-                it_done();
-            });
-        });
-
         it('should get gist and render it with repo token', function (it_done) {
             var req = {
                 args: {
@@ -167,7 +150,7 @@ describe('', function () {
             });
         });
 
-        it('should get gist and render it without user token', function (it_done) {
+        it('should get gist and render it without user and repo token', function (it_done) {
             resp.repoService.get.token = undefined;
 
             var req = {
@@ -181,6 +164,26 @@ describe('', function () {
                 assert(repo_service.get.called);
                 assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: undefined }));
 
+                it_done();
+            });
+        });
+
+        it('should get gist and render it with user token if there is no repo token', function (it_done) {
+            reqArgs.repoService.get = { repoId: 1 };
+            resp.repoService.get.token = undefined;
+
+            var req = {
+                args: {
+                    repoId: 1
+                },
+                user: {
+                    token: 'user_token'
+                }
+            };
+
+            cla_api.get(req, function () {
+                assert(repo_service.get.called);
+                assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: 'user_token' }));
                 it_done();
             });
         });
@@ -229,6 +232,26 @@ describe('', function () {
 
             cla_api.get(req, function () {
                 assert(repo_service.get.called);
+
+                it_done();
+            });
+
+        });
+
+        it('should render metadata-file with custom fields if provided', function (it_done) {
+            var req = {
+                args: {
+                    repo: 'Hello-World',
+                    owner: 'octocat'
+                }
+            };
+
+            cla_api.get(req, function (err, gistContent) {
+                assert.ifError(err);
+                assert(github.call.calledTwice);
+                assert(gistContent.raw);
+                assert(gistContent.meta);
+                // assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: testData.repo_from_db.token }));
 
                 it_done();
             });
@@ -306,7 +329,7 @@ describe('', function () {
     });
 
     describe('cla:sign', function () {
-        var req;
+        var req, expArgs;
         beforeEach(function () {
             req = {
                 user: {
@@ -319,6 +342,14 @@ describe('', function () {
                     gist: testData.repo_from_db.gist
                 }
             };
+            expArgs = {
+                claSign: {
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    user: 'user',
+                    userId: 3
+                }
+            };
             // reqArgs.cla.getLinkedItem
             resp.cla.getLinkedItem = resp.repoService.get;
             reqArgs.cla.getLinkedItem = { repo: 'Hello-World', owner: 'octocat' };
@@ -327,12 +358,7 @@ describe('', function () {
                 assert(args.signed);
             });
             sinon.stub(cla, 'sign', function (args, cb) {
-                assert.deepEqual(args, {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    user: 'user',
-                    userId: 3
-                });
+                assert.deepEqual(args, expArgs.claSign);
                 cb(null, 'done');
             });
             sinon.stub(cla, 'check', function (args, cb) {
@@ -358,6 +384,18 @@ describe('', function () {
             });
         });
 
+        it('should call cla service on sign with custom fields', function (it_done) {
+            expArgs.claSign.custom_fields = '{"json":"as", "a":"string"}';
+
+            req.args.custom_fields = '{"json":"as", "a":"string"}';
+            cla_api.sign(req, function (err) {
+                assert.ifError(err);
+                assert(cla.sign.called);
+
+                it_done();
+            });
+        });
+
         it('should update status of pull request created by user, who signed', function (it_done) {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
@@ -370,11 +408,25 @@ describe('', function () {
 
         it('should update status of pull request using token of linked org', function (it_done) {
             resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
 
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(statusService.update.called);
+
+                it_done();
+            });
+        });
+
+        it('should update status of all repos of the org', function (it_done) {
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                assert.equal(statusService.update.callCount, 4);
 
                 it_done();
             });
@@ -452,12 +504,6 @@ describe('', function () {
 
         it('should call cla service on getLastSignature', function (it_done) {
             sinon.stub(cla, 'getLastSignature', function (args, cb) {
-                assert.deepEqual(args, {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    user: 'user',
-                    gist_url: testData.repo_from_db.gist
-                });
                 cb(null, {});
             });
 
@@ -465,10 +511,11 @@ describe('', function () {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
+            req.user = { login: 'testUser' };
 
             cla_api.getLastSignature(req, function (err) {
                 assert.ifError(err);
-                assert(cla.getLastSignature.called);
+                assert(cla.getLastSignature.calledWithMatch({repo: 'Hello-World', owner: 'octocat', user: 'testUser'}));
 
                 cla.getLastSignature.restore();
                 it_done();
