@@ -156,10 +156,17 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		$scope.isValid = function () {
 			var valid = true;
+			function isNotEmpty(value) {
+				return !!value || value === 0;
+			}
+			function typeIsValid(value, field) {
+				return typeof value == field.type || field.type.enum;
+			}
+
 			$scope.customKeys.some(function (key) {
 				var value = $scope.customValues[key];
 				var field = $scope.customFields[key];
-				valid = !field.required || (!!value && (typeof value == field.type || field.type.enum));
+				valid = !field.required || ( isNotEmpty(value) && typeIsValid(value, field) );
 				return !valid;
 			});
 			return valid;
