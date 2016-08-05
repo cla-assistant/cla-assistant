@@ -50,7 +50,7 @@ function getHook(obj, arg, token, done) {
                     hook = webhook;
                 }
             });
-        } else if (hooks.message) {
+        } else if (hooks && hooks.message) {
             err = err + hooks.message;
 
         }
