@@ -377,13 +377,13 @@ module.exports = {
                 }, callback);
             });
         }, done);
-    }
+    },
 
-    // updateDBData: function (req, done) {
-    //     repoService.updateDBData(req, function(){
-    //         cla.updateDBData(req, function(msg){
-    //             done(null, msg);
-    //         });
-    //     });
-    // }
+    updateDBData: function (req, done) {
+        // repoService.updateDBData(req, function(){
+            cla.updateDBData(req, function(msg){
+                done(null, msg);
+            });
+        // });
+    }
 };
