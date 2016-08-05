@@ -68,6 +68,19 @@ export class GithubService {
       .map(createUserFromApiResponse);
   }
 
+  public getPrimaryEmail(): Observable<string> {
+    const requestBody = {
+      obj: 'users',
+      fun: 'getEmails',
+      arg: {}
+    };
+    return this.call(requestBody).map(response => {
+      if (response.data.length === 0) { return ''; }
+      const emailObj = response.data.find(email => email.primary) || response.data[0];
+      return emailObj.email;
+    });
+  }
+
   /**
    * Requests all gists of the logged in user.
    * 

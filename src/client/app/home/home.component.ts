@@ -14,17 +14,11 @@ import { User } from '../shared/github/user';
   providers: [HomeCacheService, HomeService],
   template: `
   <app-frame [user] = "user" (logout)="handleLogout()">
-    <div class="container-fluid home-content-outer">
-      <div class="home-content-inner">
-        <section class="col-md-8 col-md-offset-2">
-          <div *ngIf="user" id="activated_cla" class="row content-block">
-            <cla-link [user]="user"></cla-link>
-            <linked-item-list [itemType]="'org'"></linked-item-list>
-            <linked-item-list [itemType]="'repo'"></linked-item-list>
-          </div>
-        </section>
-      </div>
-    </div>    
+    <div *ngIf="user" id="activated_cla" class="row content-block">
+      <cla-link [user]="user"></cla-link>
+      <linked-item-list [itemType]="'org'"></linked-item-list>
+      <linked-item-list [itemType]="'repo'"></linked-item-list>
+    </div>  
   </app-frame>
   `
 })

@@ -203,7 +203,7 @@ export class ClaBackendService {
    * 
    * 
    */
-  public getGistContent(linkedItem: LinkedItem, gistUrl?, gistVersion?): Observable<string> {
+  public getGistContent(linkedItem: LinkedItem, gistUrl?, gistVersion?): Observable<any> {
     const arg = linkedItem.getIdObject();
     if (gistUrl) {
       arg.gist = {
@@ -212,7 +212,17 @@ export class ClaBackendService {
       };
     }
     return this.call('cla', 'get', arg).map(
-      claText => claText.raw
+      claData => {
+        let gistContent: any = {};
+        gistContent.claText = claData.raw;
+        if (claData.meta) {
+            const metaString = claData.meta.replace(/<p>|<\/p>|\n|\t/g, '');
+            gistContent.customFields = JSON.parse(metaString);
+            gistContent.customKeys = Object.keys(gistContent.customFields);
+            gistContent.hasCustomFields = true;
+        }
+        return gistContent;
+      }
     );
   }
 
@@ -229,6 +239,23 @@ export class ClaBackendService {
     return this.call('cla', 'check', {
       owner: userName,
       repo: repoName
+    });
+  }
+
+  public getSignatureValues(userName: string, repoName: string): Observable<Dict<any>> {
+    return this.call('cla', 'getLastSignature', {
+      owner: userName,
+      repo: repoName
+    }).map(response =>
+      response.custom_fields ? JSON.parse(response.custom_fields) : null
+    );
+  }
+
+  public signCla(userName: string, repoName: string, customFields: any): Observable<boolean> {
+    return this.call('cla', 'sign', {
+      owner: userName,
+      repo: repoName,
+      custom_fields: JSON.stringify(customFields)
     });
   }
 

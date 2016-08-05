@@ -20,8 +20,13 @@
       </div>
     </div>
   </div>
-
-  <ng-content></ng-content>
+  <div class="container-fluid app-frame-content-outer">
+    <div class="app-frame-content-inner">
+      <section class="col-md-8 col-md-offset-2">
+        <ng-content></ng-content>
+      </section>
+    </div>
+  </div>  
 
   <div class="navbar navbar-default navbar-fixed-bottom">
     <div class="navbar-top-border">
