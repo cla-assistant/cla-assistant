@@ -3,6 +3,7 @@ var express = require('express');
 
 // models
 var Repo = require('mongoose').model('Repo');
+var Org = require('mongoose').model('Org');
 var CLA = require('mongoose').model('CLA');
 
 var router = express.Router();
@@ -37,6 +38,29 @@ router.all('/count/repos', function (req, res) {
 		res.send(JSON.stringify({
 			count: repos.length,
 			text: 'There are ' + repos.length + ' registered repositories!' + list,
+			mrkdwn_in: ['text']
+		}));
+	});
+});
+
+router.all('/count/orgs', function (req, res) {
+	Org.find({}, function (err, orgs) {
+		if (err) {
+			logger.info(err);
+		}
+		res.set('Content-Type', 'application/json');
+		var list = '';
+		if (req.query.last) {
+			var orgName = orgs[orgs.length - 1].org;
+			list = '\n Newest org is https://github.com/' + orgName;
+		} else {
+			orgs.forEach(function (org, i) {
+				list += '\n ' + ++i + '. ' + org.org;
+			});
+		}
+		res.send(JSON.stringify({
+			count: orgs.length,
+			text: 'There are ' + orgs.length + ' registered organizations!' + list,
 			mrkdwn_in: ['text']
 		}));
 	});
