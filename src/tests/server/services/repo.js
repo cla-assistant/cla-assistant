@@ -176,6 +176,9 @@ describe('repo:getPRCommitters', function () {
 
     beforeEach(function () {
         test_repo = {
+            repo: 'myRepo',
+            owner: 'myOwner',
+            repoId: '1',
             token: 'abc',
             save: function () {}
         };
@@ -387,6 +390,43 @@ describe('repo:getPRCommitters', function () {
         });
 
         it_done();
+    });
+
+    it('should update db entry if repo was transferred', function (it_done) {
+        this.timeout(3000);
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function (args, done) {
+            var res;
+            if (args.url.indexOf('commits') > -1){
+                res = args.url.indexOf('myRepo') > -1 ?
+                    { data: { message: 'Moved Permanently' } } :
+                    { data: testData.commits };
+            } else {
+                res = test_repo;
+            }
+            console.log('Args: ', args);
+            console.log('Res: ', res);
+            done(null, res);
+        });
+        sinon.stub(repo, 'getGHRepo', function (args, done) {
+            done(null, { name: 'test_repo', owner: { login: 'test_owner' }, id: 1 });
+        });
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 1,
+            number: '1'
+        };
+
+        repo.getPRCommitters(arg, function (err) {
+            assert.ifError(err);
+            assert(Repo.findOne.called);
+            assert(github.direct_call.calledTwice);
+
+            it_done();
+            repo.getGHRepo.restore();
+        });
+        setTimeout(it_done, 2500);
     });
 });
 
