@@ -1,4 +1,4 @@
-declare module jasmine {
+declare namespace jasmine {
   interface Matchers {
     toComplete(): boolean;
     toEmitValues(...values: any[]): boolean;

@@ -26,19 +26,21 @@ export function setupFakeConnection(mockBackend, ...fakeConnections: FakeConnect
   if (fakeConnections.length === 0) { return; }
   let count = 0;
   mockBackend.connections.subscribe((conn: MockConnection) => {
-      if (typeof fakeConnections[count].expectedUrl !== 'undefined') {
-        expect(conn.request.url).toEqual(fakeConnections[count].expectedUrl);
-      }
-      if (typeof fakeConnections[count].expectedBody !== 'undefined') {
-        let expectedBody = fakeConnections[count].expectedBody;
-        expect(JSON.parse(conn.request.text())).toEqual(expectedBody);
-      }
-      if (typeof fakeConnections[count].fakeResponseBody !== 'undefined') {
-        const responseOptions = new ResponseOptions({
-          body: fakeConnections[count].fakeResponseBody
-        });
-        conn.mockRespond(new Response(responseOptions));
-      }
-      count = Math.min(count + 1, fakeConnections.length);
+    testExpected(fakeConnections[count].expectedUrl, conn.request.url);
+    testExpected(fakeConnections[count].expectedBody, JSON.parse(conn.request.text()));
+
+    if (typeof fakeConnections[count].fakeResponseBody !== 'undefined') {
+      const responseOptions = new ResponseOptions({
+        body: fakeConnections[count].fakeResponseBody
+      });
+      conn.mockRespond(new Response(responseOptions));
+    }
+    count = Math.min(count + 1, fakeConnections.length);
   });
+}
+
+function testExpected(expected, actual) {
+  if (typeof expected !== 'undefined') {
+    expect(actual).toEqual(expected);
+  }
 }

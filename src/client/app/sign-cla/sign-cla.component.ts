@@ -30,7 +30,7 @@ export class SignClaComponent implements OnInit {
 
   private hasCustomFields = false;
   private customFields = null;
-  private customKeys: any[] = null;
+  private customKeys: any[] = [];
   private customValues: any = {};
   private customFieldsValid: boolean = false;
 
@@ -96,17 +96,22 @@ export class SignClaComponent implements OnInit {
   }
 
   private getGithubValues() {
-    if (this.hasCustomFields && this.loggedInUser && !this.signed) {
-      this.customKeys.forEach((key) => {
-        const githubKey = this.customFields[key].githubKey;
-        if (githubKey) {
-          this.customValues[key] = this.loggedInUser[githubKey] || '';
-          if (githubKey === 'email' && !this.loggedInUser.email) {
-            this.githubService.getPrimaryEmail().subscribe(email => {
-              this.customValues[key] = email;
-            });
-          }
-        }
+    if (this.hasCustomFields && this.loggedInUser) {
+      this.customKeys
+        .filter(key => this.customFields[key] !== undefined)
+        .forEach(key => {
+          const githubKey = this.customFields[key];
+          this.setCustomValueByGithubKey(key, githubKey);
+        });
+    }
+  }
+
+  private setCustomValueByGithubKey(key: string, githubKey: string) {
+    const value = this.loggedInUser[githubKey];
+    this.customValues[key] = value !== undefined ? value : '';
+    if (githubKey === 'email' && !this.loggedInUser.email) {
+      this.githubService.getPrimaryEmail().subscribe(email => {
+        this.customValues[key] = email;
       });
     }
   }

@@ -10,6 +10,6 @@ import '@angular/router';
 import 'rxjs';
 
 // Make jquery visible globally
-window["jQuery"] = require('jquery');
+window['jQuery'] = require('jquery');
 import 'bootstrap';
 import 'ng2-bs3-modal/ng2-bs3-modal';

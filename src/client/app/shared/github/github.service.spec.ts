@@ -61,10 +61,14 @@ describe('GithubService', () => {
     it('should return the currently logged in user', fakeAsync(() => {
       const expectedUrl = '/api/github/call';
       const expectedBody = { obj: 'users', fun: 'get', arg: {} };
-      const expectedResponse: User = {
+      const expectedResponse = {
+        html_url: 'test url',
+        avatar_url: 'test avatar url',
+        other_property: 'test',
+        login: 'test user name',
         htmlUrl: 'test url',
         avatarUrl: 'test avatar url',
-        login: 'test user name',
+        email: 'test@email.com',
         roles: {
           admin: true,
           orgAdmin: false
@@ -74,7 +78,9 @@ describe('GithubService', () => {
         data: {
           html_url: 'test url',
           avatar_url: 'test avatar url',
-          login: 'test user name'
+          login: 'test user name',
+          other_property: 'test',
+          email: 'test@email.com'
         },
         meta: {
           scopes: '....write:repo_hook....'

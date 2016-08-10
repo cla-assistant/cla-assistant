@@ -3,7 +3,7 @@ import { GithubOrg } from '../github/org';
 export interface ClaOrg {
   orgId: string;
   org: string;
-  gist: string,
+  gist: string;
   avatarUrl: string;
 }
 
