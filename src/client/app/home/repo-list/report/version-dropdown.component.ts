@@ -1,5 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { SelectComponent } from 'ng2-select';
 
 @Component({

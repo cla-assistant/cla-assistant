@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GithubService } from '../shared/github/github.service';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 import { Http } from '@angular/http';
 

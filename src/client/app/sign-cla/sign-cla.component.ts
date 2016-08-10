@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizationService, SafeHtml } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 import { AppFrameComponent } from '../app-frame/app-frame.component';
 import { CustomFieldComponent } from './custom-field.component';

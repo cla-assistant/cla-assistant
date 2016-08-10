@@ -3,7 +3,7 @@ import { provide } from '@angular/core';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 import { Http, Response, ResponseOptions, ResponseType } from '@angular/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { getHttpMockServices, setupFakeConnection } from '../test-utils/http';
 
 import { HomeCacheService } from './home-cache.service';

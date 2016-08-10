@@ -8,7 +8,7 @@
 				<p>({{noLinkedItemError}})</p>
 			</div>
 
-			<div class="row content-block" *ngIf="!redirect && !noLinkedItemError">
+			<form class="row content-block" *ngIf="!redirect && !noLinkedItemError"  (ngSubmit)="agree()">
 				<div class="col-md-8 col-md-offset-2" >
 					<h4 *ngIf="!signed">Please sign the CLA for {{fullRepoName}}</h4>
 					<h4 *ngIf="signed">You have signed the CLA for {{fullRepoName}}</h4>
@@ -39,18 +39,18 @@
 							class="btn btn-info sign-btn" 
 							*ngIf="hasCustomFields" 
 							[disabled]="!customFieldsValid"
-							(click)="agree()">
+							type="submit" >
 							I agree
 						</button>
 						<button 
 							class="btn btn-info sign-btn" 
-							*ngIf="!hasCustomFields" 
-							(click)="agree()">
+							*ngIf="!hasCustomFields"
+							type="submit" >
 							Sign in with GitHub to agree
 						</button>
 					</p>
 				</div>
-			</div>
+			</form>
 
 			<div class="row center-block content-block" *ngIf="signed && redirect">
 				<h3>Thank you {{loggedInUser.login}}</h3>

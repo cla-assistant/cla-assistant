@@ -1,6 +1,6 @@
 import { beforeEachProviders, inject, fakeAsync} from '@angular/core/testing';
 import { provide } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 import { observableMatchers } from '../test-utils/observableMatcher';
 import { HomeService } from './home.service';
