@@ -59,7 +59,7 @@ export class SignClaComponent implements OnInit {
         this.customFields = claData.customFields;
         this.customKeys = claData.customKeys;
         this.customKeys.forEach((key) => this.customValues[key] = '');
-        this.checkCustomFields();
+        this.customFieldsValid = this.checkCustomFields();
 
         this.signed = hasSigned;
         if (hasSigned) {
@@ -91,6 +91,7 @@ export class SignClaComponent implements OnInit {
           this.customKeys.forEach(key => {
             this.customValues[key] = customFields[key];
           });
+          this.customFieldsValid = this.checkCustomFields();
         }
       });
   }
@@ -100,7 +101,7 @@ export class SignClaComponent implements OnInit {
       this.customKeys
         .filter(key => this.customFields[key] !== undefined)
         .forEach(key => {
-          const githubKey = this.customFields[key];
+          const githubKey = this.customFields[key].githubKey;
           this.setCustomValueByGithubKey(key, githubKey);
         });
     }
@@ -136,7 +137,6 @@ export class SignClaComponent implements OnInit {
     if (this.pullRequest) {
       redirectUrl += `/pull/${this.pullRequest}`;
     }
-    this.authService.doLogout(true);
     setTimeout(function () {
       this.window.location.href = redirectUrl;
     }, 5000);

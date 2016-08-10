@@ -40,11 +40,7 @@ export class AuthService {
    * 
    * @param noRedirect True if the user should not be redirected
    */
-  public doLogout(noRedirect = false): void {
-    if (noRedirect) {
-      this.http.get(`/logout?noredirect=${noRedirect}`).subscribe();
-    } else {
-      this.window.location.replace(`/logout?noredirect=${noRedirect}`);
-    }
+  public doLogout(): void {
+      this.window.location.replace(`/logout`);
   }
 }
