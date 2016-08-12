@@ -10,7 +10,11 @@
         <span class="clickable new-link-select-gist-info" (click)="infoModal.open()">(don't have one?)</span>
         <info-modal #infoModal></info-modal>
       </div>
-      <gists-dropdown (onGistSelected)="handleGistSelected($event)"></gists-dropdown>
+      <dropdown 
+        #gistDropdown
+        [categories]="getGistCategories()"
+        (onSelect)="handleGistSelected($event)">
+      </dropdown>
       <div class="new-link-select-gist-sep">- or -</div>
       <div class="new-link-gist-url-outer">Paste a URL from a Gist</div>
       <input #urlInput [disabled]="selectedGist.fileName" class="form-control" (keyup)="selectedGist.url = urlInput.value" [value]="selectedGist.url" placeholder="https://gist.github.com/<your cla gist id>" />
@@ -25,8 +29,11 @@
     </h5>
     <div class="col-xs-12">
       <div></div>
-      <repo-org-dropdown [isUserOrgAdmin]="isUserOrgAdmin" (onSelect)="handleRepoOrOrgSelected($event)">
-      </repo-org-dropdown>
+      <dropdown 
+        #repoOrgDropdown
+        [categories]="getRepoOrgCategories()"
+        (onSelect)="handleRepoOrOrgSelected($event)">
+      </dropdown>
     </div>
 
   </div>
@@ -39,4 +46,3 @@
     </confirm-add-modal>
   </div>
 </div>
-<!--Modals-->

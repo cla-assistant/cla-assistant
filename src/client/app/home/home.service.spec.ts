@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { observableMatchers } from '../test-utils/observableMatcher';
 import { HomeService } from './home.service';
-import { HomeCacheService } from './home-cache.service';
+import { GithubCacheService } from '../shared/github';
 import { ClaBackendService } from '../shared/claBackend/claBackend.service';
 import { LinkedRepo } from '../shared/claBackend/linkedItem';
 
@@ -60,7 +60,7 @@ const testData = {
   ]
 };
 
-function createHomeCacheServiceMock() {
+function createGithubCacheServiceMock() {
   return {
     // First return incomplete result(first page) and the load rest
     currentUserRepos: Observable.of([testData.githubRepos[0]], testData.githubRepos)
@@ -79,14 +79,14 @@ function createClaBackendService(linkedRepos) {
 
 describe('Home Service', () => {
   let homeService: HomeService;
-  let homeCacheServiceMock;
+  let githubCacheServiceMock;
   let claBackendServiceMock;
 
 
   beforeEach(() => {
-    homeCacheServiceMock = createHomeCacheServiceMock();
+    githubCacheServiceMock = createGithubCacheServiceMock();
     claBackendServiceMock = createClaBackendService(testData.linkedRepos);
-    homeService = new HomeService(homeCacheServiceMock, claBackendServiceMock);
+    homeService = new HomeService(githubCacheServiceMock, claBackendServiceMock);
     jasmine.addMatchers(observableMatchers);
   });
 

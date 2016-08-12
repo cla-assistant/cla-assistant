@@ -4,12 +4,19 @@ import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 
-import { ClaBackendService } from '../shared/claBackend/claBackend.service';
-import { HomeCacheService } from './home-cache.service';
-import { GithubRepo } from '../shared/github/repo';
-import { GithubOrg } from '../shared/github/org';
-import { Gist } from '../shared/github/gist';
-import { LinkedItem, LinkedRepo, LinkedOrg } from '../shared/claBackend/linkedItem';
+import {  } from '../shared/claBackend';
+import {
+  GithubCacheService,
+  GithubRepo,
+  GithubOrg,
+  Gist
+} from '../shared/github';
+import {
+  ClaBackendService,
+  LinkedItem,
+  LinkedRepo,
+  LinkedOrg
+} from '../shared/claBackend';
 
 @Injectable()
 export class HomeService {
@@ -17,7 +24,7 @@ export class HomeService {
   private linkedOrgs: BehaviorSubject<LinkedOrg[]>;
 
   constructor(
-    private homeCacheService: HomeCacheService,
+    private githubCacheService: GithubCacheService,
     private claBackendService: ClaBackendService) {
     this.linkedRepos = new BehaviorSubject<LinkedRepo[]>([]);
     this.linkedOrgs = new BehaviorSubject<LinkedOrg[]>([]);
@@ -128,7 +135,7 @@ export class HomeService {
 
   public requestReposFromBackend() {
     let githubRepos = null;
-    this.homeCacheService.currentUserRepos.subscribe(
+    this.githubCacheService.getCurrentUserRepos().subscribe(
       repos => githubRepos = repos,
       error => console.log(error),
       () => {
@@ -140,7 +147,7 @@ export class HomeService {
   }
   public requestOrgsFromBackend() {
     let githubOrgs = null;
-    this.homeCacheService.currentUserOrgs.subscribe(
+    this.githubCacheService.getCurrentUserOrgs().subscribe(
       orgs => githubOrgs = orgs,
       error => console.log(error),
       () => {

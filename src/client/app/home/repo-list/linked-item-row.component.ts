@@ -7,9 +7,14 @@ import { OrgLink } from './org-link.component';
 import { StatusIndicatorComponent } from './status-indicator.component';
 import { ReportModal } from './report/report.modal';
 
-import { ClaBackendService } from '../../shared/claBackend/claBackend.service';
-import { GithubService, Gist } from '../../shared/github';
-import { LinkedItem } from '../../shared/claBackend/';
+import {
+  GithubCacheService,
+  Gist
+} from '../../shared/github';
+import {
+  ClaBackendService,
+  LinkedItem
+} from '../../shared/claBackend';
 
 @Component({
   selector: 'linked-item-row',
@@ -39,13 +44,13 @@ export class LinkedItemRowComponent implements OnInit {
 
   constructor(
     private claBackendService: ClaBackendService,
-    private githubService: GithubService
+    private githubCacheService: GithubCacheService
   ) {
     this.onUnlink = new EventEmitter<LinkedItem>();
   }
 
   public ngOnInit() {
-    this.githubService.getGistInfo(this.item.gist).subscribe(
+    this.githubCacheService.getGistInfo(this.item.gist).subscribe(
       (gist: Gist) => {
         if (gist) {
           this.gist = gist;

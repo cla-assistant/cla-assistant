@@ -20,38 +20,6 @@ export class GithubService {
   constructor(private http: Http) { }
 
   /**
-   * Requests information for a specific gist
-   * 
-   * @param gistUrl The url of the gist
-   * @returns Observable that emits a Gist object containing the gist info
-   */
-  public getGistInfo(gistUrl: string): Observable<Gist> {
-    const id = this.extractGistId(gistUrl);
-    if (!id) {
-      return Observable.throw(`The gist url ${gistUrl} seems to be invalid`);
-    }
-    const requestBody = {
-      obj: 'gists',
-      fun: 'get',
-      arg: {
-        id: id
-      }
-    };
-    return this.call(requestBody).map(createGistFromApiResponse);
-  }
-  /**
-   * Helper function that extracts the gist id from a gist url
-   * 
-   * @param gistUrl url to extract id from
-   * @returns gist id on success, undefined on failure
-   */
-  private extractGistId(gistUrl: string) {
-    // Example url: https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
-    const urlParts = gistUrl.split('/');
-    return urlParts.length >= 3 ? urlParts[urlParts.length - 1] : undefined;
-  }
-
-  /**
    * Requests the currently logged in user.
    * 
    * @returns Observable that emits a user object. 
@@ -66,19 +34,6 @@ export class GithubService {
     return this
       .call(requestBody)
       .map(createUserFromApiResponse);
-  }
-
-  public getPrimaryEmail(): Observable<string> {
-    const requestBody = {
-      obj: 'users',
-      fun: 'getEmails',
-      arg: {}
-    };
-    return this.call(requestBody).map(response => {
-      if (response.data.length === 0) { return ''; }
-      const emailObj = response.data.find(email => email.primary) || response.data[0];
-      return emailObj.email;
-    });
   }
 
   /**
@@ -102,6 +57,12 @@ export class GithubService {
       .map(createGistArrayFromApiResponse)
       // Use scan to concat all pages that have already been loaded
       .scan((result: Gist[], part: Gist[]) => result.concat(part), []);
+  }
+
+  public getDefaultGist(): Observable<Gist[]> {
+    return this.http.get('/static/cla-assistant.json')
+      .map(res => res.json())
+      .map(data => data['default-cla']);
   }
 
   /**
@@ -144,6 +105,51 @@ export class GithubService {
       .map(createOrgsFromApiResponse)
       // Use scan to concat all pages that have already been loaded
       .scan((result: GithubOrg[], part: GithubOrg[]) => result.concat(part), []);
+  }
+
+  /**
+   * Requests information for a specific gist
+   * 
+   * @param gistUrl The url of the gist
+   * @returns Observable that emits a Gist object containing the gist info
+   */
+  public getGistInfo(gistUrl: string): Observable<Gist> {
+    const id = this.extractGistId(gistUrl);
+    if (!id) {
+      return Observable.throw(`The gist url ${gistUrl} seems to be invalid`);
+    }
+    const requestBody = {
+      obj: 'gists',
+      fun: 'get',
+      arg: {
+        id: id
+      }
+    };
+    return this.call(requestBody).map(createGistFromApiResponse);
+  }
+  /**
+   * Helper function that extracts the gist id from a gist url
+   * 
+   * @param gistUrl url to extract id from
+   * @returns gist id on success, undefined on failure
+   */
+  private extractGistId(gistUrl: string) {
+    // Example url: https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
+    const urlParts = gistUrl.split('/');
+    return urlParts.length >= 3 ? urlParts[urlParts.length - 1] : undefined;
+  }
+
+  public getPrimaryEmail(): Observable<string> {
+    const requestBody = {
+      obj: 'users',
+      fun: 'getEmails',
+      arg: {}
+    };
+    return this.call(requestBody).map(response => {
+      if (response.data.length === 0) { return ''; }
+      const emailObj = response.data.find(email => email.primary) || response.data[0];
+      return emailObj.email;
+    });
   }
 
   /**

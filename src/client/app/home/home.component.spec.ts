@@ -4,7 +4,7 @@ import { provide } from '@angular/core';
 
 import { HomeComponent } from './home.component';
 import { AuthService } from '../login/auth.service';
-import { HomeCacheService } from './home-cache.service';
+import { GithubCacheService } from '../shared/github';
 import { HomeService } from './home.service';
 
 describe('Home Component', () => {
@@ -12,7 +12,7 @@ describe('Home Component', () => {
 
   const testUser = {};
   const authServiceMock = jasmine.createSpyObj('AuthServiceMock', ['doLogout']);
-  const homeCacheServiceMock = {
+  const githubCacheServiceMock = {
     currentUser: jasmine.createSpyObj('currentUser', ['subscribe'])
   };
   const homeServiceMock = jasmine.createSpyObj('homeServiceMock', [
@@ -29,7 +29,7 @@ describe('Home Component', () => {
     return tcb
       .overrideTemplate(HomeComponent, '<div></div>')
       .overrideProviders(HomeComponent, [
-        provide(HomeCacheService, { useValue: homeCacheServiceMock }),
+        provide(GithubCacheService, { useValue: githubCacheServiceMock }),
         provide(HomeService, { useValue: homeServiceMock })
       ])
       .createAsync(HomeComponent)
@@ -38,7 +38,7 @@ describe('Home Component', () => {
 
   it('should request the current user on init', () => {
     fixture.detectChanges();
-    expect(homeCacheServiceMock.currentUser.subscribe).toHaveBeenCalledTimes(1);
+    expect(githubCacheServiceMock.getCurrentUser().subscribe).toHaveBeenCalledTimes(1);
   });
 
   describe('handleLogout', () => {
