@@ -27,7 +27,7 @@
         </div>
       </td>
     </tr>
-    <tr *ngFor="let claItem of claItems">
+    <tr *ngFor="let claItem of sortedClaItems">
       <td>
         <linked-item-row [item]="claItem" (onUnlink)="unlinkItem($event)"></linked-item-row>
       </td>

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { HomeService } from '../home.service';
 import { LinkedItem } from '../../shared/claBackend/linkedItem';
 import { Observable } from 'rxjs/Observable';
@@ -11,26 +11,18 @@ import { ConfirmRemoveModal } from './confirm-remove.modal';
   directives: [LinkedItemRowComponent, ConfirmRemoveModal],
   templateUrl: './linked-item-list.component.html'
 })
-export class RepoListComponent implements OnInit {
+export class RepoListComponent {
+  @Input() public set claItems(items: LinkedItem[]) {
+    this.sortedClaItems = items.sort((a: LinkedItem, b: LinkedItem) => {
+      return a.getFullName().localeCompare(b.getFullName());
+    });
+  }
   @Input() private itemType: string;
   @ViewChild(ConfirmRemoveModal)
   private confirmRemoveModal: ConfirmRemoveModal;
-  private claItems: LinkedItem[] = [];
+  private sortedClaItems: LinkedItem[] = [];
 
   constructor(private homeService: HomeService) { }
-
-  public ngOnInit() {
-    const setClaItems = (claItems: LinkedItem[]) => {
-      this.claItems = claItems.sort((a: LinkedItem, b: LinkedItem) => {
-        return a.getFullName().localeCompare(b.getFullName());
-      });
-    };
-    if (this.itemType === 'repo') {
-      this.homeService.getLinkedRepos().subscribe(setClaItems);
-    } else {
-      this.homeService.getLinkedOrgs().subscribe(setClaItems);
-    }
-  }
 
   public unlinkItem(repo) {
     this.confirmRemoveModal.open().subscribe(

@@ -112,16 +112,24 @@ export class ClaLinkFormComponent {
   }
 
   public getGithubRepos() {
-    return this.githubCacheService.getCurrentUserRepos()
-      .combineLatest(this.homeService.getLinkedRepos(), (ghRepos: GithubRepo[], claRepos: LinkedRepo[]) => {
-        return ghRepos.filter(ghRepo => !claRepos.some(claRepo => claRepo.id === ghRepo.id.toString()));
-      });
+    this.removeUnwanted(
+      this.githubCacheService.getCurrentUserRepos(),
+      this.homeService.getLinkedOrgs()
+    );
   }
   public getGithubOrgs() {
-    return this.githubCacheService.getCurrentUserOrgs()
-      .combineLatest(this.homeService.getLinkedOrgs(), (ghOrgs: GithubOrg[], claOrgs: LinkedOrg[]) => {
-        return ghOrgs.filter(ghOrg => !claOrgs.some(claOrg => claOrg.id === ghOrg.id.toString()));
-      });
+    this.removeUnwanted(
+      this.githubCacheService.getCurrentUserOrgs(),
+      this.homeService.getLinkedOrgs()
+    );
+  }
+  private removeUnwanted(
+    itemsObervable: Observable<{ id: number }[]>,
+    unwantedObservable: Observable<{ id: string }[]>
+  ): Observable<any> {
+    return itemsObervable.combineLatest(unwantedObservable, (items, unwanted) => {
+      return items.filter(item => !unwanted.some(unwantedItem => unwantedItem.id === item.id.toString()));
+    });
   }
 
 

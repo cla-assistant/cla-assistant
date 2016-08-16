@@ -4,7 +4,6 @@ import { SelectComponent } from 'ng2-select';
 
 import { HomeService } from '../home.service';
 import {
-  GithubCacheService,
   GithubRepo,
   GithubOrg
 } from '../../shared/github';

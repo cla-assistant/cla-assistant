@@ -5,10 +5,8 @@ import { Observable } from 'rxjs/Observable';
 
 import { AppFrameComponent } from '../app-frame/app-frame.component';
 import { CustomFieldComponent } from './custom-field.component';
-import { LinkedItem } from '../shared/claBackend/linkedItem';
-import { User } from '../shared/github/user';
-import { ClaBackendService } from '../shared/claBackend/claBackend.service';
-import { GithubService } from '../shared/github/github.service';
+import { GithubCacheService, User } from '../shared/github/';
+import { ClaBackendService, LinkedItem } from '../shared/claBackend';
 import { AuthService } from '../login/auth.service';
 
 
@@ -37,7 +35,7 @@ export class SignClaComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private claBackendService: ClaBackendService,
-    private githubService: GithubService,
+    private githubCacheService: GithubCacheService,
     private authService: AuthService,
     @Inject('Window') private window: Window,
     private domSanitizationService: DomSanitizationService) { }
@@ -75,7 +73,7 @@ export class SignClaComponent implements OnInit {
       err => this.noLinkedItemError = err);
 
 
-    this.githubService.getUser().subscribe(
+    this.githubCacheService.getCurrentUser().subscribe(
       user => {
         this.loggedInUser = user;
       },
@@ -111,7 +109,7 @@ export class SignClaComponent implements OnInit {
     const value = this.loggedInUser[githubKey];
     this.customValues[key] = value !== undefined ? value : '';
     if (githubKey === 'email' && !this.loggedInUser.email) {
-      this.githubService.getPrimaryEmail().subscribe(email => {
+      this.githubCacheService.getCurrentUserPrimaryEmail().subscribe(email => {
         this.customValues[key] = email;
       });
     }

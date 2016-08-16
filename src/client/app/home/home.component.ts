@@ -16,8 +16,14 @@ import { User } from '../shared/github/user';
   <app-frame [user] = "user" (logout)="handleLogout()">
     <div *ngIf="user" id="activated_cla" class="row content-block">
       <cla-link [user]="user"></cla-link>
-      <linked-item-list [itemType]="'org'"></linked-item-list>
-      <linked-item-list [itemType]="'repo'"></linked-item-list>
+      <linked-item-list 
+        [itemType]="'org'"
+        [claItems]="homeService.getLinkedOrgs() | async">
+      </linked-item-list>
+      <linked-item-list 
+        [itemType]="'repo'"
+        [claItems]="homeService.getLinkedRepos() | async">
+      </linked-item-list>
     </div>  
   </app-frame>
   `
