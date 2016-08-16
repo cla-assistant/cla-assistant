@@ -1,6 +1,7 @@
-import { beforeEachProviders, inject, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, inject, async, ComponentFixture } from '@angular/core/testing';
 import { OverridingTestComponentBuilder } from '@angular/compiler/testing';
 import { provide } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 import { HomeComponent } from './home.component';
 import { AuthService } from '../login/auth.service';
@@ -13,32 +14,36 @@ describe('Home Component', () => {
   const testUser = {};
   const authServiceMock = jasmine.createSpyObj('AuthServiceMock', ['doLogout']);
   const githubCacheServiceMock = {
-    currentUser: jasmine.createSpyObj('currentUser', ['subscribe'])
+    getCurrentUser: jasmine.createSpy('getCurrentUser').and.returnValue(Observable.empty())
   };
   const homeServiceMock = jasmine.createSpyObj('homeServiceMock', [
     'requestReposFromBackend',
     'requestOrgsFromBackend'
   ]);
 
-  beforeEachProviders(() => [
-    OverridingTestComponentBuilder,
-    provide(AuthService, { useValue: authServiceMock })
-  ]);
-
-  beforeEach(async(inject([OverridingTestComponentBuilder], (tcb: OverridingTestComponentBuilder) => {
-    return tcb
-      .overrideTemplate(HomeComponent, '<div></div>')
-      .overrideProviders(HomeComponent, [
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [HomeComponent],
+      providers: [
+        provide(AuthService, { useValue: authServiceMock }),
         provide(GithubCacheService, { useValue: githubCacheServiceMock }),
         provide(HomeService, { useValue: homeServiceMock })
-      ])
-      .createAsync(HomeComponent)
-      .then(f => fixture = f);
-  })));
+      ]
+    });
+  });
+  beforeEach(async(() => {
+    TestBed.overrideComponent(HomeComponent, {
+      set: {
+        template: `<div></div>`
+      }
+    }).compileComponents().then(() => {
+      fixture = TestBed.createComponent(HomeComponent);
+    });
+  }));
 
   it('should request the current user on init', () => {
     fixture.detectChanges();
-    expect(githubCacheServiceMock.getCurrentUser().subscribe).toHaveBeenCalledTimes(1);
+    expect(githubCacheServiceMock.getCurrentUser).toHaveBeenCalledTimes(1);
   });
 
   describe('handleLogout', () => {

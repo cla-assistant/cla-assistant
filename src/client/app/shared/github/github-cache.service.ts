@@ -77,13 +77,23 @@ export class GithubCacheService {
   private _gistInfos: Dict<Observable<Gist>> = {};
   public getGistInfo(gistUrl: string): Observable<Gist> {
     if (!this._gistInfos[gistUrl]) {
-      this._gistInfos[gistUrl] = <Observable<Gist>> this.githubService
+      this._gistInfos[gistUrl] = <Observable<Gist>>this.githubService
         .getGistInfo(gistUrl)
         .catch((err) => this.handle401(err))
         .cache(1);
     }
     return this._gistInfos[gistUrl];
+  }
 
+  private _currentUserPrimaryEmail = null;
+  public getCurrentUserPrimaryEmail(): Observable<string> {
+    if (!this._currentUserPrimaryEmail) {
+      this._currentUserPrimaryEmail = this.githubService
+        .getPrimaryEmail()
+        .catch((err) => this.handle401(err))
+        .cache(1);
+    }
+    return this._currentUserPrimaryEmail;
   }
 
   private handle401(err): Observable<{}> {

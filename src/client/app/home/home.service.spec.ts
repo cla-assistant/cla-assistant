@@ -1,4 +1,4 @@
-import { beforeEachProviders, inject, fakeAsync} from '@angular/core/testing';
+import { inject, fakeAsync} from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
@@ -63,7 +63,9 @@ const testData = {
 function createGithubCacheServiceMock() {
   return {
     // First return incomplete result(first page) and the load rest
-    currentUserRepos: Observable.of([testData.githubRepos[0]], testData.githubRepos)
+    getCurrentUserRepos: jasmine.createSpy('getCurrentUserRepos').and.returnValue(
+      Observable.of([testData.githubRepos[0]], testData.githubRepos)
+    )
   };
 }
 

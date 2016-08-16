@@ -8,10 +8,10 @@ module.exports = function (config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-    files: [{ pattern: './config/spec-bundle.js', watched: false }],
+    files: [{ pattern: './config/spec-bundle.ts', watched: false }],
     exclude: [],
 
-    preprocessors: { './config/spec-bundle.js': ['coverage', 'webpack', 'sourcemap'] },
+    preprocessors: { './config/spec-bundle.ts': ['coverage', 'webpack', 'sourcemap'] },
 
     webpack: testWebpackConfig,
 

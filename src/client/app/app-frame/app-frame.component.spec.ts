@@ -1,4 +1,4 @@
-import { beforeEachProviders, TestComponentBuilder, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
+import { TestBed, TestComponentBuilder, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
 import { AppFrameComponent } from './app-frame.component';
 import { User } from '../shared/github/user';
 
@@ -10,15 +10,17 @@ describe('AppFrame', () => {
     login: 'TestUser',
     roles: { admin: true, orgAdmin: true }
   };
-
-  beforeEachProviders(() => [
-    TestComponentBuilder
-  ]);
-  beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-    return tcb
-      .createAsync(AppFrameComponent)
-      .then(f => fixture = f);
-  })));
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [AppFrameComponent],
+      providers: []
+    });
+  });
+  beforeEach(async(() => {
+     TestBed.compileComponents().then(() => {
+        fixture = TestBed.createComponent(AppFrameComponent);
+     });
+  }));
 
   it('should greet the user', () => {
     let appFrame: AppFrameComponent = fixture.componentInstance;

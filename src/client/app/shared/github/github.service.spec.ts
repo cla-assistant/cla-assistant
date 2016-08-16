@@ -1,4 +1,4 @@
-import { beforeEachProviders, fakeAsync, tick, inject } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 import { observableMatchers } from '../../test-utils/observableMatcher';
@@ -13,11 +13,14 @@ import { GithubOrg } from './org';
 
 describe('GithubService', () => {
   let githubService: GithubService, mockBackend;
-  beforeEachProviders(() => {
-    return [
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
       GithubService,
       ...getHttpMockServices()
-    ];
+      ]
+    });
   });
   beforeEach(inject([GithubService, MockBackend], (gs, mb) => {
     githubService = gs;

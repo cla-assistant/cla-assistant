@@ -1,21 +1,21 @@
 // https://raw.githubusercontent.com/AngularClass/angular2-webpack-starter/master/config/spec-bundle.js
 Error.stackTraceLimit = Infinity;
 
-require('core-js/es6');
-require('core-js/es7/reflect');
+import 'core-js/es6';
+import 'core-js/es7/reflect';
 
 // Typescript emit helpers polyfill
-require('ts-helpers');
+import 'ts-helpers';
 
-require('zone.js/dist/zone');
-require('zone.js/dist/long-stack-trace-zone');
-require('zone.js/dist/jasmine-patch');
-require('zone.js/dist/async-test');
-require('zone.js/dist/fake-async-test');
-require('zone.js/dist/sync-test');
+import 'zone.js/dist/zone';
+import 'zone.js/dist/long-stack-trace-zone';
+import 'zone.js/dist/jasmine-patch';
+import 'zone.js/dist/async-test';
+import 'zone.js/dist/fake-async-test';
+import 'zone.js/dist/sync-test';
 
 
-require('rxjs/Rx');
+import 'rxjs';
 
 var testing = require('@angular/core/testing');
 var browser = require('@angular/platform-browser-dynamic/testing');
@@ -25,13 +25,14 @@ testing.setBaseTestProviders(
   browser.TEST_BROWSER_DYNAMIC_APPLICATION_PROVIDERS
 );
 
-require('../src/client/app/app.component.ts')
-require('../src/client/app/app.routes.ts')
+import '../src/client/app/app.module.ts';
 
-var testContext = require.context('../src/client/app', true, /\.spec.ts/);
+
+var testContext = (<any>require).context('../src/client/app', true, /\.spec.ts/);
 
 function requireAll(requireContext) {
   return requireContext.keys().map(requireContext);
 }
 
 var modules = requireAll(testContext);
+

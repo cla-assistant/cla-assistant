@@ -1,4 +1,4 @@
-import { beforeEachProviders, inject, async, fakeAsync, tick } from '@angular/core/testing';
+import { addProviders, inject, async, fakeAsync, tick } from '@angular/core/testing';
 import { provide } from '@angular/core';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 import { Http, Response, ResponseOptions, ResponseType } from '@angular/http';

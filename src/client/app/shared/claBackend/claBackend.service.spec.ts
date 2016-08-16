@@ -1,4 +1,4 @@
-import { beforeEachProviders, fakeAsync, inject } from '@angular/core/testing';
+import { TestBed, fakeAsync, inject } from '@angular/core/testing';
 import { MockBackend } from '@angular/http/testing';
 import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http';
 
@@ -62,11 +62,14 @@ const testData = {
 describe('ClaBackendService', () => {
   let claBackendService: ClaBackendService;
   let mockBackend: MockBackend;
-  beforeEachProviders(() => {
-    return [
-      ClaBackendService,
-      ...getHttpMockServices()
-    ];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        ClaBackendService,
+        ...getHttpMockServices()
+      ]
+    });
   });
   beforeEach(inject([ClaBackendService, MockBackend], (cbs, mb) => {
     claBackendService = cbs;
