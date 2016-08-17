@@ -11,7 +11,7 @@ import { ConfirmRemoveModal } from './confirm-remove.modal';
   directives: [LinkedItemRowComponent, ConfirmRemoveModal],
   templateUrl: './linked-item-list.component.html'
 })
-export class RepoListComponent {
+export class LinkedItemListComponent {
   @Input() public set claItems(items: LinkedItem[]) {
     this.sortedClaItems = items.sort((a: LinkedItem, b: LinkedItem) => {
       return a.getFullName().localeCompare(b.getFullName());

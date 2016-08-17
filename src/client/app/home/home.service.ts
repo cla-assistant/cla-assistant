@@ -18,24 +18,48 @@ import {
   LinkedOrg
 } from '../shared/claBackend';
 
+/**
+ *  This Service manages a List of linked repos and linked orgs. A BehaviorSubject
+ * is used, which will return the last value to any observer that subscribes. 
+ * It provides methods to link repos and orgs to an cla. It can also load all 
+ * existing clas from the backend. When either of these happen all subscribers will
+ * receive the updated list of linked items.
+ */
 @Injectable()
 export class HomeService {
   private linkedRepos: BehaviorSubject<LinkedRepo[]>;
   private linkedOrgs: BehaviorSubject<LinkedOrg[]>;
 
+  /**
+   * When the service gets instantiated the already linked items will be 
+   * requested from the backend.   
+   */
   constructor(
     private githubCacheService: GithubCacheService,
     private claBackendService: ClaBackendService) {
     this.linkedRepos = new BehaviorSubject<LinkedRepo[]>([]);
     this.linkedOrgs = new BehaviorSubject<LinkedOrg[]>([]);
+    this.requestReposFromBackend();
+    this.requestOrgsFromBackend();
   }
-
+  /**
+   * @returns Observable that emits the list of linked repos each time it changes
+   */
   public getLinkedRepos(): Observable<LinkedRepo[]> {
     return this.linkedRepos.asObservable();
   }
+  /**
+   * @returns Observable that emits the list of linked orgs each time it changes
+   */
   public getLinkedOrgs(): Observable<LinkedOrg[]> {
     return this.linkedOrgs.asObservable();
   }
+  /**
+   * Links a repo or an org with an cla.
+   * @param gist The gist which contains the cla
+   * @param repoOrOrg A [[GithubRepo]] or [[GithubOrg]] which will be linked
+   * @returns Observable that emits the newly [[LinkedItem]]
+   */
   public link(gist: Gist, repoOrOrg: GithubRepo | GithubOrg): Observable<LinkedItem> {
     function isRepo(obj) {
       return obj.fullName !== undefined;
@@ -46,6 +70,9 @@ export class HomeService {
       return this.linkOrg(gist, repoOrOrg as GithubOrg);
     }
   }
+  /**
+   * Internal Method that links a repo
+   */
   private linkRepo(gist: Gist, repo: GithubRepo): Observable<LinkedRepo> {
     return new Observable<LinkedRepo>(
       (observer: Observer<LinkedRepo>) => {
@@ -72,6 +99,9 @@ export class HomeService {
       }
     );
   }
+  /**
+   * Internal Method that links an org
+   */
   private linkOrg(gist: Gist, org: GithubOrg): Observable<LinkedOrg> {
     return new Observable<LinkedOrg>(
       (observer: Observer<LinkedOrg>) => {
@@ -98,13 +128,17 @@ export class HomeService {
       }
     );
   }
+  /**
+   * Unlinks a linked item, so it will no longer be managed by cla-assistant
+   * @param item The [[LinkedItem]] to unlink
+   */
   public unlinkItem(item: LinkedItem) {
     this.claBackendService.unlinkCla(item).subscribe(
       () => {
         this.claBackendService.removeWebhook(item).subscribe();
         if (item instanceof LinkedRepo) {
           this.removeLinkedRepo(item);
-        }else if (item instanceof LinkedOrg) {
+        } else if (item instanceof LinkedOrg) {
           this.removeLinkedOrg(item);
         }
       },
@@ -113,18 +147,33 @@ export class HomeService {
       }
     );
   }
+  /**
+   * Internal method that adds newly linked repos to the list of linked repos. It  
+   * notify all observers.
+   * @param newRepos new repos that will be added to the list
+   */
   private addLinkedRepos(newRepos: LinkedRepo[]): void {
     this.linkedRepos.next(this.linkedRepos.value.concat(newRepos));
   }
+  /**
+   * Analogous to to [[addLinkedRepos]]
+   */
   private addLinkedOrgs(newOrgs: LinkedOrg[]): void {
     this.linkedOrgs.next(this.linkedOrgs.value.concat(newOrgs));
   }
+  /**
+   * Removes a single repo from the list of linked repos
+   * @param removedRepo repo that will be removed
+   */
   private removeLinkedRepo(removedRepo: LinkedRepo): void {
     const nextValue = this.linkedRepos.value.filter((linkedRepo) => {
       return linkedRepo.id !== removedRepo.id;
     });
     this.linkedRepos.next(nextValue);
   }
+  /**
+   * Analogous to to [[removeLinkedRepo]]
+   */
   private removeLinkedOrg(removedOrg: LinkedOrg): void {
     const nextValue = this.linkedOrgs.value.filter((linkedOrg) => {
       return linkedOrg.id !== removedOrg.id;
@@ -132,7 +181,10 @@ export class HomeService {
     this.linkedOrgs.next(nextValue);
   }
 
-
+  /**
+   * Will request the already linked repos form the cla backend. These repos will
+   * be added to the list of linked repos which causes all observers to be notified
+   */
   public requestReposFromBackend() {
     let githubRepos = null;
     this.githubCacheService.getCurrentUserRepos().subscribe(
@@ -145,6 +197,9 @@ export class HomeService {
       }
     );
   }
+  /**
+   * Analogous to to [[requestReposFromBackend]]
+   */
   public requestOrgsFromBackend() {
     let githubOrgs = null;
     this.githubCacheService.getCurrentUserOrgs().subscribe(
