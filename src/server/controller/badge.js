@@ -43,8 +43,11 @@ router.all('/readme/badge/:owner/:repo', function (req, res) {
         owner: req.params.owner,
         repo: req.params.repo
     };
-    var redirect = function(count){
-        res.redirect('https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg');
+    var style = req.query && req.query.style ? req.query.style : undefined;
+    var redirect = function (count) {
+        var url = 'https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg';
+        url = style ? url + '?style=' + style : url;
+        res.redirect(url);
     };
     req.args = args;
     cla.countCLA(req, function(err, count){

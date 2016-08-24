@@ -1,0 +1,63 @@
+{
+  "title": "JSON Schema for CLA assistant custom fields",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "patternProperties": {
+    "^[A-Za-z0-9]*$": {
+      "type": "object",
+      "description": "Each property describes additional data which should be collected from a CLA signer and generates a form field",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title is used to create a label for the form field"
+        },
+        "type": {
+          "oneOf": [
+            {
+              "enum": ["string", "number", "boolean"],
+              "description": "Field of type boolean generates a checkbox"
+            },
+            {
+              "type": "object",
+              "description": "Field of type enum generates radio buttons",
+              "properties": {
+                "enum": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true
+                }
+              }
+            }
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Requiered fields are marked with asterisk and must be filled by signer"
+        },
+        "description": {
+          "type": "string",
+          "description": "Field description generates small text behind the label"
+        },
+        "maximum": {
+          "type": "number",
+          "description": "Can be used for fields of type number"
+        },
+        "minimum": {
+          "type": "number",
+          "description": "Can be used for fields of type number"
+        },
+        "githubKey": {
+          "type": "string",
+          "description": "Data of github user profile can be used to prefill the form. GithubKey refers to the response of the github api https://developer.github.com/v3/users/#get-a-single-user"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
+
+

@@ -263,14 +263,16 @@ module.exports = function () {
         getLastSignature: function (args, done) {
             var deferred = q.defer();
             getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
-                var query = { owner: args.owner, user: args.user, gist_url: item.gist };
+                var query = { user: args.user, gist_url: item.gist };
                 if (item.orgId) {
+                    query.ownerId = item.orgId;
                     query.org_cla = true;
                 } else if (item.repoId) {
                     query.repoId = item.repoId;
                 }
 
-                CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                // CLA.findOne(query, { 'repo': '*', 'owner': '*', 'created_at': '*', 'gist_url': '*', 'gist_version': '*', 'user': '*', 'custom_fields': '*' }, { select: { 'created_at': -1 } }, function (err, cla) {
+                CLA.findOne({ '$query': query, '$orderby': { 'created_at': -1 } }, function (err, cla) {
                     if (!err && cla) {
                         deferred.resolve(cla);
                     }
@@ -418,18 +420,26 @@ module.exports = function () {
         //     CLA.find({}, function(err, clas){
         //         if (!err && clas) {
         //             clas.forEach(function(cla){
-        //                 repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
-        //                     if (ghRepo && ghRepo.id) {
-        //                         cla.repoId = ghRepo.id;
-        //                         if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
-        //                             logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
-        //                             cla.owner = ghRepo.owner.login;
-        //                             cla.repo = ghRepo.name;
-        //                             logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
+        //                 // repoService.getGHRepo({owner: cla.owner, repo: cla.repo, token: req.user.token}, function(e, ghRepo){
+        //                 //     if (ghRepo && ghRepo.id) {
+        //                 //         cla.repoId = ghRepo.id;
+        //                 //         if (cla.owner !== ghRepo.owner.login || cla.repo !== ghRepo.name) {
+        //                 //             logger.info(ghRepo.full_name, ' != ', cla.owner, '/', cla.repo);
+        //                 //             cla.owner = ghRepo.owner.login;
+        //                 //             cla.repo = ghRepo.name;
+        //                 //             logger.info('transfered to ', cla.owner, '/', cla.repo, 'id:', cla.repoId);
+        //                 //         }
+        //                 //         cla.save();
+        //                 //     }
+        //                 // });
+        //                 if (!cla.org_cla) {
+        //                     cla.org_cla = false;
+        //                     cla.save(function (err, cla) {
+        //                         if (err){
+        //                             logger.info('Failed to update cla ', cla, err);
         //                         }
-        //                         cla.save();
-        //                     }
-        //                 });
+        //                     });
+        //                 }
         //             });
         //             done('updating ' + clas.length + ' CLAs...');
         //         } else {

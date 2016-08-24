@@ -87,7 +87,6 @@ describe('org api', function () {
             };
 
             org_api.getForUser(req, function (err, orgs) {
-                                            console.log('tested');
                 assert.equal(github.call.calledWithMatch({
                     obj: 'users',
                     fun: 'getOrganizationMembership',

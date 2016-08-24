@@ -11,7 +11,6 @@ var Repo = require('../../../server/documents/repo').Repo;
 var github = require('../../../server/services/github');
 var orgService = require('../../../server/services/org');
 var url = require('../../../server/services/url');
-var config = require('../../../config');
 
 // service under test
 var repo = require('../../../server/services/repo');
@@ -169,28 +168,6 @@ describe('repo:getAll', function () {
             it_done();
         });
     });
-
-    it('should update repo name and owner on db if github repo was transferred', function(it_done){
-        arg = { set: [{
-            repo: 'newRepoName',
-            owner: 'newOwner',
-            repoId: 123
-        }]};
-        response = [{
-            repo: 'myRepo',
-            owner: 'owner',
-            repoId: 123,
-            save: function(){}
-        }];
-        sinon.spy(response[0], 'save');
-        repo.getAll(arg, function (err, obj) {
-            assert.equal(obj[0].repoId, 123);
-            assert.equal(obj[0].repo, arg.set[0].repo);
-            assert.equal(obj[0].owner, arg.set[0].owner);
-            assert(response[0].save.called);
-            it_done();
-        });
-    });
 });
 
 describe('repo:getPRCommitters', function () {
@@ -199,6 +176,9 @@ describe('repo:getPRCommitters', function () {
 
     beforeEach(function () {
         test_repo = {
+            repo: 'myRepo',
+            owner: 'myOwner',
+            repoId: '1',
             token: 'abc',
             save: function () {}
         };
@@ -411,6 +391,43 @@ describe('repo:getPRCommitters', function () {
 
         it_done();
     });
+
+    it('should update db entry if repo was transferred', function (it_done) {
+        this.timeout(3000);
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function (args, done) {
+            var res;
+            if (args.url.indexOf('commits') > -1){
+                res = args.url.indexOf('myRepo') > -1 ?
+                    { data: { message: 'Moved Permanently' } } :
+                    { data: testData.commits };
+            } else {
+                res = test_repo;
+            }
+            console.log('Args: ', args);
+            console.log('Res: ', res);
+            done(null, res);
+        });
+        sinon.stub(repo, 'getGHRepo', function (args, done) {
+            done(null, { name: 'test_repo', owner: { login: 'test_owner' }, id: 1 });
+        });
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 1,
+            number: '1'
+        };
+
+        repo.getPRCommitters(arg, function (err) {
+            assert.ifError(err);
+            assert(Repo.findOne.called);
+            assert(github.direct_call.calledTwice);
+
+            it_done();
+            repo.getGHRepo.restore();
+        });
+        setTimeout(it_done, 2500);
+    });
 });
 
 describe('repo:getUserRepos', function () {
@@ -587,6 +604,41 @@ describe('repo:getUserRepos', function () {
             assert(res.length === 1);
             assert(Repo.find.called);
 
+            it_done();
+        });
+    });
+
+    it('should update repo name and owner on db if github repo was transferred', function (it_done) {
+        var ghResponse = [{
+            name: 'newRepoName',
+            owner: { login: 'newOwner' },
+            id: '123',
+            permissions: { push: true }
+        }];
+        sinon.stub(github, 'direct_call', function (args, done) {
+            assert(args.token);
+            done(null, {
+                data: ghResponse
+            });
+        });
+        var dbResponse = [{
+            repo: 'myRepo',
+            owner: 'owner',
+            repoId: 123,
+            save: function(){}
+        }];
+        sinon.stub(Repo, 'find', function (args, done) {
+            assert.equal(args.$or.length, 1);
+            done(null, dbResponse);
+        });
+        sinon.spy(dbResponse[0], 'save');
+        repo.getUserRepos({
+            token: 'test_token'
+        }, function (err, obj) {
+            assert.equal(obj[0].repoId, 123);
+            assert.equal(obj[0].repo, ghResponse[0].name);
+            assert.equal(obj[0].owner, ghResponse[0].owner.login);
+            assert(dbResponse[0].save.called);
             it_done();
         });
     });

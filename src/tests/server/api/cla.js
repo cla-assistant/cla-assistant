@@ -99,7 +99,9 @@ describe('', function () {
         });
 
         sinon.stub(cla, 'getLinkedItem', function (args, cb) {
-            assert.deepEqual(args, reqArgs.cla.getLinkedItem);
+            if (reqArgs.cla.getLinkedItem){
+                assert.deepEqual(args, reqArgs.cla.getLinkedItem);
+            }
             cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
         });
 
@@ -655,6 +657,7 @@ describe('', function () {
     describe('cla:countCLA', function () {
         var req = {};
         beforeEach(function () {
+            resp.cla.getLinkedItem = testData.repo_from_db;
             req.args = {
                 repo: 'Hello-World',
                 owner: 'octocat'
@@ -663,6 +666,7 @@ describe('', function () {
             sinon.stub(cla, 'getAll', function (args, cb) {
                 assert(args.gist.gist_url);
                 assert(args.gist.gist_version);
+                assert(args.repoId || args.orgId);
 
                 cb(error.cla.getAll, resp.cla.getAll);
             });
@@ -678,6 +682,27 @@ describe('', function () {
             };
             req.args.gist = {
                 gist_url: testData.repo_from_db.gist,
+                gist_version: testData.gist.history[0].version
+            };
+
+
+            cla_api.countCLA(req, function (err, number) {
+                assert.ifError(err);
+                assert(cla.getAll.called);
+                assert.equal(number, 1);
+
+                it_done();
+            });
+        });
+
+        it('should call getAll on countCLA for repo of linked org', function (it_done) {
+            resp.cla.getLinkedItem = testData.org_from_db;
+            reqArgs.repoService.get.gist = {
+                gist_url: testData.org_from_db.gist,
+                gist_version: testData.gist.history[0].version
+            };
+            req.args.gist = {
+                gist_url: testData.org_from_db.gist,
                 gist_version: testData.gist.history[0].version
             };
 

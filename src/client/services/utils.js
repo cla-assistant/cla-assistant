@@ -38,7 +38,7 @@ module.factory('utils', ['$q', '$RPCService',
                             try {
                                 var metaString = cla.value.meta.replace(/<p>|<\/p>|\n|\t/g, '');
                                 gistContent.customFields = JSON.parse(metaString);
-                                gistContent.customKeys = Object.keys(gistContent.customFields.properties);
+                                gistContent.customKeys = Object.keys(gistContent.customFields);
                                 gistContent.hasCustomFields = true;
                                 deferred.resolve(gistContent);
                             } catch (ex) {

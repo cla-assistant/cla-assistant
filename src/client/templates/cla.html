@@ -10,7 +10,7 @@
 		<form class="row content-block" ng-hide="!!redirect || noLinkedItemError">
 			<div class="col-md-8 col-md-offset-2" >
 				<h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
-				<h4 ng-show="signed">You have signed CLA for {{params.user}}/{{params.repo}}</h4>
+				<h4 ng-show="signed">You have signed the CLA for {{params.user}}/{{params.repo}}</h4>
 				<div class="cla-box well">
 					<div ng-bind-html="cla"></div>
 				</div>
@@ -20,17 +20,17 @@
 					</p>
 					<customfield
 						class="form-group"
-						description="customFields.properties[key].description"
+						description="customFields[key].description"
 						logged="user.value"
-						min="customFields.properties[key].minimum"
-						max="customFields.properties[key].maximum"
+						min="customFields[key].minimum"
+						max="customFields[key].maximum"
 						name="key"
 						ng-repeat="key in customKeys"
 						ng-show="user.value"
-						required="!!customFields.required && customFields.required.indexOf(key) >= 0"
+						required="customFields[key].required"
 						signed="signed"
-						title="customFields.properties[key].title"
-						type="customFields.properties[key].type == 'boolean' ? 'checkbox' : customFields.properties[key].type"
+						title="customFields[key].title"
+						type="customFields[key].type == 'boolean' ? 'checkbox' : customFields[key].type"
 						value="customValues"
 						>
 					</customfield>

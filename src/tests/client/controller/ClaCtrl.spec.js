@@ -73,7 +73,7 @@ describe('CLA Controller', function() {
         user.meta = {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'};
         claSigned = true;
         claText = { raw: '<p>cla text</p>' };
-        claTextWithMeta = { raw: '<p>cla text</p>', meta: '<p>{ "title": "Custom Fields", "type": "object", "properties": {"name": {"type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email"},"age": {"description": "Age in years","type": "number","minimum": "0"}},"required": ["email", "age"]}</p>' };
+        claTextWithMeta = { raw: '<p>cla text</p>', meta: '<p>{ "name": {"type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email", "required": "true"},"age": {"description": "Age in years","type": "number","minimum": "0", "required": "true"}}</p>' };
         linkedItem = { repoId: 1 };
 
 
@@ -222,7 +222,11 @@ describe('CLA Controller', function() {
         httpBackend.flush();
 
         _timeout.flush();
-        claController.scope.customFields.required = undefined;
+        claController.scope.customFields = {
+            name: { type: 'string', githubKey: 'name' },
+            email: { type: 'string', githubKey: 'email' },
+            age: { description: 'Age in years', type: 'number' }
+        };
 
         (claController.scope.isValid()).should.be.equal(true);
     });

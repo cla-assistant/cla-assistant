@@ -470,3 +470,11 @@ small {
   width:100%;
   height:45px;
 }
+
+// _custom_fields
+
+.description {
+  color: $gray-dark;
+  font-size: smaller;
+  display: inline-block;
+}

@@ -32,7 +32,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		function getGithubValues() {
 			if ($scope.hasCustomFields && $scope.user.value && !$scope.signed) {
 				$scope.customKeys.forEach(function (key) {
-					var githubKey = $scope.customFields.properties[key].githubKey;
+					var githubKey = $scope.customFields[key].githubKey;
 					if (githubKey) {
 						$scope.customValues[key] = $scope.user.value[githubKey];
 						if (githubKey === 'email' && !$scope.user.value.email) {
@@ -146,28 +146,27 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 		};
 
 		var userPromise = getUser();
-
+		var claPromise;
 		var repoPromise = getLinkedItem(function (linkedItem) {
 			$scope.linkedItem = linkedItem;
-			// if ($scope.linkedItem) {
-			// 	getCLA();
-			// 	// getCLA().then(function (data) {
-			// 	// 	$scope.cla = $sce.trustAsHtml(data.value.raw);
-			// 	// 	$scope.cla.text = data.value.raw;
-			// 	// });
-			// }
+			if ($scope.linkedItem) {
+				claPromise = getCLA();
+			}
 		});
 
 		$scope.isValid = function () {
-			if (!$scope.customFields.required || $scope.customFields.required.length <= 0) {
-				return true;
+			var valid = true;
+			function isNotEmpty(value) {
+				return !!value || value === 0;
+			}
+			function typeIsValid(value, field) {
+				return typeof value == field.type || field.type.enum;
 			}
 
-			var valid = true;
-			$scope.customFields.required.some(function (key) {
+			$scope.customKeys.some(function (key) {
 				var value = $scope.customValues[key];
-				var property = $scope.customFields.properties[key];
-				valid = value && typeof value == property.type;
+				var field = $scope.customFields[key];
+				valid = !field.required || ( isNotEmpty(value) && typeIsValid(value, field) );
 				return !valid;
 			});
 			return valid;
@@ -175,7 +174,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 
 		$q.all([userPromise, repoPromise]).then(function () {
 			if ($scope.user && $scope.user.value && $scope.linkedItem) {
-				var claPromise = getCLA();
+				// var claPromise = getCLA();
 				var signedPromise = checkCLA().then(function (signed) {
 					// $scope.customValues = signed.value ? {} : $scope.customValues;
 					if (signed.value && $stateParams.redirect) {

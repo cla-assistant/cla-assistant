@@ -11,7 +11,7 @@ var orgService = require('../services/org');
 var url = require('../services/url');
 
 var isTransferredRenamed = function (dbRepo, ghRepo) {
-    return ghRepo.repoId === dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
+    return ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
 };
 
 var compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
@@ -81,22 +81,13 @@ module.exports = {
         });
     },
     getAll: function (args, done) {
-        var ghRepos = args.set;
         var repoIds = [];
         args.set.forEach(function (repo) {
             repoIds.push({ repoId: repo.repoId });
         });
         Repo.find({
             $or: repoIds
-        }, function (err, dbRepos) {
-            if (dbRepos) {
-                compareAllRepos(ghRepos, dbRepos, function () {
-                    done(err, dbRepos);
-                });
-            } else {
-                done(err, dbRepos);
-            }
-        });
+        }, done);
     },
 
     getByOwner: function (owner, done) {
@@ -125,8 +116,15 @@ module.exports = {
     getPRCommitters: function (args, done) {
         var self = this;
 
-        var callGithub = function (arg) {
+        var handleError = function (err, arguments) {
+            logger.info(new Error(err).stack);
+            logger.info('getPRCommitters with arg: ', arguments);
+            done(err);
+        };
+
+        var callGithub = function (arg, linkedItem) {
             var committers = [];
+            var linkedRepo = linkedItem && linkedItem.repoId ? linkedItem : undefined;
 
             github.direct_call(arg, function (err, res) {
                 if (err) {
@@ -158,10 +156,21 @@ module.exports = {
                         setTimeout(function () {
                             callGithub(arg);
                         }, 1000);
-                    } else {
-                        logger.info(new Error(res.data.message).stack);
-                        logger.info('getPRCommitters with arg: ', arg);
-                        done(res.data.message);
+                    } else if (res.data.message === 'Moved Permanently' && linkedRepo) {
+                        self.getGHRepo(args, function (err, res) {
+                            if (res && res.id && compareRepoNameAndUpdate(linkedRepo, { repo: res.name, owner: res.owner.login, repoId: res.id} )) {
+                                arg.repo = res.name;
+                                arg.owner = res.owner.login;
+                                arg.url = url.githubPullRequestCommits(arg.owner, arg.repo, arg.number);
+
+                                callGithub(arg);
+                            } else {
+                                handleError('Moved Permanently', arg);
+                            }
+                        });
+                    }
+                    else {
+                        handleError(res.data.message, arg);
                     }
                 }
 
@@ -172,7 +181,7 @@ module.exports = {
             args.token = item.token;
             args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
 
-            callGithub(args);
+            callGithub(args, item);
         };
 
         orgService.get({orgId: args.orgId}, function (e, org) {
@@ -185,7 +194,6 @@ module.exports = {
                         done(errorMsg);
                             return;
                     }
-
                     collectTokenAndCallGithub(args, repo);
                 });
             } else {
@@ -219,8 +227,14 @@ module.exports = {
             });
             that.getAll({
                 set: repoSet
-            }, function (error, result) {
-                done(error, result);
+            }, function (err, dbRepos) {
+                if (dbRepos) {
+                    compareAllRepos(repoSet, dbRepos, function () {
+                        done(err, dbRepos);
+                    });
+                } else {
+                    done(err);
+                }
             });
         });
     },
