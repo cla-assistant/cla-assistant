@@ -32,6 +32,7 @@ function handleWebHook(args) {
             });
         } else {
             log.warn(new Error(err).stack);
+            log.warn('called with args: ', args);
         }
     });
 }
