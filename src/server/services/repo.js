@@ -50,6 +50,7 @@ var selection = function (args) {
 };
 
 module.exports = {
+    timesToRetryGitHubCall: 10,
     all: function (done) {
         Repo.find({}, function (err, repos) {
             done(err, repos);
@@ -152,7 +153,7 @@ module.exports = {
                     done(null, committers);
                 } else if (res.data.message) {
                     arg.count = arg.count ? arg.count + 1 : 1;
-                    if (res.data.message === 'Not Found' && arg.count < 3) {
+                    if (res.data.message === 'Not Found' && arg.count < self.timesToRetryGitHubCall) {
                         setTimeout(function () {
                             callGithub(arg);
                         }, 1000);

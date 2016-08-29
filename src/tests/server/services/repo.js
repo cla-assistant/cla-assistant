@@ -328,6 +328,7 @@ describe('repo:getPRCommitters', function () {
 
     it('should retry api call if gitHub returns "Not Found"', function (it_done) {
         this.timeout(4000);
+        repo.timesToRetryGitHubCall = 3;
         github.direct_call.restore();
         sinon.stub(github, 'direct_call', function (args, done) {
             done(null, {
@@ -404,8 +405,6 @@ describe('repo:getPRCommitters', function () {
             } else {
                 res = test_repo;
             }
-            console.log('Args: ', args);
-            console.log('Res: ', res);
             done(null, res);
         });
         sinon.stub(repo, 'getGHRepo', function (args, done) {
