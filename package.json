@@ -81,7 +81,7 @@
   "scripts": {
     "start": "node app.js",
     "postinstall": "bower install",
-    "test": "snyk test",
+    "test": "grunt test && snyk test",
     "snyk-protect": "snyk protect",
     "prepublish": "npm run snyk-protect"
   },

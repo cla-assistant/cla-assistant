@@ -98,4 +98,5 @@ module.exports = function (grunt) {
 	grunt.registerTask('lint', ['eslint', 'scsslint']);
 	grunt.registerTask('coverage', ['mocha_istanbul', 'coveralls']);
 	grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest', 'karma', 'watch']);
+	grunt.registerTask('test', ['eslint', 'mochaTest', 'karma']);
 };
