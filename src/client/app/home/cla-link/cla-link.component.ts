@@ -7,7 +7,7 @@ import { LinkStatusModal } from './link-status.modal';
 
 @Component({
   selector: 'cla-link',
-  directives: [ClaLinkFormComponent, LinkStatusModal],
+  //directives: [ClaLinkFormComponent, LinkStatusModal],
   templateUrl: './cla-link.component.html'
 })
 export class ClaLinkComponent {

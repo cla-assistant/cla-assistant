@@ -12,7 +12,7 @@ import { AuthService } from '../login/auth.service';
 
 @Component({
   selector: 'sign-cla',
-  directives: [AppFrameComponent, CustomFieldComponent],
+ // directives: [AppFrameComponent, CustomFieldComponent],
   templateUrl: 'sign-cla.component.html'
 })
 export class SignClaComponent implements OnInit {

@@ -26,7 +26,7 @@ interface Link {
 
 @Component({
   selector: 'cla-link-form',
-  directives: [DropdownComponent, InfoModal, ConfirmAddModal],
+ // directives: [DropdownComponent, InfoModal, ConfirmAddModal],
   templateUrl: './cla-link-form.component.html'
 })
 export class ClaLinkFormComponent {

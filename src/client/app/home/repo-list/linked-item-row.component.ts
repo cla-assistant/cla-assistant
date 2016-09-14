@@ -1,6 +1,4 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {TOOLTIP_DIRECTIVES} from 'ng2-tooltip';
-import {POPOVER_DIRECTIVES} from 'ng2-popover';
 
 import { RepoLink } from './repo-link.component';
 import { OrgLink } from './org-link.component';
@@ -18,13 +16,6 @@ import {
 
 @Component({
   selector: 'linked-item-row',
-  directives: [
-    RepoLink,
-    OrgLink,
-    StatusIndicatorComponent,
-    ReportModal,
-    TOOLTIP_DIRECTIVES,
-    POPOVER_DIRECTIVES],
   templateUrl: 'linked-item-row.component.html'
 })
 

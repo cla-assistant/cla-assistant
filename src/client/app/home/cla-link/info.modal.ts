@@ -1,9 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
   selector: 'info-modal',
-  directives: [MODAL_DIRECTIVES],
   template: `
     <modal class="howto" #infoModal>
       <modal-body>

@@ -1,5 +1,5 @@
 import { Component, ViewChild, Output, Input, EventEmitter } from '@angular/core';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { GithubRepo } from '../../shared/github/repo';
 import { GithubOrg } from '../../shared/github/org';
 import { Gist } from '../../shared/github/gist';
@@ -7,7 +7,6 @@ import { Gist } from '../../shared/github/gist';
 
 @Component({
   selector: 'confirm-add-modal',
-  directives: [MODAL_DIRECTIVES],
   template: `
     <modal class="confirm-add">
       <modal-body class="modal-primary" *ngIf="visible">

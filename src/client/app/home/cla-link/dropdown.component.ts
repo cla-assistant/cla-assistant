@@ -11,7 +11,7 @@ import {
 
 @Component({
   selector: 'dropdown',
-  directives: [SelectComponent],
+//  directives: [SelectComponent],
   host: {
     'class': 'form-group has-feedback',
     'style': 'display:block'

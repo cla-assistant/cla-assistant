@@ -1,5 +1,5 @@
 import { Component, ViewChild, Input } from '@angular/core';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { SelectComponent } from 'ng2-select';
 
 import { CsvDownloadService } from './csv-download.service';
@@ -8,7 +8,7 @@ import { VersionDropdownComponent } from './version-dropdown.component';
 import { ClaBackendService } from '../../../shared/claBackend/claBackend.service';
 @Component({
   selector: 'report-modal',
-  directives: [MODAL_DIRECTIVES, VersionDropdownComponent],
+  //directives: [],
   providers: [CsvDownloadService],
   templateUrl: './report.modal.html'
 })

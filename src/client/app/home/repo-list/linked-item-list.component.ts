@@ -8,7 +8,7 @@ import { ConfirmRemoveModal } from './confirm-remove.modal';
 
 @Component({
   selector: 'linked-item-list',
-  directives: [LinkedItemRowComponent, ConfirmRemoveModal],
+  //directives: [LinkedItemRowComponent, ConfirmRemoveModal],
   templateUrl: './linked-item-list.component.html'
 })
 export class LinkedItemListComponent {
