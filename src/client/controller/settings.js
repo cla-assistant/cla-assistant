@@ -209,8 +209,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
         var validateOrgPr = function (linkedItem) {
             $RPCService.call('cla', 'validateOrgPullRequests', {
-                org: linkedItem.org,
-                token: linkedItem.token
+                org: linkedItem.org
             }).then(function(){
                 $scope.popoverIsOpen = false;
             });

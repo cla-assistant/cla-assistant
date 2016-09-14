@@ -223,7 +223,7 @@ module.exports = {
                 org: req.args.org,
                 per_page: 100
             },
-            token: req.args.token
+            token: req.args.token || req.user.token
         }, function (err, repos) {
             if (repos && !repos.message && repos.length > 0) {
                 repos.forEach(function (repo) {
@@ -231,7 +231,7 @@ module.exports = {
                         args: {
                             owner: repo.owner.login,
                             repo: repo.name,
-                            token: req.args.token
+                            token: req.args.token || req.user.token
                         },
                         user: req.user
                     };
