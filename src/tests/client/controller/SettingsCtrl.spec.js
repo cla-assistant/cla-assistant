@@ -410,11 +410,10 @@ describe('Settings Controller', function () {
 
             it('should get a repo for linked org which should be checked', function () {
                 settingsCtrl.scope.recheck({
-                    org: 'octocat',
-                    token: 'org_token'
+                    org: 'octocat'
                 });
 
-                (RPC.call.calledWithMatch('cla', 'validateOrgPullRequests', {org: 'octocat', token: 'org_token'})).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validateOrgPullRequests', {org: 'octocat'})).should.be.equal(true);
             });
         });
 
