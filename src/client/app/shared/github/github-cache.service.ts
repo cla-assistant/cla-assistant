@@ -18,82 +18,44 @@ export class GithubCacheService {
     private http: Http) {
   }
 
+  private cache: Dict<any> = {};
 
-  private _currentUser = null;
+  private getValue(name: string, requestValue: () => Observable<any>) {
+    if (!this.cache[name]) {
+      this.cache[name] = requestValue()
+        .catch((err) => this.handle401(err))
+        .cache(1);
+    }
+    return this.cache[name];
+  }
+
   public getCurrentUser(): Observable<User> {
-    if (!this._currentUser) {
-      this._currentUser = this.githubService
-        .getUser()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._currentUser;
+    return this.getValue('currentUser', () => this.githubService.getUser());
   }
 
-  private _currentUserGists = null;
   public getCurrentUserGists(): Observable<Gist[]> {
-    if (!this._currentUserGists) {
-      this._currentUserGists = this.githubService
-        .getUserGists()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._currentUserGists;
+    return this.getValue('currentUserGists', () => this.githubService.getUserGists());
   }
 
-  private _defaultGists = null;
   public getDefaultGists(): Observable<Gist[]> {
-    if (!this._defaultGists) {
-      this._defaultGists = this.githubService
-        .getDefaultGist()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._defaultGists;
+    return this.getValue('defaultGists', () => this.githubService.getDefaultGist());
   }
 
-  private _currentUserRepos = null;
   public getCurrentUserRepos(): Observable<GithubRepo[]> {
-    if (!this._currentUserRepos) {
-      this._currentUserRepos = this.githubService
-        .getUserRepos()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._currentUserRepos;
+    return this.getValue('currentUserRepos', () => this.githubService.getUserRepos());
   }
 
-  private _currentUserOrgs = null;
   public getCurrentUserOrgs(): Observable<GithubOrg[]> {
-    if (!this._currentUserOrgs) {
-      this._currentUserOrgs = this.githubService
-        .getUserOrgs()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._currentUserOrgs;
+    return this.getValue('currentUserOrgs', () => this.githubService.getUserOrgs());
+  }
+
+  public getCurrentUserPrimaryEmail(): Observable<string> {
+    return this.getValue('currentUserPrimaryEmail', () => this.githubService.getPrimaryEmail());
   }
 
   private _gistInfos: Dict<Observable<Gist>> = {};
   public getGistInfo(gistUrl: string): Observable<Gist> {
-    if (!this._gistInfos[gistUrl]) {
-      this._gistInfos[gistUrl] = <Observable<Gist>>this.githubService
-        .getGistInfo(gistUrl)
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._gistInfos[gistUrl];
-  }
-
-  private _currentUserPrimaryEmail = null;
-  public getCurrentUserPrimaryEmail(): Observable<string> {
-    if (!this._currentUserPrimaryEmail) {
-      this._currentUserPrimaryEmail = this.githubService
-        .getPrimaryEmail()
-        .catch((err) => this.handle401(err))
-        .cache(1);
-    }
-    return this._currentUserPrimaryEmail;
+    return this.getValue('gistInfo-' + gistUrl, () => this.githubService.getGistInfo(gistUrl));
   }
 
   private handle401(err): Observable<{}> {
@@ -103,6 +65,4 @@ export class GithubCacheService {
     }
     return Observable.throw(err);
   }
-
-
 }

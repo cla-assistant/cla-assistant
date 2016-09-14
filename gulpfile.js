@@ -50,6 +50,7 @@ gulp.task('start-server-debug', ['source'], () => {
   return stream;
 });
 gulp.task('start-server-production', ['source'], () => {
+  process.env.NODE_ENV = 'production';
   let stream = nodemon({
     script: './app.js',
     exec: 'node',
@@ -90,4 +91,4 @@ gulp.task('test-server-watch', () => {
   gulp.watch(['./src/tests/server/**/*.js', './src/server/**/*.js'], ['test-server']);
 });
 
-gulp.task('default', ['start-server']);
+gulp.task('default', ['start-server-production']);

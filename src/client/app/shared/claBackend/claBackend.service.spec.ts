@@ -4,11 +4,11 @@ import { getHttpMockServices, setupFakeConnection } from '../../test-utils/http'
 
 import { observableMatchers } from '../../test-utils/observableMatcher';
 import { ClaBackendService } from './claBackend.service';
-import { LinkedRepo } from './linkedItem';
+import { LinkedRepo, LinkedOrg } from './linkedItem';
 
 
 const testData = {
-  linkedRepo: [
+  linkedRepos: [
     new LinkedRepo({
       repoId: '1234',
       repo: 'myRepo',
@@ -93,8 +93,8 @@ describe('ClaBackendService', () => {
         ]
       };
       const fakeResponseBody = [
-        testData.linkedRepo[0].getCompleteObject(),
-        testData.linkedRepo[1].getCompleteObject()
+        testData.linkedRepos[0].getCompleteObject(),
+        testData.linkedRepos[1].getCompleteObject()
       ];
       setupFakeConnection(
         mockBackend,
@@ -105,15 +105,66 @@ describe('ClaBackendService', () => {
         }
       );
       const resultObservable = claBackendService.getLinkedRepos(testData.githubRepos);
-      expect(resultObservable).toEmitValues(testData.linkedRepo);
+      expect(resultObservable).toEmitValues(testData.linkedRepos);
     }));
   });
 
+  describe('getLinkedOrgs', () => {
+    it('should return the linked orgs and merge the avatarUrl property from the Github orgs', fakeAsync(() => {
+      const fakeResponseBody = [{
+        orgId: '1234',
+        org: 'test',
+        gist: 'gist url'
+      },
+      {
+        orgId: '5678',
+        org: 'test2',
+        gist: 'gist url 2'
+      }];
+      const expectedResult = [
+        new LinkedOrg({
+          orgId: '1234',
+          org: 'test',
+          gist: 'gist url',
+          avatarUrl: 'avatar url'
+        }),
+        new LinkedOrg({
+          orgId: '5678',
+          org: 'test2',
+          gist: 'gist url 2',
+          avatarUrl: 'avatar url 2'
+        }),
+      ];
+      const githubOrgs = [
+        {
+          id: 1234,
+          login: 'test',
+          avatarUrl: 'avatar url'
+        },
+        {
+          id: 5678,
+          login: 'test2',
+          avatarUrl: 'avatar url 2'
+        }
+      ];
+
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl: '/api/org/getForUser',
+          expectedBody: {},
+          fakeResponseBody
+        }
+      );
+      const resultObservable = claBackendService.getLinkedOrgs(githubOrgs);
+      expect(resultObservable).toEmitValues(expectedResult);
+    }));
+  });
   describe('linkRepo', () => {
     it('should link the cla and repo', fakeAsync(() => {
       const repo = testData.githubRepos[0];
       const gist = testData.gists[0];
-      const linkedRepo = testData.linkedRepo[0];
+      const linkedRepo = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {
@@ -127,9 +178,41 @@ describe('ClaBackendService', () => {
     }));
   });
 
+  describe('linkOrg', () => {
+    it('should link the cla and org', fakeAsync(() => {
+      const org = {
+        id: 1234,
+        login: 'test',
+        avatarUrl: 'avatar url'
+      };
+      const gist =     {
+      fileName: 'myGist1.txt',
+      url: 'gist url',
+      updatedAt: null,
+      history: []
+    };
+      const linkedOrg = new LinkedOrg({
+        orgId: '1234',
+        org: 'test',
+        gist: 'gist url',
+        avatarUrl: 'avatar url'
+      });
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl: '/api/org/create',
+          expectedBody: linkedOrg.getCompleteObject(),
+          fakeResponseBody: {}
+        }
+      );
+      const resultObservable = claBackendService.linkOrg(org, gist);
+      expect(resultObservable).toEmitValues(linkedOrg);
+    }));
+  });
+
   describe('unlinkCla', () => {
     it('should unlink the cla and repo if the item is a LinkedRepo', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {
@@ -145,7 +228,7 @@ describe('ClaBackendService', () => {
 
   describe('getClaSignatures', () => {
     it('should return an array of cla signatures', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       const expectedBody = {
         repoId: item.id,
         gist: { gist_url: item.gist, gist_version: '1234' }
@@ -186,7 +269,7 @@ describe('ClaBackendService', () => {
 
   describe('addWebhook', () => {
     it('should add a webhook for the linked item', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {
@@ -202,7 +285,7 @@ describe('ClaBackendService', () => {
 
   describe('removeWebhook', () => {
     it('should remove the webhook for the linked item', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {
@@ -218,7 +301,7 @@ describe('ClaBackendService', () => {
 
   describe('getWebhook', () => {
     it('should return the webhook for the linked item', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {
@@ -231,7 +314,7 @@ describe('ClaBackendService', () => {
       expect(resultObservable).toEmitValues({});
     }));
     it('should return null if an empty body is returned', fakeAsync(() => {
-      const item = testData.linkedRepo[0];
+      const item = testData.linkedRepos[0];
       setupFakeConnection(
         mockBackend,
         {

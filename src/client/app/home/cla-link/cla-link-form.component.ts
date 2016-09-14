@@ -114,7 +114,7 @@ export class ClaLinkFormComponent {
   public getGithubRepos() {
     return this.removeUnwanted(
       this.githubCacheService.getCurrentUserRepos(),
-      this.homeService.getLinkedOrgs()
+      this.homeService.getLinkedRepos()
     );
   }
   public getGithubOrgs() {

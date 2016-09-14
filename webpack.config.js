@@ -19,9 +19,6 @@ module.exports = {
     extensions: ['', '.js', '.ts']
   },
 
-  // externals: {
-  //   "jquery": "jQuery"
-  // },
   devtool: 'cheap-module-source-map',
 
   module: {
@@ -60,16 +57,6 @@ module.exports = {
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
       name: ['app', 'vendor', 'polyfills']
-    }),
-    // new webpack.optimize.UglifyJsPlugin({
-    //   beautify: false,
-    //   mangle: { screw_ie8 : true }, 
-    //   compress: { screw_ie8: true }, 
-    //   comments: false 
-    // }),
-
-    // new HtmlWebpackPlugin({
-    //   template: 'src/index.html'
-    // })
+    })
   ]
 };

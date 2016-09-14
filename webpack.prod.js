@@ -19,10 +19,6 @@ module.exports = {
     extensions: ['', '.js', '.ts']
   },
 
-  // externals: {
-  //   "jquery": "jQuery"
-  // },
-  devtool: 'cheap-module-source-map',
 
   module: {
     loaders: [

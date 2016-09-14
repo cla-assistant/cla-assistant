@@ -26,11 +26,12 @@ var webhooks = {};
 
 // Use webpack dev server
 if (process.env.NODE_ENV !== 'production') {
-    var webpack = require('webpack')
-    var webpackDevMiddleware = require('webpack-dev-middleware')
-    var webpackConfig = require('../../webpack.config')
-    var compiler = webpack(webpackConfig)
-    app.use(webpackDevMiddleware(compiler, { noInfo: false, publicPath: webpackConfig.output.publicPath }))
+    var webpack = require('webpack');
+    var webpackDevMiddleware = require('webpack-dev-middleware');
+    var webpackConfig = require('../../webpack.config');
+    var compiler = webpack(webpackConfig);
+    app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: webpackConfig.output.publicPath }));
+    console.log('Wepack-dev-middleware running. Disable in production');
 }
 
 // redirect from http to https

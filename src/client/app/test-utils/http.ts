@@ -22,12 +22,14 @@ interface FakeConnection {
   expectedBody?: Object;
   fakeResponseBody?: Object;
 }
-export function setupFakeConnection(mockBackend, ...fakeConnections: FakeConnection[]) {
+export function setupFakeConnection(mockBackend, ...fakeConnections: Array<FakeConnection>) {
   if (fakeConnections.length === 0) { return; }
   let count = 0;
   mockBackend.connections.subscribe((conn: MockConnection) => {
     testExpected(fakeConnections[count].expectedUrl, conn.request.url);
-    testExpected(fakeConnections[count].expectedBody, JSON.parse(conn.request.text()));
+    if (conn.request.getBody() != null) {
+      testExpected(fakeConnections[count].expectedBody, JSON.parse(conn.request.text()));
+    }
 
     if (typeof fakeConnections[count].fakeResponseBody !== 'undefined') {
       const responseOptions = new ResponseOptions({

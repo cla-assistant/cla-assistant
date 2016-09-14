@@ -17,7 +17,7 @@ module.exports = {
   // externals: {
   //   "jquery": "jQuery"
   // },
-  //devtool: 'eval-source-map',
+  devtool: 'inline-source-map',
 
   module: {
     loaders: [

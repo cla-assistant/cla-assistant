@@ -135,8 +135,8 @@ export class GithubService {
    */
   private extractGistId(gistUrl: string) {
     // Example url: https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
-    const urlParts = gistUrl.split('/');
-    return urlParts.length >= 3 ? urlParts[urlParts.length - 1] : undefined;
+    const urlParts = gistUrl.slice(gistUrl.indexOf('gist.github.com')).split('/')
+    return urlParts.length >= 2 ? urlParts[urlParts.length - 1] : undefined;
   }
 
   public getPrimaryEmail(): Observable<string> {

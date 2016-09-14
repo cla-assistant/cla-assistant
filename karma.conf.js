@@ -8,28 +8,12 @@ module.exports = function (config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-    files: [{ pattern: './config/spec-bundle.ts', watched: false }],
+    files: [{ pattern: './config/spec-bundle.js', watched: false }],
     exclude: [],
 
-    preprocessors: { './config/spec-bundle.ts': ['coverage', 'webpack', 'sourcemap'] },
+    preprocessors: { './config/spec-bundle.js': ['webpack', 'sourcemap'] },
 
     webpack: testWebpackConfig,
-
-    jasmineDiffReporter: {
-      pretty: true,
-      json: true,
-      multiline: {
-        before: 1,
-        after: 1,
-        indent: 2
-      },
-      matchers: { 
-        toEmitValues: {
-          pattern: /to emit ([\S\s]*?) but got ([\S\s]*?) \./,
-          pretty: true
-        } 
-      }
-    },
 
     mochaReporter: {
       colors: {
@@ -67,7 +51,7 @@ module.exports = function (config) {
     webpackServer: { noInfo: true },
 
 
-    reporters: ['jasmine-diff', 'mocha'],
+    reporters: ['mocha'],
 
     port: 9876,
 

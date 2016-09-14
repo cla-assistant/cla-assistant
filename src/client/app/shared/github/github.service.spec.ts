@@ -57,6 +57,13 @@ describe('GithubService', () => {
       const resultObservable = githubService.getGistInfo('http://gist.github.com/bla/v1234');
       expect(resultObservable).toEmitValues(expectedResponse);
     }));
+
+    it('should throw an error if the gist url is invalid', () => {
+      const resultObservable = githubService.getGistInfo('http://invalid.com/invalid/123');
+      const spy = jasmine.createSpy('catch error');
+      resultObservable.subscribe(null, spy);
+      expect(spy).toHaveBeenCalledWith('The gist url http://invalid.com/invalid/123 seems to be invalid')
+    });
   });
 
   describe('getUser', () => {
@@ -204,6 +211,33 @@ describe('GithubService', () => {
 
   });
 
+  describe('getDefaultGist', () => {
+    it('should request static file and return default gist', fakeAsync(() => {
+      const expectedUrl = '/static/cla-assistant.json';
+      const fakeResponseBody = JSON.parse(`{
+        "default-cla": [
+          {
+            "fileName": "SAP individual CLA",
+            "url": "https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8"
+          }
+        ]
+      }`);
+      const expectedResult = [{
+        fileName: 'SAP individual CLA',
+        url: 'https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8'
+      }];
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl,
+          fakeResponseBody
+        }
+      );
+      const resultObservable = githubService.getDefaultGist();
+      expect(resultObservable).toEmitValues(expectedResult);
+    }));
+  });
+
   describe('getUserRepos', () => {
 
     it('should return all repos of the logged in user', fakeAsync(() => {
@@ -272,6 +306,73 @@ describe('GithubService', () => {
       expect(resultObservable).toEmitValues(expectedResult);
     }));
 
+  });
+
+  describe('getPrimaryEmail', () => {
+    it('should return the primary email of the current user', fakeAsync(() => {
+      const expectedUrl = '/api/github/call';
+      const expectedBody = {
+        obj: 'users',
+        fun: 'getEmails',
+        arg: { }
+      };
+      const fakeResponseBody = {
+        data: [
+          {
+            email: 'octocat@github.com',
+            primary: false
+          },
+          {
+            email: 'support@github.com',
+            primary: true
+          }
+        ]
+      };
+      const expectedResult: string = 'support@github.com';
+      setupFakeConnection(
+        mockBackend,
+        {
+          expectedUrl,
+          expectedBody,
+          fakeResponseBody
+        }
+      );
+      const resultObservable = githubService.getPrimaryEmail();
+      expect(resultObservable).toEmitValues(expectedResult);
+    }));
+    it('should return first email if user has not set a primary email', fakeAsync(() => {
+      const fakeResponseBody = {
+        data: [
+          {
+            email: 'octocat@github.com',
+            primary: false
+          }
+        ]
+      };
+      const expectedResult: string = 'octocat@github.com';
+      setupFakeConnection(
+        mockBackend,
+        {
+          fakeResponseBody
+        }
+      );
+      const resultObservable = githubService.getPrimaryEmail();
+      expect(resultObservable).toEmitValues(expectedResult);
+    }));
+    it('should return an empty string if the user has no emails', fakeAsync(() => {
+      const fakeResponseBody = {
+        data: []
+      };
+      const expectedResult: string = '';
+      setupFakeConnection(
+        mockBackend,
+        {
+          fakeResponseBody
+        }
+      );
+      const resultObservable = githubService.getPrimaryEmail();
+      expect(resultObservable).toEmitValues(expectedResult);
+    }));
   });
 
 });

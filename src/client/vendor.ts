@@ -17,6 +17,7 @@ import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/throw';
 
 // Make jquery visible globally
 window['jQuery'] = require('jquery');
