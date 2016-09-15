@@ -18,8 +18,8 @@ router.use('/accept/:owner/:repo', function(req, res) {
 			if (err) {
 				logger.error(err);
 				signed = false;
-			}	
-			var redirectUrl = '/' + req.args.owner + '/' + req.args.repo;
+			}
+var redirectUrl = '/' + req.args.owner + '/' + req.args.repo;
 			redirectUrl = req.query.pullRequest ? redirectUrl + ';pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});

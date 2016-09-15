@@ -175,18 +175,25 @@ module.exports = {
     //	gist.gist_version (optional)
     countCLA: function (req, done) {
         var params = req.args;
+        var self = this;
         function getMissingParams(cb) {
-            if (params.gist && params.gist.gist_url && params.gist.gist_version) {
+            if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
                 cb();
             } else {
-                repoService.get(req.args, function (err, repo) {
-                    if (err || !repo) {
-                        cb(err + ' There is no such repo');
-                        log.info(err, 'There is no such repo for args: ', req.args);
+                self.getLinkedItem(req, function (err, item) {
+                    if (err || !item) {
+                        cb(err + ' There is no such item');
+                        log.info(err, 'There is no such item for args: ', req.args);
+                        return;
                     }
-                    params.token = repo.token;
+                    params.token = item.token;
+                    if (item.orgId) {
+                        params.orgId = item.orgId;
+                    } else if (item.repoId) {
+                        params.repoId = item.repoId;
+                    }
                     params.gist = params.gist && params.gist.gist_url ? params.gist : {
-                        gist_url: repo.gist
+                        gist_url: item.gist
                     };
                     cla.getGist(req.args, function (e, gist) {
                         params.gist.gist_version = gist.history[0].version;
@@ -216,7 +223,7 @@ module.exports = {
                 org: req.args.org,
                 per_page: 100
             },
-            token: req.args.token
+            token: req.args.token || req.user.token
         }, function (err, repos) {
             if (repos && !repos.message && repos.length > 0) {
                 repos.forEach(function (repo) {
@@ -224,7 +231,7 @@ module.exports = {
                         args: {
                             owner: repo.owner.login,
                             repo: repo.name,
-                            token: req.args.token
+                            token: req.args.token || req.user.token
                         },
                         user: req.user
                     };
@@ -373,10 +380,10 @@ module.exports = {
     }
 
     // updateDBData: function (req, done) {
-    //     repoService.updateDBData(req, function(){
+    //     // repoService.updateDBData(req, function(){
     //         cla.updateDBData(req, function(msg){
     //             done(null, msg);
     //         });
-    //     });
+    //     // });
     // }
 };
