@@ -1,7 +1,8 @@
-import { Component, Input, trigger, state, style, transition, animate } from '@angular/core';
+import { Component, Input, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { Http } from '@angular/http';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
+declare const AdobeEdge: any;
 
 @Component({
   selector: 'login',
@@ -28,7 +29,7 @@ import { AuthService } from './auth.service';
   ]
 
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   public active: number;
 
   // text slider
@@ -47,6 +48,21 @@ export class LoginComponent {
     this._updateNumberOfCLAs();
     this._updateNumberOfStars();
     this._TriggerSlider();
+  }
+
+  public ngOnInit() {
+    AdobeEdge.loadComposition('assets/js/CLA_signature_MouseOver', 'EDGE-110781156', {
+      scaleToFit: "none",
+      centerStage: "none",
+      minW: "0",
+      maxW: "undefined",
+      width: "550px",
+      height: "400px"
+    }, {
+        dom: []
+      }, {
+        dom: []
+      });
   }
 
   public logAdminIn() {
