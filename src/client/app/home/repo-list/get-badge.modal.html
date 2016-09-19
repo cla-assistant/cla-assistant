@@ -1,0 +1,27 @@
+    <modal #modal>
+      <modal-body class="modal-primary get-badge">
+        <div (click)="modal.close()" class="fa fa-times close-button"></div>
+        <div style="text-align: center; font-size:26px; margin-top: 20px;">
+            Get your badge url
+        </div>
+
+        <div class="export-button row">
+          <div class="form-group has-feedback col-xs-8">
+            <ng-select 
+              [items]="types"
+              [initData]="[types[0]]"
+              (selected)="typeSelected($event)">
+            </ng-select>
+          </div>
+          <button #copyButton type="button" class="btn btn-info col-xs-4" >Copy To Clipboard</button>
+        </div>
+        <div class="well get-badge" style="overflow-y:scroll">
+            <p>
+                {{selectedType.url}}
+            </p>
+        </div>
+        <div style="margin-top:30px">
+            <img [src]='badgeUrl' alt='CLA assistant' />
+        </div>
+    </modal-body>
+    </modal>

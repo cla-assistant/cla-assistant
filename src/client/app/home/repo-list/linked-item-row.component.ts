@@ -1,9 +1,11 @@
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import { Popover } from 'ng2-popover';
 
 import { RepoLink } from './repo-link.component';
 import { OrgLink } from './org-link.component';
 import { StatusIndicatorComponent } from './status-indicator.component';
 import { ReportModal } from './report/report.modal';
+import { GetBadgeModal } from './get-badge.modal';
 
 import {
   GithubCacheService,
@@ -22,6 +24,8 @@ import {
 export class LinkedItemRowComponent implements OnInit {
   @Input() public item: LinkedItem;
   @Output() public onUnlink: EventEmitter<LinkedItem>;
+  @ViewChild('popover') private popover: Popover;
+  @ViewChild(GetBadgeModal) private getBadgeModal;
 
   private gist: Gist = {
     fileName: '',
@@ -70,4 +74,17 @@ export class LinkedItemRowComponent implements OnInit {
   public isValid() {
     return this.gistValid && this.webhookValid;
   }
+
+  public recheckPR() {
+    this.claBackendService.validatePullRequest(this.item).subscribe(() => {
+      this.popover.hide();
+    });
+  }
+
+  public getBadge() {
+    this.getBadgeModal.open();
+    this.popover.hide();
+  }
+
+  notImplemented(){}
 }

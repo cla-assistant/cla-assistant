@@ -61,10 +61,11 @@ export class LinkedRepo extends LinkedItem {
   /**
    * Returns the name object consisting of the repo and user name
    */
-  public getNameObject(): { repo: string, user: string } {
+  public getNameObject(): { repo: string, user: string, owner: string } {
     return {
       repo: this.repo.repo,
-      user: this.repo.owner
+      owner: this.repo.owner,
+      user: this.repo.owner // Owner is called user in webhook API calls 
     };
   }
   /**

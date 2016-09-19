@@ -19,8 +19,9 @@ import { ConfirmRemoveModal } from './home/repo-list/confirm-remove.modal';
 import { RepoLink } from './home/repo-list/repo-link.component';
 import { OrgLink } from './home/repo-list/org-link.component';
 import { StatusIndicatorComponent } from './home/repo-list/status-indicator.component';
+import { GetBadgeModal } from './home/repo-list/get-badge.modal';
 import { ReportModal } from './home/repo-list/report/report.modal';
-import { VersionDropdownComponent } from './home/repo-list/report/version-dropdown.component'
+import { VersionDropdownComponent } from './home/repo-list/report/version-dropdown.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login';
 import { SignClaComponent } from './sign-cla/sign-cla.component';
@@ -56,6 +57,7 @@ import {SELECT_DIRECTIVES} from 'ng2-select';
     RepoLink,
     OrgLink,
     StatusIndicatorComponent,
+    GetBadgeModal,
     ReportModal,
     VersionDropdownComponent,
     CustomFieldComponent,

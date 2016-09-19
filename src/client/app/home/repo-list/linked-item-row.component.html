@@ -39,9 +39,10 @@
   <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
     <popover-content #popover [closeOnClickOutside]="true">
       <button class="btn btn-info" (click)="notImplemented()" style="width:100%">Import</button>
-      <button class="btn btn-info" (click)="notImplemented()" style="margin-top:5px; width:100%">Recheck PRs</button>
-      <button class="btn btn-info" (click)="notImplemented()" style="margin-top:5px; width:100%">Get Badge</button>
+      <button class="btn btn-info" (click)="recheckPR()" style="margin-top:5px; width:100%">Recheck PRs</button>
+      <button *ngIf="item.getType() == 'repo'" class="btn btn-info" (click)="getBadge()" style="margin-top:5px; width:100%">Get Badge</button>
     </popover-content>
+    <get-badge-modal *ngIf="item.getType() == 'repo'" [repo]="item.getCompleteObject()"></get-badge-modal>
     <i 
       class="fa fa-ellipsis-h action-icon" 
       tooltip="More..." 

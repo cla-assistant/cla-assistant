@@ -198,10 +198,6 @@ export class ClaBackendService {
    * 
    * @param linkedItem The linked item whose gist will be returned 
    * 
-   * 
-   * 
-   * 
-   * 
    */
   public getGistContent(linkedItem: LinkedItem, gistUrl?, gistVersion?): Observable<any> {
     const arg = linkedItem.getIdObject();
@@ -257,6 +253,14 @@ export class ClaBackendService {
       repo: repoName,
       custom_fields: JSON.stringify(customFields)
     });
+  }
+
+  public validatePullRequest(linkedItem: LinkedItem) {
+    if (linkedItem instanceof LinkedOrg) {
+      return this.call('cla', 'validateOrgPullRequests', linkedItem.getNameObject());
+    }else {
+      return this.call('cla', 'validatePullRequests', linkedItem.getNameObject());
+    }
   }
 
   /**
