@@ -1,24 +1,46 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, trigger, state, style, transition, animate } from '@angular/core';
+import { Http } from '@angular/http';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 @Component({
   selector: 'login',
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
+  animations: [
+    trigger('slideState', [
+      state('inactive', style({
+        opacity: 0,
+        marginLeft: '-100%'
+      })),
+      state('active', style({
+        opacity: 1,
+        marginLeft: '0px'
+      })),
+      transition('inactive => active', [
+        style({
+          opacity: 0,
+          marginLeft: '100%'
+        }),
+        animate('500ms linear')
+      ]),
+      transition('active => inactive', animate('500ms linear'))
+    ])
+  ]
+
 })
 export class LoginComponent {
-  @Input() public active: number;
+  public active: number;
 
   // text slider
-  public numberRepos: number;
-  public numberClas: number;
-  public numberStars: number;
-  public time = '5000';
+  public numberRepos: number = 0;
+  public numberClas: number = 0;
+  public numberStars: number = 0;
 
 
   constructor(
     private authService: AuthService,
-    private router: Router) {
+    private router: Router,
+    private http: Http) {
 
     this.active = 0;
     this._updateNumberOfRepos();
@@ -32,23 +54,28 @@ export class LoginComponent {
   }
 
   private _updateNumberOfRepos() {
-    this.numberRepos = 10;
+    this.http.get('/count/repos').subscribe(
+      (res) => this.numberRepos = res.json().count
+    );
   }
 
   private _updateNumberOfCLAs() {
-    this.numberClas = 1;
+    this.http.get('/count/clas').subscribe(
+      (res) => this.numberClas = res.json().count
+    );
   }
 
   private _updateNumberOfStars() {
-    this.numberStars = 5;
+    this.http.get('/count/stars').subscribe(
+      (res) => this.numberStars = res.json().count
+    );
   }
 
   private _TriggerSlider() {
-    setTimeout(
-      (time) => {
-        this.active = +this.active + 1 === 3 ? 0 : +this.active + 1;
-        this._TriggerSlider();
+    setInterval(
+      () => {
+        this.active = this.active + 1 === 3 ? 0 : this.active + 1;
       },
-      this.time);
+      5000);
   }
 }

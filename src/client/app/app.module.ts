@@ -23,7 +23,7 @@ import { GetBadgeModal } from './home/repo-list/get-badge.modal';
 import { ReportModal } from './home/repo-list/report/report.modal';
 import { VersionDropdownComponent } from './home/repo-list/report/version-dropdown.component';
 import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login';
+import { LoginComponent, FeatureComponent } from './login';
 import { SignClaComponent } from './sign-cla/sign-cla.component';
 import { CustomFieldComponent } from './sign-cla/custom-field.component';
 
@@ -45,6 +45,7 @@ import {SELECT_DIRECTIVES} from 'ng2-select';
     AppComponent,
     AppFrameComponent,
     LoginComponent,
+    FeatureComponent,
     HomeComponent,
     SignClaComponent,
     DropdownComponent,

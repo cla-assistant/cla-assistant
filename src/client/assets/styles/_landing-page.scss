@@ -154,7 +154,7 @@ a.lp-signin:hover, a.lp-signin:focus {
 
 @media(min-width: 1315px){
   .feature-col{
-	width: 1100px;
+	width: 1105px;
   }
 }
 
@@ -166,24 +166,19 @@ a.lp-signin:hover, a.lp-signin:focus {
 }
 
 
-.feature-title, .feature-title-add.feature-title-add-active {
-  top: 10 !important;
+.feature-title {
+  top: 10px !important;
 }
 
 .lp-section-shutter, .lp-section-shutter-add.lp-section-shutter-add-active {
   margin-top: -25%;
 }
 
-.lp-section-shutter-remove.lp-section-shutter-remove-active {
-}
-
 .lp-textblock
 {
-  color:white;
-  margin-left:100%;
+  color:white;  
   position: absolute;
   width: 100%;
-  opacity: 0;
   i {
 	  font-size: 25px;
   }
@@ -194,62 +189,28 @@ a.lp-signin:hover, a.lp-signin:focus {
 	margin-bottom:10px;
 }
 
-.section-show-add, .section-show-remove,
-.lp-textblock-animate-add, .lp-textblock-animate-remove,
-{
-  -webkit-transition:all linear 0.5s;
-  -moz-transition:all linear 0.5s;
-  -o-transition:all linear 0.5s;
-  transition:all linear 0.5s;
-}
-
-.section-show, .section-show-add.section-show-add-active {
-  top:0;
-  height: 500px;
-  padding: 25px 0px;
-}
-
-.section-show-remove.section-show-remove-active {
-  padding: 0;
-  height: 250px;
-}
-
-.lp-textblock-animate, .lp-textblock-animate-add.lp-textblock-animate-add-active {
-  opacity: 1;
-  margin-left: 0 !important;
-}
-
-.lp-textblock-animate-remove.lp-textblock-animate-remove-active {
-  opacity: 0;
-  margin-left: -100% !important;
-}
-
-
 .lp-screenshot {
   margin-left: 0px;
 }
 
-.feature-show.ng-hide-add.ng-hide-add-active,
-.feature-show.ng-hide-remove.ng-hide-remove-active,
-.next-step-show.ng-hide-add.ng-hide-add-active,
-.next-step-show.ng-hide-remove.ng-hide-remove-active,
-.feature-title-add, .feature-title-remove,
+.feature-hidden,
+.feature-header,
 .lp-screenshot,
 {
   -webkit-transition:all ease 0.5s;
   transition:all ease 0.5s;
 }
 
+.feature-hidden {
+  opacity: 0;
+  /*top: 50%;*/
+  height: 1px;
+}
+
 .feature-show {
   opacity: 0.9;
   height: 250px;
   bottom: 0;
-}
-
-.feature-show.ng-hide {
-  opacity: 0;
-  /*top: 50%;*/
-  height: 1px;
 }
 
 .feature-text {

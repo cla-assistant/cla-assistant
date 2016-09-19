@@ -1,0 +1,9 @@
+<div class="feature-box" (mouseenter)="showText = true" (mouseleave)="showText = false">
+    <img [src]="iconSrc" class="center-block feature-img">
+    <div [class.feature-show]="showText" class="lp-row feature-text feature-hidden">
+        {{text}}
+    </div>
+    <div [class.feature-title]="showText" class="lp-row feature-header">
+        {{header}}
+    </div>
+</div>

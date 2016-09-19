@@ -1,20 +1,45 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <base href="/">
     <title>CLA assistant</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
- 
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+
     <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600" rel="stylesheet" type="text/css">
-  </head>
+    
+    <script type="text/javascript" charset="utf-8" src="assets/js/edge.5.0.1.min.js"></script>
+    <script>
+        AdobeEdge.loadComposition('assets/js/CLA_signature_MouseOver', 'EDGE-110781156', {
+            scaleToFit: "none",
+            centerStage: "none",
+            minW: "0",
+            maxW: "undefined",
+            width: "550px",
+            height: "400px"
+        }, {
+            dom: []
+        }, {
+            dom: []
+        });
+    </script>
+    <style>
+        .edgeLoad-EDGE-110781156 {
+            visibility: hidden;
+        }
+    </style>
+</head>
 
-  <body>
+<body>
     <app>Loading...</app>
     <script src="/polyfills.js"></script>
     <script src="/vendor.js"></script>
     <script src="/app.js"></script>
-  </body>
+</body>
+
 </html>

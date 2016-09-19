@@ -34,13 +34,13 @@
       </div>
       <div class="center-block">
         <div class="feature-col center-block">
-          <feature id="feature1" iconsrc="/assets/images/feature1.svg" header="Authentication" text="Sign in with your GitHub account"
+          <feature id="feature1" iconSrc="/assets/images/feature1.svg" header="Authentication" text="Sign in with your GitHub account"
             class="lp-feature"></feature>
-          <feature id="feature2" iconsrc="/assets/images/feature2.svg" header="Integration" text="CLA assistant notifies you about new contributions via GitHub pull requests"
+          <feature id="feature2" iconSrc="/assets/images/feature2.svg" header="Integration" text="CLA assistant notifies you about new contributions via GitHub pull requests"
             class="lp-feature"></feature>
-          <feature id="feature3" iconsrc="/assets/images/feature3.svg" header="Status updates" text="CLA assistant updates the status of pull requests when a contributor signs your CLA"
+          <feature id="feature3" iconSrc="/assets/images/feature3.svg" header="Status updates" text="CLA assistant updates the status of pull requests when a contributor signs your CLA"
             class="lp-feature"></feature>
-          <feature id="feature4" iconsrc="/assets/images/feature4.svg" header="Review" text="Review and export the list of contributors who have signed your CLA"
+          <feature id="feature4" iconSrc="/assets/images/feature4.svg" header="Review" text="Review and export the list of contributors who have signed your CLA"
             class="lp-feature"></feature>
         </div>
       </div>
@@ -54,7 +54,7 @@
         </p>
       </div>
       <div id="Stage" load class="EDGE-110781156 center-block resize-img"></div>
-      <div class="center-block lp-hassle-free-signing">
+      <div class="center-block lp-hassle-free-signing-outer">
         <ol class="lp-hassle-free-signing-list">
           <li>Create a pull request</li>
           <li>Click to accept the repository's CLA</li>
@@ -69,9 +69,9 @@
         <h4 class="lp-premium">ACTIVITY</h4>
       </div>
       <div class="col-md-4 col-md-offset-4 lp-activity-content">
-        <p class="lp-textblock" [ngClass]="{true:'lp-textblock-animate', false:''}[active === 0]"><i class="octicon octicon-repo"></i> {{numberRepos}} registered repositories</p>
-        <p class="lp-textblock" [ngClass]="{true:'lp-textblock-animate', false:''}[active === 1]"><img src="/assets/images/CLA_logo.svg" class="lp-textblock-icon" /> {{numberClas}} signed CLAs</p>
-        <p class="lp-textblock" [ngClass]="{true:'lp-textblock-animate', false:''}[active === 2]"><i class="octicon octicon-star"></i> {{numberStars}} GitHub stars</p>
+        <p class="lp-textblock" [@slideState]="active == 0 ? 'active' : 'inactive'"><i class="octicon octicon-repo"></i> {{numberRepos}} registered repositories</p>
+        <p class="lp-textblock" [@slideState]="active == 1 ? 'active' : 'inactive'"><img src="/assets/images/CLA_logo.svg" class="lp-textblock-icon" /> {{numberClas}} signed CLAs</p>
+        <p class="lp-textblock" [@slideState]="active == 2 ? 'active' : 'inactive'"><i class="octicon octicon-star"></i> {{numberStars}} GitHub stars</p>
       </div>
     </div>
 
@@ -101,7 +101,7 @@
       <div class="row lp-bottom-space">
         <div class="center-block">
           <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
-            <img class="float-left" src="/assets/images/howto2.svg" class="lp-howto-img">
+            <img class="float-left lp-howto-img" src="/assets/images/howto2.svg">
           </div>
         </div>
         <div class="col-xs-12 col-sm-4  col-sm-pull-4 col-md-4 col-md-pull-4 col-sm-offset-4 col-md-offset-4">
@@ -117,7 +117,7 @@
       <div class="row lp-bottom-space">
         <div class="center-block">
           <div class="col-xs-12 col-sm-4 col-md-4">
-            <img class="float-right" src="/assets/images/howto3.svg" class="lp-howto-img">
+            <img class="float-right lp-howto-img" src="/assets/images/howto3.svg" >
           </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
@@ -133,7 +133,7 @@
       <div class="row lp-bottom-space">
         <div class="center-block">
           <div class="col-xs-12 col-sm-4 col-sm-push-8 col-md-4 col-md-push-8 ">
-            <img class=" float-left" src="/assets/images/howto4.svg" class="lp-howto-img">
+            <img class="float-left lp-howto-img" src="/assets/images/howto4.svg">
           </div>
         </div>
         <div class="col-xs-12 col-sm-4  col-sm-pull-4 col-md-4 col-md-pull-4 col-sm-offset-4 col-md-offset-4">
@@ -190,7 +190,7 @@
         <div class="center-block">
           <div class="navbar-text navbar-right">
             <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" class="footer-terms-of-service">
-                        Terms of Service &amp Privacy Policy
+                        Terms of Service &amp; Privacy Policy
                       </a>
           </div>
         </div>
