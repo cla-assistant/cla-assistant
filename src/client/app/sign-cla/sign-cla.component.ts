@@ -7,7 +7,7 @@ import { AppFrameComponent } from '../app-frame/app-frame.component';
 import { CustomFieldComponent } from './custom-field.component';
 import { GithubCacheService, User } from '../shared/github/';
 import { ClaBackendService, LinkedItem } from '../shared/claBackend';
-import { AuthService } from '../login/auth.service';
+import { AuthService } from '../login';
 
 
 @Component({
@@ -36,7 +36,6 @@ export class SignClaComponent implements OnInit {
     private route: ActivatedRoute,
     private claBackendService: ClaBackendService,
     private githubCacheService: GithubCacheService,
-    private authService: AuthService,
     @Inject('Window') private window: Window,
     private domSanitizationService: DomSanitizationService) { }
 

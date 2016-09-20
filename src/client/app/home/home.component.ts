@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../login/auth.service';
+import { AuthService } from '../login';
 import { AppFrameComponent } from '../app-frame/app-frame.component';
 import { LinkedItemListComponent } from './repo-list/linked-item-list.component';
 import { GithubCacheService } from '../shared/github';

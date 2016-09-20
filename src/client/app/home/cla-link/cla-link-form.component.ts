@@ -10,7 +10,7 @@ import {
   LinkedOrg
 } from '../../shared/claBackend';
 import { HomeService } from '../home.service';
-import { AuthService } from '../../login/auth.service';
+import { AuthService } from '../../login';
 import { DropdownComponent } from './dropdown.component';
 import { InfoModal } from './info.modal';
 import { ConfirmAddModal } from './confirm-add.modal';

@@ -1,8 +1,8 @@
 import { RouterModule, RouterConfig } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './login';
 import { SignClaComponent } from './sign-cla/sign-cla.component';
-import { AuthGuard } from './login/auth.guard';
+import { AuthGuard } from './login';
 
 /**
  * Defines the main routes for the application:
@@ -17,4 +17,4 @@ export const routes: RouterConfig = [
 ];
 
 // exports the router service which will be bootstrapped in main.ts
-export const APP_ROUTER_MODULE = RouterModule.forRoot(routes);
+export const AppRouterModule = RouterModule.forRoot(routes);

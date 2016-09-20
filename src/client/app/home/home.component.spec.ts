@@ -4,7 +4,7 @@ import { provide } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { HomeComponent } from './home.component';
-import { AuthService } from '../login/auth.service';
+import { AuthService } from '../login';
 import { GithubCacheService } from '../shared/github';
 import { HomeService } from './home.service';
 
