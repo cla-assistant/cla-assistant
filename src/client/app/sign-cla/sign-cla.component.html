@@ -4,23 +4,25 @@
 
 			<div class="row center-block content-block" *ngIf="noLinkedItemError">
 				<h1>Error</h1>
-				<p>There is no CLA to sign for {{fullRepoName}}</p>
-				<p>({{noLinkedItemError}})</p>
+				<p id='error-header'>There is no CLA to sign for {{fullRepoName}}</p>
+				<p id='error-reason'>({{noLinkedItemError}})</p>
 			</div>
 
-			<form class="row content-block" *ngIf="!redirect && !noLinkedItemError"  (ngSubmit)="agree()">
+			<form id='cla-form' class="row content-block" *ngIf="!redirect && !noLinkedItemError"  (submit)="agree($event)">
 				<div class="col-md-8 col-md-offset-2" >
-					<h4 *ngIf="!signed">Please sign the CLA for {{fullRepoName}}</h4>
-					<h4 *ngIf="signed">You have signed the CLA for {{fullRepoName}}</h4>
+					<div id="cla-header">
+						<h4 *ngIf="!signed">Please sign the CLA for {{fullRepoName}}</h4>
+						<h4 *ngIf="signed">You have signed the CLA for {{fullRepoName}}</h4>
+					</div>
 					<div class="cla-box well">
 						<div [innerHtml]="claText"></div>
 					</div>
 
 					<div *ngIf="hasCustomFields">
 						<p class="text-center">
-							<button *ngIf="!signed && claText && !loggedInUser" class="btn btn-info sign-btn"  (click)="signIn()">Sign in with GitHub to agree</button>
+							<button id='button-sign-in' type='button' *ngIf="!signed && claText && !isUserSignedIn()" class="btn btn-info sign-btn"  (click)="signIn()">Sign in with GitHub to agree</button>
 						</p>
-						<div *ngIf="!!loggedInUser">
+						<div *ngIf="isUserSignedIn()">
 							<custom-field
 								class="form-group"
 								*ngFor="let key of customKeys"
@@ -34,15 +36,17 @@
 						</div>
 					</div>
 
-					<p class="text-center" *ngIf="!!loggedInUser && !signed && claText">
+					<p class="text-center" *ngIf="!signed && claText">
 						<button 
+							id='button-agree-cla' 
 							class="btn btn-info sign-btn" 
-							*ngIf="hasCustomFields" 
+							*ngIf="hasCustomFields && isUserSignedIn()" 
 							[disabled]="!customFieldsValid"
 							type="submit" >
 							I agree
 						</button>
 						<button 
+							id='button-sign-in-and-agree'
 							class="btn btn-info sign-btn" 
 							*ngIf="!hasCustomFields"
 							type="submit" >
@@ -53,7 +57,7 @@
 			</form>
 
 			<div class="row center-block content-block" *ngIf="signed && redirect">
-				<h3>Thank you {{loggedInUser.login}}</h3>
+				<h3 id="thank-you-text">Thank you {{loggedInUser.login}}</h3>
 				<h4>for signing the CLA!</h4>
 				<br>
 				<h4>we are now taking you back to GitHub</h4>

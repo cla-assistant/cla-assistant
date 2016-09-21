@@ -23,7 +23,7 @@ export class GithubCacheService {
   private getValue(name: string, requestValue: () => Observable<any>) {
     if (!this.cache[name]) {
       this.cache[name] = requestValue()
-        .catch((err) => this.handle401(err))
+        // .catch((err) => this.handle401(err))
         .cache(1);
     }
     return this.cache[name];
@@ -58,11 +58,11 @@ export class GithubCacheService {
     return this.getValue('gistInfo-' + gistUrl, () => this.githubService.getGistInfo(gistUrl));
   }
 
-  private handle401(err): Observable<{}> {
-    if (err.status === 401) {
-      this.router.navigate(['login']);
-      return Observable.empty();
-    }
-    return Observable.throw(err);
-  }
+  // private handle401(err): Observable<{}> {
+  //   if (err.status === 401) {
+  //     this.router.navigate(['login']);
+  //     return Observable.empty();
+  //   }
+  //   return Observable.throw(err);
+  // }
 }

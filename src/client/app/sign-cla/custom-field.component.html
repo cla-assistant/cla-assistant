@@ -1,4 +1,4 @@
-<div [ngSwitch]="getType()">
+<div id="{{name}}" [ngSwitch]="getType()">
   <div *ngSwitchCase="'checkbox'" class="checkbox" [title]="data.description">
     <label [class.required]="data.required" [title]="data.description">
       <input (change)="onChange($event)" [disabled]="disabled" [checked]="value" [title]="data.description"  type="checkbox">
@@ -8,7 +8,7 @@
   <div *ngSwitchCase="'enum'"  [title]="data.description">
     <label [class.required]="data.required">{{data.title || name}} </label>
     <div class="checkbox" *ngFor="let prop of data.type.enum">
-        <input (change)="onChange($event)" [disabled]="disabled" [value]="prop" [checked]="prop==value" [title]="data.description" [name]="name" type="radio"/>
+        <input (change)="onChange($event)" [disabled]="disabled" [value]="prop" [checked]="prop==value" [title]="data.description"  type="radio"/>
         {{prop}}
     </div>    
   </div>

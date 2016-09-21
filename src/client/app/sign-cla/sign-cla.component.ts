@@ -12,11 +12,11 @@ import { AuthService } from '../login';
 
 @Component({
   selector: 'sign-cla',
- // directives: [AppFrameComponent, CustomFieldComponent],
+  // directives: [AppFrameComponent, CustomFieldComponent],
   templateUrl: 'sign-cla.component.html'
 })
 export class SignClaComponent implements OnInit {
-  private loggedInUser: User;
+  private loggedInUser: User = null;
   private signed = false;
   private claText: SafeHtml = null;
   private noLinkedItemError: string = null;
@@ -47,16 +47,21 @@ export class SignClaComponent implements OnInit {
     this.fullRepoName = `${this.userName}/${this.repoName}`;
 
     Observable.forkJoin([
-      this.getClaData(this.userName, this.repoName),
-      this.checkCla()
+      this.claBackendService.getGistContentByName(this.userName, this.repoName),
+      this.claBackendService.checkCla(this.userName, this.repoName),
+      this.githubCacheService.getCurrentUser().catch(() => Observable.of(null))
     ]).subscribe(
-      ([claData, hasSigned]: any[]) => {
+      ([claData, hasSigned, user]: any[]) => {
+        this.loggedInUser = user;
+
         this.claText = this.domSanitizationService.bypassSecurityTrustHtml(claData.claText);
         this.hasCustomFields = claData.hasCustomFields;
         this.customFields = claData.customFields;
         this.customKeys = claData.customKeys;
-        this.customKeys.forEach((key) => this.customValues[key] = '');
-        this.customFieldsValid = this.checkCustomFields();
+        if (this.customKeys) {
+          this.customKeys.forEach((key) => this.customValues[key] = '');
+          this.customFieldsValid = this.checkCustomFields();
+        }
 
         this.signed = hasSigned;
         if (hasSigned) {
@@ -70,27 +75,25 @@ export class SignClaComponent implements OnInit {
         }
       },
       err => this.noLinkedItemError = err);
+  }
 
-
-    this.githubCacheService.getCurrentUser().subscribe(
-      user => {
-        this.loggedInUser = user;
-      },
-      () => { this.loggedInUser = null; }
-    );
+  public isUserSignedIn() {
+    return this.loggedInUser != null;
   }
 
   private getSignedValues() {
-    this.claBackendService
-      .getSignatureValues(this.userName, this.repoName)
-      .subscribe(customFields => {
-        if (customFields) {
-          this.customKeys.forEach(key => {
-            this.customValues[key] = customFields[key];
-          });
-          this.customFieldsValid = this.checkCustomFields();
-        }
-      });
+    if (this.hasCustomFields) {
+      this.claBackendService
+        .getSignatureValues(this.userName, this.repoName)
+        .subscribe(customFields => {
+          if (customFields) {
+            this.customKeys.forEach(key => {
+              this.customValues[key] = customFields[key];
+            });
+            this.customFieldsValid = this.checkCustomFields();
+          }
+        });
+    }
   }
 
   private getGithubValues() {
@@ -114,16 +117,6 @@ export class SignClaComponent implements OnInit {
     }
   }
 
-  private checkCla() {
-    return this.claBackendService
-      .checkCla(this.userName, this.repoName)
-      .catch(() => Observable.of(false));
-  }
-  private getClaData(userName: string, repoName: string) {
-    return this.claBackendService
-      .getLinkedItem(userName, repoName)
-      .flatMap((item) => this.claBackendService.getGistContent(item));
-  }
   private onChange(key, value) {
     this.customValues[key] = value;
     this.customFieldsValid = this.checkCustomFields();
@@ -134,8 +127,8 @@ export class SignClaComponent implements OnInit {
     if (this.pullRequest) {
       redirectUrl += `/pull/${this.pullRequest}`;
     }
-    setTimeout(function () {
-      this.window.location.href = redirectUrl;
+    setTimeout(() => {
+      this.window.location.replace(redirectUrl);
     }, 5000);
   }
 
@@ -147,20 +140,21 @@ export class SignClaComponent implements OnInit {
         return isValid && value !== '' && value !== false && value !== null;
       }
       return isValid;
-    });
+    }, true);
   }
 
   private signIn(): void {
     let signinUrl = `/signin/${this.userName}/${this.repoName}`;
     signinUrl = this.pullRequest ? signinUrl + `?pullRequest=${this.pullRequest}` : signinUrl;
-    this.window.location.href = signinUrl;
+    this.window.location.replace(signinUrl);
   }
 
-  private agree(): void {
+  private agree(e: Event): void {
+    e.preventDefault();
     if (!this.hasCustomFields) {
       let acceptUrl = `/accept/${this.userName}/${this.repoName}`;
       acceptUrl = this.pullRequest ? acceptUrl + `?pullRequest=${this.pullRequest}` : acceptUrl;
-      this.window.location.href = acceptUrl;
+      this.window.location.replace(acceptUrl);
     } else if (this.loggedInUser) {
       this.claBackendService
         .signCla(this.userName, this.repoName, this.customValues)

@@ -1,10 +1,9 @@
 import { TestBed, inject, async, ComponentFixture } from '@angular/core/testing';
 import { OverridingTestComponentBuilder } from '@angular/compiler/testing';
-import { provide } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { HomeComponent } from './home.component';
-import { AuthService } from '../login';
+import { AuthService } from '../login/auth.service';
 import { GithubCacheService } from '../shared/github';
 import { HomeService } from './home.service';
 
@@ -25,9 +24,9 @@ describe('Home Component', () => {
     TestBed.configureTestingModule({
       declarations: [HomeComponent],
       providers: [
-        provide(AuthService, { useValue: authServiceMock }),
-        provide(GithubCacheService, { useValue: githubCacheServiceMock }),
-        provide(HomeService, { useValue: homeServiceMock })
+        {provide: AuthService, useValue: authServiceMock },
+        {provide: GithubCacheService, useValue: githubCacheServiceMock },
+        {provide: HomeService, useValue: homeServiceMock }
       ]
     });
   });

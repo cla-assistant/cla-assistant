@@ -34,6 +34,9 @@ export class CustomFieldComponent {
       value = event.target.checked;
     } else if (this.getType() === 'number') {
       value = parseInt(event.target.value, 10);
+      if (isNaN(value)) {
+        value = null;
+      }
     }
     else {
       value = event.target.value;

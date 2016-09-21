@@ -222,6 +222,12 @@ export class ClaBackendService {
     );
   }
 
+  public getGistContentByName(userName: string, repoName: string): Observable<any> {
+    return this.getLinkedItem(userName, repoName)
+      .flatMap((item) => this.getGistContent(item));
+  }
+
+
   /**
    * Checks whether the current user has signed the cla belonging to the
    * specified user and repo name.
@@ -235,7 +241,7 @@ export class ClaBackendService {
     return this.call('cla', 'check', {
       owner: userName,
       repo: repoName
-    });
+    }).catch(() => Observable.of(false));
   }
 
   public getSignatureValues(userName: string, repoName: string): Observable<Dict<any>> {

@@ -18,7 +18,7 @@
     "test": "npm run snyk-test && npm run test-server && npm run test-client",
     "test-server": "gulp test-server",
     "test-client": "karma start",
-    "test-client-watch": "npm run test-client -- --auto-watch --no-single-run",
+    "test-client-watch": "karma start --auto-watch --no-single-run --browsers Chrome",
     "test-client-with-coverage": "karma start --reporters jasmine-diff,mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
     "build-client-production": "webpack --config webpack.prod.js",
     "lint-client": "tslint ./src/client/**/*.ts",

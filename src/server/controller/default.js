@@ -12,22 +12,22 @@ var router = express.Router();
 router.use('/accept/:owner/:repo', function(req, res) {
 	req.args = {owner: req.params.owner, repo: req.params.repo};
 
-    if (req.isAuthenticated()) {
+	if (req.isAuthenticated()) {
 		cla.sign(req, function (err) {
 			var signed = true;
 			if (err) {
 				logger.error(err);
 				signed = false;
 			}
-var redirectUrl = '/' + req.args.owner + '/' + req.args.repo;
+			var redirectUrl = '/' + req.args.owner + '/' + req.args.repo + ';redirect=true';
 			redirectUrl = req.query.pullRequest ? redirectUrl + ';pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});
 
-    } else {
+	} else {
 		req.session.next = req.originalUrl;
 		return res.redirect('/auth/github?public=true');
-    }
+	}
 });
 
 router.use('/signin/:owner/:repo', function (req, res) {
