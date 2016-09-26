@@ -225,22 +225,26 @@ module.exports = {
             },
             token: req.args.token || req.user.token
         }, function (err, repos) {
-            if (repos && !repos.message && repos.length > 0) {
-                repos.forEach(function (repo) {
-                    var validateRequest = {
-                        args: {
-                            owner: repo.owner.login,
-                            repo: repo.name,
-                            token: req.args.token || req.user.token
-                        },
-                        user: req.user
-                    };
-                    self.validatePullRequests(validateRequest);
-                });
-            }
-            if (typeof done === 'function') {
-                done(repos.message || err, true);
-            }
+            orgService.get(req.args, function (err, linkedOrg) {
+                if (repos && !repos.message && repos.length > 0) {
+                    repos
+                        .filter(function (repo) { return !linkedOrg.isRepoExcluded(repo.name); })
+                        .forEach(function (repo) {
+                            var validateRequest = {
+                                args: {
+                                    owner: repo.owner.login,
+                                    repo: repo.name,
+                                    token: req.args.token || req.user.token
+                                },
+                                user: req.user
+                            };
+                            self.validatePullRequests(validateRequest);
+                        });
+                }
+                if (typeof done === 'function') {
+                    done(repos.message || err, true);
+                }
+            });
         });
     },
 

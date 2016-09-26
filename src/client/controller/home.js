@@ -371,7 +371,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var newClaOrg = {
                 orgId: $scope.selected.item.id,
                 org: $scope.selected.item.login,
-                gist: $scope.selected.gist.url
+                gist: $scope.selected.gist.url,
+                excludePattern: $scope.selected.item.excludePattern
             };
             mixOrgData(newClaOrg);
             return linkItem('org', newClaOrg);

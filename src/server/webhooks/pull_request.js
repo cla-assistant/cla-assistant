@@ -52,7 +52,9 @@ module.exports = function (req, res) {
             if (org) {
                 args.token = org.token;
                 args.gist = org.gist; //TODO: Test it!!
-                handleWebHook(args);
+                if (!org.isRepoExcluded(args.repo)) {
+                    handleWebHook(args);
+                }
             } else {
                 args.orgId = undefined;
                 repoService.get(args, function(e, repo){

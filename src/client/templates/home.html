@@ -61,6 +61,10 @@
 						  <span ng-if="!item.full_name" ng-bind-html="item.login | highlight: $select.search"></span>
 					</ui-select-choices>
 				</ui-select>
+				<span ng-if="selected.item && !isRepo(selected.item)">
+					<div style="margin-bottom: 5px; margin-top: 5px;"><i>Optional:</i> Exclude the following repos from the org</div>
+					<input class="form-control" ng-model="selected.item.excludePattern" placeholder="repo1,repo2,substring1"></input>
+				</span>
 			</div>
 		</div>
 		<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
