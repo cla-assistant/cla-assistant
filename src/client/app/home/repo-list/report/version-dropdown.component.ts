@@ -30,10 +30,12 @@ export class VersionDropdownComponent implements OnChanges {
   public ngOnChanges(changes) {
     if (changes.gist) {
       this.historyDropdownItems =
-        this.createDropdownItems(changes.gist.currentValue.history);
+          this.createDropdownItems(this.gist.history);
+      this.selectComp.active = [this.historyDropdownItems[0]];
+      this.selectComp.ngOnInit(); // Workaround to set selected value
+      this.selected(this.historyDropdownItems[0]);
     }
   }
-
 
   public clear() {
     this.selectComp.remove(null);
@@ -42,6 +44,7 @@ export class VersionDropdownComponent implements OnChanges {
   public selected(event) {
     if (event.id - 1 === this.gist.history.length) {
       this.versionSelected.emit({});
+      return;
     }
     this.versionSelected.emit(this.gist.history[event.id - 1]);
   }

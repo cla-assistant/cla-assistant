@@ -1,6 +1,6 @@
 <template #modalContent let-c="close" >
   <div class="report">
-    <div class="modal-body">
+    <div class="modal-body modal-primary">
       <div (click)="c()" class="fa fa-times close-button"></div>
       <div>
         <div style="text-align: center; font-size:26px; margin-top: 20px;">
@@ -36,7 +36,7 @@
             </div>
             <div class="row" style="margin-top:10px">
               <div 
-                class="offset-col-sm-1 col-sm-5 clickable" 
+                class="offset-sm-1 col-sm-5 clickable" 
                 style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" 
                 (click)="column = 'user_name'; reverse = !reverse;">
                 Contributor &nbsp;

@@ -36,11 +36,23 @@ export class ReportModal {
   }
 
   private exportAsCsv() {
+    if (this.contributors.length === 0) {
+      return;
+    }
+    let fields =
+      ['user_name', 'repo_owner', 'repo_name', 'gist_name', 'gist_url', 'gist_version', 'signed_at', 'org_cla'];
+    let fieldHeader =
+      ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation'];
+    Object.keys(this.contributors[0].custom_fields).forEach(key => {
+      fields.push(key);
+      fieldHeader.push(key);
+      this.contributors.forEach(obj => obj[key] = obj.custom_fields[key]);
+    });
     this.csvDownloadService.downloadAsCsv(
       'cla-assistant.csv',
       this.contributors,
-      ['user_name', 'repo_owner', 'repo_name', 'gist_name', 'gist_url', 'gist_version', 'signed_at', 'org_cla'],
-      ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation']
+      fields,
+      fieldHeader
     );
   }
 
@@ -59,6 +71,7 @@ export class ReportModal {
         this.contributors = [];
         if (signatures && signatures.length > 0) {
           this.contributors = signatures;
+          this.contributors.forEach(obj => obj.gist_name = this.getGistName());
         }
       }
     );

@@ -7,6 +7,7 @@ export interface Signature {
   gist_version: string;
   signed_at: string;
   org_cla: boolean;
+  custom_fields: any;
 }
 
 type SignatureApiResponse = Array<{
@@ -20,6 +21,7 @@ type SignatureApiResponse = Array<{
   gist_version: string,
   created_at: string,
   org_cla: boolean,
+  custom_fields: any;
 }>
 
 export function createSignaturesFromApiResponse(
@@ -32,6 +34,7 @@ export function createSignaturesFromApiResponse(
     gist_url: signature.gist_url,
     gist_version: signature.gist_version,
     signed_at: signature.created_at,
-    org_cla: signature.org_cla
+    org_cla: signature.org_cla,
+    custom_fields: signature.custom_fields ? JSON.parse(signature.custom_fields) : {}
   }));
 }
