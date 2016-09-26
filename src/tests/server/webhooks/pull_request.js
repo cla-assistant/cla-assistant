@@ -300,7 +300,8 @@ describe('webhook pull request', function () {
             assert(args.orgId);
             done(null, {
                 org: 'orgOfRequestedRepo',
-				token: 'abc'
+				token: 'abc',
+				isRepoExcluded: function() { return false; }
 			});
         });
 	});
