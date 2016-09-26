@@ -62,17 +62,22 @@
         font-weight: 200;
     }
 }
-
-.confirm-add .modal-dialog{
+.modal-sm{
+    width: 455px;
+    max-width: 455px;
+}
+.modal-lg{
     width: 550px;
+    max-width: 550px;
+}
 
+.confirm-add {  
     p {
         color:$green;
     }
 }
 
-.link-success .modal-dialog{
-    width: 455px;
+.link-success {  
     button {
         margin-left: 0px;
     }

@@ -1,9 +1,9 @@
-$navbar-default-bg: $body-bg;
-/*$navbar-default-color: $gray-darkest;
-$navbar-default-link-color: $gray-darkest;
-$navbar-default-link-hover-color: $gray-darker;
-$navbar-default-brand-hover-color: $gray;
-$navbar-default-link-active-color: $gray;*/
+$navbar-light-bg: $body-bg;
+$navbar-light-color: $gray-darkest;
+$navbar-light-link-color: $gray-darkest;
+$navbar-light-link-hover-color: $gray-darker;
+$navbar-light-brand-hover-color: $gray;
+$navbar-light-link-active-color: $gray;
 $navbar-margin-bottom: 0;
 $nav-link-padding: 15px 20px 15px 0px;
 
@@ -17,7 +17,7 @@ $footer-height: 50px;
 }
 
 
-.navbar-default {
+.navbar-light {
 	border-color: white;
 
 	.container-fluid{
@@ -27,8 +27,8 @@ $footer-height: 50px;
 	}
 }
 
-.navbar-default .navbar-text {
-  	color: $gray-darkest;
+.navbar-light .navbar-text {
+  color: $gray-darkest;
 	margin: 0;
 }
 
@@ -40,13 +40,16 @@ $footer-height: 50px;
 	float: left;
 	margin-left: 0px
 }
-
+.navbar-fixed-top{
+	border-style: solid;
+  border-width: 0 0 1px;
+}
 .navbar-fixed-bottom {
 	position: absolute;
   	bottom: 0;
   	width: 100%;
 	border: transparent;
-	color: $navbar-default-color;
+	color: $navbar-light-color;
 }
 
 .navbar-top-border {
@@ -60,6 +63,7 @@ $footer-height: 50px;
 }
 .navbar{
 	min-height: 60px;
+	padding: 0;
 }
 
 .navbar-center {
@@ -76,7 +80,7 @@ $footer-height: 50px;
 	.navbar-text {
 		margin: 0px;
 	}
-	.navbar-default .container-fluid{
+	.navbar-light .container-fluid{
 			padding-top: 0px;
 	}
 

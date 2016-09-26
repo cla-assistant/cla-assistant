@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild} from '@angular/core';
-import { Popover } from 'ng2-popover';
 
 import { RepoLink } from './repo-link.component';
 import { OrgLink } from './org-link.component';
@@ -24,7 +23,6 @@ import {
 export class LinkedItemRowComponent implements OnInit {
   @Input() public item: LinkedItem;
   @Output() public onUnlink: EventEmitter<LinkedItem>;
-  @ViewChild('popover') private popover: Popover;
   @ViewChild(GetBadgeModal) private getBadgeModal;
 
   private gist: Gist = {
@@ -77,14 +75,14 @@ export class LinkedItemRowComponent implements OnInit {
 
   public recheckPR() {
     this.claBackendService.validatePullRequest(this.item).subscribe(() => {
-      this.popover.hide();
     });
   }
 
   public getBadge() {
     this.getBadgeModal.open();
-    this.popover.hide();
   }
 
-  notImplemented(){}
+  notImplemented(popover){
+    console.log('asdfasdf')
+  }
 }

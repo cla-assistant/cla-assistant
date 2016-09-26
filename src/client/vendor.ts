@@ -19,9 +19,6 @@ import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/throw';
 
-// Make jquery visible globally
-window['jQuery'] = require('jquery');
-import 'bootstrap';
 import 'ng2-bs3-modal/ng2-bs3-modal';
 import 'ng2-select';
 import 'ng2-tooltip';

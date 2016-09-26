@@ -1,6 +1,9 @@
 // overwrite bootstrap styles
+$enable-rounded: false;
+
 
 // fonts
+$font-size-root: 14px !default;
 $font-family-sans-serif: sans-serif;
 
 // colours
@@ -10,6 +13,9 @@ $gray-dark: #999;
 $gray: #ddd;
 $gray-light: #ececec;
 $gray-lighter: #f5f5f5;
+$gray-lightest: #f8f8f8;
+
+
 
 $white: #fff;
 
@@ -37,6 +43,7 @@ $link-color: #3c3c3d;
 
 // body
 $body-bg: $gray-lighter;
+$body-color: $gray-darkest;
 
 // typography
 $text-color: $brand-primary-darkest;
@@ -56,12 +63,12 @@ $input-border: $gray-light;
 $input-color: $gray-darker;
 $input-color-placeholder: $gray;
 
-// panels
-$panel-bg: transparent;
-$panel-default-text: $gray-darker;
-$panel-default-border: $gray-light;
-$panel-default-text: $gray-darker;
-$panel-default-heading-bg: $gray-lighter;
+// cards
+$card-bg: transparent;
+$card-default-text: $gray-darker;
+$card-default-border: $gray-light;
+$card-default-text: $gray-darker;
+$card-default-heading-bg: $gray-lighter;
 
 // dropdown
 $dropdown-link-color: $gray-darker;
@@ -77,14 +84,14 @@ $component-active-color: #555;
 // buttons
 $btn-info-bg: #d0eaea;
 $btn-info-color: $brand-primary;
-$btn-default-border: #ececec;
-$btn-default-color: $brand-primary-darkest;
+$btn-secondary-border: #ececec;
+$btn-secondary-color: $brand-primary-darkest;
 $btn-primary-bg: $brand-primary-lightest;
 $btn-primary-color: $brand-primary-darkest;
 
 // wells
-$well-bg: $white;
-$well-border: transparent;
+$card-bg: $white;
+$card-border: transparent;
 
 // list group
 $list-group-hover-bg: $gray-light;
@@ -116,11 +123,11 @@ $breadcrumb-active-color: $brand-primary;
 $breadcrumb-separator: ' ';
 
 // label
-$label-default-bg: $brand-info;
-$label-color: $brand-primary;
+$tag-default-bg: $brand-info;
+$tag-color: $brand-primary;
 
 // import bootstrap
-@import "../../../../node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+@import "../../../../node_modules/bootstrap/scss/bootstrap.scss";
 // import our files
 @import 'animation';
 @import 'breadcrumb';
@@ -145,7 +152,7 @@ $label-color: $brand-primary;
 //
 // Heights used in calculations below:
 // 52px: navbar height
-// 48px: issues panel header
+// 48px: issues card header
 //
 
 html {
@@ -180,14 +187,21 @@ h4{
   padding-left: 0;
 }
 
-label, .checkbox label {
+h5{
+  margin: 10px 0;
+}
+
+label, .form-check label {
   margin-top: $margin-small;
   font-weight: 100;
 }
 
 label.required:after,
-.checkbox label.required:after {
+.form-check label.required:after {
   content: " *";
+}
+b {
+  font-weight: bold
 }
 
 .text-body {
@@ -238,6 +252,12 @@ img.muted {
   /*margin-top:0.25em*/
 }
 
+
+.card {
+  margin-bottom: 0px;
+  border: none;
+}
+
 // Font Awesome and Octicons
 
 i.fa-times,
@@ -281,7 +301,7 @@ small {
 
 // Helper classes
 
-.center-block {
+.m-x-auto {
   text-align: center;
 }
 

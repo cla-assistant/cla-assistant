@@ -1,26 +1,26 @@
-.panel.inverse {
+.card.inverse {
   border: 0;
   margin-bottom: 0;
 
-  .panel-heading {
+  .card-heading {
     background: $gray-darker;
     border-bottom: 0;
     color: #fff;
   }
 
-  .panel-body {
+  .card-body {
     border-bottom: 10px solid #fff;
   }
 }
 
-.panel.comment {
+.card.comment {
   word-break: break-all;
 
-  .panel-heading {
+  .card-heading {
     background: $gray-light;
   }
 
-  .panel-body {
+  .card-body {
     background: #fff;
   }
 }

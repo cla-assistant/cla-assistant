@@ -17,6 +17,7 @@ const ng2SelectStyle = require('../assets/styles/ng2-select.css');
   encapsulation: ViewEncapsulation.None,
   template: `
     <router-outlet></router-outlet>
+    <template ngbModalContainer></template> 
   `
 })
 export class AppComponent {

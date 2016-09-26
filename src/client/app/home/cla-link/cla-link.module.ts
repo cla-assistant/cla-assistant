@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule }       from '@angular/common';
 import { SelectModule } from '../../select.module';
-import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { ClaLinkComponent } from './cla-link.component';
 import { ClaLinkFormComponent } from './cla-link-form.component';
@@ -16,7 +16,7 @@ import { LinkStatusModal } from './link-status.modal';
   imports: [
     CommonModule,
     SelectModule,
-    Ng2Bs3ModalModule
+    NgbModule
   ],
   declarations: [
     ClaLinkComponent,

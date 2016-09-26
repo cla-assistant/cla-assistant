@@ -25,7 +25,7 @@ export class LinkedItemListComponent {
   constructor(private homeService: HomeService) { }
 
   public unlinkItem(repo) {
-    this.confirmRemoveModal.open().subscribe(
+    this.confirmRemoveModal.open().then(
       confirmed => confirmed && this.homeService.unlinkItem(repo)
     );
   }

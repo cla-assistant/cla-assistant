@@ -1,5 +1,5 @@
 import { Component, ViewChild, Input } from '@angular/core';
-import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectComponent } from 'ng2-select';
 
 import { CsvDownloadService } from './csv-download.service';
@@ -8,38 +8,31 @@ import { VersionDropdownComponent } from './version-dropdown.component';
 import { ClaBackendService } from '../../../shared/claBackend/claBackend.service';
 @Component({
   selector: 'report-modal',
-  //directives: [],
   providers: [CsvDownloadService],
   templateUrl: './report.modal.html'
 })
 export class ReportModal {
   @Input() private claItem: LinkedItem;
   @Input() private gist;
-  @ViewChild('reportModal')
-  private modal: ModalComponent;
+  @ViewChild('modalContent')
+  private content;
 
   private contributors: Signature[];
   private selectedVersion: string;
-  private visible: boolean = false;
   private reverse: boolean;
   private column: string;
 
   constructor(
     private claBackendService: ClaBackendService,
-    private csvDownloadService: CsvDownloadService
+    private csvDownloadService: CsvDownloadService,
+    private modalService: NgbModal
   ) { }
 
   public open() {
     this.contributors = null;
     this.reverse = false;
     this.column = 'user_name';
-    this.visible = true;
-    this.modal.open();
-  }
-
-  public close() {
-    this.visible = false;
-    this.modal.close();
+    this.modalService.open(this.content).result.catch(() => false);
   }
 
   private exportAsCsv() {

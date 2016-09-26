@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule }       from '@angular/common';
 
 import { SelectModule } from '../../select.module';
-import { TooltipModule } from 'ng2-tooltip';
-import { PopoverModule } from 'ng2-popover';
-import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmRemoveModal } from './confirm-remove.modal';
 import { GetBadgeModal } from './get-badge.modal';
@@ -23,9 +21,7 @@ import { VersionDropdownComponent } from './report/version-dropdown.component';
   imports: [
     CommonModule,
     SelectModule,
-    TooltipModule,
-    PopoverModule,
-    Ng2Bs3ModalModule
+    NgbModule
   ],
   providers: [
     CsvDownloadService

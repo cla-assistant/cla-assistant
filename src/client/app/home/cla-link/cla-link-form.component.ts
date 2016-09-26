@@ -60,7 +60,7 @@ export class ClaLinkFormComponent {
   }
 
   public link() {
-    this.confirmAddModal.open().subscribe(
+    this.confirmAddModal.open().then(
       confirmed => confirmed && this.confirmAddClosed()
     );
   }

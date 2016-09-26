@@ -4,6 +4,7 @@
 import { NgModule }       from '@angular/core';
 import { BrowserModule  } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRouterModule } from './app.routes';
 import { SignClaModule } from './sign-cla';
@@ -23,6 +24,7 @@ import { AppComponent }   from './app.component';
     BrowserModule,
     HttpModule,
     AppRouterModule,
+    NgbModule,
 
     SignClaModule,
     LoginModule,

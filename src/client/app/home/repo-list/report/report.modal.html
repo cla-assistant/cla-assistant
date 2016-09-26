@@ -1,67 +1,68 @@
-<modal class="report" #reportModal>
-  <modal-body class="modal-primary" *ngIf="visible">
-    <div (click)="close()" class="fa fa-times close-button"></div>
-    <div>
-      <div style="text-align: center; font-size:26px; margin-top: 20px;">
-        Contributors who signed {{getGistName()}}
+<template #modalContent let-c="close" >
+  <div class="report">
+    <div class="modal-body">
+      <div (click)="c()" class="fa fa-times close-button"></div>
+      <div>
+        <div style="text-align: center; font-size:26px; margin-top: 20px;">
+          Contributors who signed {{getGistName()}}
+        </div>
+
+        <div class="export-button row">
+          <div class="form-group has-feedback col-xs-8">
+            <version-dropdown [gist]="gist" (versionSelected)="onVersionSelected($event)"></version-dropdown>
+          </div>
+          <button type="button" class="btn btn-info col-xs-4" (click)="exportAsCsv()">Export list</button>
+        </div>
+
+        <div class="card card-block report" style="max-height: 500px; overflow-y:scroll">
+          <div *ngIf="loading()">
+            <div class="row">
+              <div class="col-sm-12 m-x-auto">
+                <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin-top:-15px">
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!loading()">
+            <div class="row" style="position: relative; padding-top: 0; padding-bottom: 25px;">
+              <div class="col-sm-6" style="text-align:right">
+                <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{getGistName()}}</div>
+              </div>
+              <div class="m-x-auto" style="position:absolute; width:100%">
+                &nbsp;<img src="/assets/images/linked.svg" class="icon" style="height:17px">&nbsp;
+              </div>
+              <div class="col-sm-6">
+                <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{claItem.getFullName()}}</div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <div 
+                class="offset-col-sm-1 col-sm-5 clickable" 
+                style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" 
+                (click)="column = 'user_name'; reverse = !reverse;">
+                Contributor &nbsp;
+                <span *ngIf="column=='user_name'" class="fa"  [ngClass]="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]"></span>
+              </div>
+              <div 
+                class="col-sm-5 clickable" 
+                style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" 
+                (click)="column = 'signed_at'; reverse = !reverse;">
+                Date &nbsp;
+                <span *ngIf="column=='signed_at'" class="fa" [ngClass]="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" *ngFor="let contributor of contributors">
+            <div class="offset-sm-1 col-sm-5">{{contributor.user_name}}</div>
+            <div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
+          </div>
+        </div>
       </div>
 
-      <div class="export-button row">
-        <div class="form-group has-feedback col-xs-8">
-           <version-dropdown [gist]="gist" (versionSelected)="onVersionSelected($event)"></version-dropdown>
-        </div>
-        <button type="button" class="btn btn-info col-xs-4" (click)="exportAsCsv()">Export list</button>
-      </div>
-
-      <div class="well report" style="max-height: 500px; overflow-y:scroll">
-        <div *ngIf="loading()">
-          <div class="row">
-            <div class="col-sm-12 center-block">
-              <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin-top:-15px">
-            </div>
-          </div>
-        </div>
-        <div *ngIf="!loading()">
-          <div class="row" style="position: relative; padding-top: 0; padding-bottom: 25px;">
-            <div class="col-sm-6" style="text-align:right">
-              <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{getGistName()}}</div>
-            </div>
-            <div class="center-block" style="position:absolute; width:100%">
-              &nbsp;<img src="/assets/images/linked.svg" class="icon" style="height:17px">&nbsp;
-            </div>
-            <div class="col-sm-6">
-              <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{claItem.getFullName()}}</div>
-            </div>
-          </div>
-          <div class="row" style="margin-top:10px">
-            <div 
-              class="col-sm-offset-1 col-sm-5 clickable" 
-              style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" 
-              (click)="column = 'user_name'; reverse = !reverse;">
-              Contributor &nbsp;
-              <span *ngIf="column=='user_name'" class="fa"  [ngClass]="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]"></span>
-            </div>
-            <div 
-              class="col-sm-5 clickable" 
-              style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" 
-              (click)="column = 'signed_at'; reverse = !reverse;">
-              Date &nbsp;
-              <span *ngIf="column=='signed_at'" class="fa" [ngClass]="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="row" *ngFor="let contributor of contributors">
-          <!-- <a class="col-sm-offset-1 col-sm-5" ng-href="{{contributor.html_url}}" target="space" >{{contributor.user_name}}</a> -->
-          <div class="col-sm-offset-1 col-sm-5">{{contributor.user_name}}</div>
-          <div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
-        </div>
+      <div *ngIf="!loading()" style="padding-top:30px;">
+        <span *ngIf="contributors.length == 1"><b>{{contributors.length}}</b> contributor signed this CLA</span>
+        <span *ngIf="contributors.length != 1"><b>{{contributors.length}}</b> contributors signed this CLA</span>
       </div>
     </div>
-
-    <div *ngIf="!loading()" style="padding-top:30px;">
-      <span *ngIf="contributors.length == 1"><b>{{contributors.length}}</b> contributor signed this CLA</span>
-      <span *ngIf="contributors.length != 1"><b>{{contributors.length}}</b> contributors signed this CLA</span>
-    </div>
-  </modal-body>
-</modal>
+  </div>
+</template>

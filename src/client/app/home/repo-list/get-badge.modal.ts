@@ -1,5 +1,5 @@
 import { Component, ViewChild, OnInit, Output, Input, EventEmitter, Inject, ElementRef } from '@angular/core';
-import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ClaRepo } from '../../shared/claBackend/repo';
 
 type DropdownItem = { id: number, text: string, url: string };
@@ -9,17 +9,19 @@ type DropdownItem = { id: number, text: string, url: string };
   templateUrl: './get-badge.modal.html'
 })
 export class GetBadgeModal implements OnInit {
-  @ViewChild(ModalComponent)
-  private modal: ModalComponent;
   @ViewChild('copyButton')
   private copyButton: ElementRef;
+  @ViewChild('modalContent')
+  private content;
   @Input()
   private repo: ClaRepo;
   private types: Array<DropdownItem>;
   private selectedType: DropdownItem;
   private badgeUrl: string;
 
-  public constructor( @Inject('Window') private window: Window) {
+  public constructor(
+    private modalService: NgbModal,
+    @Inject('Window') private window: Window) {
 
   }
 
@@ -56,12 +58,7 @@ export class GetBadgeModal implements OnInit {
     ];
     this.selectedType = this.types[0];
 
-    const clipboard = new Clipboard(this.copyButton.nativeElement, {
-      text: () => {
-        return this.selectedType.url
-      }
 
-    });
   }
 
   private typeSelected(item: DropdownItem) {
@@ -69,6 +66,11 @@ export class GetBadgeModal implements OnInit {
   }
 
   public open() {
-    this.modal.open();
+    this.modalService.open(this.content).result;
+    new Clipboard(document.querySelector('#copy-button'), {
+      text: () => {
+        return this.selectedType.url;
+      }
+    });
   }
 }

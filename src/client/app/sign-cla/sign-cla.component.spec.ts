@@ -117,9 +117,6 @@ describe('Sign Cla Component', () => {
   function getClaHeaderText(): DebugElement {
     return fixture.debugElement.query(By.css('#cla-header h4'));
   }
-  function getClaForm(): DebugElement {
-    return fixture.debugElement.query(By.css('#cla-form'));
-  }
   function getAgreeButton(): DebugElement {
     return fixture.debugElement.query(By.css('#button-agree-cla'));
   }
@@ -150,6 +147,12 @@ describe('Sign Cla Component', () => {
   function getErrorReason(): DebugElement {
     return fixture.debugElement.query(By.css('#error-reason'));
   }
+  function submitClaForm() {
+    const event = { preventDefault: jasmine.createSpy('preventDefault') };
+    const form = fixture.debugElement.query(By.css('#cla-form'));
+    form.triggerEventHandler('submit', event);
+    expect(event.preventDefault).toHaveBeenCalled();
+  }
 
 
   describe('when cla does not have custom fields', () => {
@@ -171,9 +174,7 @@ describe('Sign Cla Component', () => {
         expect(getSignInAndAgreeButton() != null).toBeTruthy('Sign in and agree button not visible!');
       });
       it('should redirect to agree url when form is submitted', () => {
-        const event = { preventDefault: jasmine.createSpy('preventDefault') };
-        getClaForm().triggerEventHandler('submit', event);
-        expect(event.preventDefault).toHaveBeenCalled();
+        submitClaForm();
         expect(windowMock.location.replace).toHaveBeenCalledWith('/accept/TestUser/TestRepo?pullRequest=15');
       });
     });
@@ -298,15 +299,10 @@ describe('Sign Cla Component', () => {
           expect(options[1].nativeElement.type).toEqual('radio');
         });
         it('should sign cla and redirect after 5 seconds', fakeAsync(() => {
-          const event = { preventDefault: jasmine.createSpy('preventDefault') };
-          getClaForm().triggerEventHandler('submit', event);
-
-          expect(event.preventDefault).toHaveBeenCalled();
           expect(windowMock.location.replace).not.toHaveBeenCalled();
-
+          submitClaForm();
           tick(5000);
-          const url = 'https://github.com/TestUser/TestRepo';
-          expect(windowMock.location.replace).toHaveBeenCalledWith(url);
+          expect(windowMock.location.replace).toHaveBeenCalledWith('https://github.com/TestUser/TestRepo');
         }));
       });
       describe('and cla is signed', () => {

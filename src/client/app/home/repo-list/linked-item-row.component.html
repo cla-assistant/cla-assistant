@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md text">
+  <div class="col-xs-12 col-lg-3 hidden-xs-down hidden-md-down hidden-lg-down text">
     <a bind-href="gist.html_url" target="space">{{gist.url}}</a>
   </div>
 
@@ -33,22 +33,23 @@
   <status-indicator
     [gistValid]="gistValid" 
     [webhookValid]="webhookValid" 
-    class="col-xs-4 col-sm-1 col-lg-1 center-block">
+    class="col-xs-4 col-sm-1 col-lg-1 m-x-auto">
   </status-indicator>
 
   <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false">
-    <popover-content #popover [closeOnClickOutside]="true">
-      <button class="btn btn-info" (click)="notImplemented()" style="width:100%">Import</button>
-      <button class="btn btn-info" (click)="recheckPR()" style="margin-top:5px; width:100%">Recheck PRs</button>
-      <button *ngIf="item.getType() == 'repo'" class="btn btn-info" (click)="getBadge()" style="margin-top:5px; width:100%">Get Badge</button>
-    </popover-content>
+    <template #popoverContent>
+      <button class="btn btn-info" (click)="notImplemented();popover.close()" style="width:100%">Import</button>
+      <button class="btn btn-info" (click)="recheckPR();popover.close()" style="margin-top:5px; width:100%">Recheck PRs</button>
+      <button *ngIf="item.getType() == 'repo'" class="btn btn-info" (click)="getBadge();popover.close()" style="margin-top:5px; width:100%">Get Badge</button>
+    </template>
     <get-badge-modal *ngIf="item.getType() == 'repo'" [repo]="item.getCompleteObject()"></get-badge-modal>
     <i 
       class="fa fa-ellipsis-h action-icon" 
-      tooltip="More..." 
-      tooltipPlacement="bottom"
-      [popover]="popover"
-      popoverPlacement="right"></i>
+      [ngbPopover]="popoverContent"
+      #popover="ngbPopover"
+      triggers="manual"
+      (click)="popover.toggle()"
+      placement="right"></i>
     <i class="fa fa-trash-o action-icon" style="font-size:18px" (click)="onUnlink.emit(item)" tooltip="Unlink" tooltipPlacement="bottom" ></i>
   </div>
 </div>

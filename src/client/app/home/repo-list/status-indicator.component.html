@@ -1,10 +1,10 @@
-<popover-content #popover>
+<template #popoverContent>
     <i class="fa" [ngClass]="{true: 'fa-check', false: 'fa-times'}[gistValid]" style="white-space: nowrap;"> gist</i><br>
     <i class="fa" [ngClass]="{true: 'fa-check', false: 'fa-times'}[webhookValid]" style="white-space: nowrap;"> webhook</i>
-</popover-content>
+</template>
 <img 
-  [popover]="popover"
-  popoverPlacement="right" 
-  [popoverOnHover]="true" 
+  [ngbPopover]="popoverContent"
+  placement="right" 
+  triggers="mouseenter:mouseleave"
   class="is-link-active-img" 
   [src]="gistValid && webhookValid ? '/assets/images/link_active.svg' : '/assets/images/link_inactive.svg'">

@@ -19,7 +19,7 @@
   &.disabled,
   &[disabled],
   fieldset[disabled] & {
-    @include opacity(.3);
+    opacity: .3;
   }
 }
 
