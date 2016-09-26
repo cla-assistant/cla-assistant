@@ -19,9 +19,7 @@ import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/throw';
 
-import 'ng2-bs3-modal/ng2-bs3-modal';
 import 'ng2-select';
-import 'ng2-tooltip';
-import 'ng2-popover';
+import '@ng-bootstrap/ng-bootstrap';
 import 'json2csv';
 

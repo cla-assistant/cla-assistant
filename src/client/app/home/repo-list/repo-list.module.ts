@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule }       from '@angular/common';
 
-import { SelectModule } from '../../select.module';
+import { SelectModule } from 'ng2-select';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { ConfirmRemoveModal } from './confirm-remove.modal';

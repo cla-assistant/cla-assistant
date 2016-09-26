@@ -3,8 +3,8 @@ import { CommonModule }       from '@angular/common';
 
 import { LoginComponent } from './login.component';
 import { FeatureComponent } from './feature.component';
-import { AuthGuard } from './auth.guard.ts';
-import { AuthService } from './auth.service.ts';
+import { AuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
 
 @NgModule({
   imports: [

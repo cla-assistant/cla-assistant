@@ -1,7 +1,7 @@
-export * from './login.component.ts';
-export * from './feature.component.ts'
+export * from './login.component';
+export * from './feature.component'
 
-export * from './auth.guard.ts';
-export * from './auth.service.ts';
+export * from './auth.guard';
+export * from './auth.service';
 
-export * from './login.module.ts';
+export * from './login.module';

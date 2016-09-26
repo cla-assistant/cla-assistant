@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DomSanitizationService, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 
 import { AppFrameComponent } from '../app-frame/app-frame.component';
@@ -37,7 +37,7 @@ export class SignClaComponent implements OnInit {
     private claBackendService: ClaBackendService,
     private githubCacheService: GithubCacheService,
     @Inject('Window') private window: Window,
-    private domSanitizationService: DomSanitizationService) { }
+    private domSanitizer: DomSanitizer) { }
 
   public ngOnInit() {
     this.userName = this.route.snapshot.params['user'];
@@ -54,7 +54,7 @@ export class SignClaComponent implements OnInit {
       ([claData, hasSigned, user]: any[]) => {
         this.loggedInUser = user;
 
-        this.claText = this.domSanitizationService.bypassSecurityTrustHtml(claData.claText);
+        this.claText = this.domSanitizer.bypassSecurityTrustHtml(claData.claText);
         this.hasCustomFields = claData.hasCustomFields;
         this.customFields = claData.customFields;
         this.customKeys = claData.customKeys;

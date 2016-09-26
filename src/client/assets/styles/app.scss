@@ -244,6 +244,10 @@ img.muted {
   color: $gray-darker;
 }
 
+.text-muted, .dropdown-header {
+  color: #8f8f8f !important;
+}
+
 .text {
   white-space: nowrap;
   overflow: hidden;
@@ -251,6 +255,7 @@ img.muted {
   padding-right: 0px;
   /*margin-top:0.25em*/
 }
+
 
 
 .card {
