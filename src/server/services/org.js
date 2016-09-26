@@ -13,7 +13,8 @@ module.exports = {
             orgId: args.orgId,
             org: args.org,
             gist: args.gist,
-            token: args.token
+            token: args.token,
+            excludePattern: args.excludePattern
         }, function (err, org) {
             done(err, org);
         });
