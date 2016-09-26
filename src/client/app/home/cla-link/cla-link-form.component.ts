@@ -26,7 +26,7 @@ interface Link {
 
 @Component({
   selector: 'cla-link-form',
- // directives: [DropdownComponent, InfoModal, ConfirmAddModal],
+  // directives: [DropdownComponent, InfoModal, ConfirmAddModal],
   templateUrl: './cla-link-form.component.html'
 })
 export class ClaLinkFormComponent {
@@ -98,17 +98,29 @@ export class ClaLinkFormComponent {
       {
         title: 'Repositories',
         items: this.getGithubRepos(),
-        getItemText: (item: GithubRepo) => item.fullName
+        getItemText: this.generateRepoHtml
       }
     ];
     if (this.isUserOrgAdmin) {
       categories.unshift({
         title: 'Organizations',
         items: this.getGithubOrgs(),
-        getItemText: (item: GithubOrg) => item.login
+        getItemText: this.generateOrgHtml
       });
     }
     return categories;
+  }
+  private generateRepoHtml(repo: GithubRepo) {
+    return `
+      <span class="octicon ${repo.fork ? 'octicon-repo-forked' : 'octicon-repo'}"></span>
+      <span> ${repo.fullName} </span>
+    `;
+  }
+  private generateOrgHtml(org: GithubOrg) {
+    return `
+      <img src="${org.avatarUrl}" alt="" style="width:20px">
+      <span> ${org.login} </span>
+    `;
   }
 
   public getGithubRepos() {
