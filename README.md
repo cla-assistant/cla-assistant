@@ -32,41 +32,43 @@ Following steps need to be done:
  - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/add_custom_fields.gif))
  - describe custom fields in JSON format (according to the [JSON Schema](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/custom-fields-schema.json))
 
-        {
-            "name": {
-                "title": "Full Name",
-                "type": "string",
-                "githubKey": "name"
+    ```json
+    {
+        "name": {
+            "title": "Full Name",
+            "type": "string",
+            "githubKey": "name"
+        },
+        "email": {
+            "title": "E-Mail",
+            "type": "string",
+            "githubKey": "email",
+            "required": true
+        },
+        "age": {
+            "title": "Age",
+            "description": "Age in years",
+            "type": "number",
+            "minimum": 18,
+            "maximum": 99
+        },
+        "agreement": {
+            "title": "I have read and agree to the CLA",
+            "type": "boolean",
+            "required": true
+        },
+        "category": {
+            "title": "How do you sign?",
+            "type": {
+                "enum": [
+                    "I am signing on behalf of myself.",
+                    "I am signing on behalf of my employer."
+                ]
             },
-            "email": {
-                "title": "E-Mail",
-                "type": "string",
-                "githubKey": "email",
-                "required": true
-            },
-            "age": {
-                "title": "Age",
-                "description": "Age in years",
-                "type": "number",
-                "minimum": 18,
-                "maximum": 99
-            },
-            "agreement": {
-                "title": "I have read and agree to the CLA",
-                "type": "boolean",
-                "required": true
-            },
-            "category": {
-                "title": "How do you sign?",
-                "type": {
-                    "enum": [
-                        "I am signing on behalf of myself.",
-                        "I am signing on behalf of my employer."
-                    ]
-                },
-                "required": true
-            }
+            "required": true
         }
+    }
+    ```
 
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
 The possible values for the "githubKey"-property can be found in the [GitHub-Api description](https://developer.github.com/v3/users/#get-a-single-user)
