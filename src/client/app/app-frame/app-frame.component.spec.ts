@@ -1,4 +1,4 @@
-import { TestBed, TestComponentBuilder, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
+import { TestBed, inject, async, fakeAsync, tick, ComponentFixture } from '@angular/core/testing';
 import { AppFrameComponent } from './app-frame.component';
 import { User } from '../shared/github/user';
 

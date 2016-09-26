@@ -3,7 +3,6 @@ import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
 import { InfoModal } from './info.modal';
-import { Ng2Bs3ModalModule, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 xdescribe('Info modal dialog', () => {
   let fixture: ComponentFixture<InfoModal>;
@@ -12,7 +11,7 @@ xdescribe('Info modal dialog', () => {
   // Creates new mocks for each test and configures provider
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [Ng2Bs3ModalModule],
+      imports: [],
       declarations: [InfoModal]
     });
   });

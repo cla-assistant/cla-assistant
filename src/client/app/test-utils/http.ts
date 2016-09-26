@@ -1,19 +1,18 @@
 import { Http, ConnectionBackend, BaseRequestOptions, Response, ResponseOptions } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { provide } from '@angular/core';
 
 
 export function getHttpMockServices() {
   return [
     BaseRequestOptions,
     MockBackend,
-    provide(Http, {
-      useFactory:
-      (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
+    {
+      provide: Http,
+      useFactory: (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) => {
         return new Http(backend, defaultOptions);
       },
       deps: [MockBackend, BaseRequestOptions]
-    })
+    }
   ];
 }
 

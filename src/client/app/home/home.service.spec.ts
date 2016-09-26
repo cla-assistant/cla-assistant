@@ -1,5 +1,4 @@
 import { inject, fakeAsync, tick} from '@angular/core/testing';
-import { provide } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { observableMatchers } from '../test-utils/observableMatcher';
@@ -99,7 +98,6 @@ describe('Home Service', () => {
   describe('constructor', () => {
     it('should wait for all GitHub repos and orgs to be fetched(multiple pages) and then notify the observers', fakeAsync(() => {
       expect(homeService.getLinkedRepos()).toEmitValues(testData.linkedRepos);
-      //expect(homeService.getLinkedOrgs()).toEmitValues(testData.linkedOrgs);
     }));
   });
 

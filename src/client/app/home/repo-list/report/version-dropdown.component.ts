@@ -4,7 +4,6 @@ import { SelectComponent } from 'ng2-select';
 
 @Component({
   selector: 'version-dropdown',
-  //directives: [SelectComponent],
   host: {
     'class': 'form-group new-link-select-gist-dd-outer'
   },

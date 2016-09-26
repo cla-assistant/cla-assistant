@@ -133,7 +133,7 @@ describe('ClaBackendService', () => {
           org: 'test2',
           gist: 'gist url 2',
           avatarUrl: 'avatar url 2'
-        }),
+        })
       ];
       const githubOrgs = [
         {
@@ -243,7 +243,8 @@ describe('ClaBackendService', () => {
         gist_url: 'url',
         gist_version: 'v1234',
         created_at: '2010-04-14T02:15:15Z',
-        org_cla: false
+        org_cla: false,
+        custom_fields: '{"test":"value"}'
       }];
       const expectedResult = [{
         repo_name: 'myRepo',
@@ -252,7 +253,8 @@ describe('ClaBackendService', () => {
         gist_url: 'url',
         gist_version: 'v1234',
         signed_at: '2010-04-14T02:15:15Z',
-        org_cla: false
+        org_cla: false,
+        custom_fields: {test: 'value'}
       }];
       setupFakeConnection(
         mockBackend,

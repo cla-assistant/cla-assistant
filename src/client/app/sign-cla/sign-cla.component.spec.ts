@@ -5,13 +5,11 @@ import { Observable } from 'rxjs/Observable';
 
 import { CustomFieldComponent } from './custom-field.component';
 import { SignClaComponent } from './sign-cla.component';
+import { AppFrameModule } from '../app-frame/app-frame.module';
 import { User } from '../shared/github/';
 import { ClaBackendService } from '../shared/claBackend';
 import { GithubCacheService } from '../shared/github';
 import { ActivatedRoute } from '@angular/router';
-
-
-
 
 const createActiveRouteMock = () => ({
   snapshot: {
@@ -103,6 +101,7 @@ describe('Sign Cla Component', () => {
     windowMock = createWindowMock();
 
     TestBed.configureTestingModule({
+      imports: [AppFrameModule],
       declarations: [SignClaComponent, CustomFieldComponent],
       providers: [
         { provide: ClaBackendService, useValue: claBackendServiceMock },
