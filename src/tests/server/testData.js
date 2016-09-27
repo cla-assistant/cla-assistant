@@ -91,7 +91,8 @@ var testData = {
         'orgId': 1,
         'org': 'octocat',
         'token': 'testToken',
-        'gist': 'https://gist.github.com/aa5a315d61ae9438b18d'
+        'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
+        'isRepoExcluded': function() { return false; }
     },
 
     ////////////////////////////////////////////
