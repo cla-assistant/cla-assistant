@@ -94,6 +94,22 @@ var testData = {
         'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
         'isRepoExcluded': function() { return false; }
     },
+    'org_from_db_with_excluded_patterns':
+    {
+        'orgId': 1,
+        'org': 'octocat',
+        'token': 'testToken',
+        'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
+        'excludePattern': 'foo,bar,baz',
+    },
+    'org_from_db_with_empty_excluded_patterns':
+    {
+        'orgId': 1,
+        'org': 'octocat',
+        'token': 'testToken',
+        'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
+        'excludePattern': '',
+    },
 
     ////////////////////////////////////////////
     /////////////////// REPO ///////////////////
