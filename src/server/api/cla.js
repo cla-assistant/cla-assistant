@@ -228,7 +228,7 @@ module.exports = {
             orgService.get(req.args, function (err, linkedOrg) {
                 if (repos && !repos.message && repos.length > 0) {
                     repos
-                        .filter(function (repo) { return !linkedOrg.isRepoExcluded(repo.name); })
+                        .filter(function (repo) { return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name); })
                         .forEach(function (repo) {
                             var validateRequest = {
                                 args: {

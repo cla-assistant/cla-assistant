@@ -42,7 +42,15 @@ describe('', function () {
                     owner: 'octocat'
                 }
             },
-            orgService: {}
+            orgService: {
+                get: {
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    gist: 'https://gist.github.com/aa5a315d61ae9438b18d',
+                    token: 'testToken',
+                    org: 'octocat'
+                }
+            }
         };
         resp = {
             cla: {
