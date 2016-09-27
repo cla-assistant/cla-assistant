@@ -114,7 +114,7 @@
 			<tr ng-repeat="claOrg in claOrgs | orderBy:'org' ">
 				<td>
 					<div class="row">
-						<settings item="claOrg" repos="repos" user="user" class="settings"></settings>
+						<settings item="claOrg" repos="repos" user="user" class="settings" tooltip-placement="left" tooltip="Excluded Repositories: {{claOrg.excludePattern}}"></settings>
 					</div>
 				</td>
 			</tr>
