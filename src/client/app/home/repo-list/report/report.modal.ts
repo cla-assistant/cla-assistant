@@ -5,15 +5,16 @@ import { SelectComponent } from 'ng2-select';
 import { CsvDownloadService } from './csv-download.service';
 import { LinkedItem, Signature } from '../../../shared/claBackend';
 import { VersionDropdownComponent } from './version-dropdown.component';
-import { ClaBackendService } from '../../../shared/claBackend/claBackend.service';
+import { ClaBackendService } from '../../../shared/claBackend';
+import { Gist } from '../../../shared/github';
+
 @Component({
   selector: 'report-modal',
-  providers: [CsvDownloadService],
   templateUrl: './report.modal.html'
 })
 export class ReportModal {
   @Input() private claItem: LinkedItem;
-  @Input() private gist;
+  @Input() private gist: Gist;
   @ViewChild('modalContent')
   private content;
 
@@ -36,7 +37,7 @@ export class ReportModal {
   }
 
   private exportAsCsv() {
-    if (this.contributors.length === 0) {
+    if (!this.contributors || this.contributors.length === 0) {
       return;
     }
     let fields =
@@ -69,7 +70,7 @@ export class ReportModal {
     this.claBackendService.getClaSignatures(this.claItem, versionObj.version).subscribe(
       signatures => {
         this.contributors = [];
-        if (signatures && signatures.length > 0) {
+        if (signatures) {
           this.contributors = signatures;
           this.contributors.forEach(obj => obj.gist_name = this.getGistName());
         }

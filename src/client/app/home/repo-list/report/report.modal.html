@@ -1,5 +1,5 @@
 <template #modalContent let-c="close" >
-  <div class="report">
+  <div id="report-modal" class="report">
     <div class="modal-body modal-primary">
       <div (click)="c()" class="fa fa-times close-button"></div>
       <div>
@@ -15,7 +15,7 @@
         </div>
 
         <div class="card card-block report" style="max-height: 500px; overflow-y:scroll">
-          <div *ngIf="loading()">
+          <div *ngIf="loading()" id="loading-animation">
             <div class="row">
               <div class="col-sm-12 m-x-auto">
                 <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin-top:-15px">

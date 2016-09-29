@@ -17,7 +17,6 @@ import { User } from '../shared/github/user';
 @Component({
   selector: 'home',
  // directives: [AppFrameComponent, ClaLinkComponent, LinkedItemListComponent],
-  providers: [GithubCacheService, HomeService],
   template: `
   <app-frame [user] = "user" (logout)="handleLogout()">
     <div *ngIf="user" id="activated_cla" class="row content-block">

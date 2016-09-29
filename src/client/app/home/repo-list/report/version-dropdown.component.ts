@@ -1,6 +1,7 @@
 import { Component, OnChanges, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { SelectComponent } from 'ng2-select';
+import { Gist } from '../../../shared/github';
 
 @Component({
   selector: 'version-dropdown',
@@ -15,8 +16,18 @@ import { SelectComponent } from 'ng2-select';
     </ng-select>
   `
 })
-export class VersionDropdownComponent implements OnChanges {
-  @Input() private gist;
+export class VersionDropdownComponent {
+  private _gist: Gist;
+  @Input() private set gist(value) {
+    this._gist = value;
+    if (this._gist) {
+      this.historyDropdownItems =
+        this.createDropdownItems(this._gist.history);
+      this.selectComp.active = [this.historyDropdownItems[0]];
+      this.selectComp.ngOnInit(); // Workaround to set selected value
+      this.selected(this.historyDropdownItems[0]);
+    }
+  };
   @Output() public versionSelected: EventEmitter<{}>;
   @ViewChild(SelectComponent) public selectComp: SelectComponent;
 
@@ -26,26 +37,16 @@ export class VersionDropdownComponent implements OnChanges {
     this.versionSelected = new EventEmitter<{}>();
   }
 
-  public ngOnChanges(changes) {
-    if (changes.gist) {
-      this.historyDropdownItems =
-          this.createDropdownItems(this.gist.history);
-      this.selectComp.active = [this.historyDropdownItems[0]];
-      this.selectComp.ngOnInit(); // Workaround to set selected value
-      this.selected(this.historyDropdownItems[0]);
-    }
-  }
-
   public clear() {
     this.selectComp.remove(null);
   }
 
   public selected(event) {
-    if (event.id - 1 === this.gist.history.length) {
+    if (event.id - 1 === this._gist.history.length) {
       this.versionSelected.emit({});
       return;
     }
-    this.versionSelected.emit(this.gist.history[event.id - 1]);
+    this.versionSelected.emit(this._gist.history[event.id - 1]);
   }
 
   private createDropdownItems(history) {

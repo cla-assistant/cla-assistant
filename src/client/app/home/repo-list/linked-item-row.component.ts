@@ -82,7 +82,6 @@ export class LinkedItemRowComponent implements OnInit {
     this.getBadgeModal.open();
   }
 
-  notImplemented(popover){
-    console.log('asdfasdf')
+  notImplemented(){
   }
 }
