@@ -20,7 +20,7 @@
     "test-client": "karma start",
     "test-client-watch": "karma start --auto-watch --no-single-run --browsers Chrome",
     "test-client-with-coverage": "karma start --reporters jasmine-diff,mocha,coverage  && remap-istanbul -i coverage/client/temp/coverage-final.json -t html -o coverage/client/final",
-    "build-client-production": "webpack --config webpack.prod.js",
+    "build-production": "webpack --config webpack.prod.js",
     "lint-client": "tslint ./src/client/**/*.ts",
     "docs": "typedoc ./src/client/main.ts --out doc --ignoreCompilerErrors --mode file",
     "snyk-test": "snyk test",
@@ -75,6 +75,7 @@
   "devDependencies": {
     "angular2-template-loader": "^0.4.0",
     "awesome-typescript-loader": "^1.1.1",
+    "copy-webpack-plugin": "^3.0.1",
     "css-loader": "^0.23.1",
     "css-to-string-loader": "^0.1.1",
     "del": "^2.2.1",
