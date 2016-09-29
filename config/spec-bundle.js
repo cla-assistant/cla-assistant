@@ -15,8 +15,10 @@ require( 'zone.js/dist/sync-test');
 require( 'zone.js/dist/proxy');
 require( 'zone.js/dist/jasmine-patch');
 
-
 require( 'rxjs');
+
+require('karma-intl-shim');
+Intl.__addLocaleData(JSON.parse(require('./en-us.json')));
 
 var testing = require('@angular/core/testing');
 var browser = require('@angular/platform-browser-dynamic/testing');

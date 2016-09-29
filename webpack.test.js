@@ -28,7 +28,7 @@ module.exports = {
 
       },
       {
-        test: /\.html$/,
+        test: /\.(html|json)$/,
         loader: 'raw-loader',
         exclude: [helpers.root('src', 'client', 'index.html')]
       },

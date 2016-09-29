@@ -20,7 +20,7 @@ const createCsvDownloadServiceMock = () => jasmine.createSpyObj('csvDownloadServ
   'downloadAsCsv'
 ]);
 
-fdescribe('Report modal dialog', () => {
+describe('Report modal dialog', () => {
   let fixture: ComponentFixture<TestComponent>;
   let claBackendServiceMock;
   let csvDownloadServiceMock;
