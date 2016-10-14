@@ -76,7 +76,7 @@ The possible values for the "githubKey"-property can be found in the [GitHub-Api
 FAQ
 ===
 #### Where is the list of signees stored?
-We store all the data in a MongoDB hosted by [mongolab](https://mongolab.com/).
+We store all the data in a MongoDB hosted by [mLab](https://mlab.com/).
 
 #### Where can I see the list of signees? Is there a way to import/export the signee data?
 You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
