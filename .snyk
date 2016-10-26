@@ -64,17 +64,21 @@ patch:
   'npm:ws:20160624':
     - karma > socket.io > socket.io-client > engine.io-client > ws:
         patched: '2016-07-25T08:23:48.823Z'
+      karma > socket.io > engine.io > ws:
+        patched: '2016-10-26T08:01:33.363Z'
     - karma > socket.io > engine.io > ws:
         patched: '2016-07-25T08:23:48.823Z'
+      karma > socket.io > socket.io-client > engine.io-client > ws:
+        patched: '2016-10-26T08:01:33.363Z'
     - socket.io > socket.io-client > engine.io-client > ws:
         patched: '2016-07-25T08:23:48.823Z'
     - socket.io > engine.io > ws:
         patched: '2016-07-25T08:23:48.823Z'
   'npm:negotiator:20160616':
     - karma > socket.io > engine.io > accepts > negotiator:
-        patched: '2016-07-25T08:23:48.823Z'
+        patched: '2016-10-26T08:01:33.363Z'
     - socket.io > engine.io > accepts > negotiator:
         patched: '2016-07-25T08:23:48.823Z'
   'npm:tough-cookie:20160722':
     - karma > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
-        patched: '2016-07-25T08:23:48.823Z'
+        patched: '2016-10-26T08:01:33.363Z'
