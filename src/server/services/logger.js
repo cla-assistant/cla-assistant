@@ -1,5 +1,9 @@
+var raven = require('raven');
 var bunyan = require('bunyan');
 var BunyanSlack = require('bunyan-slack');
+var SentryStream = require('bunyan-sentry-stream').SentryStream;
+
+var client = new raven.Client(config.server.sentry_dsn);
 var log;
 
 var formatter = function(record, levelName){
@@ -10,12 +14,7 @@ try{
 	log = bunyan.createLogger({
 		src: true,
 		name: config.server.http.host,
-		streams: [{
-			type: 'rotating-file',
-			path: 'log',
-			period: '1d',   // daily rotation
-			count: 5        // keep 5 back copies
-		},
+		streams: [
 		{
 			level: 'error',
 			stream: new BunyanSlack({
@@ -26,19 +25,16 @@ try{
 			})
 		},
 		{
+      		level: 'info',
+			stream: process.stdout
+		},
+		{
 			level: 'info',
-			stream: new BunyanSlack({
-				webhook_url: config.server.slack_url,
-				channel: '#cla-logs',
-				username: 'CLA assistant',
-				customFormatter: formatter
-			})
+			type: 'raw', // Mandatory type for SentryStream
+			stream: new SentryStream(client)
 		}
-
 		]
 	});
-
-	// log.warn('hello form bunyan to slack');
 } catch (e) {
 	log = bunyan.createLogger({
 		src: true,

@@ -70,6 +70,8 @@ module.exports = {
 
         slack_url: process.env.SLACK_URL,
 
+        sentry_dsn: process.env.SENTRY_DSN,
+
         api_access: {
             free: ['/api/cla/get', '/api/cla/getLinkedItem'],
             external: ['/api/cla/getAll']
