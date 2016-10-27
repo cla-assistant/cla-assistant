@@ -70,6 +70,11 @@ module.exports = {
 
         slack_url: process.env.SLACK_URL,
 
+        api_access: {
+            free: ['/api/cla/get', '/api/cla/getLinkedItem'],
+            external: ['/api/cla/getAll']
+        },
+
         static: [
             path.join(__dirname, 'bower'),
             path.join(__dirname, 'client')
