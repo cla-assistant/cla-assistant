@@ -142,7 +142,7 @@ describe('github:call', function() {
     });
 });
 
-describe('github:call_direct', function() {
+describe('github:direct_call', function() {
     var https = require('https');
 
     var callbacks = {};
@@ -177,8 +177,13 @@ describe('github:call_direct', function() {
     beforeEach(function() {
         sinon.stub(https, 'request', function(options, done) {
             assert.equal(options.host, exp_options.host);
-            assert.equal(options.path, exp_options.path);
+            assert.equal(options.path.indexOf(exp_options.path) > -1, true);
             assert.equal(options.method, exp_options.method);
+            if (options.path.indexOf('page=2') > -1) {
+                res.headers.link = 'link urls';
+                callbacks.data('');
+                callbacks.end();
+            }
             done(res);
             return https_req;
         });
@@ -271,5 +276,25 @@ describe('github:call_direct', function() {
             it_done();
         });
         callbacks.end();
+    });
+
+    it('should send multiple requests and collect all data if there is more to get', function (it_done) {
+        sinon.spy(github, 'direct_call');
+        res.headers.link = '<https://api.github.com/url?page=2>; rel="next", <https://api.github.com/url?page=2>; rel="last"';
+
+        github.direct_call(args).then(function (response) {
+            console.log('done');
+            assert.equal(response.meta.scopes, 'GitHub scopes');
+            assert.equal(https_req.header.Authorization, 'token abc');
+            // assert(github.direct_call.calledOnce);
+            // assert(github.direct_call.calledTwice());
+
+            it_done();
+            github.direct_call.restore();
+        });
+
+        callbacks.data('{}');
+        callbacks.end();
+
     });
 });

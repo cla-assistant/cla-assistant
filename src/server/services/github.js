@@ -17,7 +17,25 @@ function callGithub(github, obj, fun, arg, done) {
     });
 }
 
-module.exports = {
+function parse_link_header(header) {
+    if (header.length === 0) {
+        throw new Error('input must not be of zero length');
+    }
+    var parts = header.split(',');
+    var links = {};
+    parts.forEach( function(p) {
+        var section = p.split(';');
+        if (section.length !== 2) {
+            throw new Error('section could not be split on ";"');
+        }
+        var url = section[0].replace(/<(.*)>/, '$1').trim();
+        var name = section[1].replace(/rel="(.*)"/, '$1').trim();
+        links[name] = url;
+    });
+    return links;
+}
+
+var githubService = {
 
     call: function(call, done) {
         var obj = call.obj;
@@ -122,17 +140,37 @@ module.exports = {
         return github.getNextPage(link, cb);
     },
 
-    direct_call: function(args, done) {
+    direct_call: function(args, done, _data) {
         var deferred = q.defer();
         var http_req = {};
-        var data = '';
+        var data = _data || '';
         var req_url = url.parse(args.url);
         var options = {
             host: req_url.host,
             path: req_url.path,
             method: args.http_method || 'GET'
         };
+        var getNext = function(meta) {
+            var links;
+            try {
+                links = meta.link ? parse_link_header(meta.link) : null;
+            } catch (e) {
+                links = null;
+            }
+            if (links && links.next) {
+                args.url = links.next;
+                data = JSON.stringify(data);
+                githubService.direct_call(args, done, data).then(function(data){
+                    deferred.resolve(data);
+                });
+            } else {
+                deferred.resolve({ data: data, meta: meta });
 
+                if (typeof done === 'function') {
+                    done(null, { data: data, meta: meta });
+                }
+            }
+        };
         http_req = https.request(options, function(res) {
             res.on('data', function(chunk) { data += chunk; });
             res.on('end', function() {
@@ -141,11 +179,7 @@ module.exports = {
                 meta.scopes = res.headers['x-oauth-scopes'];
                 meta.link = res.headers.link;
 
-                deferred.resolve({ data: data, meta: meta });
-
-                if (typeof done === 'function') {
-                    done(null, { data: data, meta: meta });
-                }
+                getNext(meta);
             });
         });
 
@@ -169,3 +203,5 @@ module.exports = {
         return deferred.promise;
     }
 };
+
+module.exports = githubService;

@@ -32,6 +32,12 @@ module.exports = function (grunt) {
 		mochaTest: {
 			server: {
 				src: ['src/tests/server/**/*.js']
+			},
+			debugServer: {
+				options: {
+					timeout: 400000
+				},
+				src: ['src/tests/server/**/*.js']
 			}
 		},
 
@@ -97,6 +103,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('build', ['uglify']);
 	grunt.registerTask('lint', ['eslint', 'scsslint']);
 	grunt.registerTask('coverage', ['mocha_istanbul', 'coveralls']);
-	grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest', 'karma', 'watch']);
-	grunt.registerTask('test', ['eslint', 'mochaTest', 'karma']);
+	grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'karma', 'watch']);
+	grunt.registerTask('test', ['eslint', 'mochaTest:server', 'karma']);
+	grunt.registerTask('debug_test', ['mochaTest:debugServer']);
 };
