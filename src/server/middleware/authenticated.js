@@ -41,10 +41,11 @@ function checkPermission(repoId, token, cb) {
 }
 
 module.exports = function(req, res, next) {
-    if (req.isAuthenticated() || config.server.api_access.free.indexOf(req.originalUrl) > -1) {
+    if (config.server.api_access.free.indexOf(req.originalUrl) > -1 || req.isAuthenticated()) {
         return next();
     } else if (config.server.api_access.external.indexOf(req.originalUrl) > -1) {
         return authenticateForExternalApi(req, res, next);
+    } else {
+        res.status(401).send('Authentication required');
     }
-    // res.status(401).send('Authentication required');
 };
