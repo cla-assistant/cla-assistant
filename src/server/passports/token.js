@@ -14,7 +14,6 @@ function getGHUser(accessToken, cb) {
     };
 
     github.call(args, function (err, data) {
-        logger.info('err: ', err, ' data: ', data);
         cb(err, data);
     });
 }
