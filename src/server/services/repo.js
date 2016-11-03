@@ -35,10 +35,8 @@ var compareAllRepos = function (ghRepos, dbRepos, done) {
 };
 
 var extractUserFromCommit = function (commit) {
-    var committer = commit.committer || commit.commit.committer;
-    if (config.server.github.commit_bots.indexOf(committer.login) > -1) {
-        committer = commit.author || commit.commit.author;
-    }
+    var committer = commit.author || commit.commit.author || commit.committer || commit.commit.committer;
+
     return committer;
 };
 
