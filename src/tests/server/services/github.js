@@ -293,7 +293,7 @@ describe('github:direct_call', function() {
             github.direct_call.restore();
         });
 
-        callbacks.data('{}');
+        callbacks.data('[]');
         callbacks.end();
 
     });

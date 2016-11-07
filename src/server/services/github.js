@@ -143,7 +143,8 @@ var githubService = {
     direct_call: function(args, done, _data) {
         var deferred = q.defer();
         var http_req = {};
-        var data = _data || '';
+        var fullData = _data;
+        var data = '';
         var req_url = url.parse(args.url);
         var options = {
             host: req_url.host,
@@ -159,16 +160,14 @@ var githubService = {
             }
             if (links && links.next) {
                 args.url = links.next;
-                data = JSON.stringify(data);
-                githubService.direct_call(args, done, data).then(function(data){
+                githubService.direct_call(args, done, fullData).then(function(data){
                     deferred.resolve(data);
                 });
             } else {
-                data = data ? JSON.parse(data) : null;
-                deferred.resolve({ data: data, meta: meta });
+                deferred.resolve({ data: fullData, meta: meta });
 
                 if (typeof done === 'function') {
-                    done(null, { data: data, meta: meta });
+                    done(null, { data: fullData, meta: meta });
                 }
             }
         };
@@ -176,6 +175,12 @@ var githubService = {
             res.on('data', function(chunk) { data += chunk; });
             res.on('end', function() {
                 var meta = {};
+                data = data ? JSON.parse(data) : null;
+                console.log(data);
+                if (data) {
+                    fullData = fullData ? fullData : data instanceof Array ? [] : {};
+                    fullData = data instanceof Array ? fullData.concat(data) : data;
+                }
                 meta.scopes = res.headers['x-oauth-scopes'];
                 meta.link = res.headers.link;
 
