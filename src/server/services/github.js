@@ -35,6 +35,15 @@ function parse_link_header(header) {
     return links;
 }
 
+function newGithubApi() {
+    return new GitHubApi({
+            protocol: config.server.github.protocol,
+            version: config.server.github.version,
+            host: config.server.github.api,
+            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
+        });
+}
+
 var githubService = {
 
     call: function(call, done) {
@@ -47,12 +56,7 @@ var githubService = {
         var error;
         var data = null;
 
-        var github = new GitHubApi({
-            protocol: config.server.github.protocol,
-            version: config.server.github.version,
-            host: config.server.github.api,
-            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-        });
+        var github = newGithubApi();
 
         function collectData(err, res) {
             // if (res && !err) {
@@ -121,22 +125,12 @@ var githubService = {
     },
 
     hasNextPage: function(link) {
-        var github = new GitHubApi({
-            protocol: config.server.github.protocol,
-            version: config.server.github.version,
-            host: config.server.github.api,
-            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-        });
+        var github = newGithubApi();
         return github.hasNextPage(link);
     },
 
     getNextPage: function(link, cb) {
-        var github = new GitHubApi({
-            protocol: config.server.github.protocol,
-            version: config.server.github.version,
-            host: config.server.github.api,
-            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-        });
+        var github = newGithubApi();
         return github.getNextPage(link, cb);
     },
 
