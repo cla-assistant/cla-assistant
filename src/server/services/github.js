@@ -17,6 +17,23 @@ function callGithub(github, obj, fun, arg, done) {
     });
 }
 
+function concatData(collection, chunk) {
+    if (chunk) {
+        collection = collection ? collection : chunk instanceof Array ? [] : {};
+        collection = chunk instanceof Array ? collection.concat(chunk) : chunk;
+    }
+    return collection;
+}
+
+function newGithubApi() {
+    return new GitHubApi({
+            protocol: config.server.github.protocol,
+            version: config.server.github.version,
+            host: config.server.github.api,
+            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
+        });
+}
+
 function parse_link_header(header) {
     if (header.length === 0) {
         throw new Error('input must not be of zero length');
@@ -35,15 +52,6 @@ function parse_link_header(header) {
     return links;
 }
 
-function newGithubApi() {
-    return new GitHubApi({
-            protocol: config.server.github.protocol,
-            version: config.server.github.version,
-            host: config.server.github.api,
-            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-        });
-}
-
 var githubService = {
 
     call: function(call, done) {
@@ -57,14 +65,9 @@ var githubService = {
         var token = call.token;
 
         function collectData(err, res) {
-            // if (res && !err) {
-            if (res) {
-                data = data ? data : res instanceof Array ? [] : {};
-                data = res instanceof Array ? data.concat(res) : res;
-            }
+            data = concatData(data, res);
 
             var meta = {};
-
             try {
                 meta.link = res.meta.link;
                 meta.hasMore = !!github.hasNextPage(res.meta.link);
@@ -167,10 +170,8 @@ var githubService = {
             res.on('end', function() {
                 var meta = {};
                 data = data ? JSON.parse(data) : null;
-                if (data) {
-                    fullData = fullData ? fullData : data instanceof Array ? [] : {};
-                    fullData = data instanceof Array ? fullData.concat(data) : data;
-                }
+                fullData = concatData(fullData, data);
+
                 meta.scopes = res.headers['x-oauth-scopes'];
                 meta.link = res.headers.link;
 
