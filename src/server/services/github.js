@@ -164,6 +164,7 @@ var githubService = {
                     deferred.resolve(data);
                 });
             } else {
+                data = data ? JSON.parse(data) : null;
                 deferred.resolve({ data: data, meta: meta });
 
                 if (typeof done === 'function') {
@@ -174,7 +175,6 @@ var githubService = {
         http_req = https.request(options, function(res) {
             res.on('data', function(chunk) { data += chunk; });
             res.on('end', function() {
-                data = data ? JSON.parse(data) : null;
                 var meta = {};
                 meta.scopes = res.headers['x-oauth-scopes'];
                 meta.link = res.headers.link;
