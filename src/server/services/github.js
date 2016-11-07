@@ -47,16 +47,14 @@ function newGithubApi() {
 var githubService = {
 
     call: function(call, done) {
-        var obj = call.obj;
-        var fun = call.fun;
         var arg = call.arg || {};
-        var token = call.token;
         var basicAuth = call.basicAuth;
-        var deferred = q.defer();
-        var error;
         var data = null;
-
+        var deferred = q.defer();
+        var fun = call.fun;
         var github = newGithubApi();
+        var obj = call.obj;
+        var token = call.token;
 
         function collectData(err, res) {
             // if (res && !err) {
@@ -86,21 +84,20 @@ var githubService = {
             }
         }
 
-        if (!obj || !github[obj]) {
-            error = 'obj required/obj not found';
+        function reject(error) {
             deferred.reject(error);
             if (typeof done === 'function') {
                 done(error);
-            };
+            }
+        }
+
+        if (!obj || !github[obj]) {
+            reject('obj required/obj not found');
             return;
         }
 
         if (!fun || !github[obj][fun]) {
-            error = 'fun required/fun not found';
-            deferred.reject(error);
-            if (typeof done === 'function') {
-                done(error);
-            };
+            reject('fun required/fun not found');
             return;
         }
 
