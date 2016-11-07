@@ -176,7 +176,6 @@ var githubService = {
             res.on('end', function() {
                 var meta = {};
                 data = data ? JSON.parse(data) : null;
-                console.log(data);
                 if (data) {
                     fullData = fullData ? fullData : data instanceof Array ? [] : {};
                     fullData = data instanceof Array ? fullData.concat(data) : data;
