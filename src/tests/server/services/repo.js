@@ -184,6 +184,14 @@ describe('repo:getPRCommitters', function () {
         };
         test_org = null;
 
+        sinon.stub(github, 'call', function (args, done) {
+            if (args.obj == 'pullRequests' && args.fun == 'get'){
+                done(null, testData.pull_request);
+            }
+            if (args.obj == 'repos' && args.fun == 'getCommit'){
+                done(null, testData.commit[0]);
+            }
+        });
         sinon.stub(github, 'direct_call', function (args, done) {
             assert(args.token);
             assert.equal(args.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
@@ -201,6 +209,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     afterEach(function () {
+        github.call.restore();
         github.direct_call.restore();
         orgService.get.restore();
         Repo.findOne.restore();
@@ -229,6 +238,35 @@ describe('repo:getPRCommitters', function () {
             assert(Repo.findOne.called);
             assert(github.direct_call.called);
 
+            it_done();
+        });
+
+    });
+
+    it('should get all committers of a pull request with more than 250 commits', function (it_done) {
+        testData.pull_request.commits = 554;
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function (argums, done) {
+            assert(argums.token);
+            assert.equal(argums.url, url.githubCommits('owner', 'myRepo', testData.pull_request.head.ref, testData.commit[0].commit.author.date));
+            done(null, {
+                data: testData.commit
+            });
+        });
+
+        repo.getPRCommitters(arg, function (err, data) {
+            assert.ifError(err);
+            assert.equal(data.length, 1);
+            assert.equal(data[0].name, 'octocat');
+            assert(Repo.findOne.called);
+            assert(github.direct_call.called);
+
+            testData.pull_request.commits = 3;
             it_done();
         });
 

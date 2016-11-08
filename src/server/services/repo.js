@@ -40,6 +40,32 @@ var extractUserFromCommit = function (commit) {
     return committer;
 };
 
+var getPullRequest = function (owner, repo, number, token, done) {
+    github.call({
+        obj: 'pullRequests',
+        fun: 'get',
+        arg: {
+            repo: repo,
+            user: owner,
+            number: number
+        },
+        token: token
+    }, done);
+};
+
+var getCommit = function (owner, repo, sha, token, done) {
+    github.call({
+        obj: 'repos',
+        fun: 'getCommit',
+        arg: {
+            repo: repo,
+            user: owner,
+            sha: sha
+        },
+        token: token
+    }, done);
+};
+
 var selection = function (args) {
     return args.repoId ? { repoId: args.repoId } : {
         repo: args.repo,
@@ -178,20 +204,39 @@ module.exports = {
 
         var collectTokenAndCallGithub = function (args, item) {
             args.token = item.token;
-            args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
+            getPullRequest(args.owner, args.repo, args.number, args.token, function (err, pr) {
+                if (err || !pr) {
+                    handleError(err, args);
+                    return;
+                }
+                if (pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
+                    args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
+                    callGithub(args, item);
+                } else {
+                    getCommit(args.owner, args.repo, pr.base.sha, args.token, function (err, commit) {
+                        if (err || !commit) {
+                            handleError(err, args);
+                            return;
+                        }
+                        try {
+                            args.url = url.githubCommits(args.owner, args.repo, pr.head.ref, commit.commit.author.date);
+                            callGithub(args, item);
+                        } catch (e) {
+                            handleError(e, args);
+                            return;
+                        }
+                    });
+                }
+            });
 
-            callGithub(args, item);
         };
 
         orgService.get({orgId: args.orgId}, function (e, org) {
             if (!org) {
                 self.get(args, function (e, repo) {
                     if (e || !repo) {
-                        var errorMsg = e;
-                        errorMsg += 'with following arguments: ' + JSON.stringify(args);
-                        logger.error(new Error(errorMsg).stack);
-                        done(errorMsg);
-                            return;
+                        handleError(e, args);
+                        return;
                     }
                     collectTokenAndCallGithub(args, repo);
                 });

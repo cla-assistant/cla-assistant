@@ -41,6 +41,13 @@ module.exports = function() {
         githubProfile: function() {
             return url.resolve(githubApiBase, config.server.github.enterprise ? '/api/v3/user' : '/user');
         },
+        githubCommits: function(owner, repo, sha, since){
+            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/commits');
+            _url = sha ? _url + '?sha=' + sha : _url;
+            _url += sha && since ? '&' : since ? '?' : '';
+            _url = since ? _url + 'since=' + since : _url;
+            return _url;
+        },
         githubFileReference: function(user, repo, fileReference) {
             return url.resolve(githubBase, '/' + user + '/' + repo + '/blob/' + fileReference);
         },

@@ -112,6 +112,32 @@ describe('url:claURL', function() {
     });
 });
 
+describe('url:githubCommits', function() {
+    it('should by default be http://api.github.com/repos/:owner/:repo/commits', function(done) {
+        assert.equal(url.githubCommits('owner', 'repo'),
+            'https://api.github.com/repos/owner/repo/commits');
+        done();
+    });
+
+    it('should be http://api.github.com/repos/:owner/:repo?sha=:branch if branch provided', function(done) {
+        assert.equal(url.githubCommits('owner', 'repo', 'featureBranch'),
+            'https://api.github.com/repos/owner/repo/commits?sha=featureBranch');
+        done();
+    });
+
+    it('should be http://api.github.com/repos/:owner/:repo?sha=:branch&since=:timestamp if branch and timestamp provided', function (done) {
+        assert.equal(url.githubCommits('owner', 'repo', 'featureBranch', 'anyTimestamp'),
+            'https://api.github.com/repos/owner/repo/commits?sha=featureBranch&since=anyTimestamp');
+        done();
+    });
+
+    it('should be http://api.github.com/repos/:owner/:repo?since=:timestamp if only timestamp provided', function (done) {
+        assert.equal(url.githubCommits('owner', 'repo', null, 'anyTimestamp'),
+            'https://api.github.com/repos/owner/repo/commits?since=anyTimestamp');
+        done();
+    });
+});
+
 describe('url:githubOrgWebhook', function() {
     it('should be /orgs/:org/hooks', function(done) {
         assert.equal(url.githubOrgWebhook('orgName'),
