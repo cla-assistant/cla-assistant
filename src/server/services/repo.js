@@ -176,12 +176,7 @@ module.exports = {
                     });
                     done(null, committers);
                 } else if (res.data.message) {
-                    arg.count = arg.count ? arg.count + 1 : 1;
-                    if (res.data.message === 'Not Found' && arg.count < self.timesToRetryGitHubCall) {
-                        setTimeout(function () {
-                            callGithub(arg);
-                        }, 1000);
-                    } else if (res.data.message === 'Moved Permanently' && linkedRepo) {
+                    if (res.data.message === 'Moved Permanently' && linkedRepo) {
                         self.getGHRepo(args, function (err, res) {
                             if (res && res.id && compareRepoNameAndUpdate(linkedRepo, { repo: res.name, owner: res.owner.login, repoId: res.id} )) {
                                 arg.repo = res.name;
@@ -190,7 +185,7 @@ module.exports = {
 
                                 callGithub(arg);
                             } else {
-                                handleError('Moved Permanently', arg);
+                                handleError('Moved Permanently ', err, arg);
                             }
                         });
                     }
@@ -205,12 +200,17 @@ module.exports = {
         var collectTokenAndCallGithub = function (args, item) {
             args.token = item.token;
             getPullRequest(args.owner, args.repo, args.number, args.token, function (err, pr) {
-                if (err || !pr) {
-                    handleError(err, args);
-                    return;
+                if (err || !pr || pr.message) {
+                    if (!args.count) {
+                        args.count = self.timesToRetryGitHubCall;
+                        setTimeout(function () {
+                            collectTokenAndCallGithub(args, item);
+                        }, 1000 * self.timesToRetryGitHubCall);
+                        return;
+                    }
                 }
                 args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
-                if (pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
+                if (!pr || !pr.commits || pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
                     callGithub(args, item);
                 } else {
                     getCommit(args.owner, args.repo, pr.base.sha, args.token, function (err, commit) {

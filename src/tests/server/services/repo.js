@@ -192,12 +192,16 @@ describe('repo:getPRCommitters', function() {
             getCommit: {
                 err: null,
                 data: testData.commit[0]
+            },
+            getPR: {
+                err: null,
+                data: testData.pull_request
             }
         };
 
         sinon.stub(github, 'call', function(args, done) {
             if (args.obj == 'pullRequests' && args.fun == 'get') {
-                done(null, testData.pull_request);
+                done(githubCallRes.getPR.err, githubCallRes.getPR.data);
             }
             if (args.obj == 'repos' && args.fun == 'getCommit') {
                 done(githubCallRes.getCommit.err, githubCallRes.getCommit.data);
@@ -407,6 +411,8 @@ describe('repo:getPRCommitters', function() {
     it('should retry api call if gitHub returns "Not Found"', function(it_done) {
         this.timeout(4000);
         repo.timesToRetryGitHubCall = 3;
+        githubCallRes.getPR.err = 'Not Found';
+        githubCallRes.getPR.data = null;
         github.direct_call.restore();
         sinon.stub(github, 'direct_call', function(args, done) {
             done(null, {
@@ -424,7 +430,36 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(github.direct_call.calledThrice);
+            assert(github.call.calledTwice);
+            assert(github.direct_call.called);
+        });
+        setTimeout(it_done, 3500);
+    });
+
+    it('should retry api call if gitHub returns "Not Found"', function(it_done) {
+        this.timeout(4000);
+        repo.timesToRetryGitHubCall = 3;
+        githubCallRes.getPR.err = null;
+        githubCallRes.getPR.data = {message: 'Not Found'};
+        github.direct_call.restore();
+        sinon.stub(github, 'direct_call', function(args, done) {
+            done(null, {
+                data: {
+                    message: 'Not Found'
+                }
+            });
+        });
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        repo.getPRCommitters(arg, function(err) {
+            assert(err);
+            assert(Repo.findOne.called);
+            assert(github.call.calledTwice);
+            assert(github.direct_call.called);
         });
         setTimeout(it_done, 3500);
     });
