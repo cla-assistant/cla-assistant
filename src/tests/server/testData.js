@@ -874,17 +874,17 @@ var testData = {
             'ref': 'new-topic',
             'sha': '6dcb09b5b57875f334f61aebed695e2e4193db5e',
             'user': {
-                'login': 'octocat',
+                'login': 'forkOwner',
                 'id': 1
             },
             'repo': {
                 'id': 1296269,
                 'owner': {
-                    'login': 'octocat',
+                    'login': 'forkOwner',
                     'id': 1
                 },
                 'name': 'Hello-World',
-                'full_name': 'octocat/Hello-World',
+                'full_name': 'forkOwner/Hello-World',
                 'permissions': {
                     'admin': false,
                     'push': false,

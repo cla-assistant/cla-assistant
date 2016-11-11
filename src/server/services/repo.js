@@ -213,12 +213,13 @@ module.exports = {
                 if (!pr || !pr.commits || pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
                     callGithub(args, item);
                 } else {
+                    var headCommit = pr.head;
                     getCommit(args.owner, args.repo, pr.base.sha, args.token, function (err, commit) {
                         try {
                             if (err || !commit || !commit.commit.author.date) {
                                 throw new Error(err);
                             }
-                            args.url = url.githubCommits(args.owner, args.repo, pr.head.ref, commit.commit.author.date);
+                            args.url = url.githubCommits(headCommit.repo.owner.login, headCommit.repo.name, headCommit.ref, commit.commit.author.date);
                             callGithub(args, item);
                         } catch (e) {
                             logger.info('Could not load all commits for the log PR, ', new Error(err).stack, ' called with args: ', args);

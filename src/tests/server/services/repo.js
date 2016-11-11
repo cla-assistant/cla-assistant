@@ -258,7 +258,7 @@ describe('repo:getPRCommitters', function() {
 
     });
 
-    it('should get all committers of a pull request with more than 250 commits', function(it_done) {
+    it('should get all committers of a pull request with more than 250 commits from the forked repo', function(it_done) {
         testData.pull_request.commits = 554;
         var arg = {
             repo: 'myRepo',
@@ -268,7 +268,7 @@ describe('repo:getPRCommitters', function() {
         github.direct_call.restore();
         sinon.stub(github, 'direct_call', function(argums, done) {
             assert(argums.token);
-            assert.equal(argums.url, url.githubCommits('owner', 'myRepo', testData.pull_request.head.ref, testData.commit[0].commit.author.date));
+            assert.equal(argums.url, url.githubCommits('forkOwner', 'Hello-World', testData.pull_request.head.ref, testData.commit[0].commit.author.date));
             done(null, {
                 data: testData.commit
             });
