@@ -1,4 +1,3 @@
-
 //api
 // var github_api = require('../api/github');
 var https = require('https');
@@ -6,10 +5,25 @@ var url = require('url');
 var q = require('q');
 
 var GitHubApi = require('github');
+var githubCallCount = 0;
+var githubEtag = {};
+
+function getETag(argsString) {
+    return githubEtag[argsString] ? githubEtag[argsString] : null;
+}
+
+function setETag(argsString, etag) {
+    if (etag) {
+        githubEtag[argsString] = etag;
+    }
+}
 
 
-function callGithub(github, obj, fun, arg, done) {
-    github[obj][fun](arg, function (err, res) {
+function callGithub(github, obj, fun, arg, stringArgs, done) {
+    var etagKey = stringArgs;
+    github[obj][fun](arg, function(err, res) {
+        console.log('node github res remaining', res.meta['x-ratelimit-remaining']);
+        setETag(etagKey, res.meta.etag);
         if (typeof done === 'function') {
             done(err, res);
         }
@@ -25,13 +39,14 @@ function concatData(collection, chunk) {
     return collection;
 }
 
-function newGithubApi() {
+function newGithubApi(etag) {
     return new GitHubApi({
-            protocol: config.server.github.protocol,
-            version: config.server.github.version,
-            host: config.server.github.api,
-            pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-        });
+        protocol: config.server.github.protocol,
+        version: config.server.github.version,
+        headers: etag ? { 'If-None-Match': etag } : undefined,
+        host: config.server.github.api,
+        pathPrefix: config.server.github.enterprise ? '/api/v3' : null
+    });
 }
 
 function parse_link_header(header) {
@@ -40,7 +55,7 @@ function parse_link_header(header) {
     }
     var parts = header.split(',');
     var links = {};
-    parts.forEach( function(p) {
+    parts.forEach(function(p) {
         var section = p.split(';');
         if (section.length !== 2) {
             throw new Error('section could not be split on ";"');
@@ -60,9 +75,21 @@ var githubService = {
         var data = null;
         var deferred = q.defer();
         var fun = call.fun;
-        var github = newGithubApi();
         var obj = call.obj;
         var token = call.token;
+
+        ++githubCallCount;
+        // console.log(githubCallCount, 'node github: ', obj, fun, arg);
+        var stringArgs = JSON.stringify({
+            obj: call.obj,
+            fun: call.fun,
+            arg: call.arg
+        });
+        // if (getETag(stringArgs)) {
+        //     github.headers = github.headers ? github.headers : {};
+        //     github.headers['If-None-Match'] = getETag(stringArgs);
+        // }
+        var github = newGithubApi(getETag(stringArgs));
 
         function collectData(err, res) {
             data = concatData(data, res);
@@ -119,7 +146,7 @@ var githubService = {
             });
         }
 
-        callGithub(github, obj, fun, arg, collectData);
+        callGithub(github, obj, fun, arg, stringArgs, collectData);
 
         return deferred.promise;
     },
@@ -135,6 +162,10 @@ var githubService = {
     },
 
     direct_call: function(args, done, _data) {
+        ++githubCallCount;
+        // console.log(githubCallCount, 'direct_call github: ', args);
+
+        var argsString = JSON.stringify(args);
         var deferred = q.defer();
         var http_req = {};
         var fullData = _data;
@@ -154,7 +185,7 @@ var githubService = {
             }
             if (links && links.next) {
                 args.url = links.next;
-                githubService.direct_call(args, done, fullData).then(function(data){
+                githubService.direct_call(args, done, fullData).then(function(data) {
                     deferred.resolve(data);
                 });
             } else {
@@ -166,7 +197,9 @@ var githubService = {
             }
         };
         http_req = https.request(options, function(res) {
-            res.on('data', function(chunk) { data += chunk; });
+            res.on('data', function(chunk) {
+                data += chunk;
+            });
             res.on('end', function() {
                 var meta = {};
                 data = data ? JSON.parse(data) : null;
@@ -176,12 +209,20 @@ var githubService = {
                 meta.link = res.headers.link;
 
                 getNext(meta);
+                console.log('direct call ', res.req.path, res.statusCode, 'remaining ', res.headers['x-ratelimit-remaining']);
+                if (res.statusCode === 200) {
+                    setETag(argsString, res.headers.etag);
+                }
             });
         });
 
         http_req.setHeader('Authorization', 'token ' + args.token);
         http_req.setHeader('User-Agent', 'cla-assistant');
         http_req.setHeader('Accept', 'application/vnd.github.moondragon+json');
+        if (getETag(argsString)) {
+            console.log(getETag(argsString));
+            http_req.setHeader('If-None-Match', getETag(argsString));
+        }
 
         if (options.method === 'POST' && args.body) {
             http_req.write(JSON.stringify(args.body));
