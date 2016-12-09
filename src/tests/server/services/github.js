@@ -10,6 +10,7 @@ global.config = require('../../../config');
 
 // service
 var github = rewire('../../../server/services/github');
+var cache = require('memory-cache');
 
 var callStub = sinon.stub();
 var authenticateStub = sinon.stub();
@@ -44,6 +45,7 @@ describe('github:call', function() {
         callStub.reset();
         authenticateStub.reset();
         getNextPageStub.reset();
+        cache.clear();
     });
 
     it('should return an error if obj is not set', function(it_done) {
@@ -149,7 +151,7 @@ describe('github:direct_call', function() {
     var exp_options = {};
     var https_req = {
         header: {},
-        end: function() { },
+        end: function() {},
         error: function(err) {
             callbacks.error(err);
         },
@@ -252,7 +254,7 @@ describe('github:direct_call', function() {
 
     it('should use different method then get if provided', function(it_done) {
         args.http_method = 'POST';
-        args.body = {a: 'b'};
+        args.body = { a: 'b' };
         exp_options.method = 'POST';
 
         github.direct_call(args, function(err, response) {
@@ -278,11 +280,11 @@ describe('github:direct_call', function() {
         callbacks.end();
     });
 
-    it('should send multiple requests and collect all data if there is more to get', function (it_done) {
+    it('should send multiple requests and collect all data if there is more to get', function(it_done) {
         sinon.spy(github, 'direct_call');
         res.headers.link = '<https://api.github.com/url?page=2>; rel="next", <https://api.github.com/url?page=2>; rel="last"';
 
-        github.direct_call(args).then(function (response) {
+        github.direct_call(args).then(function(response) {
             console.log('done');
             assert.equal(response.meta.scopes, 'GitHub scopes');
             assert.equal(https_req.header.Authorization, 'token abc');
