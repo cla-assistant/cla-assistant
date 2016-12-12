@@ -8,7 +8,7 @@ function createRepoHook(req, done) {
         obj: 'repos',
         fun: 'createHook',
         arg: {
-            user: req.args.owner,
+            owner: req.args.owner,
             repo: req.args.repo,
             name: 'web',
             config: { url: url.webhook(req.args.repo), content_type: 'json' },
@@ -24,7 +24,7 @@ function updateRepoHook(owner, repo, id, active, token, done) {
         obj: 'repos',
         fun: 'editHook',
         arg: {
-            user: owner,
+            owner: owner,
             repo: repo,
             name: 'web',
             config: { url: url.webhook(repo), content_type: 'json' },
@@ -45,7 +45,7 @@ function getHook(obj, arg, token, done) {
         var hook = null;
 
         if (!err && hooks && hooks.length > 0) {
-            hooks.forEach(function (webhook) {
+            hooks.forEach(function(webhook) {
                 if (webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
                     hook = webhook;
                 }
@@ -60,9 +60,9 @@ function getHook(obj, arg, token, done) {
 
 function deactevateRepoHook(owner, repo, token, done) {
     getHook('repos', {
-        user: owner,
+        owner: owner,
         repo: repo
-    }, token, function (err, hook) {
+    }, token, function(err, hook) {
         if (hook && hook.id) {
             updateRepoHook(owner, repo, hook.id, false, token, done);
         }
@@ -72,22 +72,23 @@ function deactevateRepoHook(owner, repo, token, done) {
 function createOrgHook(req, done) {
     var org = req.args.org;
     var args = {
-        url: url.githubOrgWebhook(org),
-        token: req.user.token,
-        http_method: 'POST',
-        body: {
+        obj: 'orgs',
+        fun: 'createHook',
+        arg: {
+            org: org,
             name: 'web',
             config: { url: url.webhook(org), content_type: 'json' },
             events: ['pull_request'],
             active: true
-        }
+        },
+        token: req.user.token
     };
-    github.direct_call(args, function (err, data) {
+    github.call(args, function(err, data) {
         done(err, data);
-        repoService.getByOwner(org, function (err, repos) {
+        repoService.getByOwner(org, function(err, repos) {
             if (repos && repos.length > 0) {
-                repos.forEach(function (repo) {
-                    deactevateRepoHook(org, repo.repo, repo.token, function () {});
+                repos.forEach(function(repo) {
+                    deactevateRepoHook(org, repo.repo, repo.token, function() {});
                 });
             }
         });
@@ -99,15 +100,15 @@ function extractGithubArgs(args) {
     var arg = args.org ? {
         org: args.org
     } : {
-        user: args.user,
+        owner: args.owner,
         repo: args.repo
-        };
+    };
     return { obj: obj, arg: arg };
 }
 
 module.exports = {
 
-    get: function (req, done) {
+    get: function(req, done) {
         var githubArgs = extractGithubArgs(req.args);
 
         getHook(githubArgs.obj, githubArgs.arg, req.user.token, done);
@@ -122,12 +123,12 @@ module.exports = {
         // }
     },
 
-    create: function (req, done) {
+    create: function(req, done) {
         return req.args && req.args.orgId ? createOrgHook(req, done) : createRepoHook(req, done);
     },
 
-    remove: function (req, done) {
-        this.get(req, function (err, hook) {
+    remove: function(req, done) {
+        this.get(req, function(err, hook) {
             if (err || !hook) {
                 done(err || 'No webhook found with base url ' + url.baseWebhook);
                 return;

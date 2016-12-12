@@ -6,7 +6,7 @@
 // *****************************************************
 
 module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q', 'utils',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q, utils) {
+    function($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q, utils) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
@@ -19,7 +19,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.contributors = [];
         var webhook = {};
 
-        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organisation'];
+        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organization'];
         $scope.csvHeader = csvHeader.concat();
 
         function gistArgs() {
@@ -37,14 +37,14 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         //     return valid ? gist_url : undefined;
         // };
 
-        $scope.open_error = function () {
+        $scope.open_error = function() {
             $modal.open({
                 templateUrl: '/modals/templates/error_modal.html',
                 controller: 'ErrorCtrl'
             });
         };
 
-        $scope.getSignatures = function (linkedItem, gist_version, cb) {
+        $scope.getSignatures = function(linkedItem, gist_version, cb) {
             return $RPC.call('cla', 'getAll', {
                 repoId: linkedItem.repoId,
                 orgId: linkedItem.orgId,
@@ -55,12 +55,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }, cb);
         };
 
-        var getCustomFields = function (linkedItem, gist_version, cb) {
+        var getCustomFields = function(linkedItem, gist_version, cb) {
             utils.getGistContent(linkedItem.repoId, linkedItem.orgId, linkedItem.gist, gist_version).then(
                 function(gistContent) {
                     if (gistContent.hasCustomFields) {
                         $scope.csvHeader = csvHeader.concat();
-                        gistContent.customKeys.forEach(function (key) {
+                        gistContent.customKeys.forEach(function(key) {
                             var field = gistContent.customFields[key];
                             $scope.csvHeader.push(field.title || key);
                         });
@@ -75,12 +75,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             );
         };
 
-        var getWebhook = function () {
+        var getWebhook = function() {
             return $RPCService.call('webhook', 'get', {
                 repo: $scope.item.repo,
-                user: $scope.item.owner,
+                owner: $scope.item.owner,
                 org: $scope.item.org
-            }, function (err, obj) {
+            }, function(err, obj) {
                 if (!err && obj && obj.value) {
                     webhook = obj.value;
                     $scope.valid.webhook = webhook.active;
@@ -88,15 +88,15 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getContributors = function (gist_version, cb) {
+        $scope.getContributors = function(gist_version, cb) {
             var customKeys;
-            getCustomFields($scope.item, gist_version, function (err, keys) {
+            getCustomFields($scope.item, gist_version, function(err, keys) {
                 customKeys = keys ? keys : customKeys;
 
-                $scope.getSignatures($scope.item, gist_version, function (err, data) {
+                $scope.getSignatures($scope.item, gist_version, function(err, data) {
                     $scope.contributors = [];
                     if (data && data.value && data.value.length > 0) {
-                        data.value.forEach(function (signature) {
+                        data.value.forEach(function(signature) {
                             var contributor = {};
                             contributor.user_name = signature.user;
                             contributor.repo_owner = signature.owner;
@@ -108,7 +108,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                             contributor.org_cla = signature.org_cla;
                             if (customKeys && signature.custom_fields) {
                                 var customFields = JSON.parse(signature.custom_fields);
-                                customKeys.forEach(function (key) {
+                                customKeys.forEach(function(key) {
                                     contributor[key] = customFields[key];
                                 });
                             }
@@ -123,16 +123,16 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         };
 
-        $scope.getGist = function () {
+        $scope.getGist = function() {
             return $RPCService.call('cla', 'getGist', {
                 repo: $scope.item.repo,
                 owner: $scope.item.owner,
                 gist: gistArgs()
-            }, function (err, data) {
+            }, function(err, data) {
                 if (!err && data.value) {
                     $scope.gist = data.value;
                     $scope.valid.gist = $scope.gist && $scope.gist.id ? true : false;
-                    getCustomFields($scope.item, gistArgs().gist_version, function (err) {
+                    getCustomFields($scope.item, gistArgs().gist_version, function(err) {
                         $scope.valid.gist = err ? false : $scope.valid.gist;
                     });
                 }
@@ -140,7 +140,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getGistName = function () {
+        $scope.getGistName = function() {
             $scope.gist.fileName = $scope.gist.fileName ? $scope.gist.fileName : utils.getGistAttribute($scope.gist, 'filename');
             return $scope.gist.fileName;
         };
@@ -157,65 +157,65 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         //     $scope.errorMsg.push(error);
         // };
 
-        $scope.validateLinkedItem = function () {
+        $scope.validateLinkedItem = function() {
             var promises = [];
             if ($scope.item.gist) {
                 $scope.loading = true;
                 promises.push($scope.getGist());
                 promises.push(getWebhook());
-                $q.all(promises).then(function () {
+                $q.all(promises).then(function() {
                     $scope.signatures = $scope.getSignatures($scope.item, gistArgs().gist_version);
                     $scope.loading = false;
                 });
             }
         };
 
-        $scope.isLinkActive = function () {
+        $scope.isLinkActive = function() {
             return !$scope.loading && $scope.valid.gist && $scope.valid.webhook;
         };
 
-        $scope.renderHtml = function (html_code) {
+        $scope.renderHtml = function(html_code) {
             return $sce.trustAsHtml(html_code);
         };
 
-        var report = function (linkedItem) {
+        var report = function(linkedItem) {
             $modal.open({
                 templateUrl: '/modals/templates/report.html',
                 controller: 'ReportCtrl',
                 windowClass: 'report',
                 scope: $scope,
                 resolve: {
-                    item: function () {
+                    item: function() {
                         return linkedItem;
                     }
                 }
             });
         };
 
-        $scope.getReport = function () {
+        $scope.getReport = function() {
             if ($scope.signatures.value.length > 0) {
                 $scope.getContributors(gistArgs().gist_version);
             }
             report($scope.item);
         };
 
-        var validateRepoPr = function (repo, owner) {
+        var validateRepoPr = function(repo, owner) {
             $scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
                 repo: repo,
                 owner: owner
-            }, function(){
+            }, function() {
                 $scope.popoverIsOpen = false;
             });
         };
-        var validateOrgPr = function (linkedItem) {
+        var validateOrgPr = function(linkedItem) {
             $RPCService.call('cla', 'validateOrgPullRequests', {
                 org: linkedItem.org
-            }).then(function(){
+            }).then(function() {
                 $scope.popoverIsOpen = false;
             });
         };
 
-        $scope.recheck = function (linkedItem) {
+        $scope.recheck = function(linkedItem) {
             if (linkedItem.org) {
                 validateOrgPr(linkedItem);
             } else {
@@ -223,14 +223,14 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }
         };
 
-        $scope.upload = function (linkedItem) {
+        $scope.upload = function(linkedItem) {
             $scope.popoverIsOpen = false;
             var modal = $modal.open({
                 templateUrl: '/modals/templates/upload.html',
                 controller: 'UploadCtrl',
                 windowClass: 'upload'
             });
-            modal.result.then(function (users) {
+            modal.result.then(function(users) {
                 $RPCService.call('cla', 'upload', {
                     repo: linkedItem.repo,
                     owner: linkedItem.owner || linkedItem.org,
@@ -239,14 +239,14 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
-        $scope.getBadge = function (claRepo) {
+        $scope.getBadge = function(claRepo) {
             $scope.popoverIsOpen = false;
             $modal.open({
                 templateUrl: '/modals/templates/badge.html',
                 controller: 'BadgeCtrl',
                 windowClass: 'get-badge',
                 resolve: {
-                    repo: function () {
+                    repo: function() {
                         return claRepo;
                     }
                 }
@@ -257,7 +257,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
     }
 ]);
 
-module.directive('settings', ['$document', function ($document) {
+module.directive('settings', ['$document', function($document) {
     return {
         templateUrl: '/templates/settings.html',
         controller: 'SettingsCtrl',
@@ -267,18 +267,18 @@ module.directive('settings', ['$document', function ($document) {
             user: '=',
             repos: '='
         },
-        link: function (scope, element) {
-            var documentClickHandler = function (event) {
+        link: function(scope, element) {
+            var documentClickHandler = function(event) {
                 var eventOutsideTarget = (element[0] !== event.target) && (element.find(event.target).length === 0);
                 if (eventOutsideTarget) {
-                    scope.$apply(function () {
+                    scope.$apply(function() {
                         scope.popoverIsOpen = false;
                     });
                 }
             };
 
             $document.on('click', documentClickHandler);
-            scope.$on('$destroy', function () {
+            scope.$on('$destroy', function() {
                 $document.off('click', documentClickHandler);
             });
         }

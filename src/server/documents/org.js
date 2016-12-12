@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+mongoose.Promise = require('q').Promise;
 
 var OrgSchema = mongoose.Schema({
     orgId: String,
@@ -8,7 +9,7 @@ var OrgSchema = mongoose.Schema({
     excludePattern: String,
 });
 
-OrgSchema.methods.isRepoExcluded = function (repo) {
+OrgSchema.methods.isRepoExcluded = function(repo) {
     if (!this.excludePattern || !repo || !repo.includes) {
         return false;
     }

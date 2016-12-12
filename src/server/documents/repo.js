@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+mongoose.Promise = require('q').Promise;
 
 var RepoSchema = mongoose.Schema({
     repoId: String,

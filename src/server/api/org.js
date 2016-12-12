@@ -3,10 +3,10 @@ var github = require('../services/github');
 var log = require('../services/logger');
 var q = require('q');
 
-var extractIds = function (orgs) {
+var extractIds = function(orgs) {
     var ids = [];
     try {
-        orgs.forEach(function (org) {
+        orgs.forEach(function(org) {
             ids.push(org.id);
         });
     } catch (ex) {
@@ -19,12 +19,12 @@ module.exports = {
     // check: function(req, done) {
     //     org.check(req.args, done);
     // },
-    create: function (req, done) {
+    create: function(req, done) {
         req.args.token = req.user.token;
         org.create(req.args, done);
     },
-    getForUser: function (req, done) {
-        this.getGHOrgsForUser(req, function (err, res) {
+    getForUser: function(req, done) {
+        this.getGHOrgsForUser(req, function(err, res) {
             if (err) {
                 log.warn(err);
                 done(err);
@@ -37,14 +37,14 @@ module.exports = {
         });
     },
 
-    getGHOrgsForUser: function (req, done) { // TODO: test it!
+    getGHOrgsForUser: function(req, done) { // TODO: test it!
         var promises = [];
         var argsForGithub = {
             obj: 'users',
             fun: 'getOrgs',
             token: req.user.token
         };
-        github.call(argsForGithub, function (err, res) {
+        github.call(argsForGithub, function(err, res) {
             if (err) {
                 log.warn(err);
                 done(err);
@@ -54,29 +54,29 @@ module.exports = {
             var adminOrgs = [];
 
             if (orgs instanceof Array) {
-                orgs.forEach(function (org) {
-                    argsForGithub.fun = 'getOrganizationMembership';
+                orgs.forEach(function(org) {
+                    argsForGithub.fun = 'getOrgMembership';
                     argsForGithub.arg = { org: org.login };
-                    var promise = github.call(argsForGithub).then(function (info) {
+                    var promise = github.call(argsForGithub).then(function(info) {
                         if (info && info.data && info.data.role === 'admin') {
                             adminOrgs.push(org);
                         }
                     });
                     promises.push(promise);
                 });
-                q.all(promises).then(function () {
+                q.all(promises).then(function() {
                     done(null, adminOrgs);
                 });
 
             } else {
-                done(err ? err : 'Could not find github orgs');
+                done(err ? err :  'Could not find github orgs');
             }
         });
     },
     // update: function(req, done){
     //     org.update(req.args, done);
     // },
-    remove: function (req, done) {
+    remove: function(req, done) {
         org.remove(req.args, done);
     }
 };

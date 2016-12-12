@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var logger = require('../services/logger');
+mongoose.Promise = require('q').Promise;
 
 var CLASchema = mongoose.Schema({
     created_at: Date,
@@ -10,7 +11,7 @@ var CLASchema = mongoose.Schema({
     ownerId: String,
     repo: String,
     repoId: String,
-    org_cla: {type: Boolean, default: false },
+    org_cla: { type: Boolean, default: false },
     user: String,
     userId: String,
 });

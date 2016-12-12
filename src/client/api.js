@@ -46,16 +46,16 @@ module.factory('$RAW', ['$q', '$http',
             get: function(url, user_token) {
                 var deferred = $q.defer();
                 var header = {};
-                    header.Accept = 'application/vnd.github.moondragon+json';
+                header.Accept = 'application/vnd.github.moondragon+json';
                 if (user_token) {
                     header.Authorization = 'token ' + user_token;
                 }
-                $http.get(url, {'headers': header}).
-                    success(function(data){
+                $http.get(url, { 'headers': header }).
+                success(function(data) {
                         deferred.resolve(data);
                         // callback(null, data, status);
                     })
-                    .error(function(err){
+                    .error(function(err) {
                         deferred.reject(err);
                         // callback(err, null, status);
                     });
@@ -98,7 +98,7 @@ module.factory('$HUB', ['$RAW', '$log',
             var parts = header.split(',');
             var links = {};
             // Parse each part into a named link
-            parts.forEach( function(p) {
+            parts.forEach(function(p) {
                 var section = p.split(';');
                 if (section.length !== 2) {
                     throw new Error('section could not be split on ";"');
@@ -123,7 +123,7 @@ module.factory('$HUB', ['$RAW', '$log',
 
                 res.set(error, data);
 
-                if(meta) {
+                if (meta) {
                     res.meta = meta;
                     var links = meta.link ? parse_link_header(meta.link) : null;
 
@@ -136,8 +136,7 @@ module.factory('$HUB', ['$RAW', '$log',
 
                         if (links.next) {
                             args.url = links.next;
-                        }
-                        else {
+                        } else {
                             args.arg.page = args.arg.page + 1 || 2;
                         }
 
@@ -159,9 +158,9 @@ module.factory('$HUB', ['$RAW', '$log',
             call: function(o, functn, data, callback) {
                 return exec('call', new ResultSet(), { obj: o, fun: functn, arg: data }, callback);
             },
-            direct_call: function(url, data, callback) {
-                return exec('direct_call', new ResultSet(), { url: url, arg: data }, callback);
-            },
+            // direct_call: function(url, data, callback) {
+            //     return exec('direct_call', new ResultSet(), { url: url, arg: data }, callback);
+            // },
             wrap: function(o, functn, data, callback) {
                 return exec('wrap', new ResultSet(), { obj: o, fun: functn, arg: data }, callback);
             }
@@ -188,7 +187,7 @@ module.factory('$HUBService', ['$q', '$HUB',
                     callback(err, obj);
                 }
 
-                if(!err) {
+                if (!err) {
                     deferred.resolve(obj);
                 }
                 return deferred.reject(err);
@@ -199,7 +198,7 @@ module.factory('$HUBService', ['$q', '$HUB',
         var exec_direct = function(type, url, data) {
             var deferred = $q.defer();
             $HUB[type](url, data, function(err, obj) {
-                if(!err) {
+                if (!err) {
                     if (obj.hasMore) {
                         obj.getMore();
                     } else {
@@ -216,9 +215,9 @@ module.factory('$HUBService', ['$q', '$HUB',
             call: function(o, functn, data, callback) {
                 return exec('call', o, functn, data, callback);
             },
-            direct_call: function(url, data) {
-                return exec_direct('direct_call', url, data);
-            },
+            // direct_call: function(url, data) {
+            //     return exec_direct('direct_call', url, data);
+            // },
             wrap: function(o, functn, data, callback) {
                 return exec('wrap', o, functn, data, callback);
             }
@@ -243,7 +242,7 @@ module.factory('$RPCService', ['$q', '$RPC',
                         callback(err, obj);
                     }
 
-                    if(!err) {
+                    if (!err) {
                         deferred.resolve(obj);
                     }
                     return deferred.reject();

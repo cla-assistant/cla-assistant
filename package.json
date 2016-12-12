@@ -32,7 +32,7 @@
         "ejs": "^2.4.2",
         "express": "^4.14.0",
         "express-session": "^1.13.0",
-        "github": "^2.4.0",
+        "github": "^7.0.1",
         "glob": "^7.0.5",
         "karma": "^1.1.0",
         "karma-mocha": "^1.1.1",
