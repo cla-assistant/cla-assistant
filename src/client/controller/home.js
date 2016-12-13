@@ -260,9 +260,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             };
 
             $scope.getDefaultClaFiles = function() {
-                return $RAW.get('/static/cla-assistant.json').then(function(data) {
+                var promise = $RAW.get('/static/cla-assistant.json');
+                promise.then(function(data) {
                     $scope.defaultClas = data['default-cla'];
                 });
+                return promise;
             };
 
             $scope.count = function() {
