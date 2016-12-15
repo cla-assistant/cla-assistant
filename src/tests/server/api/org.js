@@ -17,43 +17,43 @@ var testData = require('../testData').data;
 var org_api = require('../../../server/api/org');
 
 
-describe('org api', function () {
+describe('org api', function() {
     var testErr = {};
     var testRes = {};
-    beforeEach(function () {
+    beforeEach(function() {
         testErr.githubCall = null;
         testRes.githubCall = testData.orgs;
-        testErr.githubGetMembershipp = null;
-        testRes.githubGetMembershipp = { data: {role: 'admin'}};
+        testErr.githubGetMembership = null;
+        testRes.githubGetMembership = { data: { role: 'admin' } };
 
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call', function(args, done) {
             if (args.fun === 'getOrgs') {
                 done(testErr.githubCall, testRes.githubCall);
             }
-            if (args.fun === 'getOrganizationMembership') {
+            if (args.fun === 'getOrgMembership') {
                 var deferred = q.defer();
-                deferred.resolve(testRes.githubGetMembershipp);
+                deferred.resolve(testRes.githubGetMembership);
                 return deferred.promise;
             }
         });
-        sinon.stub(org, 'getMultiple', function (args, done) {
+        sinon.stub(org, 'getMultiple', function(args, done) {
             done(null, [{}, {}]);
         });
-        sinon.stub(org, 'create', function (args, done) {
+        sinon.stub(org, 'create', function(args, done) {
             done();
         });
-        sinon.stub(logger, 'warn', function (msg) {
+        sinon.stub(logger, 'warn', function(msg) {
             assert(msg);
         });
     });
-    afterEach(function () {
+    afterEach(function() {
         github.call.restore();
         org.getMultiple.restore();
         org.create.restore();
         logger.warn.restore();
     });
 
-    it('should create new org via org service', function (it_done) {
+    it('should create new org via org service', function(it_done) {
         var req = {
             args: {
                 orgId: 1,
@@ -65,7 +65,7 @@ describe('org api', function () {
             }
         };
 
-        org_api.create(req, function () {
+        org_api.create(req, function() {
             org.create.calledWith({
                 orgId: 1,
                 org: 'myOrg',
@@ -76,8 +76,8 @@ describe('org api', function () {
         });
     });
 
-    describe('orgApi:getForUser', function () {
-        it('should collect github orgs and search for linked orgs', function (it_done) {
+    describe('orgApi:getForUser', function() {
+        it('should collect github orgs and search for linked orgs', function(it_done) {
             var req = {
                 args: {},
                 user: {
@@ -86,10 +86,10 @@ describe('org api', function () {
                 }
             };
 
-            org_api.getForUser(req, function (err, orgs) {
+            org_api.getForUser(req, function(err, orgs) {
                 assert.equal(github.call.calledWithMatch({
                     obj: 'users',
-                    fun: 'getOrganizationMembership',
+                    fun: 'getOrgMembership',
                     token: 'abc'
                 }), true);
 
@@ -99,7 +99,7 @@ describe('org api', function () {
             });
         });
 
-        it('should handle github error', function (it_done) {
+        it('should handle github error', function(it_done) {
             testErr.githubCall = 'any github error';
             var req = {
                 args: {},
@@ -109,7 +109,7 @@ describe('org api', function () {
                 }
             };
 
-            org_api.getForUser(req, function (err, orgs) {
+            org_api.getForUser(req, function(err, orgs) {
                 assert(err);
                 assert(!orgs);
                 it_done();

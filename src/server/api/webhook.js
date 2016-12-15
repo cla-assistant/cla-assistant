@@ -135,7 +135,6 @@ module.exports = {
             }
             var githubArgs = extractGithubArgs(req.args);
             githubArgs.arg.id = hook.id;
-
             github.call({
                 obj: githubArgs.obj,
                 fun: 'deleteHook',

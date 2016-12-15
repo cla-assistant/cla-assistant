@@ -148,8 +148,10 @@ module.exports = {
         var self = this;
 
         var handleError = function(err, arguments) {
-            logger.info(new Error(err).stack);
-            logger.info('getPRCommitters with arg: ', arguments);
+            if (!arguments.count) {
+                logger.info(new Error(err).stack);
+                logger.info('getPRCommitters with arg: ', arguments);
+            }
             done(err);
         };
 
@@ -161,8 +163,8 @@ module.exports = {
                 if (err) {
                     logger.info(new Error(err).stack);
                 }
-                if (res.data && !res.data.message) {
-                    res.data.forEach(function(commit) {
+                if (res && !res.message) {
+                    res.forEach(function(commit) {
                         try {
                             var committer = extractUserFromCommit(commit);
                         } catch (error) {
@@ -191,7 +193,6 @@ module.exports = {
                                 })) {
                                 arg.arg.repo = res.name;
                                 arg.arg.owner = res.owner.login;
-                                // arg.url = url.githubPullRequestCommits(arg.owner, arg.repo, arg.number);
 
                                 callGithub(arg);
                             } else {
@@ -199,7 +200,8 @@ module.exports = {
                             }
                         });
                     } else {
-                        handleError(res.message, arg);
+                        // handleError(res.message, arg);
+                        done(res.message);
                     }
                 }
 
@@ -239,7 +241,7 @@ module.exports = {
                             if (err || !commit || !commit.commit.author.date) {
                                 throw new Error(err);
                             }
-                            args.url = url.githubCommits(headCommit.repo.owner.login, headCommit.repo.name, headCommit.ref, commit.commit.author.date);
+                            // args.url = url.githubCommits(headCommit.repo.owner.login, headCommit.repo.name, headCommit.ref, commit.commit.author.date);
                             var allCommitsParams = {
                                 obj: 'repos',
                                 fun: 'getCommits',
@@ -293,14 +295,14 @@ module.exports = {
             },
             token: args.token
         }, function(err, res) {
-            if (!res.data || res.data.length < 1 || res.data.message) {
-                err = res.data && res.data.message ? res.data.message : err;
+            if (!res || res.length < 1 || res.message) {
+                err = res && res.message ? res.message : err;
                 done(err, null);
                 return;
             }
 
             var repoSet = [];
-            res.data.forEach(function(githubRepo) {
+            res.forEach(function(githubRepo) {
                 if (githubRepo.permissions.push) {
                     repoSet.push({
                         owner: githubRepo.owner.login,
@@ -332,11 +334,11 @@ module.exports = {
     //                 token: req.user.token
     //             };
     //             github.direct_call(params, function(err, ghRepo){
-    //                 if (ghRepo && ghRepo.data && ghRepo.data.id) {
-    //                     dbRepo.repoId = ghRepo.data.id;
+    //                 if (ghRepo && ghRepo && ghRepo.id) {
+    //                     dbRepo.repoId = ghRepo.id;
     //                     dbRepo.save();
-    //                 } else if (ghRepo && ghRepo.data && ghRepo.data.message) {
-    //                     logger.info(ghRepo.data.message, 'with params ', params);
+    //                 } else if (ghRepo && ghRepo && ghRepo.message) {
+    //                     logger.info(ghRepo.message, 'with params ', params);
     //                 }
     //             });
     //         });
@@ -354,20 +356,6 @@ module.exports = {
             },
             token: args.token
         };
-        github.call(params, function(err, ghRepo) {
-            if (ghRepo && ghRepo.id) {
-                done(err, ghRepo);
-            } else if (ghRepo && ghRepo.url) {
-                params.url = ghRepo.url;
-
-                //TODO handle moved repos!!!!!!!!
-                done('GH Repo was renamed or transferred ', ghRepo.url);
-                // github.direct_call(params, function(e, ghRepository) {
-                //     done(e, ghRepository.data);
-                // });
-            } else {
-                done('GH Repo not found');
-            }
-        });
+        github.call(params, done);
     }
 };

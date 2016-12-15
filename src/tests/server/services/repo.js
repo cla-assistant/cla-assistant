@@ -193,9 +193,17 @@ describe('repo:getPRCommitters', function() {
                 err: null,
                 data: testData.commit[0]
             },
+            getCommits: {
+                err: null,
+                data: testData.commit
+            },
             getPR: {
                 err: null,
                 data: testData.pull_request
+            },
+            getPRCommits: {
+                err: null,
+                data: testData.commits
             }
         };
 
@@ -203,17 +211,17 @@ describe('repo:getPRCommitters', function() {
             if (args.obj == 'pullRequests' && args.fun == 'get') {
                 done(githubCallRes.getPR.err, githubCallRes.getPR.data);
             }
+            if (args.obj == 'pullRequests' && args.fun == 'getCommits') {
+                done(githubCallRes.getPRCommits.err, githubCallRes.getPRCommits.data);
+            }
             if (args.obj == 'repos' && args.fun == 'getCommit') {
                 done(githubCallRes.getCommit.err, githubCallRes.getCommit.data);
             }
+            if (args.obj == 'repos' && args.fun == 'getCommits') {
+                done(githubCallRes.getCommits.err, githubCallRes.getCommits.data);
+            }
         });
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert(args.token);
-            assert.equal(args.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
-            done(null, {
-                data: testData.commits
-            });
-        });
+
         sinon.stub(orgService, 'get', function(args, done) {
             done(null, test_org);
         });
@@ -225,7 +233,6 @@ describe('repo:getPRCommitters', function() {
 
     afterEach(function() {
         github.call.restore();
-        github.direct_call.restore();
         orgService.get.restore();
         Repo.findOne.restore();
     });
@@ -236,22 +243,17 @@ describe('repo:getPRCommitters', function() {
             owner: 'owner',
             number: '1'
         };
-
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(argums, done) {
-            assert(argums.token);
-            assert.equal(argums.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
-            done(null, {
-                data: testData.commit
-            });
-        });
+        githubCallRes.getPRCommits.data = testData.commit;
 
         repo.getPRCommitters(arg, function(err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
 
             it_done();
         });
@@ -265,21 +267,16 @@ describe('repo:getPRCommitters', function() {
             owner: 'owner',
             number: '1'
         };
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(argums, done) {
-            assert(argums.token);
-            assert.equal(argums.url, url.githubCommits('forkOwner', 'Hello-World', testData.pull_request.head.ref, testData.commit[0].commit.author.date));
-            done(null, {
-                data: testData.commit
-            });
-        });
 
         repo.getPRCommitters(arg, function(err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'repos',
+                fun: 'getCommits'
+            }));
 
             testData.pull_request.commits = 3;
             it_done();
@@ -295,21 +292,17 @@ describe('repo:getPRCommitters', function() {
             owner: 'owner',
             number: '1'
         };
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(argums, done) {
-            assert(argums.token);
-            assert.equal(argums.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
-            done(null, {
-                data: testData.commit
-            });
-        });
+        githubCallRes.getPRCommits.data = testData.commit;
 
         repo.getPRCommitters(arg, function(err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
 
             testData.pull_request.commits = 3;
             it_done();
@@ -323,24 +316,21 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(argums, done) {
-            assert(argums.token);
-            assert.equal(argums.url, url.githubPullRequestCommits('owner', 'myRepo', 1));
-            done(null, {
-                data: testData.commit_done_by_bot
-            });
-        });
+        githubCallRes.getPRCommits.data = testData.commit_done_by_bot;
 
         repo.getPRCommitters(arg, function(err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
+
+            it_done();
         });
 
-        it_done();
     });
 
     it('should get list of committers for a pull request', function(it_done) {
@@ -355,19 +345,19 @@ describe('repo:getPRCommitters', function() {
             assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
+
+            it_done();
         });
 
-        it_done();
     });
 
     it('should handle committers who has no github user', function(it_done) {
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(argums, done) {
-            done(null, {
-                data: testData.commit_with_no_user
-            });
-        });
+        githubCallRes.getPRCommits.data = testData.commit_with_no_user;
+
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -379,20 +369,19 @@ describe('repo:getPRCommitters', function() {
             assert.equal(data.length, 1);
             // assert.equal(data[0].name, 'octocat');
             // assert(Repo.findOne.called);
-            assert(github.direct_call.called);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
         });
         it_done();
     });
 
     it('should handle error', function(it_done) {
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done) {
-            done(null, {
-                data: {
-                    message: 'Any Error message'
-                }
-            });
-        });
+        githubCallRes.getPRCommits.data = {
+            message: 'Any Error message'
+        };
+
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -402,25 +391,23 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(github.direct_call.calledOnce);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
         });
 
         it_done();
     });
 
     it('should retry api call if gitHub returns "Not Found"', function(it_done) {
+        githubCallRes.getPRCommits.data = {
+            message: 'Not Found'
+        };
         this.timeout(4000);
         repo.timesToRetryGitHubCall = 3;
         githubCallRes.getPR.err = 'Not Found';
         githubCallRes.getPR.data = null;
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done) {
-            done(null, {
-                data: {
-                    message: 'Not Found'
-                }
-            });
-        });
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -430,25 +417,25 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(github.call.calledTwice);
-            assert(github.direct_call.called);
+            assert(github.call.calledThrice);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
         });
         setTimeout(it_done, 3500);
     });
 
     it('should retry api call if gitHub returns "Not Found"', function(it_done) {
+        githubCallRes.getPRCommits.data = {
+            message: 'Not Found'
+        };
         this.timeout(4000);
         repo.timesToRetryGitHubCall = 3;
         githubCallRes.getPR.err = null;
-        githubCallRes.getPR.data = {message: 'Not Found'};
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done) {
-            done(null, {
-                data: {
-                    message: 'Not Found'
-                }
-            });
-        });
+        githubCallRes.getPR.data = {
+            message: 'Not Found'
+        };
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -458,8 +445,11 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(github.call.calledTwice);
-            assert(github.direct_call.called);
+            assert(github.call.calledThrice);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
         });
         setTimeout(it_done, 3500);
     });
@@ -485,7 +475,10 @@ describe('repo:getPRCommitters', function() {
                 orgId: 1
             }), true);
             assert.equal(Repo.findOne.called, false);
-            assert.equal(github.direct_call.called, true);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
 
             it_done();
         });
@@ -504,7 +497,10 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(!github.direct_call.called);
+            assert(!github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getCommits'
+            }));
         });
 
         it_done();
@@ -512,22 +508,24 @@ describe('repo:getPRCommitters', function() {
 
     it('should update db entry if repo was transferred', function(it_done) {
         this.timeout(3000);
-        github.direct_call.restore();
-        sinon.stub(github, 'direct_call', function(args, done) {
-            var res;
-            if (args.url.indexOf('commits') > -1) {
-                res = args.url.indexOf('myRepo') > -1 ? {
-                    data: {
-                        message: 'Moved Permanently'
-                    }
-                } : {
-                    data: testData.commits
-                };
-            } else {
-                res = test_repo;
-            }
-            done(null, res);
-        });
+
+        github.call.restore();
+        sinon.stub(github, 'call');
+        github.call.onFirstCall().callsArgWith(1, githubCallRes.getPR.err, githubCallRes.getPR.data);
+        github.call.withArgs({
+                obj: 'pullRequests',
+                fun: 'getCommits',
+                token: 'abc',
+                arg: {
+                    number: '1',
+                    owner: 'owner',
+                    per_page: 100,
+                    repo: 'myRepo'
+                }
+            })
+            .onFirstCall().callsArgWith(1, null, { message: 'Moved Permanently' });
+        github.call.onThirdCall().callsArgWith(1, null, testData.commits);
+
         sinon.stub(repo, 'getGHRepo', function(args, done) {
             done(null, {
                 name: 'test_repo',
@@ -547,60 +545,78 @@ describe('repo:getPRCommitters', function() {
         repo.getPRCommitters(arg, function(err) {
             assert.ifError(err);
             assert(Repo.findOne.called);
-            assert(github.direct_call.calledTwice);
+            assert(github.call.calledThrice);
 
             it_done();
             repo.getGHRepo.restore();
         });
-        setTimeout(it_done, 2500);
     });
 });
 
 describe('repo:getUserRepos', function() {
-    afterEach(function() {
-        github.direct_call.restore();
-        Repo.find.restore();
-    });
+    var githubCallRes, repoFindRes, assertFunction;
 
-    it('should return all linked repositories of the logged user', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert.equal(args.url.indexOf('https://api.github.com/user/repos?per_page=100'), 0);
-            assert(args.token);
-            done(null, {
-                data: [{
-                    id: 123,
-                    owner: {
-                        login: 'login'
-                    },
-                    name: 'repo1',
-                    permissions: {
-                        admin: false,
-                        push: true,
-                        pull: true
-                    }
-                }, {
-                    id: 456,
-                    owner: {
-                        login: 'login'
-                    },
-                    name: 'repo2',
-                    permissions: {
-                        admin: false,
-                        push: true,
-                        pull: true
-                    }
-                }]
-            });
-        });
-        sinon.stub(Repo, 'find', function(args, done) {
-            assert.equal(args.$or.length, 2);
-            done(null, [{
+    beforeEach(function() {
+        githubCallRes = {
+            err: null,
+            data: [{
+                id: 123,
+                owner: {
+                    login: 'login'
+                },
+                name: 'repo1',
+                permissions: {
+                    admin: false,
+                    push: true,
+                    pull: true
+                }
+            }, {
+                id: 456,
+                owner: {
+                    login: 'login'
+                },
+                name: 'repo2',
+                permissions: {
+                    admin: false,
+                    push: true,
+                    pull: true
+                }
+            }]
+        };
+
+        repoFindRes = {
+            err: null,
+            data: [{
                 owner: 'login',
                 repo: 'repo1',
                 repoId: 123,
                 save: function() {}
-            }]);
+            }]
+        };
+        sinon.stub(github, 'call', function(args, done) {
+            if (args.obj == 'repos' && args.fun == 'getAll') {
+                done(githubCallRes.err, githubCallRes.data);
+            }
         });
+
+        sinon.stub(Repo, 'find', function(args, done) {
+            if (assertFunction) {
+                assertFunction(args);
+            }
+            done(repoFindRes.err, repoFindRes.data);
+        });
+    });
+
+    afterEach(function() {
+        assertFunction = undefined;
+        github.call.restore();
+        Repo.find.restore();
+    });
+
+    it('should return all linked repositories of the logged user', function(it_done) {
+        assertFunction = function(args) {
+            assert.equal(args.$or.length, 2);
+        };
 
         repo.getUserRepos({
             token: 'test_token'
@@ -614,16 +630,7 @@ describe('repo:getUserRepos', function() {
     });
 
     it('should handle github error', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            done(null, {
-                data: {
-                    message: 'Bad credentials'
-                }
-            });
-        });
-        sinon.stub(Repo, 'find', function(args, done) {
-            done();
-        });
+        githubCallRes.data = { message: 'Bad credentials' };
 
         repo.getUserRepos({}, function(err) {
             assert.equal(err, 'Bad credentials');
@@ -634,34 +641,8 @@ describe('repo:getUserRepos', function() {
     });
 
     it('should handle mogodb error', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            done(null, {
-                data: [{
-                    owner: {
-                        login: 'login'
-                    },
-                    name: 'repo1',
-                    permissions: {
-                        admin: false,
-                        push: true,
-                        pull: true
-                    }
-                }, {
-                    owner: {
-                        login: 'login'
-                    },
-                    name: 'repo2',
-                    permissions: {
-                        admin: false,
-                        push: true,
-                        pull: true
-                    }
-                }]
-            });
-        });
-        sinon.stub(Repo, 'find', function(args, done) {
-            done('DB error');
-        });
+        repoFindRes.err = 'DB error';
+        repoFindRes.data = undefined;
 
         repo.getUserRepos({}, function(err) {
             assert(err);
@@ -672,58 +653,51 @@ describe('repo:getUserRepos', function() {
     });
 
     it('should handle affiliation attribute', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert(args.url.indexOf('affiliation=x,y') > -1);
+        github.call.restore();
+        sinon.stub(github, 'call', function(args, done) {
+            assert(args.arg.affiliation === 'x,y');
             assert(args.token);
-            done(null, {});
+            done(githubCallRes.err, githubCallRes.data);
         });
-        sinon.stub(Repo, 'find', function(args, done) {
-            done();
-        });
+
         repo.getUserRepos({
             token: 'test_token',
             affiliation: 'x,y'
         }, function(err) {
             assert.ifError(err);
-            assert(github.direct_call.called);
+            assert(github.call.called);
 
             it_done();
         });
     });
 
     it('should handle affiliation if not provided', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert(args.url.indexOf('affiliation=owner') > -1);
+        github.call.restore();
+        sinon.stub(github, 'call', function(args, done) {
+            assert(args.arg.affiliation === 'owner,organization_member');
             assert(args.token);
-            done(null, {});
+            done(githubCallRes.err, githubCallRes.data);
         });
-        sinon.stub(Repo, 'find', function(args, done) {
-            done();
-        });
+
         repo.getUserRepos({
             token: 'test_token'
         }, function(err) {
             assert.ifError(err);
-            assert(github.direct_call.called);
+            assert(github.call.called);
 
             it_done();
         });
     });
 
     it('should provide only repos with push rights', function(it_done) {
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert(args.token);
-            done(null, {
-                data: testData.repos
-            });
-        });
-        sinon.stub(Repo, 'find', function(args, done) {
+        githubCallRes.data = testData.repos;
+        repoFindRes.data = [{
+            owner: 'login',
+            repo: 'test_repo'
+        }];
+        assertFunction = function(args) {
             assert.equal(args.$or.length, 1);
-            done(null, [{
-                owner: 'login',
-                repo: 'test_repo'
-            }]);
-        });
+        };
 
         repo.getUserRepos({
             token: 'test_token'
@@ -737,7 +711,7 @@ describe('repo:getUserRepos', function() {
     });
 
     it('should update repo name and owner on db if github repo was transferred', function(it_done) {
-        var ghResponse = [{
+        githubCallRes.data = [{
             name: 'newRepoName',
             owner: {
                 login: 'newOwner'
@@ -747,48 +721,46 @@ describe('repo:getUserRepos', function() {
                 push: true
             }
         }];
-        sinon.stub(github, 'direct_call', function(args, done) {
-            assert(args.token);
-            done(null, {
-                data: ghResponse
-            });
-        });
-        var dbResponse = [{
+        repoFindRes.data = [{
             repo: 'myRepo',
             owner: 'owner',
             repoId: 123,
             save: function() {}
         }];
-        sinon.stub(Repo, 'find', function(args, done) {
-            assert.equal(args.$or.length, 1);
-            done(null, dbResponse);
-        });
-        sinon.spy(dbResponse[0], 'save');
+
+        sinon.spy(repoFindRes.data[0], 'save');
         repo.getUserRepos({
             token: 'test_token'
         }, function(err, obj) {
+            assert.ifError(err);
             assert.equal(obj[0].repoId, 123);
-            assert.equal(obj[0].repo, ghResponse[0].name);
-            assert.equal(obj[0].owner, ghResponse[0].owner.login);
-            assert(dbResponse[0].save.called);
+            assert.equal(obj[0].repo, githubCallRes.data[0].name);
+            assert.equal(obj[0].owner, githubCallRes.data[0].owner.login);
+            assert(repoFindRes.data[0].save.called);
             it_done();
         });
     });
 });
 
 describe('repo:getGHRepo', function() {
+    var githubCallRes;
+
+    beforeEach(function() {
+        githubCallRes = {
+            err: null,
+            data: testData.repo
+        };
+
+        sinon.stub(github, 'call', function(args, done) {
+            done(githubCallRes.err, githubCallRes.data);
+        });
+
+    });
     afterEach(function() {
-        github.direct_call.restore();
+        github.call.restore();
     });
 
     it('should return gitHub repo data', function(it_done) {
-        var resData;
-        sinon.stub(github, 'direct_call', function(args, done) {
-            resData = {
-                data: testData.repo
-            };
-            done(null, resData);
-        });
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
@@ -796,39 +768,6 @@ describe('repo:getGHRepo', function() {
         };
         repo.getGHRepo(args, function(err, res) {
             assert.ifError(err);
-            assert.equal(res.name, 'Hello-World');
-            assert.equal(res.id, 1296269);
-
-            it_done();
-        });
-    });
-
-    it('should recall github if repo is transferred and new url is provided', function(it_done) {
-        var resData;
-        sinon.stub(github, 'direct_call', function(args, done) {
-            if (args.url.indexOf('https://api.github.com/repos/octopus/Hello-World') >= 0) {
-                resData = {
-                    data: {
-                        url: 'https://api.github.com/repos/octocat/Hello-World',
-                        message: 'Repo transferred'
-                    }
-                };
-            } else {
-                resData = {
-                    data: testData.repo
-                };
-            }
-            done(null, resData);
-        });
-        var args = {
-            owner: 'octopus',
-            repo: 'Hello-World',
-            token: '123'
-        };
-        repo.getGHRepo(args, function(err, res) {
-            assert.ifError(err);
-            assert.equal(github.direct_call.calledTwice, true);
-            assert.equal(res.owner.login, 'octocat');
             assert.equal(res.name, 'Hello-World');
             assert.equal(res.id, 1296269);
 
