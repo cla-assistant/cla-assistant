@@ -15,6 +15,7 @@ function createRepoHook(req, done) {
             events: ['pull_request'],
             active: true
         },
+        noCache: true,
         token: req.user.token
     }, done);
 }
@@ -31,6 +32,7 @@ function updateRepoHook(owner, repo, id, active, token, done) {
             id: id,
             active: active
         },
+        noCache: true,
         token: token
     }, done);
 }
@@ -79,6 +81,7 @@ function createOrgHook(req, done) {
             name: 'web',
             config: { url: url.webhook(org), content_type: 'json' },
             events: ['pull_request'],
+            noCache: true,
             active: true
         },
         token: req.user.token
@@ -135,6 +138,8 @@ module.exports = {
             }
             var githubArgs = extractGithubArgs(req.args);
             githubArgs.arg.id = hook.id;
+            githubArgs.arg.noCache = true;
+
             github.call({
                 obj: githubArgs.obj,
                 fun: 'deleteHook',

@@ -21,7 +21,8 @@ module.exports = {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                number: args.number
+                number: args.number,
+                noCache: true
             },
             token: args.token
         }, function(err, resp) {
@@ -35,13 +36,14 @@ module.exports = {
                     obj: 'repos',
                     fun: 'createStatus',
                     arg: {
-                        user: args.owner,
+                        owner: args.owner,
                         repo: args.repo,
                         sha: args.sha,
                         state: status,
                         description: description,
                         target_url: url.claURL(args.owner, args.repo, args.number),
-                        context: 'licence/cla'
+                        context: 'licence/cla',
+                        noCache: true
                     },
                     token: args.token
                 }, function(error, response) {

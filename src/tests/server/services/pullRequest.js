@@ -157,7 +157,7 @@ describe('pullRequest:badgeComment', function() {
         cla_config.server.github.token = 'xyz';
 
         sinon.stub(github, 'call', function(args, git_done) {
-            if (args.obj === 'pullRequests' && args.fun === 'getComments') {
+            if (args.obj === 'issues' && args.fun === 'getComments') {
                 git_done(null, direct_call_data);
                 return;
             }
@@ -306,7 +306,7 @@ describe('pullRequest:getComment', function(done) {
         cla_config.server.github.token = 'xyz';
 
         sinon.stub(github, 'call', function(args, cb) {
-            if (args.obj === 'pullRequests' && args.fun === 'getComments') {
+            if (args.obj === 'issues' && args.fun === 'getComments') {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
             }
@@ -377,7 +377,7 @@ describe('pullRequest:editComment', function() {
         cla_config.server.github.token = 'xyz';
 
         sinon.stub(github, 'call', function(args, cb) {
-            if (args.obj === 'pullRequests' && args.fun === 'getComments') {
+            if (args.obj === 'issues' && args.fun === 'getComments') {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
                 return;

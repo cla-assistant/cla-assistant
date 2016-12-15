@@ -46,7 +46,7 @@ var getPullRequest = function(owner, repo, number, token, done) {
         fun: 'get',
         arg: {
             repo: repo,
-            user: owner,
+            owner: owner,
             number: number
         },
         token: token
@@ -59,7 +59,7 @@ var getCommit = function(owner, repo, sha, token, done) {
         fun: 'getCommit',
         arg: {
             repo: repo,
-            user: owner,
+            owner: owner,
             sha: sha
         },
         token: token

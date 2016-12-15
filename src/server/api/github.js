@@ -12,10 +12,5 @@ module.exports = {
                 meta: meta
             });
         });
-    },
-
-    // direct_call: function(req, done) {
-    //     return github.direct_call(merge(req.args, {
-    //         token: req.user.token}), done);
-    // }
+    }
 };

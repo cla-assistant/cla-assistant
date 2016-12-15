@@ -144,4 +144,13 @@ router.all('/count/stars', function(req, res) {
         }));
     });
 });
+
+router.all('/count/cache', function(req, res) {
+    var data = github.getCacheData();
+    var total = data.hit + data.miss;
+    res.send(JSON.stringify({
+        count: data.hit,
+        text: 'There are ' + data.hit + ' (' + parseFloat(data.hit / total).toFixed(2) * 100 + '%) cache hits and ' + data.miss + ' cache misses. In total ' + (total) + ' calls. Currently there are ' + data.currentSize + ' cached entries.'
+    }));
+});
 module.exports = router;

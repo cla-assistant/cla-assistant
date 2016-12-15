@@ -54,7 +54,8 @@ module.exports = {
                         owner: owner,
                         repo: repo,
                         number: pullNumber,
-                        body: body
+                        body: body,
+                        noCache: true
                     },
                     basicAuth: {
                         user: config.server.github.user,
@@ -73,7 +74,8 @@ module.exports = {
                         owner: owner,
                         repo: repo,
                         id: comment.id,
-                        body: body
+                        body: body,
+                        noCache: true
                     },
                     basicAuth: {
                         user: config.server.github.user,
@@ -91,12 +93,13 @@ module.exports = {
 
     getComment: function(args, done) {
         github.call({
-            obj: 'pullRequests',
+            obj: 'issues',
             fun: 'getComments',
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                number: args.number
+                number: args.number,
+                noCache: true
             },
             token: config.server.github.token
         }, function(e, res) {
@@ -135,7 +138,8 @@ module.exports = {
                     owner: args.owner,
                     repo: args.repo,
                     id: comment.id,
-                    body: body
+                    body: body,
+                    noCache: true
                 },
                 basicAuth: {
                     user: config.server.github.user,

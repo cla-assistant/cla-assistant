@@ -77,7 +77,7 @@ describe('webhookApi', function() {
             };
 
             webhook_api.create(req, function() {
-                assert(github.call.calledWith(expArgs));
+                assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
@@ -112,7 +112,7 @@ describe('webhookApi', function() {
             };
 
             webhook_api.create(req, function() {
-                assert(github.call.calledWith(expArgs));
+                assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
@@ -150,7 +150,7 @@ describe('webhookApi', function() {
 
             webhook_api.get(req, function(err, hooks) {
                 assert(hooks);
-                github.call.calledWith(expArgs);
+                github.call.calledWithMatch(expArgs);
                 it_done();
             });
         });
@@ -184,7 +184,7 @@ describe('webhookApi', function() {
 
             webhook_api.get(req, function(err, hooks) {
                 assert(hooks);
-                github.call.calledWith(expArgs);
+                github.call.calledWithMatch(expArgs);
                 it_done();
             });
         });
@@ -216,7 +216,7 @@ describe('webhookApi', function() {
             };
 
             webhook_api.remove(req, function() {
-                assert(github.call.calledWith(expArgs));
+                assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
@@ -244,7 +244,7 @@ describe('webhookApi', function() {
             };
 
             webhook_api.remove(req, function() {
-                assert(github.call.calledWith(expArgs));
+                assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
