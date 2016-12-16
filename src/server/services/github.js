@@ -64,7 +64,8 @@ var githubService = {
         var stringArgs = JSON.stringify({
             obj: call.obj,
             fun: call.fun,
-            arg: call.arg
+            arg: call.arg,
+            token: call.token
         });
         var github = newGithubApi();
 
