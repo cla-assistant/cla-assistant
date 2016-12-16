@@ -1,6 +1,7 @@
 var q = require('q');
 
 var cache = require('memory-cache');
+var config = require('../../config');
 var GitHubApi = require('github');
 
 var cacheHitCount = 0;
@@ -23,7 +24,7 @@ function callGithub(github, obj, fun, arg, stringArgs, done) {
         cache.put(cacheKey, {
             data: res,
             meta: res && res.meta ? res.meta : undefined
-        }, 60000 * 5);
+        }, 60000 * config.server.cache_time);
 
         if (typeof done === 'function') {
             done(err, res);
