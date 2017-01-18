@@ -183,6 +183,9 @@ module.exports = {
                         }
                     });
                     done(null, committers);
+                } else if (!res) {
+                    handleError('Github call failed with args', arg, err);
+                    done('Github call failed');
                 } else if (res.message) {
                     if (res.message === 'Moved Permanently' && linkedRepo) {
                         self.getGHRepo(args, function(err, res) {
