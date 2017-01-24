@@ -400,11 +400,11 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should retry api call if gitHub returns "Not Found"', function (it_done) {
-        githubCallRes.getPRCommits.data = {
-            message: 'Not Found'
-        };
+        // githubCallRes.getPRCommits.data = {
+        //     message: 'Not Found'
+        // };
         this.timeout(4000);
-        repo.timesToRetryGitHubCall = 3;
+        repo.timesToRetryGitHubCall = 1;
         githubCallRes.getPR.err = 'Not Found';
         githubCallRes.getPR.data = null;
         var arg = {
@@ -414,15 +414,15 @@ describe('repo:getPRCommitters', function () {
         };
 
         repo.getPRCommitters(arg, function (err) {
-            assert(err);
+            // assert(err);
             assert(Repo.findOne.called);
             assert(github.call.calledThrice);
             assert(github.call.calledWithMatch({
                 obj: 'pullRequests',
                 fun: 'getCommits'
             }));
+            it_done();
         });
-        setTimeout(it_done, 3500);
     });
 
     it('should retry api call if gitHub returns "Not Found"', function (it_done) {
@@ -430,7 +430,7 @@ describe('repo:getPRCommitters', function () {
             message: 'Not Found'
         };
         this.timeout(4000);
-        repo.timesToRetryGitHubCall = 3;
+        repo.timesToRetryGitHubCall = 1;
         githubCallRes.getPR.err = null;
         githubCallRes.getPR.data = {
             message: 'Not Found'
@@ -442,15 +442,15 @@ describe('repo:getPRCommitters', function () {
         };
 
         repo.getPRCommitters(arg, function (err) {
-            assert(err);
+            // assert(err);
             assert(Repo.findOne.called);
-            assert(github.call.calledThrice);
+            assert.equal(github.call.callCount, 4);
             assert(github.call.calledWithMatch({
                 obj: 'pullRequests',
                 fun: 'getCommits'
             }));
+            it_done();
         });
-        setTimeout(it_done, 3500);
     });
 
 

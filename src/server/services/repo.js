@@ -204,6 +204,13 @@ module.exports = {
                             }
                         });
                     } else {
+                        if (!arg.count) {
+                            arg.count = self.timesToRetryGitHubCall;
+                            setTimeout(function () {
+                                callGithub(arg, linkedItem);
+                            }, 1000 * self.timesToRetryGitHubCall);
+                            return;
+                        }
                         done(res.message);
                     }
                 }
@@ -218,6 +225,7 @@ module.exports = {
                     if (!args.count) {
                         args.count = self.timesToRetryGitHubCall;
                         setTimeout(function () {
+                            console.log('call again ');
                             collectTokenAndCallGithub(args, item);
                         }, 1000 * self.timesToRetryGitHubCall);
                         return;

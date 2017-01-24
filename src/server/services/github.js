@@ -20,11 +20,13 @@ function callGithub(github, obj, fun, arg, stringArgs, done) {
         cacheHitCount++;
         return;
     }
-    github[obj][fun](arg, function(err, res) {
-        cache.put(cacheKey, {
-            data: res,
-            meta: res && res.meta ? res.meta : undefined
-        }, 60000 * config.server.cache_time);
+    github[obj][fun](arg, function (err, res) {
+        if (res && !res.message) {
+            cache.put(cacheKey, {
+                data: res,
+                meta: res && res.meta ? res.meta : undefined
+            }, 60000 * config.server.cache_time);
+        }
 
         if (typeof done === 'function') {
             done(err, res);
@@ -52,7 +54,7 @@ function newGithubApi() {
 
 var githubService = {
 
-    call: function(call, done) {
+    call: function (call, done) {
         var arg = call.arg || {};
         var basicAuth = call.basicAuth;
         var data = null;
@@ -132,18 +134,22 @@ var githubService = {
         return deferred.promise;
     },
 
-    hasNextPage: function(link) {
+    hasNextPage: function (link) {
         var github = newGithubApi();
         return github.hasNextPage(link);
     },
 
-    getNextPage: function(link, cb) {
+    getNextPage: function (link, cb) {
         var github = newGithubApi();
         return github.getNextPage(link, cb);
     },
 
-    getCacheData: function() {
-        return { hit: cacheHitCount, miss: cacheMissCount, currentSize: cache.size() };
+    getCacheData: function () {
+        return {
+            hit: cacheHitCount,
+            miss: cacheMissCount,
+            currentSize: cache.size()
+        };
     }
 };
 
