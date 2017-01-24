@@ -12,9 +12,9 @@ var log = require('../services/logger');
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 function handleWebHook(args) {
-    repoService.getPRCommitters(args, function(err, committers) {
+    repoService.getPRCommitters(args, function (err, committers) {
         if (!err && committers && committers.length > 0) {
-            cla.check(args, function(error, signed, user_map) {
+            cla.check(args, function (error, signed, user_map) {
                 if (error) {
                     log.warn(new Error(error).stack);
                 }
@@ -31,12 +31,19 @@ function handleWebHook(args) {
                 }
             });
         } else {
-            log.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
+            if (!args.handleCount || args.handleCount < 2) {
+                args.handleCount = args.handleCount ? ++args.handleCount : 1;
+                setTimeout(function () {
+                    handleWebHook(args);
+                }, 10000 * args.handleCount * args.handleDelay);
+            } else {
+                log.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
+            }
         }
     });
 }
 
-module.exports = function(req, res) {
+module.exports = function (req, res) {
     log.debug(req.args.action);
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
         var args = {
@@ -46,8 +53,11 @@ module.exports = function(req, res) {
             number: req.args.number
         };
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
+        args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
 
-        orgService.get({ orgId: args.orgId }, function(err, org) {
+        orgService.get({
+            orgId: args.orgId
+        }, function (err, org) {
             if (org) {
                 args.token = org.token;
                 args.gist = org.gist; //TODO: Test it!!
@@ -56,7 +66,7 @@ module.exports = function(req, res) {
                 }
             } else {
                 args.orgId = undefined;
-                repoService.get(args, function(e, repo) {
+                repoService.get(args, function (e, repo) {
                     if (repo) {
                         args.token = repo.token;
                         args.gist = repo.gist; //TODO: Test it!!

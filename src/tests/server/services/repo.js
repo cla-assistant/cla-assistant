@@ -10,7 +10,6 @@ var Repo = require('../../../server/documents/repo').Repo;
 //services
 var github = require('../../../server/services/github');
 var orgService = require('../../../server/services/org');
-var url = require('../../../server/services/url');
 
 // service under test
 var repo = require('../../../server/services/repo');
@@ -18,13 +17,13 @@ var repo = require('../../../server/services/repo');
 // test data
 var testData = require('../testData').data;
 
-describe('repo:create', function() {
-    afterEach(function() {
+describe('repo:create', function () {
+    afterEach(function () {
         Repo.create.restore();
     });
 
-    it('should create repo entry ', function(it_done) {
-        sinon.stub(Repo, 'create', function(args, done) {
+    it('should create repo entry ', function (it_done) {
+        sinon.stub(Repo, 'create', function (args, done) {
             assert(args);
             assert(args.gist);
             assert(args.owner);
@@ -42,20 +41,20 @@ describe('repo:create', function() {
             gist: 'url/gistId',
             token: 'abc'
         };
-        repo.create(arg, function(err) {
+        repo.create(arg, function (err) {
             assert.ifError(err);
             it_done();
         });
     });
 });
 
-describe('repo:check', function() {
-    afterEach(function() {
+describe('repo:check', function () {
+    afterEach(function () {
         Repo.findOne.restore();
     });
 
-    it('should check repo entry with repo name and owner', function(it_done) {
-        sinon.stub(Repo, 'findOne', function(args, done) {
+    it('should check repo entry with repo name and owner', function (it_done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
             assert(args);
             assert(args.repo);
             assert(args.owner);
@@ -66,15 +65,15 @@ describe('repo:check', function() {
             repo: 'myRepo',
             owner: 'owner'
         };
-        repo.check(arg, function(err, obj) {
+        repo.check(arg, function (err, obj) {
             assert.ifError(err);
             assert(obj);
             it_done();
         });
     });
 
-    it('should check repo entry only with repo id if given', function(it_done) {
-        sinon.stub(Repo, 'findOne', function(args, done) {
+    it('should check repo entry only with repo id if given', function (it_done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
             assert(args);
             assert(args.repoId);
             assert(!args.repo);
@@ -87,7 +86,7 @@ describe('repo:check', function() {
             owner: 'owner',
             repoId: 123
         };
-        repo.check(arg, function(err, obj) {
+        repo.check(arg, function (err, obj) {
             assert.ifError(err);
             assert(obj);
             it_done();
@@ -95,30 +94,30 @@ describe('repo:check', function() {
     });
 });
 
-describe('repo:get', function() {
+describe('repo:get', function () {
     var response = {};
-    afterEach(function() {
+    afterEach(function () {
         Repo.findOne.restore();
     });
-    it('should find the cla repo', function(it_done) {
-        sinon.stub(Repo, 'findOne', function(args, done) {
+    it('should find the cla repo', function (it_done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
             done(null, response);
         });
         repo.get({
             repoId: 123
-        }, function(err, obj) {
+        }, function (err, obj) {
             assert(err == null);
             assert(obj === response);
             it_done();
         });
     });
-    it('should raise an error, if the cla repo was not found', function(it_done) {
-        sinon.stub(Repo, 'findOne', function(args, done) {
+    it('should raise an error, if the cla repo was not found', function (it_done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
             done(null, null);
         });
         repo.get({
             repoId: 123
-        }, function(err, obj) {
+        }, function (err, obj) {
             assert(err === 'Repository not found in Database');
             assert(obj == null);
             it_done();
@@ -126,16 +125,16 @@ describe('repo:get', function() {
     });
 });
 
-describe('repo:getAll', function() {
+describe('repo:getAll', function () {
     var arg;
     var response;
-    beforeEach(function() {
-        sinon.stub(Repo, 'find', function(args, done) {
+    beforeEach(function () {
+        sinon.stub(Repo, 'find', function (args, done) {
             assert(args.$or[0].repoId);
             assert(!args.$or[0].repo);
             assert(!args.$or[0].owner);
             done(null, response || [{
-                save: function() {}
+                save: function () {}
             }]);
         });
 
@@ -147,28 +146,28 @@ describe('repo:getAll', function() {
             }]
         };
     });
-    afterEach(function() {
+    afterEach(function () {
         Repo.find.restore();
     });
 
-    it('should find cla repos from set of github repos', function(it_done) {
-        repo.getAll(arg, function(err, obj) {
+    it('should find cla repos from set of github repos', function (it_done) {
+        repo.getAll(arg, function (err, obj) {
             assert.ifError(err);
             assert.equal(obj.length, 1);
             it_done();
         });
     });
 
-    it('should use only repoIds for db selection', function(it_done) {
-        repo.getAll(arg, function(err, obj) {
+    it('should use only repoIds for db selection', function (it_done) {
+        repo.getAll(arg, function (err, obj) {
             assert.ifError(err);
             assert.equal(obj.length, 1);
             it_done();
         });
     });
 
-    it('should use only repoIds for db selection', function(it_done) {
-        repo.getAll(arg, function(err, obj) {
+    it('should use only repoIds for db selection', function (it_done) {
+        repo.getAll(arg, function (err, obj) {
             assert.ifError(err);
             assert.equal(obj.length, 1);
             it_done();
@@ -176,16 +175,16 @@ describe('repo:getAll', function() {
     });
 });
 
-describe('repo:getPRCommitters', function() {
+describe('repo:getPRCommitters', function () {
     var test_repo, test_org, githubCallRes;
 
-    beforeEach(function() {
+    beforeEach(function () {
         test_repo = {
             repo: 'myRepo',
             owner: 'myOwner',
             repoId: '1',
             token: 'abc',
-            save: function() {}
+            save: function () {}
         };
         test_org = null;
         githubCallRes = {
@@ -207,7 +206,7 @@ describe('repo:getPRCommitters', function() {
             }
         };
 
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             if (args.obj == 'pullRequests' && args.fun == 'get') {
                 done(githubCallRes.getPR.err, githubCallRes.getPR.data);
             }
@@ -222,22 +221,22 @@ describe('repo:getPRCommitters', function() {
             }
         });
 
-        sinon.stub(orgService, 'get', function(args, done) {
+        sinon.stub(orgService, 'get', function (args, done) {
             done(null, test_org);
         });
 
-        sinon.stub(Repo, 'findOne', function(args, done) {
+        sinon.stub(Repo, 'findOne', function (args, done) {
             done(null, test_repo);
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         github.call.restore();
         orgService.get.restore();
         Repo.findOne.restore();
     });
 
-    it('should get committer for a pull request', function(it_done) {
+    it('should get committer for a pull request', function (it_done) {
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -245,7 +244,7 @@ describe('repo:getPRCommitters', function() {
         };
         githubCallRes.getPRCommits.data = testData.commit;
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
@@ -260,7 +259,7 @@ describe('repo:getPRCommitters', function() {
 
     });
 
-    it('should get all committers of a pull request with more than 250 commits from the forked repo', function(it_done) {
+    it('should get all committers of a pull request with more than 250 commits from the forked repo', function (it_done) {
         testData.pull_request.commits = 554;
         var arg = {
             repo: 'myRepo',
@@ -268,7 +267,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
@@ -283,7 +282,7 @@ describe('repo:getPRCommitters', function() {
         });
     });
 
-    it('should call pull request api if could not find/load base commit', function(it_done) {
+    it('should call pull request api if could not find/load base commit', function (it_done) {
         testData.pull_request.commits = 554;
         githubCallRes.getCommit.err = 'Any Error';
         githubCallRes.getCommit.data = null;
@@ -294,7 +293,7 @@ describe('repo:getPRCommitters', function() {
         };
         githubCallRes.getPRCommits.data = testData.commit;
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
@@ -309,7 +308,7 @@ describe('repo:getPRCommitters', function() {
         });
     });
 
-    it('should get author of commit if committer is a github bot', function(it_done) {
+    it('should get author of commit if committer is a github bot', function (it_done) {
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -318,7 +317,7 @@ describe('repo:getPRCommitters', function() {
 
         githubCallRes.getPRCommits.data = testData.commit_done_by_bot;
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             assert.equal(data[0].name, 'octocat');
@@ -333,14 +332,14 @@ describe('repo:getPRCommitters', function() {
 
     });
 
-    it('should get list of committers for a pull request', function(it_done) {
+    it('should get list of committers for a pull request', function (it_done) {
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
@@ -355,7 +354,7 @@ describe('repo:getPRCommitters', function() {
 
     });
 
-    it('should handle committers who has no github user', function(it_done) {
+    it('should handle committers who has no github user', function (it_done) {
         githubCallRes.getPRCommits.data = testData.commit_with_no_user;
 
         var arg = {
@@ -364,7 +363,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 1);
             // assert.equal(data[0].name, 'octocat');
@@ -377,7 +376,7 @@ describe('repo:getPRCommitters', function() {
         it_done();
     });
 
-    it('should handle error', function(it_done) {
+    it('should handle error', function (it_done) {
         githubCallRes.getPRCommits.data = {
             message: 'Any Error message'
         };
@@ -388,7 +387,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err) {
+        repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
             assert(github.call.calledWithMatch({
@@ -400,7 +399,7 @@ describe('repo:getPRCommitters', function() {
         it_done();
     });
 
-    it('should retry api call if gitHub returns "Not Found"', function(it_done) {
+    it('should retry api call if gitHub returns "Not Found"', function (it_done) {
         githubCallRes.getPRCommits.data = {
             message: 'Not Found'
         };
@@ -414,7 +413,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err) {
+        repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
             assert(github.call.calledThrice);
@@ -426,7 +425,7 @@ describe('repo:getPRCommitters', function() {
         setTimeout(it_done, 3500);
     });
 
-    it('should retry api call if gitHub returns "Not Found"', function(it_done) {
+    it('should retry api call if gitHub returns "Not Found"', function (it_done) {
         githubCallRes.getPRCommits.data = {
             message: 'Not Found'
         };
@@ -442,7 +441,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err) {
+        repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
             assert(github.call.calledThrice);
@@ -455,7 +454,7 @@ describe('repo:getPRCommitters', function() {
     });
 
 
-    it('should get list of committers for a pull request using linked org', function(it_done) {
+    it('should get list of committers for a pull request using linked org', function (it_done) {
         test_repo = null;
         test_org = {
             token: 'abc'
@@ -467,7 +466,7 @@ describe('repo:getPRCommitters', function() {
             orgId: 1
         };
 
-        repo.getPRCommitters(arg, function(err, data) {
+        repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
@@ -485,7 +484,7 @@ describe('repo:getPRCommitters', function() {
 
     });
 
-    it('should handle request for not linked repos and orgs', function(it_done) {
+    it('should handle request for not linked repos and orgs', function (it_done) {
         test_repo = null;
 
         var arg = {
@@ -494,7 +493,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err) {
+        repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
             assert(!github.call.calledWithMatch({
@@ -506,7 +505,7 @@ describe('repo:getPRCommitters', function() {
         it_done();
     });
 
-    it('should update db entry if repo was transferred', function(it_done) {
+    it('should update db entry if repo was transferred', function (it_done) {
         this.timeout(3000);
 
         github.call.restore();
@@ -523,10 +522,12 @@ describe('repo:getPRCommitters', function() {
                     repo: 'myRepo'
                 }
             })
-            .onFirstCall().callsArgWith(1, null, { message: 'Moved Permanently' });
+            .onFirstCall().callsArgWith(1, null, {
+                message: 'Moved Permanently'
+            });
         github.call.onThirdCall().callsArgWith(1, null, testData.commits);
 
-        sinon.stub(repo, 'getGHRepo', function(args, done) {
+        sinon.stub(repo, 'getGHRepo', function (args, done) {
             done(null, {
                 name: 'test_repo',
                 owner: {
@@ -542,7 +543,7 @@ describe('repo:getPRCommitters', function() {
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function(err) {
+        repo.getPRCommitters(arg, function (err) {
             assert.ifError(err);
             assert(Repo.findOne.called);
             assert(github.call.calledThrice);
@@ -553,10 +554,10 @@ describe('repo:getPRCommitters', function() {
     });
 });
 
-describe('repo:getUserRepos', function() {
+describe('repo:getUserRepos', function () {
     var githubCallRes, repoFindRes, assertFunction;
 
-    beforeEach(function() {
+    beforeEach(function () {
         githubCallRes = {
             err: null,
             data: [{
@@ -590,16 +591,16 @@ describe('repo:getUserRepos', function() {
                 owner: 'login',
                 repo: 'repo1',
                 repoId: 123,
-                save: function() {}
+                save: function () {}
             }]
         };
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             if (args.obj == 'repos' && args.fun == 'getAll') {
                 done(githubCallRes.err, githubCallRes.data);
             }
         });
 
-        sinon.stub(Repo, 'find', function(args, done) {
+        sinon.stub(Repo, 'find', function (args, done) {
             if (assertFunction) {
                 assertFunction(args);
             }
@@ -607,20 +608,20 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         assertFunction = undefined;
         github.call.restore();
         Repo.find.restore();
     });
 
-    it('should return all linked repositories of the logged user', function(it_done) {
-        assertFunction = function(args) {
+    it('should return all linked repositories of the logged user', function (it_done) {
+        assertFunction = function (args) {
             assert.equal(args.$or.length, 2);
         };
 
         repo.getUserRepos({
             token: 'test_token'
-        }, function(err, res) {
+        }, function (err, res) {
             assert.ifError(err);
             assert(res[0].repo, 'repo1');
             assert(Repo.find.called);
@@ -629,10 +630,12 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should handle github error', function(it_done) {
-        githubCallRes.data = { message: 'Bad credentials' };
+    it('should handle github error', function (it_done) {
+        githubCallRes.data = {
+            message: 'Bad credentials'
+        };
 
-        repo.getUserRepos({}, function(err) {
+        repo.getUserRepos({}, function (err) {
             assert.equal(err, 'Bad credentials');
             assert(!Repo.find.called);
 
@@ -640,11 +643,11 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should handle mogodb error', function(it_done) {
+    it('should handle mogodb error', function (it_done) {
         repoFindRes.err = 'DB error';
         repoFindRes.data = undefined;
 
-        repo.getUserRepos({}, function(err) {
+        repo.getUserRepos({}, function (err) {
             assert(err);
             assert(Repo.find.called);
 
@@ -652,9 +655,9 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should handle affiliation attribute', function(it_done) {
+    it('should handle affiliation attribute', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             assert(args.arg.affiliation === 'x,y');
             assert(args.token);
             done(githubCallRes.err, githubCallRes.data);
@@ -663,7 +666,7 @@ describe('repo:getUserRepos', function() {
         repo.getUserRepos({
             token: 'test_token',
             affiliation: 'x,y'
-        }, function(err) {
+        }, function (err) {
             assert.ifError(err);
             assert(github.call.called);
 
@@ -671,9 +674,9 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should handle affiliation if not provided', function(it_done) {
+    it('should handle affiliation if not provided', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             assert(args.arg.affiliation === 'owner,organization_member');
             assert(args.token);
             done(githubCallRes.err, githubCallRes.data);
@@ -681,7 +684,7 @@ describe('repo:getUserRepos', function() {
 
         repo.getUserRepos({
             token: 'test_token'
-        }, function(err) {
+        }, function (err) {
             assert.ifError(err);
             assert(github.call.called);
 
@@ -689,19 +692,19 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should provide only repos with push rights', function(it_done) {
+    it('should provide only repos with push rights', function (it_done) {
         githubCallRes.data = testData.repos;
         repoFindRes.data = [{
             owner: 'login',
             repo: 'test_repo'
         }];
-        assertFunction = function(args) {
+        assertFunction = function (args) {
             assert.equal(args.$or.length, 1);
         };
 
         repo.getUserRepos({
             token: 'test_token'
-        }, function(err, res) {
+        }, function (err, res) {
             assert.ifError(err);
             assert(res.length === 1);
             assert(Repo.find.called);
@@ -710,7 +713,7 @@ describe('repo:getUserRepos', function() {
         });
     });
 
-    it('should update repo name and owner on db if github repo was transferred', function(it_done) {
+    it('should update repo name and owner on db if github repo was transferred', function (it_done) {
         githubCallRes.data = [{
             name: 'newRepoName',
             owner: {
@@ -725,13 +728,13 @@ describe('repo:getUserRepos', function() {
             repo: 'myRepo',
             owner: 'owner',
             repoId: 123,
-            save: function() {}
+            save: function () {}
         }];
 
         sinon.spy(repoFindRes.data[0], 'save');
         repo.getUserRepos({
             token: 'test_token'
-        }, function(err, obj) {
+        }, function (err, obj) {
             assert.ifError(err);
             assert.equal(obj[0].repoId, 123);
             assert.equal(obj[0].repo, githubCallRes.data[0].name);
@@ -742,31 +745,31 @@ describe('repo:getUserRepos', function() {
     });
 });
 
-describe('repo:getGHRepo', function() {
+describe('repo:getGHRepo', function () {
     var githubCallRes;
 
-    beforeEach(function() {
+    beforeEach(function () {
         githubCallRes = {
             err: null,
             data: testData.repo
         };
 
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             done(githubCallRes.err, githubCallRes.data);
         });
 
     });
-    afterEach(function() {
+    afterEach(function () {
         github.call.restore();
     });
 
-    it('should return gitHub repo data', function(it_done) {
+    it('should return gitHub repo data', function (it_done) {
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
             token: '123'
         };
-        repo.getGHRepo(args, function(err, res) {
+        repo.getGHRepo(args, function (err, res) {
             assert.ifError(err);
             assert.equal(res.name, 'Hello-World');
             assert.equal(res.id, 1296269);

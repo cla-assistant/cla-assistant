@@ -76,7 +76,7 @@ var selection = function (args) {
 };
 
 module.exports = {
-    timesToRetryGitHubCall: 10,
+    timesToRetryGitHubCall: 30,
     all: function (done) {
         Repo.find({}, function (err, repos) {
             done(err, repos);
