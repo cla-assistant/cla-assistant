@@ -10,6 +10,8 @@ var repoService = require('../../../server/services/repo');
 var orgService = require('../../../server/services/org');
 var logger = require('../../../server/services/logger');
 
+var config = require('../../../config');
+
 // webhook under test
 var pull_request = require('../../../server/webhooks/pull_request');
 
@@ -238,6 +240,7 @@ var testData = {
 };
 
 describe('webhook pull request', function () {
+	config.server.github.enforceDelay = 1;
 	var res = {
 		status: function (res_status) {
 			assert.equal(res_status, 200);
@@ -319,9 +322,11 @@ describe('webhook pull request', function () {
 
 	it('should update status of pull request if not signed', function (it_done) {
 		pull_request(test_req, res);
-		assert(pullRequest.badgeComment.called);
-
-		it_done();
+		this.timeout(10);
+		setTimeout(function () {
+			assert(pullRequest.badgeComment.called);
+			it_done();
+		}, 8);
 	});
 
 	it('should provide user_map to badgeComment', function (it_done) {
@@ -338,8 +343,11 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		assert(pullRequest.badgeComment.called);
-		it_done();
+		this.timeout(10);
+		setTimeout(function () {
+			assert(pullRequest.badgeComment.called);
+			it_done();
+		}, 8);
 	});
 
 	xit('should check twice if there are multiple committers', function (it_done) {
@@ -357,15 +365,22 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		assert(!pullRequest.badgeComment.called);
-		assert(status.update.called);
-		it_done();
+		this.timeout(10);
+		setTimeout(function () {
+			assert(!pullRequest.badgeComment.called);
+			assert(status.update.called);
+			it_done();
+		}, 8);
 	});
 
 	it('should update status of pull request if not signed and new user', function (it_done) {
 		pull_request(test_req, res);
-		assert(cla.check.called);
-		it_done();
+
+		this.timeout(10);
+		setTimeout(function () {
+			assert(cla.check.called);
+			it_done();
+		}, 8);
 	});
 
 
@@ -404,21 +419,24 @@ describe('webhook pull request', function () {
 	// 	assert.equal(cla.check.called, true);
 	// });
 
-	it('should update status of PR even if org is unknown but from known repo', function () {
+	it('should update status of PR even if org is unknown but from known repo', function (it_done) {
 		orgService.get.restore();
 		sinon.stub(orgService, 'get', function (args, done) {
 			done(null, null);
 		});
 
 		pull_request(test_req, res);
-
-		assert.equal(repoService.get.called, true);
-		assert.equal(orgService.get.called, true);
-		assert.equal(repoService.getPRCommitters.called, true);
-		assert.equal(cla.check.called, true);
+		this.timeout(10);
+		setTimeout(function () {
+			assert.equal(repoService.get.called, true);
+			assert.equal(orgService.get.called, true);
+			assert.equal(repoService.getPRCommitters.called, true);
+			assert.equal(cla.check.called, true);
+			it_done();
+		}, 8);
 	});
 
-	it('should do nothing if the pull request hook comes from unknown repository and unknown org', function () {
+	it('should do nothing if the pull request hook comes from unknown repository and unknown org', function (it_done) {
 		repoService.get.restore();
 		sinon.stub(repoService, 'get', function (args, done) {
 			done(null, null);
@@ -429,10 +447,13 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-
-		assert.equal(repoService.get.called, true);
-		assert.equal(repoService.getPRCommitters.called, false);
-		assert.equal(cla.check.called, false);
+		this.timeout(10);
+		setTimeout(function () {
+			assert.equal(repoService.get.called, true);
+			assert.equal(repoService.getPRCommitters.called, false);
+			assert.equal(cla.check.called, false);
+			it_done();
+		}, 8);
 	});
 
 	it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {

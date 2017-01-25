@@ -5,7 +5,7 @@ var cla = require('../services/cla');
 var repoService = require('../services/repo');
 var orgService = require('../services/org');
 var log = require('../services/logger');
-
+var config = require('../../config');
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Github Pull Request Webhook Handler
@@ -55,26 +55,29 @@ module.exports = function (req, res) {
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
 
-        orgService.get({
-            orgId: args.orgId
-        }, function (err, org) {
-            if (org) {
-                args.token = org.token;
-                args.gist = org.gist; //TODO: Test it!!
-                if (!org.isRepoExcluded(args.repo)) {
-                    handleWebHook(args);
-                }
-            } else {
-                args.orgId = undefined;
-                repoService.get(args, function (e, repo) {
-                    if (repo) {
-                        args.token = repo.token;
-                        args.gist = repo.gist; //TODO: Test it!!
+
+        setTimeout(function () {
+            orgService.get({
+                orgId: args.orgId
+            }, function (err, org) {
+                if (org) {
+                    args.token = org.token;
+                    args.gist = org.gist; //TODO: Test it!!
+                    if (!org.isRepoExcluded(args.repo)) {
                         handleWebHook(args);
                     }
-                });
-            }
-        });
+                } else {
+                    args.orgId = undefined;
+                    repoService.get(args, function (e, repo) {
+                        if (repo) {
+                            args.token = repo.token;
+                            args.gist = repo.gist; //TODO: Test it!!
+                            handleWebHook(args);
+                        }
+                    });
+                }
+            });
+        }, config.server.github.enforceDelay);
     }
 
     res.status(200).send('OK');

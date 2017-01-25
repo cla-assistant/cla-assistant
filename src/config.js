@@ -30,7 +30,9 @@ module.exports = {
             user_scope: ['user:email'],
             admin_scope: ['user:email', 'public_repo', 'repo:status', 'read:repo_hook', 'write:repo_hook', 'read:org', 'gist'],
 
-            commit_bots: ['web-flow']
+            commit_bots: ['web-flow'],
+
+            enforceDelay: process.env.GITHUB_DELAY || 1000 * 60 * 1
         },
 
         localport: process.env.PORT || 5000,
