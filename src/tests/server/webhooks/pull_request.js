@@ -322,7 +322,7 @@ describe('webhook pull request', function () {
 
 	it('should update status of pull request if not signed', function (it_done) {
 		pull_request(test_req, res);
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert(pullRequest.badgeComment.called);
 			it_done();
@@ -343,7 +343,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert(pullRequest.badgeComment.called);
 			it_done();
@@ -365,7 +365,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert(!pullRequest.badgeComment.called);
 			assert(status.update.called);
@@ -376,7 +376,7 @@ describe('webhook pull request', function () {
 	it('should update status of pull request if not signed and new user', function (it_done) {
 		pull_request(test_req, res);
 
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert(cla.check.called);
 			it_done();
@@ -426,7 +426,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert.equal(repoService.get.called, true);
 			assert.equal(orgService.get.called, true);
@@ -447,7 +447,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(10);
+		this.timeout(20);
 		setTimeout(function () {
 			assert.equal(repoService.get.called, true);
 			assert.equal(repoService.getPRCommitters.called, false);
