@@ -64,7 +64,11 @@ module.exports = function (req, res) {
                     args.token = org.token;
                     args.gist = org.gist; //TODO: Test it!!
                     if (!org.isRepoExcluded(args.repo)) {
-                        handleWebHook(args);
+                        repoService.getGHRepo(args, function (err, repo) {
+                            if (repo) {
+                                handleWebHook(args);
+                            }
+                        });
                     }
                 } else {
                     args.orgId = undefined;
