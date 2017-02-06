@@ -364,7 +364,8 @@ describe('webhook pull request', function () {
 		pull_request(test_req, res);
 		this.timeout(20);
 		setTimeout(function () {
-			assert(!pullRequest.badgeComment.called);
+			// assert(!pullRequest.badgeComment.called);
+			assert(pullRequest.badgeComment.called);
 			assert(status.update.called);
 			it_done();
 		}, 8);

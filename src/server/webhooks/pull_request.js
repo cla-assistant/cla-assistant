@@ -20,15 +20,15 @@ function handleWebHook(args) {
                 }
                 args.signed = signed;
                 status.update(args);
-                if (!signed) {
-                    pullRequest.badgeComment(
-                        args.owner,
-                        args.repo,
-                        args.number,
-                        signed,
-                        user_map
-                    );
-                }
+                // if (!signed) {
+                pullRequest.badgeComment(
+                    args.owner,
+                    args.repo,
+                    args.number,
+                    signed,
+                    user_map
+                );
+                // }
             });
         } else {
             if (!args.handleCount || args.handleCount < 2) {

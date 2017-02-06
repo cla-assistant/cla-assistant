@@ -2,7 +2,7 @@ var url = require('./url');
 var github = require('./github');
 var log = require('../services/logger');
 
-var commentText = function(signed, badgeUrl, claUrl, user_map) {
+var commentText = function (signed, badgeUrl, claUrl, user_map) {
     if (signed) {
         return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have signed the CLA.';
     }
@@ -17,10 +17,10 @@ var commentText = function(signed, badgeUrl, claUrl, user_map) {
 
     if (committersCount > 1) {
         text += '**' + user_map.signed.length + '** out of **' + (user_map.signed.length + user_map.not_signed.length) + '** committers have signed the CLA.<br/>';
-        user_map.signed.forEach(function(signee) {
+        user_map.signed.forEach(function (signee) {
             text += '<br/>:white_check_mark: ' + signee;
         });
-        user_map.not_signed.forEach(function(signee) {
+        user_map.not_signed.forEach(function (signee) {
             text += '<br/>:x: ' + signee;
         });
     }
@@ -34,19 +34,19 @@ var commentText = function(signed, badgeUrl, claUrl, user_map) {
 };
 
 module.exports = {
-    badgeComment: function(owner, repo, pullNumber, signed, user_map) {
+    badgeComment: function (owner, repo, pullNumber, signed, user_map) {
         var badgeUrl = url.pullRequestBadge(signed);
 
         this.getComment({
             repo: repo,
             owner: owner,
             number: pullNumber
-        }, function(error, comment) {
+        }, function (error, comment) {
             var claUrl = url.claURL(owner, repo, pullNumber);
 
             var body = commentText(signed, badgeUrl, claUrl, user_map);
 
-            if (!comment) {
+            if (!comment && !signed) {
                 github.call({
                     obj: 'issues',
                     fun: 'createComment',
@@ -61,12 +61,12 @@ module.exports = {
                         user: config.server.github.user,
                         pass: config.server.github.pass
                     }
-                }, function(e) {
+                }, function (e) {
                     if (e) {
                         log.error(new Error(e).stack);
                     }
                 });
-            } else {
+            } else if (comment && comment.id) {
                 github.call({
                     obj: 'issues',
                     fun: 'editComment',
@@ -81,7 +81,7 @@ module.exports = {
                         user: config.server.github.user,
                         pass: config.server.github.pass
                     }
-                }, function(e) {
+                }, function (e) {
                     if (e) {
                         log.error(new Error(e).stack);
                     }
@@ -91,7 +91,7 @@ module.exports = {
         // });
     },
 
-    getComment: function(args, done) {
+    getComment: function (args, done) {
         github.call({
             obj: 'issues',
             fun: 'getComments',
@@ -102,10 +102,10 @@ module.exports = {
                 noCache: true
             },
             token: config.server.github.token
-        }, function(e, res) {
+        }, function (e, res) {
             var CLAAssistantComment;
             if (!e && res && !res.message) {
-                res.some(function(comment) {
+                res.some(function (comment) {
                     if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
                         CLAAssistantComment = comment;
                         return true;
@@ -116,14 +116,14 @@ module.exports = {
         });
     },
 
-    editComment: function(args, done) {
+    editComment: function (args, done) {
         var badgeUrl = url.pullRequestBadge(args.signed);
         var claUrl = url.claURL(args.owner, args.repo, args.number);
         this.getComment({
             repo: args.repo,
             owner: args.owner,
             number: args.number
-        }, function(error, comment) {
+        }, function (error, comment) {
             if (error || !comment) {
                 return;
             }
@@ -145,7 +145,7 @@ module.exports = {
                     user: config.server.github.user,
                     pass: config.server.github.pass
                 }
-            }, function(e) {
+            }, function (e) {
                 if (e) {
                     log.warn(new Error(e).stack);
                     log.warn(e, 'with args: ', args, 'and commentId: ', comment.id);
