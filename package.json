@@ -80,7 +80,7 @@
         "supertest": "2.0.1"
     },
     "engines": {
-        "node": "5.12.0"
+        "node": "6.9.5"
     },
     "scripts": {
         "start": "node app.js",
