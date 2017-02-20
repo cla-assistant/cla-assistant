@@ -235,14 +235,14 @@ var testData = {
     'changed_files': 5
 };
 
-describe('status:update', function() {
+describe('status:update', function () {
     var githubCallPRGet, assertFunction;
-    beforeEach(function() {
+    beforeEach(function () {
         githubCallPRGet = {
             data: testData,
             err: null
         };
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call', function (args, done) {
             if (args.obj === 'pullRequests' && args.fun === 'get') {
                 assert(args.token);
                 done(githubCallPRGet.err, githubCallPRGet.data);
@@ -253,12 +253,12 @@ describe('status:update', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         assertFunction = undefined;
         github.call.restore();
     });
 
-    it('should create comment with admin token', function(done) {
+    it('should create comment with admin token', function (done) {
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
@@ -273,8 +273,8 @@ describe('status:update', function() {
         done();
     });
 
-    it('should create status pending if not signed', function(done) {
-        assertFunction = function(args) {
+    it('should create status pending if not signed', function (it_done) {
+        assertFunction = function (args) {
             assert.equal(args.arg.state, 'pending');
         };
         var args = {
@@ -288,10 +288,10 @@ describe('status:update', function() {
         status.update(args);
 
         assert(github.call.calledTwice);
-        done();
+        it_done();
     });
 
-    it('should not update status if no pull request found', function(it_done) {
+    it('should not update status if no pull request found', function (it_done) {
         githubCallPRGet.err = 'error';
         githubCallPRGet.data = null;
         var args = {
@@ -308,14 +308,32 @@ describe('status:update', function() {
         it_done();
     });
 
-    it('should not update status if no pull request found', function(it_done) {
-        githubCallPRGet.data = { message: 'Not found' };
+    it('should not update status if no pull request found', function (it_done) {
+        githubCallPRGet.data = {
+            message: 'Not found'
+        };
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
             number: 1,
             signed: false,
             token: 'abc'
+        };
+
+        status.update(args);
+
+        assert(github.call.calledOnce);
+        it_done();
+    });
+
+    it('should not load PR if sha is provided', function (it_done) {
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            number: 1,
+            signed: true,
+            token: 'abc',
+            sha: 'sha1'
         };
 
         status.update(args);
