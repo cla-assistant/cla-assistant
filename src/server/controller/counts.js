@@ -12,7 +12,7 @@ var router = express.Router();
 var logger = require('./../services/logger');
 var github = require('./../services/github');
 
-router.post('/count/*', function(req, res, next) {
+router.post('/count/*', function (req, res, next) {
     //No token is sent by slack :(
     // if (req.body.token && config.server.slack.token.match(req.body.token)) {
     next();
@@ -20,8 +20,8 @@ router.post('/count/*', function(req, res, next) {
     // res.status(404);
 });
 
-router.all('/count/repos', function(req, res) {
-    Repo.find({}, function(err, repos) {
+router.all('/count/repos', function (req, res) {
+    Repo.find({}, function (err, repos) {
         if (err) {
             logger.info(err);
         }
@@ -31,7 +31,7 @@ router.all('/count/repos', function(req, res) {
             var fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
             list = '\n Newest repo is https://github.com/' + fullName;
         } else if (repos.length > 0) {
-            repos.forEach(function(repo, i) {
+            repos.forEach(function (repo, i) {
                 list += '\n ' + ++i + '. ' + repo.owner + '/' + repo.repo;
             });
         }
@@ -43,8 +43,8 @@ router.all('/count/repos', function(req, res) {
     });
 });
 
-router.all('/count/orgs', function(req, res) {
-    Org.find({}, function(err, orgs) {
+router.all('/count/orgs', function (req, res) {
+    Org.find({}, function (err, orgs) {
         if (err) {
             logger.info(err);
         }
@@ -54,7 +54,7 @@ router.all('/count/orgs', function(req, res) {
             var orgName = orgs[orgs.length - 1].org;
             list = '\n Newest org is https://github.com/' + orgName;
         } else if (orgs.length > 0) {
-            orgs.forEach(function(org, i) {
+            orgs.forEach(function (org, i) {
                 list += '\n ' + ++i + '. ' + org.org;
             });
         }
@@ -66,11 +66,11 @@ router.all('/count/orgs', function(req, res) {
     });
 });
 
-router.all('/count/clas', function(req, res) {
+router.all('/count/clas', function (req, res) {
     if (req.query.last) {
         CLA.find().sort({
             'created_at': -1
-        }).limit(1).exec(function(err, cla) {
+        }).limit(1).exec(function (err, cla) {
             if (err) {
                 return;
             }
@@ -90,7 +90,7 @@ router.all('/count/clas', function(req, res) {
                     user: '$user'
                 }
             }
-        }], function(err, data) {
+        }], function (err, data) {
             if (err) {
                 logger.info(err);
             }
@@ -101,7 +101,7 @@ router.all('/count/clas', function(req, res) {
             text.attachments = [];
             var list = {};
             if (req.query.detailed) {
-                data.forEach(function(cla) {
+                data.forEach(function (cla) {
                     list[cla._id.owner + '/' + cla._id.repo] = list[cla._id.owner + '/' + cla._id.repo] ? list[cla._id.owner + '/' + cla._id.repo] : [];
                     list[cla._id.owner + '/' + cla._id.repo].push(cla._id.user);
                     // list += '\n ' + cla._id.user + ' is contributing to ' + cla._id.owner + '/' + cla._id.repo;
@@ -126,7 +126,7 @@ router.all('/count/clas', function(req, res) {
     }
 });
 
-router.all('/count/stars', function(req, res) {
+router.all('/count/stars', function (req, res) {
     github.call({
         obj: 'repos',
         fun: 'get',
@@ -138,19 +138,19 @@ router.all('/count/stars', function(req, res) {
             user: config.server.github.user,
             pass: config.server.github.pass
         }
-    }, function(err, resp) {
+    }, function (err, resp) {
         res.send(JSON.stringify({
             count: resp.stargazers_count
         }));
     });
 });
 
-router.all('/count/cache', function(req, res) {
-    var data = github.getCacheData();
-    var total = data.hit + data.miss;
-    res.send(JSON.stringify({
-        count: data.hit,
-        text: 'There are ' + data.hit + ' (' + parseFloat(data.hit / total).toFixed(2) * 100 + '%) cache hits and ' + data.miss + ' cache misses. In total ' + (total) + ' calls. Currently there are ' + data.currentSize + ' cached entries.'
-    }));
-});
+// router.all('/count/cache', function(req, res) {
+//     var data = github.getCacheData();
+//     var total = data.hit + data.miss;
+//     res.send(JSON.stringify({
+//         count: data.hit,
+//         text: 'There are ' + data.hit + ' (' + parseFloat(data.hit / total).toFixed(2) * 100 + '%) cache hits and ' + data.miss + ' cache misses. In total ' + (total) + ' calls. Currently there are ' + data.currentSize + ' cached entries.'
+//     }));
+// });
 module.exports = router;

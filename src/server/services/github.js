@@ -4,24 +4,21 @@ var cache = require('memory-cache');
 var config = require('../../config');
 var GitHubApi = require('github');
 
-var cacheHitCount = 0;
-var cacheMissCount = 0;
-
 
 function callGithub(github, obj, fun, arg, stringArgs, done) {
     var cacheKey = stringArgs;
     var cachedRes = arg.noCache ? null : cache.get(cacheKey);
     delete arg.noCache;
-    if (cachedRes && typeof done === 'function') {
+    if (cachedRes && config.server.cache_time > 0 && typeof done === 'function') {
         if (cachedRes.meta) {
             cachedRes.data.meta = cachedRes.meta;
         }
         done(null, cachedRes.data);
-        cacheHitCount++;
+        // cacheHitCount++;
         return;
     }
     github[obj][fun](arg, function (err, res) {
-        if (res && !res.message) {
+        if (res && !res.message && config.server.cache_time > 0) {
             cache.put(cacheKey, {
                 data: res,
                 meta: res && res.meta ? res.meta : undefined
@@ -30,7 +27,7 @@ function callGithub(github, obj, fun, arg, stringArgs, done) {
 
         if (typeof done === 'function') {
             done(err, res);
-            cacheMissCount++;
+            // cacheMissCount++;
         }
     });
 }
@@ -144,13 +141,13 @@ var githubService = {
         return github.getNextPage(link, cb);
     },
 
-    getCacheData: function () {
-        return {
-            hit: cacheHitCount,
-            miss: cacheMissCount,
-            currentSize: cache.size()
-        };
-    }
+    // getCacheData: function () {
+    //     return {
+    //         hit: cacheHitCount,
+    //         miss: cacheMissCount,
+    //         currentSize: cache.size()
+    //     };
+    // }
 };
 
 module.exports = githubService;
