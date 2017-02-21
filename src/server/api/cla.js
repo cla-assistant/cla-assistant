@@ -253,7 +253,33 @@ module.exports = {
         });
     },
 
+    // Check/update status and comment of PR
+    // Params:
+    // repo (mandatory)
+    // owner (mandatory)
+    // number (mandatory)
+    // sha (optional)
+    // token (optional)
+    validatePullRequest: function (args, done) {
+        args.token = args.token ? args.token : token;
+        cla.check(args, function (cla_err, all_signed, user_map) {
+            if (cla_err) {
+                log.error(cla_err);
+            }
+            args.signed = all_signed;
+            status.update(args, done);
+            prService.editComment({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number,
+                signed: args.signed,
+                user_map: user_map
+            });
+        });
+    },
+
     validatePullRequests: function (req, done) {
+        var self = this;
         var pullRequests = [];
         var token = req.args.token ? req.args.token : req.user.token;
 
@@ -284,20 +310,7 @@ module.exports = {
                     };
                     status_args.number = pullRequest.number;
 
-                    cla.check(status_args, function (cla_err, all_signed, user_map) {
-                        if (cla_err) {
-                            log.error(cla_err);
-                        }
-                        status_args.signed = all_signed;
-                        status.update(status_args);
-                        prService.editComment({
-                            repo: req.args.repo,
-                            owner: req.args.owner,
-                            number: status_args.number,
-                            signed: all_signed,
-                            user_map: user_map
-                        });
-                    });
+                    self.validatePullRequest(status_args);
                 });
             }
             if (typeof done === 'function') {

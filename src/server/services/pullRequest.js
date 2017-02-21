@@ -2,7 +2,7 @@ var url = require('./url');
 var github = require('./github');
 var log = require('../services/logger');
 
-var commentText = function (signed, badgeUrl, claUrl, user_map) {
+var commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     if (signed) {
         return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have signed the CLA.';
     }
@@ -14,7 +14,6 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
 
     var youAll = (committersCount > 1 ? 'you all' : 'you');
     var text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that ' + youAll + ' sign our [Contributor License Agreement](' + claUrl + ') before we can accept your contribution.<br/>';
-
     if (committersCount > 1) {
         text += '**' + user_map.signed.length + '** out of **' + (user_map.signed.length + user_map.not_signed.length) + '** committers have signed the CLA.<br/>';
         user_map.signed.forEach(function (signee) {
@@ -30,6 +29,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map) {
         text += '<hr/>**' + user_map.unknown.join(', ') + '** ' + seem + ' not to be a GitHub user.';
         text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).';
     }
+    text += '<hr/><sub>You have signed the CLA already but the status is still pending? Let us [recheck](' + recheckUrl + ') it.</sub>';
     return text;
 };
 
@@ -43,8 +43,8 @@ module.exports = {
             number: pullNumber
         }, function (error, comment) {
             var claUrl = url.claURL(owner, repo, pullNumber);
-
-            var body = commentText(signed, badgeUrl, claUrl, user_map);
+            var recheckUrl = url.recheckPrUrl(owner, repo, pullNumber);
+            var body = commentText(signed, badgeUrl, claUrl, user_map, recheckUrl);
 
             if (!comment && !signed) {
                 github.call({
@@ -119,6 +119,8 @@ module.exports = {
     editComment: function (args, done) {
         var badgeUrl = url.pullRequestBadge(args.signed);
         var claUrl = url.claURL(args.owner, args.repo, args.number);
+        var recheckUrl = url.recheckPrUrl(args.owner, args.repo, args.number);
+
         this.getComment({
             repo: args.repo,
             owner: args.owner,
@@ -129,7 +131,7 @@ module.exports = {
             }
 
             var user_map = args.user_map ? args.user_map : null;
-            var body = commentText(args.signed, badgeUrl, claUrl, user_map);
+            var body = commentText(args.signed, badgeUrl, claUrl, user_map, recheckUrl);
 
             github.call({
                 obj: 'issues',

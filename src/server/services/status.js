@@ -27,7 +27,7 @@ var getPR = function (args, cb) {
     }, cb);
 };
 
-var updateStatus = function (args) {
+var updateStatus = function (args, done) {
     var status = args.signed ? 'success' : 'pending';
     var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
@@ -50,20 +50,27 @@ var updateStatus = function (args) {
             logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
             log(error, response, args);
         }
+        if (typeof done === 'function') {
+            done(error, response);
+        }
     });
 };
 
 module.exports = {
-    update: function (args) {
+    update: function (args, done) {
         if (args && !args.sha) {
             getPR(args, function (err, resp) {
                 if (!err && resp && resp.head) {
                     args.sha = resp.head.sha;
-                    updateStatus(args);
+                    updateStatus(args, done);
+                } else {
+                    if (typeof done === 'function') {
+                        done(err);
+                    }
                 }
             });
         } else if (args) {
-            updateStatus(args);
+            updateStatus(args, done);
         }
     }
 };

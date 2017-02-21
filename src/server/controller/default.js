@@ -9,10 +9,13 @@ var logger = require('./../services/logger');
 var router = express.Router();
 
 // router.use('/accept', function(req, res) {
-router.use('/accept/:owner/:repo', function(req, res) {
-	req.args = {owner: req.params.owner, repo: req.params.repo};
+router.use('/accept/:owner/:repo', function (req, res) {
+	req.args = {
+		owner: req.params.owner,
+		repo: req.params.repo
+	};
 
-    if (req.isAuthenticated()) {
+	if (req.isAuthenticated()) {
 		cla.sign(req, function (err) {
 			var signed = true;
 			if (err) {
@@ -24,10 +27,10 @@ router.use('/accept/:owner/:repo', function(req, res) {
 			res.redirect(redirectUrl);
 		});
 
-    } else {
+	} else {
 		req.session.next = req.originalUrl;
 		return res.redirect('/auth/github?public=true');
-    }
+	}
 });
 
 router.use('/signin/:owner/:repo', function (req, res) {
@@ -37,24 +40,33 @@ router.use('/signin/:owner/:repo', function (req, res) {
 	return res.redirect('/auth/github?public=true');
 });
 
-router.all('/static/*', function(req, res) {
+router.all('/static/*', function (req, res) {
 	var filePath;
 	if (req.user && req.path === '/static/cla-assistant.json') {
 		filePath = path.join(__dirname, '..', '..', '..', 'cla-assistant.json');
-	}
-	else {
+	} else {
 		filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
 	}
 	res.setHeader('Last-Modified', (new Date()).toUTCString());
 	res.status(200).sendFile(filePath);
 });
 
-router.all('/*', function(req, res) {
+router.get('/check/:owner/:repo', function (req, res) {
+	var back = req.header('Referer') || 'https://github.com';
+	logger.info('Recheck PR requested for ', req.params.owner, '/', req.params.repo);
+	cla.validatePullRequest({
+		owner: req.params.owner,
+		repo: req.params.repo,
+		number: req.query.pullRequest
+	});
+	res.redirect(back);
+});
+
+router.all('/*', function (req, res) {
 	var filePath;
 	if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
 		filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
-	}
-	else {
+	} else {
 		filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
 	}
 	res.setHeader('Last-Modified', (new Date()).toUTCString());
