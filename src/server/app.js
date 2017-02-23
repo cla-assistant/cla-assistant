@@ -24,7 +24,7 @@ var api = {};
 var webhooks = {};
 
 // redirect from http to https
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     if (!req.headers['x-forwarded-proto'] || req.headers['x-forwarded-proto'] === 'https') {
         next();
         return;
@@ -59,16 +59,16 @@ app.use('/count', require('./middleware/param'));
 //     log.info('app error: ', err.stack);
 // });
 
-var bootstrap = function(files, callback) {
+var bootstrap = function (files, callback) {
     console.log('bootstrap'.bold, files.bold);
 
-    async.eachSeries(config.server[files], function(p, cb) {
-        glob(p, function(err, file) {
+    async.eachSeries(config.server[files], function (p, cb) {
+        glob(p, function (err, file) {
             if (err) {
                 console.log('✖ '.bold.red + err);
             }
             if (file && file.length) {
-                file.forEach(function(f) {
+                file.forEach(function (f) {
                     try {
                         if (files === 'api') {
                             api[path.basename(f, '.js')] = require(f);
@@ -98,9 +98,10 @@ var bootstrap = function(files, callback) {
 
 async.series([
 
-    function(callback) {
+    function (callback) {
         console.log('checking configs'.bold);
-        function validateProtocol(protocol, msg){
+
+        function validateProtocol(protocol, msg) {
             if (config.server[protocol].protocol !== 'http' && config.server[protocol].protocol !== 'https') {
                 throw new Error(msg + ' must be "http" or "https"');
             }
@@ -118,10 +119,10 @@ async.series([
         callback();
     },
 
-    function(callback) {
+    function (callback) {
         console.log('bootstrap static files'.bold);
 
-        config.server.static.forEach(function(p) {
+        config.server.static.forEach(function (p) {
             app.use(sass_middleware({
                 src: p,
                 dest: p,
@@ -137,7 +138,7 @@ async.series([
     // Bootstrap mongoose
     // ////////////////////////////////////////////////////////////////////////////////////////////
 
-    function(callback) {
+    function (callback) {
         var mongoose = require('mongoose');
 
         mongoose.connect(config.server.mongodb.uri, {
@@ -152,22 +153,22 @@ async.series([
         bootstrap('documents', callback);
     },
 
-    function(callback) {
+    function (callback) {
         bootstrap('passport', callback);
     },
 
-    function(callback) {
+    function (callback) {
         bootstrap('controller', callback);
     },
 
-    function(callback) {
+    function (callback) {
         bootstrap('api', callback);
     },
 
-    function(callback) {
+    function (callback) {
         bootstrap('webhooks', callback);
     }
-], function(err) {
+], function (err) {
     if (err) {
         console.log('! '.yellow + err);
     }
@@ -182,9 +183,9 @@ async.series([
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 app.use('/api', require('./middleware/authenticated'));
 
-app.all('/api/:obj/:fun', function(req, res) {
+app.all('/api/:obj/:fun', function (req, res) {
     res.set('Content-Type', 'application/json');
-    api[req.params.obj][req.params.fun](req, function(err, obj) {
+    api[req.params.obj][req.params.fun](req, function (err, obj) {
         if (err) {
             return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
         }
@@ -201,9 +202,8 @@ app.all('/api/:obj/:fun', function(req, res) {
 // Handle webhook calls
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.all('/github/webhook/:repo', function(req, res) {
+app.all('/github/webhook/:repo', function (req, res) {
     var event = req.headers['x-github-event'];
-    console.log('event ', event);
     try {
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event');
