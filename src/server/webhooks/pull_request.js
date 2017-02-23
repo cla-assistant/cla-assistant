@@ -45,6 +45,9 @@ function handleWebHook(args) {
 
 module.exports = function (req, res) {
     log.debug(req.args.action);
+    if (req.args.pull_request && req.args.pull_request.html_url) {
+        log.info('pull request ' + req.args.action + req.args.pull_request.html_url);
+    }
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
         var args = {
             owner: req.args.repository.owner.login,
