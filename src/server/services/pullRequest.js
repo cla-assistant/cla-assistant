@@ -29,7 +29,7 @@ var commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
         text += '<hr/>**' + user_map.unknown.join(', ') + '** ' + seem + ' not to be a GitHub user.';
         text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).';
     }
-    text += '<hr/><sub>You have signed the CLA already but the status is still pending? Let us [recheck](' + recheckUrl + ') it.</sub>';
+    text += '<sub>You have signed the CLA already but the status is still pending? Let us [recheck](' + recheckUrl + ') it.</sub>';
     return text;
 };
 
