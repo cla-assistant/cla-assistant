@@ -14,6 +14,7 @@ src/client/app.min.js
 src/client/app.min.js.map
 .sass-cache
 .cfenv
+*.log
 log
 log.*
 .vscode/*
