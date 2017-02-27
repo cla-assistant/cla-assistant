@@ -53,7 +53,7 @@ router.all('/static/*', function (req, res) {
 
 router.get('/check/:owner/:repo', function (req, res) {
 	var referer = req.header('Referer');
-	var back = referer.includes('github.com') ? referer : 'https://github.com';
+	var back = referer && referer.includes('github.com') ? referer : 'https://github.com';
 	logger.info('Recheck PR requested for ', 'https://github.com/' + req.params.owner + '/' + req.params.repo + '?pullRequest=' + req.query.pullRequest, 'referer was ' + referer);
 	cla.validatePullRequest({
 		owner: req.params.owner,
