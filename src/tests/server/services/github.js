@@ -16,7 +16,7 @@ var callStub = sinon.stub();
 var authenticateStub = sinon.stub();
 var getNextPageStub = sinon.stub();
 
-describe('github:call', function() {
+describe('github:call', function () {
     function GitHubApiMock(args) {
 
         assert.deepEqual(args, {
@@ -32,7 +32,7 @@ describe('github:call', function() {
 
         this.authenticate = authenticateStub;
 
-        this.hasNextPage = function(link) {
+        this.hasNextPage = function (link) {
             return link;
         };
 
@@ -41,30 +41,37 @@ describe('github:call', function() {
 
     github.__set__('GitHubApi', GitHubApiMock);
 
-    beforeEach(function() {
+    beforeEach(function () {
+        github.resetList = {};
         callStub.reset();
         authenticateStub.reset();
         getNextPageStub.reset();
         cache.clear();
     });
 
-    it('should return an error if obj is not set', function(it_done) {
-        github.call({}, function(err) {
+    it('should return an error if obj is not set', function (it_done) {
+        github.call({}, function (err) {
             assert.equal(err, 'obj required/obj not found');
             it_done();
         });
     });
 
-    it('should return an error if fun is not set', function(it_done) {
-        github.call({ obj: 'obj' }, function(err) {
+    it('should return an error if fun is not set', function (it_done) {
+        github.call({
+            obj: 'obj'
+        }, function (err) {
             assert.equal(err, 'fun required/fun not found');
             it_done();
         });
     });
 
-    it('should authenticate when token is set', function(it_done) {
+    it('should authenticate when token is set', function (it_done) {
         callStub.yields(null, {});
-        github.call({ obj: 'obj', fun: 'fun', token: 'token' }, function() {
+        github.call({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'token'
+        }, function () {
             assert(authenticateStub.calledWith({
                 type: 'oauth',
                 token: 'token'
@@ -73,9 +80,16 @@ describe('github:call', function() {
         });
     });
 
-    it('should authenticate when basic authentication is required', function(it_done) {
+    it('should authenticate when basic authentication is required', function (it_done) {
         callStub.yields(null, {});
-        github.call({ obj: 'obj', fun: 'fun', basicAuth: { user: 'user', pass: 'pass' } }, function() {
+        github.call({
+            obj: 'obj',
+            fun: 'fun',
+            basicAuth: {
+                user: 'user',
+                pass: 'pass'
+            }
+        }, function () {
             assert(authenticateStub.calledWith({
                 type: 'basic',
                 username: 'user',
@@ -85,17 +99,23 @@ describe('github:call', function() {
         });
     });
 
-    it('should not authenticate when neither token nor basicAuth are provided', function(it_done) {
+    it('should not authenticate when neither token nor basicAuth are provided', function (it_done) {
         callStub.yields(null, {});
-        github.call({ obj: 'obj', fun: 'fun' }, function() {
+        github.call({
+            obj: 'obj',
+            fun: 'fun'
+        }, function () {
             assert(authenticateStub.notCalled);
             it_done();
         });
     });
 
-    it('should call the appropriate function on the github api', function(it_done) {
+    it('should call the appropriate function on the github api', function (it_done) {
         callStub.yields(null, {});
-        github.call({ obj: 'obj', fun: 'fun' }, function(err, res, meta) {
+        github.call({
+            obj: 'obj',
+            fun: 'fun'
+        }, function (err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert.equal(meta, null);
@@ -103,9 +123,17 @@ describe('github:call', function() {
         });
     });
 
-    it('should call the appropriate function on the github api with meta', function(it_done) {
-        callStub.yields(null, { meta: { link: null, 'x-oauth-scopes': [] } });
-        github.call({ obj: 'obj', fun: 'fun' }, function(err, res, meta) {
+    it('should call the appropriate function on the github api with meta', function (it_done) {
+        callStub.yields(null, {
+            meta: {
+                link: null,
+                'x-oauth-scopes': []
+            }
+        });
+        github.call({
+            obj: 'obj',
+            fun: 'fun'
+        }, function (err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert.deepEqual(meta, {
@@ -117,10 +145,23 @@ describe('github:call', function() {
         });
     });
 
-    it('should call the appropriate function on the github api with meta and link', function(it_done) {
-        callStub.yields(null, { meta: { link: 'link', 'x-oauth-scopes': [] } });
-        getNextPageStub.yields(null, { meta: { link: null, 'x-oauth-scopes': [] } });
-        github.call({ obj: 'obj', fun: 'fun' }, function(err, res, meta) {
+    it('should call the appropriate function on the github api with meta and link', function (it_done) {
+        callStub.yields(null, {
+            meta: {
+                link: 'link',
+                'x-oauth-scopes': []
+            }
+        });
+        getNextPageStub.yields(null, {
+            meta: {
+                link: null,
+                'x-oauth-scopes': []
+            }
+        });
+        github.call({
+            obj: 'obj',
+            fun: 'fun'
+        }, function (err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert(getNextPageStub.called);
@@ -133,13 +174,82 @@ describe('github:call', function() {
         });
     });
 
-    it('should return github error', function(it_done) {
+    it('should return github error', function (it_done) {
         callStub.yields('github error', null);
-        github.call({ obj: 'obj', fun: 'fun' }, function(err, res, meta) {
+        github.call({
+            obj: 'obj',
+            fun: 'fun'
+        }, function (err, res, meta) {
             assert.equal(err, 'github error');
             assert.equal(res, null);
             assert.equal(meta, null);
             it_done();
         });
+    });
+
+    it('should set and delete RateLimit-Reset timer', function (it_done) {
+        var resetTime = Date.now() + 10;
+        callStub.yields(null, {
+            meta: {
+                'X-RateLimit-Remaining': 9,
+                'X-RateLimit-Reset': resetTime,
+            }
+        });
+        this.timeout(50);
+        github.call({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'abc'
+        }, function (err, res, meta) {
+            assert.equal(err, null);
+            assert.deepEqual(res, {});
+            assert.equal(github.resetList.abc, resetTime);
+            setTimeout(function () {
+                assert.equal(github.resetList.abc, undefined);
+                it_done();
+            }, 10);
+        });
+    });
+    it('should set RateLimit-Reset timer only if there are less than 10 calls allowed', function (it_done) {
+        var resetTime = Date.now() + 10;
+        callStub.yields(null, {
+            meta: {
+                'X-RateLimit-Remaining': 15,
+                'X-RateLimit-Reset': resetTime,
+            }
+        });
+        this.timeout(50);
+        github.call({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'abc'
+        }, function (err, res, meta) {
+            assert.equal(err, null);
+            assert.deepEqual(res, {});
+            assert.equal(github.resetList.abc, undefined);
+            it_done();
+        });
+    });
+
+    it('should call github with delay if there is RateLimit-Reset set for the token', function (it_done) {
+        github.resetList.abc = Date.now() + 20;
+        var githubCalledBack = false;
+
+        callStub.yields(null, {});
+        this.timeout(50);
+        github.call({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'abc'
+        }, function (err, res, meta) {
+            githubCalledBack = true;
+        });
+        setTimeout(function () {
+            assert(!githubCalledBack);
+        }, 10);
+        setTimeout(function () {
+            assert(githubCalledBack);
+            it_done();
+        }, 30);
     });
 });

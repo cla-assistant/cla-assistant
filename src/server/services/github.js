@@ -49,7 +49,9 @@ function newGithubApi() {
     });
 }
 
+
 var githubService = {
+    resetList: {},
 
     call: function (call, done) {
         var arg = call.arg || {};
@@ -76,6 +78,9 @@ var githubService = {
                 meta.link = res.meta.link;
                 meta.hasMore = !!github.hasNextPage(res.meta.link);
                 meta.scopes = res.meta['x-oauth-scopes'];
+                if (res.meta['X-RateLimit-Remaining'] < 10) {
+                    setRateLimit(call.token, res.meta['X-RateLimit-Reset']);
+                }
                 delete res.meta;
             } catch (ex) {
                 meta = null;
@@ -126,7 +131,9 @@ var githubService = {
             });
         }
 
-        callGithub(github, obj, fun, arg, stringArgs, collectData);
+        setTimeout(function () {
+            callGithub(github, obj, fun, arg, stringArgs, collectData);
+        }, getRateLimitTime(token));
 
         return deferred.promise;
     },
@@ -149,5 +156,24 @@ var githubService = {
     //     };
     // }
 };
+
+function getRateLimitTime(token) {
+    var remainingTime = githubService.resetList[token] ? githubService.resetList[token] - Date.now() : 0;
+    return Math.max(remainingTime, 0);
+}
+
+function removeRateLimit(token) {
+    try {
+        delete githubService.resetList[token];
+    } catch (e) {}
+}
+
+function setRateLimit(token, limit) {
+    githubService.resetList[token] = limit;
+    var remainingTime = limit - Date.now();
+    setTimeout(function () {
+        removeRateLimit(token);
+    }, remainingTime);
+}
 
 module.exports = githubService;
