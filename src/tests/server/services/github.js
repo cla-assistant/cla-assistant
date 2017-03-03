@@ -191,8 +191,8 @@ describe('github:call', function () {
         var resetTime = Date.now() + 10;
         callStub.yields(null, {
             meta: {
-                'X-RateLimit-Remaining': 9,
-                'X-RateLimit-Reset': resetTime,
+                'x-ratelimit-remaining': 9,
+                'x-ratelimit-reset': resetTime,
             }
         });
         this.timeout(50);
@@ -214,8 +214,8 @@ describe('github:call', function () {
         var resetTime = Date.now() + 10;
         callStub.yields(null, {
             meta: {
-                'X-RateLimit-Remaining': 15,
-                'X-RateLimit-Reset': resetTime,
+                'x-ratelimit-remaining': 15,
+                'x-ratelimit-reset': resetTime,
             }
         });
         this.timeout(50);
