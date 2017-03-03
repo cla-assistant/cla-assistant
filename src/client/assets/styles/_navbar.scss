@@ -9,8 +9,8 @@ $nav-link-padding: 15px 20px 15px 0px;
 
 $grid-float-breakpoint: 100px;
 
-
-$footer-height: 50px;
+$navbar-height: 60px;
+$footer-height: $navbar-height;
 
 .navbar a{
 	text-decoration: none;
@@ -21,7 +21,7 @@ $footer-height: 50px;
 	border-color: white;
 
 	.container-fluid{
-		height: 60px;
+		height: $navbar-height;
 		margin: 0px;
 		padding-top: 15px;
 	}
@@ -59,7 +59,7 @@ $footer-height: 50px;
 	margin-left: 0px;
 }
 .navbar{
-	min-height: 60px;
+	min-height: $navbar-height;
 }
 
 .navbar-center {

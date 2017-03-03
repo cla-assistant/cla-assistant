@@ -294,12 +294,9 @@ small {
 
 // _cla
 .cla-box {
-  height: 400px;
-  overflow-y: scroll;
   border: 1px solid $gray-light;
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 10px;
+  border-radius: 5px;
+  background-color: $white;
 }
 
 .dots {
@@ -322,10 +319,15 @@ small {
   margin-left: 10px;
 }
 
+.ui-view-content {
+  margin-top: $navbar-height;
+  margin-bottom: $footer-height;
+}
+
 .content-block {
   /*height:100vH;*/
-  padding-top: 150px;
-  margin-bottom: 50px;
+  padding-top: $line-height-computed;
+  margin-bottom: 2 * $line-height-computed;
 }
 
 .content-block .row .right-side {
