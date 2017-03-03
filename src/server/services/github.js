@@ -78,8 +78,6 @@ var githubService = {
                 meta.link = res.meta.link;
                 meta.hasMore = !!github.hasNextPage(res.meta.link);
                 meta.scopes = res.meta['x-oauth-scopes'];
-                if (call.token == '3e967fed22a78c8bca2434dbc275bb07c626ab79')
-                    res.meta['x-ratelimit-remaining'] = 9;
                 if (res.meta['x-ratelimit-remaining'] < 10) {
                     setRateLimit(call.token, res.meta['x-ratelimit-reset']);
                     console.log('rate limit exceeds for ', call);
