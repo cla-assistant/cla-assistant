@@ -188,14 +188,14 @@ describe('github:call', function () {
     });
 
     it('should set and delete RateLimit-Reset timer', function (it_done) {
-        var resetTime = Date.now() + 10;
+        var resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
             meta: {
                 'x-ratelimit-remaining': 9,
                 'x-ratelimit-reset': resetTime,
             }
         });
-        this.timeout(50);
+        this.timeout(1050);
         github.call({
             obj: 'obj',
             fun: 'fun',
@@ -203,22 +203,22 @@ describe('github:call', function () {
         }, function (err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
-            assert.equal(github.resetList.abc, resetTime);
+            assert.equal(github.resetList.abc, resetTime * 1000);
             setTimeout(function () {
                 assert.equal(github.resetList.abc, undefined);
                 it_done();
-            }, 10);
+            }, 1010);
         });
     });
     it('should set RateLimit-Reset timer only if there are less than 10 calls allowed', function (it_done) {
-        var resetTime = Date.now() + 10;
+        var resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
             meta: {
                 'x-ratelimit-remaining': 15,
                 'x-ratelimit-reset': resetTime,
             }
         });
-        this.timeout(50);
+        // this.timeout(1050);
         github.call({
             obj: 'obj',
             fun: 'fun',
@@ -232,11 +232,11 @@ describe('github:call', function () {
     });
 
     it('should call github with delay if there is RateLimit-Reset set for the token', function (it_done) {
-        github.resetList.abc = Date.now() + 20;
+        github.resetList.abc = Date.now() + 1000;
         var githubCalledBack = false;
 
         callStub.yields(null, {});
-        this.timeout(50);
+        this.timeout(1050);
         github.call({
             obj: 'obj',
             fun: 'fun',
@@ -246,10 +246,10 @@ describe('github:call', function () {
         });
         setTimeout(function () {
             assert(!githubCalledBack);
-        }, 10);
+        }, 900);
         setTimeout(function () {
             assert(githubCalledBack);
             it_done();
-        }, 30);
+        }, 1020);
     });
 });
