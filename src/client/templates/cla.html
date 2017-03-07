@@ -1,22 +1,21 @@
-<div class="row main" style="margin-top: 70px;">
+<div class="row main content-block">
 	<div class="container-fluid">
 
-		<div class="row center-block content-block" ng-show="noLinkedItemError">
+		<div class="row center-block" ng-show="noLinkedItemError">
 			<h1>Error</h1>
 			<p>There is no CLA to sign for {{params.user}}/{{params.repo}}</p>
 			<p>({{noLinkedItemError}})</p>
 		</div>
 
-		<form class="row content-block" ng-hide="!!redirect || noLinkedItemError">
-			<div class="col-md-8 col-md-offset-2" >
+		<form class="row" ng-hide="!!redirect || noLinkedItemError">
 				<h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
 				<h4 ng-show="signed">You have signed the CLA for {{params.user}}/{{params.repo}}</h4>
 				<div class="cla-box well">
 					<div ng-bind-html="cla"></div>
 				</div>
-				<form ng-if="hasCustomFields">
-					<p class="text-center">
-						<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
+				<form class="row" ng-if="hasCustomFields">
+					<p>
+						<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
 					</p>
 					<customfield
 						class="form-group"
@@ -35,14 +34,13 @@
 						>
 					</customfield>
 				</form>
-				<p class="text-center" ng-hide="signed"" >
-					<button class="btn btn-info sign-btn" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
-					<button class="btn btn-info sign-btn" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
+				<p class="row" ng-hide="signed">
+					<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
+					<button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
 				</p>
-			</div>
 		</form>
 
-		<div class="row center-block content-block" ng-show="signed && !!redirect">
+		<div class="row center-block" ng-show="signed && !!redirect">
 			<h3>Thank you {{user.login}}</h3>
 			<h4>for signing the CLA!</h4>
 			</br>
