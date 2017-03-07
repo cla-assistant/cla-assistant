@@ -210,11 +210,11 @@ describe('github:call', function () {
             }, 1010);
         });
     });
-    it('should set RateLimit-Reset timer only if there are less than 10 calls allowed', function (it_done) {
+    it('should set RateLimit-Reset timer only if there are less than 100 calls allowed', function (it_done) {
         var resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
             meta: {
-                'x-ratelimit-remaining': 15,
+                'x-ratelimit-remaining': 115,
                 'x-ratelimit-reset': resetTime,
             }
         });
