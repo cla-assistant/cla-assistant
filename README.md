@@ -156,14 +156,14 @@ limitations under the License.
 Stickers
 =======
 <p align="center">
-[<img src="https://www.stickermule.com/marketplace/embed_img/11612" width="100">](https://www.stickermule.com/marketplace/11612-cla-assistant)
-[<img src="https://www.stickermule.com/marketplace/embed_img/11850" width="100">](https://www.stickermule.com/marketplace/11850-cla-assistant)
+<a href="https://www.stickermule.com/marketplace/11612-cla-assistant"><img src="https://www.stickermule.com/marketplace/embed_img/11612" width="100"></a>
+<a href="https://www.stickermule.com/marketplace/11850-cla-assistant"><img src="https://www.stickermule.com/marketplace/embed_img/11850" width="100"></a>
 <p align="center">
 
 Credits
 =======
 
 <p align="center">
-![SAP](https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png)
+    <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
 <p align="center">
 :heart: from the GitHub team @ SAP
