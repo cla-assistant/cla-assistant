@@ -14,7 +14,7 @@
         "type": {
           "oneOf": [
             {
-              "enum": ["string", "number", "boolean"],
+              "enum": ["hidden", "string", "textarea", "number", "boolean"],
               "description": "Field of type boolean generates a checkbox"
             },
             {
@@ -35,7 +35,7 @@
         },
         "required": {
           "type": "boolean",
-          "description": "Requiered fields are marked with asterisk and must be filled by signer"
+          "description": "Required fields are marked with asterisk and must be filled by signer"
         },
         "description": {
           "type": "string",
