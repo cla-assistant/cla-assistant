@@ -66,7 +66,10 @@ function stub() {
         name: 'login'
     }];
 
-    sinon.stub(CLA, 'findOne', function (args, done) {
+    sinon.stub(CLA, 'findOne', function (args, selector, options, done) {
+        if (!options && !done) {
+            done = selector;
+        }
         done(testErr.claFindOne, testRes.claFindOne);
     });
 
@@ -187,10 +190,8 @@ describe('cla:getLastSignature', function () {
 
         cla.getLastSignature(args, function () {
             assert.equal(CLA.findOne.calledWithMatch({
-                '$query': {
-                    ownerId: 1,
-                    org_cla: true
-                }
+                ownerId: 1,
+                org_cla: true
             }), true);
             it_done();
         });
@@ -204,10 +205,8 @@ describe('cla:getLastSignature', function () {
 
         cla.getLastSignature(args, function () {
             assert.equal(CLA.findOne.calledWithMatch({
-                '$query': {
-                    repoId: 123,
-                    gist_url: 'url/gistId'
-                }
+                repoId: 123,
+                gist_url: 'url/gistId'
             }), true);
             it_done();
         });
