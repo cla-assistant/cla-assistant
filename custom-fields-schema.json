@@ -12,9 +12,8 @@
           "description": "Title is used to create a label for the form field"
         },
         "type": {
-          "oneOf": [
-            {
-              "enum": ["string", "number", "boolean"],
+          "oneOf": [{
+              "enum": ["hidden", "string", "textarea", "number", "boolean"],
               "description": "Field of type boolean generates a checkbox"
             },
             {
@@ -35,7 +34,7 @@
         },
         "required": {
           "type": "boolean",
-          "description": "Requiered fields are marked with asterisk and must be filled by signer"
+          "description": "Required fields are marked with asterisk and must be filled by signer"
         },
         "description": {
           "type": "string",
@@ -54,10 +53,48 @@
           "description": "Data of github user profile can be used to prefill the form. GithubKey refers to the response of the github api https://developer.github.com/v3/users/#get-a-single-user"
         }
       },
+      "anyOf": [{
+          "properties": {
+            "type": {
+              "enum": ["hidden"]
+            },
+            "required": {
+              "enum": [false]
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": ["string", "textarea", "number", "boolean"]
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "type": "object",
+              "properties": {
+                "enum": {
+                  "type": "array"
+                }
+              }
+
+            }
+          }
+        }
+      ],
       "additionalProperties": false
+    }
+  },
+  "dependencies": {
+    "type": {
+      "properties": {
+        "required": {
+          "enum": [false]
+        }
+      }
     }
   },
   "additionalProperties": false
 }
-
-
