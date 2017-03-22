@@ -448,12 +448,14 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
 
+            this.timeout(100);
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
-                assert(statusService.update.called);
-
-                it_done();
+                setTimeout(function () {
+                    assert(statusService.update.called);
+                    it_done();
+                }, 50);
             });
         });
 
@@ -461,12 +463,41 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
 
+            this.timeout(100);
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
-                assert.equal(statusService.update.callCount, 4);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 4);
+                    it_done();
+                }, 50);
+            });
+        });
 
-                it_done();
+        it('should update status of all repos of the org in 100 blocks', function (it_done) {
+            this.timeout(1100);
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+            console.log(resp.github.callRepos.length);
+            for (var index = 0; index < 100; index++) {
+                resp.github.callRepos.push({
+                    id: 'test_' + index,
+                    owner: {
+                        login: 'org'
+                    }
+                });
+            }
+            console.log(resp.github.callRepos.length);
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 100 * 2);
+                }, 50);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 102 * 2);
+                    it_done();
+                }, 550);
             });
         });
 
