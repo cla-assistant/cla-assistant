@@ -41,7 +41,7 @@ var updateStatus = function (args, done) {
             state: status,
             description: description,
             target_url: url.claURL(args.owner, args.repo, args.number),
-            context: 'licence/cla',
+            context: 'license/cla',
             noCache: true
         },
         token: args.token
