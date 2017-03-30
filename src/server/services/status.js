@@ -27,32 +27,58 @@ var getPR = function (args, cb) {
     }, cb);
 };
 
-var updateStatus = function (args, done) {
-    var status = args.signed ? 'success' : 'pending';
-    var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
-
+var hasDeprecatedStatus = function (args, done) {
     github.call({
         obj: 'repos',
-        fun: 'createStatus',
+        fun: 'getStatuses',
         arg: {
             owner: args.owner,
             repo: args.repo,
-            sha: args.sha,
-            state: status,
-            description: description,
-            target_url: url.claURL(args.owner, args.repo, args.number),
-            context: 'license/cla',
+            ref: args.sha,
             noCache: true
         },
         token: args.token
     }, function (error, response) {
-        if (error) {
-            logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
-            log(error, response, args);
+        var statuses = '';
+        try {
+            statuses = JSON.stringify(response);
+        } catch (error) {
+            statuses = response;
         }
-        if (typeof done === 'function') {
-            done(error, response);
-        }
+        done(error ? false : statuses.includes('licence/cla'));
+    });
+};
+
+var updateStatus = function (args, done) {
+    var status = args.signed ? 'success' : 'pending';
+    var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
+
+    hasDeprecatedStatus(args, function (deprecated) {
+        github.call({
+            obj: 'repos',
+            fun: 'createStatus',
+            arg: {
+                owner: args.owner,
+                repo: args.repo,
+                sha: args.sha,
+                state: status,
+                description: description,
+                target_url: url.claURL(args.owner, args.repo, args.number),
+                context: deprecated ? 'licence/cla' : 'license/cla',
+                noCache: true
+            },
+            token: args.token
+        }, function (error, response) {
+            console.log('repos createStatus');
+
+            if (error) {
+                logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
+                log(error, response, args);
+            }
+            if (typeof done === 'function') {
+                done(error, response);
+            }
+        });
     });
 };
 
@@ -60,16 +86,20 @@ module.exports = {
     update: function (args, done) {
         if (args && !args.sha) {
             getPR(args, function (err, resp) {
+                console.log('getPR called back');
                 if (!err && resp && resp.head) {
                     args.sha = resp.head.sha;
+                    console.log('call updateStatus 1');
                     updateStatus(args, done);
                 } else {
+                    console.log('call updateStatus 1 error', err, resp);
                     if (typeof done === 'function') {
                         done(err);
                     }
                 }
             });
         } else if (args) {
+            console.log('call updateStatus 2');
             updateStatus(args, done);
         }
     }
