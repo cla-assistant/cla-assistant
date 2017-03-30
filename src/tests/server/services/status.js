@@ -235,20 +235,40 @@ var testData = {
     'changed_files': 5
 };
 
+var testStatuses = [
+    {
+        "state": "success",
+        "description": "Build has completed successfully",
+        "id": 1,
+        "context": "licence/cla"
+    }
+];
+
 describe('status:update', function () {
-    var githubCallPRGet, assertFunction;
+    var githubCallPRGet, githubCallStatusGet, assertFunction;
     beforeEach(function () {
         githubCallPRGet = {
             data: testData,
             err: null
         };
+        githubCallStatusGet = {
+            data: testStatuses,
+            err: null
+        };
         sinon.stub(github, 'call', function (args, done) {
+            console.log('stubbed github call with args', args);
             if (args.obj === 'pullRequests' && args.fun === 'get') {
                 assert(args.token);
                 done(githubCallPRGet.err, githubCallPRGet.data);
+            } else if (args.obj === 'repos' && args.fun === 'getStatuses') {
+                assert.equal(args.token, 'abc');
+                done(githubCallStatusGet.err, githubCallStatusGet.data);
             } else {
                 assert.equal(args.token, 'abc');
                 assertFunction ? assertFunction(args) : 'do nothing';
+                if (typeof done === 'function') {
+                    done();
+                }
             }
         });
     });
@@ -258,7 +278,7 @@ describe('status:update', function () {
         github.call.restore();
     });
 
-    it('should create comment with admin token', function (done) {
+    it('should create comment with admin token', function (it_done) {
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
@@ -267,10 +287,10 @@ describe('status:update', function () {
             token: 'abc'
         };
 
-        status.update(args);
-
-        assert(github.call.calledTwice);
-        done();
+        status.update(args, function () {
+            assert(github.call.calledThrice);
+            it_done();
+        });
     });
 
     it('should create status pending if not signed', function (it_done) {
@@ -285,10 +305,10 @@ describe('status:update', function () {
             token: 'abc'
         };
 
-        status.update(args);
-
-        assert(github.call.calledTwice);
-        it_done();
+        status.update(args, function () {
+            assert(github.call.calledThrice);
+            it_done();
+        });
     });
 
     it('should not update status if no pull request found', function (it_done) {
@@ -336,9 +356,29 @@ describe('status:update', function () {
             sha: 'sha1'
         };
 
-        status.update(args);
+        status.update(args, function () {
+            assert(github.call.calledTwice);
+            it_done();
+        });
+    });
 
-        assert(github.call.calledOnce);
-        it_done();
+    it('should use old context if there is already a status with this context', function (it_done) {
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            number: 1,
+            signed: true,
+            token: 'abc',
+            sha: 'sha1'
+        };
+        assertFunction = function (args) {
+            assert.equal(args.arg.context, 'licence/cla');
+        };
+
+        status.update(args, function () {
+            assert(github.call.calledTwice);
+            it_done();
+        });
+
     });
 });
