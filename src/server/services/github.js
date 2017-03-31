@@ -4,6 +4,7 @@ var cache = require('memory-cache');
 var config = require('../../config');
 var GitHubApi = require('github');
 
+var githubApi;
 
 function callGithub(github, obj, fun, arg, stringArgs, done) {
     var cacheKey = stringArgs;
@@ -41,12 +42,13 @@ function concatData(collection, chunk) {
 }
 
 function newGithubApi() {
-    return new GitHubApi({
+    githubApi = githubApi ? githubApi : new GitHubApi({
         protocol: config.server.github.protocol,
         version: config.server.github.version,
         host: config.server.github.api,
         pathPrefix: config.server.github.enterprise ? '/api/v3' : null
     });
+    return githubApi;
 }
 
 
@@ -166,7 +168,7 @@ function getRateLimitTime(token) {
 function removeRateLimit(token) {
     try {
         delete githubService.resetList[token];
-    } catch (e) {}
+    } catch (e) { }
 }
 
 function setRateLimit(token, limit) {

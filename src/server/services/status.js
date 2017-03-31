@@ -69,8 +69,6 @@ var updateStatus = function (args, done) {
             },
             token: args.token
         }, function (error, response) {
-            console.log('repos createStatus');
-
             if (error) {
                 logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
                 log(error, response, args);
@@ -86,20 +84,16 @@ module.exports = {
     update: function (args, done) {
         if (args && !args.sha) {
             getPR(args, function (err, resp) {
-                console.log('getPR called back');
                 if (!err && resp && resp.head) {
                     args.sha = resp.head.sha;
-                    console.log('call updateStatus 1');
                     updateStatus(args, done);
                 } else {
-                    console.log('call updateStatus 1 error', err, resp);
                     if (typeof done === 'function') {
                         done(err);
                     }
                 }
             });
         } else if (args) {
-            console.log('call updateStatus 2');
             updateStatus(args, done);
         }
     }
