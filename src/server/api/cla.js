@@ -70,10 +70,10 @@ function renderFiles(files, renderToken) {
         });
     }
     q.all([contentPromise, metaPromise]).then(function (data) {
-            gistContent.raw = data[0];
-            gistContent.meta = data[1];
-            deferred.resolve(gistContent);
-        },
+        gistContent.raw = data[0];
+        gistContent.meta = data[1];
+        deferred.resolve(gistContent);
+    },
         function (msg) {
             deferred.reject(msg);
         });
@@ -244,11 +244,11 @@ module.exports = {
                                 },
                                 user: req.user
                             };
-                            //call in blocks, in order to prevent running out of github rate limit
-                            setTimeout(function () {
-                                self.validatePullRequests(validateRequest);
-                            }, Math.floor(counter / 100) * 500);
-                            counter++;
+                            //call in blocks, in order to prevent triggerring of abuse detection mechanism
+                            self.validatePullRequests(validateRequest);
+                            // setTimeout(function () {
+                            // }, Math.floor(counter / 100) * 500);
+                            // counter++;
                         });
                 }
                 if (typeof done === 'function') {

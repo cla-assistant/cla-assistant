@@ -6,7 +6,6 @@ var sinon = require('sinon');
 
 // services
 var github = require('../../../server/services/github');
-var url = require('../../../server/services/url');
 
 // service under test
 var status = require('../../../server/services/status');
@@ -235,12 +234,32 @@ var testData = {
     'changed_files': 5
 };
 
-var testStatuses = [
+var testStatusesSuccess = [
     {
-        "state": "success",
-        "description": "Build has completed successfully",
-        "id": 1,
-        "context": "licence/cla"
+        'state': 'success',
+        'description': 'Build has completed successfully',
+        'id': 1,
+        'context': 'anything/else'
+    },
+    {
+        'state': 'success',
+        'description': 'Check succeeded',
+        'id': 2,
+        'context': 'license/cla'
+    }
+];
+var testStatusesPending = [
+    {
+        'state': 'success',
+        'description': 'Build has completed successfully',
+        'id': 1,
+        'context': 'anything/else'
+    },
+    {
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 2,
+        'context': 'licence/cla'
     }
 ];
 
@@ -252,11 +271,10 @@ describe('status:update', function () {
             err: null
         };
         githubCallStatusGet = {
-            data: testStatuses,
+            data: testStatusesPending,
             err: null
         };
         sinon.stub(github, 'call', function (args, done) {
-            console.log('stubbed github call with args', args);
             if (args.obj === 'pullRequests' && args.fun === 'get') {
                 assert(args.token);
                 done(githubCallPRGet.err, githubCallPRGet.data);
@@ -296,7 +314,10 @@ describe('status:update', function () {
     it('should create status pending if not signed', function (it_done) {
         assertFunction = function (args) {
             assert.equal(args.arg.state, 'pending');
+            assert.equal(args.arg.context, 'license/cla');
+
         };
+        githubCallStatusGet.data = testStatusesSuccess;
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
@@ -377,6 +398,23 @@ describe('status:update', function () {
 
         status.update(args, function () {
             assert(github.call.calledTwice);
+            it_done();
+        });
+
+    });
+
+    it('should not update status if it has not changed', function (it_done) {
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            number: 1,
+            signed: false,
+            token: 'abc',
+            sha: 'sha1'
+        };
+
+        status.update(args, function () {
+            assert(github.call.calledWithMatch({ obj: 'repos', fun: 'getStatuses' }));
             it_done();
         });
 

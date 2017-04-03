@@ -4,7 +4,7 @@ var cache = require('memory-cache');
 var config = require('../../config');
 var GitHubApi = require('github');
 
-var githubApi;
+// var githubApi;
 
 function callGithub(github, obj, fun, arg, stringArgs, done) {
     var cacheKey = stringArgs;
@@ -42,7 +42,8 @@ function concatData(collection, chunk) {
 }
 
 function newGithubApi() {
-    githubApi = githubApi ? githubApi : new GitHubApi({
+    // githubApi = githubApi ? githubApi : new GitHubApi({
+    var githubApi = new GitHubApi({
         protocol: config.server.github.protocol,
         version: config.server.github.version,
         host: config.server.github.api,

@@ -27,7 +27,7 @@ var getPR = function (args, cb) {
     }, cb);
 };
 
-var hasDeprecatedStatus = function (args, done) {
+var getStatuses = function (args, done) {
     github.call({
         obj: 'repos',
         fun: 'getStatuses',
@@ -38,22 +38,40 @@ var hasDeprecatedStatus = function (args, done) {
             noCache: true
         },
         token: args.token
-    }, function (error, response) {
+    }, done);
+};
+
+var findStatusToBeChanged = function (args, done) {
+    getStatuses(args, function (error, response) {
         var statuses = '';
+        var status;
         try {
-            statuses = JSON.stringify(response);
+            statuses = JSON.parse(response);
         } catch (error) {
             statuses = response;
         }
-        done(error ? false : statuses.includes('licence/cla'));
+        statuses.some(function findClaStatusToChange(s) {
+            if (s.context.match(/licen.e\/cla/g)) {
+                status = s.state !== args.state ? s : status;
+                return true;
+            }
+        });
+
+        done(status);
     });
 };
 
 var updateStatus = function (args, done) {
-    var status = args.signed ? 'success' : 'pending';
+    args.state = args.signed ? 'success' : 'pending';
     var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
-    hasDeprecatedStatus(args, function (deprecated) {
+    findStatusToBeChanged(args, function (status) {
+        if (!status) {
+            if (typeof done === 'function') {
+                done();
+            }
+            return;
+        }
         github.call({
             obj: 'repos',
             fun: 'createStatus',
@@ -61,10 +79,10 @@ var updateStatus = function (args, done) {
                 owner: args.owner,
                 repo: args.repo,
                 sha: args.sha,
-                state: status,
+                state: args.state,
                 description: description,
                 target_url: url.claURL(args.owner, args.repo, args.number),
-                context: deprecated ? 'licence/cla' : 'license/cla',
+                context: status.context,
                 noCache: true
             },
             token: args.token
