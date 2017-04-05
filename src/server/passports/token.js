@@ -1,5 +1,4 @@
-// var url = require('../services/url');
-var orgApi = require('../api/org');
+// var orgApi = require('../api/org');
 var github = require('../services/github');
 var logger = require('../services/logger');
 var passport = require('passport');
@@ -42,7 +41,7 @@ function checkToken(accessToken, cb) {
 }
 
 passport.use(new Strategy(
-    function(token, done) {
+    function (token, done) {
         getGHUser(token, function (err, data) {
             if (err || !data) {
                 done(err || 'Could not find GitHub user for given token');

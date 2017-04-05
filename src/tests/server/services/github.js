@@ -161,15 +161,10 @@ describe('github:call', function () {
         github.call({
             obj: 'obj',
             fun: 'fun'
-        }, function (err, res, meta) {
+        }, function (err, res) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert(getNextPageStub.called);
-            // assert.deepEqual(meta, {
-            //     link: 'link',
-            //     hasMore: true,
-            //     scopes: []
-            // });
             it_done();
         });
     });
@@ -200,7 +195,7 @@ describe('github:call', function () {
             obj: 'obj',
             fun: 'fun',
             token: 'abc'
-        }, function (err, res, meta) {
+        }, function (err, res) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert.equal(github.resetList.abc, resetTime * 1000);
