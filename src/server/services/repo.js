@@ -70,9 +70,9 @@ var selection = function (args) {
     return args.repoId ? {
         repoId: args.repoId
     } : {
-        repo: args.repo,
-        owner: args.owner
-    };
+            repo: args.repo,
+            owner: args.owner
+        };
 };
 
 module.exports = {
@@ -181,8 +181,8 @@ module.exports = {
                             id: committer.id || ''
                         };
                         if (committers.length === 0 || committers.map(function (c) {
-                                return c.name;
-                            }).indexOf(user.name) < 0) {
+                            return c.name;
+                        }).indexOf(user.name) < 0) {
                             committers.push(user);
                         }
                     });
@@ -191,10 +191,10 @@ module.exports = {
                     if (res && res.message === 'Moved Permanently' && linkedRepo) {
                         self.getGHRepo(args, function (err, res) {
                             if (res && res.id && compareRepoNameAndUpdate(linkedRepo, {
-                                    repo: res.name,
-                                    owner: res.owner.login,
-                                    repoId: res.id
-                                })) {
+                                repo: res.name,
+                                owner: res.owner.login,
+                                repoId: res.id
+                            })) {
                                 arg.arg.repo = res.name;
                                 arg.arg.owner = res.owner.login;
 
@@ -243,7 +243,7 @@ module.exports = {
                     },
                     token: args.token
                 };
-                if (!pr ||  !pr.commits ||  pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
+                if (!pr || !pr.commits || pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
                     callGithub(params, item);
                 } else {
                     var headCommit = pr.head;

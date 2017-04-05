@@ -23,7 +23,7 @@ var cla = require('../../../server/services/cla');
 
 var callbacks = {};
 var req = {
-    end: function () {},
+    end: function () { },
     error: function (err) {
         callbacks.error(err);
     },
@@ -956,7 +956,7 @@ describe('cla:getAll', function () {
             gist: undefined
         };
 
-        cla.getAll(args, function (err, arr) {
+        cla.getAll(args, function (err) {
             assert(err);
 
             it_done();
@@ -1038,7 +1038,7 @@ describe('cla:getLinkedItem', function () {
             done('GH Repo not found', null);
         });
 
-        cla.getLinkedItem(testArgs, function (err, obj) {
+        cla.getLinkedItem(testArgs, function (err) {
             assert(err == 'GH Repo not found');
             repo_service.getGHRepo.restore();
             it_done();

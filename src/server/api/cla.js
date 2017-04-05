@@ -230,7 +230,6 @@ module.exports = {
         }, function (err, repos) {
             orgService.get(req.args, function (err, linkedOrg) {
                 if (repos && !repos.message && repos.length > 0) {
-                    var counter = 0;
                     repos
                         .filter(function (repo) {
                             return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name);
@@ -244,11 +243,7 @@ module.exports = {
                                 },
                                 user: req.user
                             };
-                            //call in blocks, in order to prevent triggerring of abuse detection mechanism
                             self.validatePullRequests(validateRequest);
-                            // setTimeout(function () {
-                            // }, Math.floor(counter / 100) * 500);
-                            // counter++;
                         });
                 }
                 if (typeof done === 'function') {
