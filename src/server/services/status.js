@@ -44,7 +44,7 @@ var getStatuses = function (args, done) {
 var findStatusToBeChanged = function (args, done) {
     getStatuses(args, function (error, response) {
         var statuses = '';
-        var status;
+        var status = { context: 'license/cla' };
         try {
             statuses = JSON.parse(response);
         } catch (error) {
@@ -52,6 +52,7 @@ var findStatusToBeChanged = function (args, done) {
         }
         statuses.some(function findClaStatusToChange(s) {
             if (s.context.match(/licen.e\/cla/g)) {
+                status = undefined;
                 status = s.state !== args.state ? s : status;
                 return true;
             }

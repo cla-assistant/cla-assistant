@@ -414,7 +414,26 @@ describe('status:update', function () {
         };
 
         status.update(args, function () {
+            assert(github.call.calledOnce);
             assert(github.call.calledWithMatch({ obj: 'repos', fun: 'getStatuses' }));
+            it_done();
+        });
+
+    });
+
+    it('should update status if there are no old ones', function (it_done) {
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            number: 1,
+            signed: false,
+            token: 'abc',
+            sha: 'sha1'
+        };
+        githubCallStatusGet.data = [];
+
+        status.update(args, function () {
+            assert(github.call.calledTwice);
             it_done();
         });
 
