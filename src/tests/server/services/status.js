@@ -430,7 +430,7 @@ describe('status:update', function () {
             token: 'abc',
             sha: 'sha1'
         };
-        githubCallStatusGet.data = [];
+        githubCallStatusGet.data = null;
 
         status.update(args, function () {
             assert(github.call.calledTwice);
