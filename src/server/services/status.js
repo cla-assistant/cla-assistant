@@ -50,13 +50,15 @@ var findStatusToBeChanged = function (args, done) {
         } catch (error) {
             statuses = response;
         }
-        statuses.some(function findClaStatusToChange(s) {
-            if (s.context.match(/licen.e\/cla/g)) {
-                status = undefined;
-                status = s.state !== args.state ? s : status;
-                return true;
-            }
-        });
+        if (statuses) {
+            statuses.some(function findClaStatusToChange(s) {
+                if (s.context.match(/licen.e\/cla/g)) {
+                    status = undefined;
+                    status = s.state !== args.state ? s : status;
+                    return true;
+                }
+            });
+        }
 
         done(status);
     });
