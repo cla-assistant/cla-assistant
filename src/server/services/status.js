@@ -41,16 +41,48 @@ var getStatuses = function (args, done) {
     }, done);
 };
 
+var createStatus = function (args, context, description, done) {
+    github.call({
+        obj: 'repos',
+        fun: 'createStatus',
+        arg: {
+            owner: args.owner,
+            repo: args.repo,
+            sha: args.sha,
+            state: args.state,
+            description: description,
+            target_url: url.claURL(args.owner, args.repo, args.number),
+            context: context,
+            noCache: true
+        },
+        token: args.token
+    }, function (error, response) {
+        if (error) {
+            logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
+            log(error, response, args);
+        }
+        if (typeof done === 'function') {
+            done(error, response);
+        }
+    });
+};
+
 var findStatusToBeChanged = function (args, done) {
     getStatuses(args, function (error, response) {
         var statuses = '';
-        var status = { context: 'license/cla' };
+        var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
+
+        var status = { context: 'license/cla', description: description };
         try {
             statuses = JSON.parse(response);
         } catch (error) {
             statuses = response;
         }
-        if (statuses) {
+        var statString = JSON.stringify(statuses);
+        if (statString.includes('license/cla') && statString.includes('licence/cla')) { // temporary fix if both contexts are there
+            createStatus(args, 'licence/cla', status.description);
+        }
+        else if (statuses) {
             statuses.some(function findClaStatusToChange(s) {
                 if (s.context.match(/licen.e\/cla/g)) {
                     status = undefined;
@@ -66,7 +98,6 @@ var findStatusToBeChanged = function (args, done) {
 
 var updateStatus = function (args, done) {
     args.state = args.signed ? 'success' : 'pending';
-    var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
     findStatusToBeChanged(args, function (status) {
         if (!status) {
@@ -75,29 +106,7 @@ var updateStatus = function (args, done) {
             }
             return;
         }
-        github.call({
-            obj: 'repos',
-            fun: 'createStatus',
-            arg: {
-                owner: args.owner,
-                repo: args.repo,
-                sha: args.sha,
-                state: args.state,
-                description: description,
-                target_url: url.claURL(args.owner, args.repo, args.number),
-                context: status.context,
-                noCache: true
-            },
-            token: args.token
-        }, function (error, response) {
-            if (error) {
-                logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
-                log(error, response, args);
-            }
-            if (typeof done === 'function') {
-                done(error, response);
-            }
-        });
+        createStatus(args, status.context, status.description, done);
     });
 };
 

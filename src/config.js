@@ -33,7 +33,7 @@ module.exports = {
 
             commit_bots: ['web-flow'],
 
-            enforceDelay: process.env.GITHUB_DELAY || 1000 * 60 * 1
+            enforceDelay: process.env.GITHUB_DELAY || 1000 * 5
         },
 
         localport: process.env.PORT || 5000,

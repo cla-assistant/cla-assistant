@@ -262,6 +262,20 @@ var testStatusesPending = [
         'context': 'licence/cla'
     }
 ];
+var testStatusesFailure = [
+    {
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 2,
+        'context': 'license/cla'
+    },
+    {
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 1,
+        'context': 'licence/cla'
+    }
+];
 
 describe('status:update', function () {
     var githubCallPRGet, githubCallStatusGet, assertFunction;
@@ -434,6 +448,24 @@ describe('status:update', function () {
 
         status.update(args, function () {
             assert(github.call.calledTwice);
+            it_done();
+        });
+
+    });
+
+    it('should update statuses of all contexts if there are both (licenCe and licenSe)', function (it_done) {
+        var args = {
+            owner: 'octocat',
+            repo: 'Hello-World',
+            number: 1,
+            signed: true,
+            token: 'abc',
+            sha: 'sha1'
+        };
+        githubCallStatusGet.data = testStatusesFailure;
+
+        status.update(args, function () {
+            assert(github.call.calledThrice);
             it_done();
         });
 
