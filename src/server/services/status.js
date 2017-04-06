@@ -79,7 +79,7 @@ var findStatusToBeChanged = function (args, done) {
             statuses = response;
         }
         var statString = JSON.stringify(statuses);
-        if (statString.includes('license/cla') && statString.includes('licence/cla')) { // temporary fix if both contexts are there
+        if (statString.includes('licence/cla')) { // temporary fix if both contexts are there
             createStatus(args, 'licence/cla', status.description);
         }
         else if (statuses) {

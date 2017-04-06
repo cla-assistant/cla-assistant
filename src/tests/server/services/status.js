@@ -320,7 +320,7 @@ describe('status:update', function () {
         };
 
         status.update(args, function () {
-            assert(github.call.calledThrice);
+            assert.equal(github.call.callCount, 4);
             it_done();
         });
     });
@@ -392,12 +392,12 @@ describe('status:update', function () {
         };
 
         status.update(args, function () {
-            assert(github.call.calledTwice);
+            assert(github.call.calledThrice);
             it_done();
         });
     });
 
-    it('should use old context if there is already a status with this context', function (it_done) {
+    it('should use old and new context if there is already a status with this context', function (it_done) {
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
@@ -406,23 +406,24 @@ describe('status:update', function () {
             token: 'abc',
             sha: 'sha1'
         };
-        assertFunction = function (args) {
-            assert.equal(args.arg.context, 'licence/cla');
-        };
+        // assertFunction = function (args) {
+        //     assert.equal(args.arg.context, 'licence/cla');
+        // };
 
         status.update(args, function () {
-            assert(github.call.calledTwice);
+            assert(github.call.calledThrice);
             it_done();
         });
 
     });
 
     it('should not update status if it has not changed', function (it_done) {
+        githubCallStatusGet.data = testStatusesSuccess;
         var args = {
             owner: 'octocat',
             repo: 'Hello-World',
             number: 1,
-            signed: false,
+            signed: true,
             token: 'abc',
             sha: 'sha1'
         };
