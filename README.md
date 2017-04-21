@@ -101,6 +101,10 @@ Copy the sample configuration file `.env.example` file to `.env`.
 
 	cp .env.example .env
 
+
+Supported environment variables
+===============================
+
 The following are the environment variables you have to configure to run a private instance:
 
 - `HOST`: This should only set the hostname of your CLA assistant instance (without the protocol).
@@ -133,6 +137,21 @@ Finally, source the environment file and start the application.
     source .env
     npm start
 
+
+Run the CLA assistant instance with Docker
+==========================================
+
+To run the CLA assistant instance with docker:
+
+```bash
+$ docker build -t cla-assistant .
+$ docker run -d -p5000:5000 \
+      -e HOST=.. \
+      -e PORT=... \
+      cla-assistant
+```
+
+For the list of supported environments see [supported environment variables](#supported-environment-variables)
 
 License
 =======
