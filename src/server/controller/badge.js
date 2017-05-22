@@ -44,9 +44,15 @@ router.all('/readme/badge/:owner/:repo', function (req, res) {
         repo: req.params.repo
     };
     var style = req.query && req.query.style ? req.query.style : undefined;
+    var label = req.query && req.query.label ? req.query.label : undefined;
+    var colorB = req.query && req.query.colorB ? req.query.colorB : undefined;
+    var logo = req.query && req.query.logo ? req.query.logo : undefined;
     var redirect = function (count) {
         var url = 'https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg';
         url = style ? url + '?style=' + style : url;
+        url = label ? url + '?label=' + label : url;
+        url = colorB ? url + '?colorB=' + colorB : url;
+        url = logo ? url + '?logo=' + logo : url;
         res.redirect(url);
     };
     req.args = args;
