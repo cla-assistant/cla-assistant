@@ -20,7 +20,7 @@ router.use('/accept/:owner/:repo', function (req, res) {
 			if (err) {
 				logger.error(err);
 			}
-			var redirectUrl = path.join(path.sep, req.args.owner, req.args.repo) + '?redirect=true';
+			var redirectUrl = '/' + req.args.owner + '/' + req.args.repo + '?redirect=true';
 			redirectUrl = req.query.pullRequest ? redirectUrl + '&pullRequest=' + req.query.pullRequest : redirectUrl;
 			res.redirect(redirectUrl);
 		});
@@ -32,7 +32,7 @@ router.use('/accept/:owner/:repo', function (req, res) {
 });
 
 router.use('/signin/:owner/:repo', function (req, res) {
-	var redirectUrl = path.join(path.sep, req.params.owner, req.params.repo);
+	var redirectUrl = '/' + req.params.owner + '/' + req.params.repo;
 	req.session.next = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
 
 	return res.redirect('/auth/github?public=true');
