@@ -94,6 +94,9 @@ router.all('/count/clas', function (req, res) {
             if (err) {
                 logger.info(err);
             }
+            if (!Array.isArray(data)) {
+                data = [];
+            }
             res.set('Content-Type', 'application/json');
             var text = {
                 text: 'There are ' + data.length + ' signed CLAs!'
