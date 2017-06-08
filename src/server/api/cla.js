@@ -243,7 +243,7 @@ module.exports = {
                             }
                             // Check whether has been overridden.
                             return !linkedRepos.some(function (linkedRepo) {
-                                return linkedRepo.repoId === repo.id.toString();
+                                return linkedRepo.repoId.toString() === repo.id.toString();
                             });
                         })
                         .forEach(function (repo) {
