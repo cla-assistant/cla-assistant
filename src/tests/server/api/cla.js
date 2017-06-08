@@ -1,4 +1,4 @@
-/*global describe, it, beforeEach, afterEach*/
+    /*global describe, it, beforeEach, afterEach*/
 
 // unit test
 var assert = require('assert');
@@ -49,7 +49,7 @@ describe('', function () {
                     gist: 'https://gist.github.com/aa5a315d61ae9438b18d',
                     token: 'testToken',
                     org: 'octocat'
-                }
+                    }
             }
         };
         resp = {
@@ -85,7 +85,7 @@ describe('', function () {
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
-                all: JSON.parse(JSON.stringify(testData.repo_from_db))
+                all: [JSON.parse(JSON.stringify(testData.repo_from_db))]
             },
             orgService: {
                 get: JSON.parse(JSON.stringify(testData.org_from_db)), //clone object
@@ -406,7 +406,7 @@ describe('', function () {
             });
             sinon.stub(prService, 'editComment', function () { });
             sinon.stub(repo_service, 'all', function (cb) {
-                cb(error.repoService.all, [resp.repoService.all]);
+                cb(error.repoService.all, resp.repoService.all);
             });
         });
 
@@ -468,12 +468,28 @@ describe('', function () {
         it('should update status of all repos of the org', function (it_done) {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
+            resp.repoService.all = [];
 
             // this.timeout(100);
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
                 assert.equal(statusService.update.callCount, 4);
+                it_done();
+                // setTimeout(function () {
+                // }, 50);
+            });
+        });
+
+        it('should NOT update status of repos have overridden repo cla', function (it_done) {
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+
+            // this.timeout(100);
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                assert.equal(statusService.update.callCount, 2);
                 it_done();
                 // setTimeout(function () {
                 // }, 50);
@@ -987,6 +1003,62 @@ describe('', function () {
 
         it('should load all PRs if there are more to load', function () {
 
+        });
+    });
+
+    describe('cla: validateOrgPullRequests', function () {
+        var req;
+        beforeEach(function () {
+            req = {
+                args: {
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    gist: 'https://gist.github.com/aa5a315d61ae9438b18d',
+                    token: 'testToken',
+                    org: 'octocat'
+                }
+            };
+            sinon.stub(cla, 'check', function (args, cb) {
+                cb(null, true);
+            });
+            resp.github.callRepos = testData.orgRepos;
+            sinon.stub(repo_service, 'all', function (cb) {
+                cb(error.repoService.all, resp.repoService.all);
+            });
+        });
+
+        afterEach(function () {
+            repo_service.all.restore();
+            cla.check.restore();
+        });
+
+        it('should NOT validate repos in the excluded list', function (it_done) {
+            resp.orgService.get.isRepoExcluded = function () {
+                return true;
+            };
+            resp.repoService.all = [];
+            cla_api.validateOrgPullRequests(req, function () {
+                assert(!cla.check.called);
+                it_done();
+            });
+        });
+
+        it('should NOT validate repos with overridden cla', function (it_done) {
+            resp.orgService.get.isRepoExcluded = function () {
+                return false;
+            };
+            cla_api.validateOrgPullRequests(req, function () {
+                assert(!cla.check.called);
+                it_done();
+            });
+        });
+
+        it('should validate repos that is not in the excluded list and don\'t have overridden cla', function (it_done) {
+            resp.repoService.all = [];
+            cla_api.validateOrgPullRequests(req, function () {
+                assert(cla.check.called);
+                it_done();
+            });
         });
     });
 
