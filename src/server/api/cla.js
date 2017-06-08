@@ -230,9 +230,21 @@ module.exports = {
         }, function (err, repos) {
             orgService.get(req.args, function (err, linkedOrg) {
                 if (repos && !repos.message && repos.length > 0) {
-                    repos
+                    repoService.all(function (error, linkedRepos) {
+                        if (error) {
+                            log.error(error);
+                            linkedOrg = [];
+                        }
+                        repos
                         .filter(function (repo) {
-                            return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name);
+                            // Check whether has been excluded.
+                            if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
+                                return false;
+                            }
+                            // Check whether has been overridden.
+                            return !linkedRepos.some(function (linkedRepo) {
+                                return linkedRepo.repoId === repo.id.toString();
+                            });
                         })
                         .forEach(function (repo) {
                             var validateRequest = {
@@ -245,6 +257,7 @@ module.exports = {
                             };
                             self.validatePullRequests(validateRequest);
                         });
+                    });
                 }
                 if (typeof done === 'function') {
                     done(repos.message || err, true);
