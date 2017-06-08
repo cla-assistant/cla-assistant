@@ -1060,6 +1060,15 @@ describe('', function () {
                 it_done();
             });
         });
+
+        it('should NOT validate when querying repo collection throw error', function (it_done) {
+            error.repoService.all = 'any error of querying repo collection';
+            cla_api.validateOrgPullRequests(req, function (err) {
+                assert.equal(!!err, true);
+                assert(!cla.check.called);
+                it_done();
+            });
+        });
     });
 
     describe('cla:getLinkedItem', function () {

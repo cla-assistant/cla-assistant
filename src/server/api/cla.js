@@ -232,8 +232,10 @@ module.exports = {
                 if (repos && !repos.message && repos.length > 0) {
                     repoService.all(function (error, linkedRepos) {
                         if (error) {
-                            log.error(error);
-                            linkedOrg = [];
+                            if (typeof done === 'function') {
+                                done(error.message || error, null);
+                            }
+                            return;
                         }
                         repos
                         .filter(function (repo) {
