@@ -417,9 +417,21 @@ describe('webhook pull request', function () {
 	// 	assert.equal(cla.check.called, true);
 	// });
 
-	it('should try to access GH repo if org is known', function (it_done) {
-		orgService.get.restore();
-		sinon.stub(orgService, 'get', function (args, done) {
+	it('should NOT try to access org cla if repo cla is exist', function (it_done) {
+		pull_request(test_req, res);
+		this.timeout(20);
+		setTimeout(function () {
+			assert.equal(repoService.get.called, true);
+			assert.equal(orgService.get.called, false);
+			assert.equal(repoService.getPRCommitters.called, true);
+			assert.equal(cla.check.called, true);
+			it_done();
+		}, 8);
+	});
+
+	it('should try to access org cla if repo cla is NOT exist', function (it_done) {
+		repoService.get.restore();
+		sinon.stub(repoService, 'get', function (args, done) {
 			done(null, null);
 		});
 
@@ -436,7 +448,11 @@ describe('webhook pull request', function () {
 
 	it('should update status of PR even if org is unknown but from known repo', function (it_done) {
 		repoService.getGHRepo.restore();
+		repoService.get.restore();
 		sinon.stub(repoService, 'getGHRepo', function (args, done) {
+			done(null, null);
+		});
+		sinon.stub(repoService, 'get', function (args, done) {
 			done(null, null);
 		});
 
@@ -445,7 +461,7 @@ describe('webhook pull request', function () {
 		setTimeout(function () {
 			assert.equal(repoService.getGHRepo.called, true);
 			assert.equal(orgService.get.called, true);
-			assert.equal(repoService.get.called, false);
+			assert.equal(repoService.get.called, true);
 			assert.equal(repoService.getPRCommitters.called, false);
 			assert.equal(cla.check.called, false);
 			it_done();

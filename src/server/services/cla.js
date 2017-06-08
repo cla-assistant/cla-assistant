@@ -208,21 +208,21 @@ module.exports = function () {
                     // could not find the GH Repo
                     deferred.reject(e);
                 } else {
-                    orgService.get({
-                        orgId: ghRepo.owner.id
-                    }, function (err, linkedOrg) {
-                        if (!linkedOrg) {
-                            repoService.get({
-                                repoId: ghRepo.id
-                            }, function (error, linkedRepo) {
-                                if (linkedRepo) {
-                                    deferred.resolve(linkedRepo);
+                    repoService.get({
+                        repoId: ghRepo.id
+                    }, function (error, linkedRepo) {
+                        if (linkedRepo) {
+                            deferred.resolve(linkedRepo);
+                        } else {
+                            orgService.get({
+                                orgId: ghRepo.owner.id
+                            }, function (err, linkedOrg) {
+                                if (linkedOrg) {
+                                    deferred.resolve(linkedOrg);
                                 } else {
                                     deferred.reject(error);
                                 }
                             });
-                        } else {
-                            deferred.resolve(linkedOrg);
                         }
                     });
                 }
@@ -271,12 +271,12 @@ module.exports = function () {
                     query.repoId = repo.repoId;
                     findCla();
                 });
-            } else if (args.orgId) {
-                query.ownerId = args.orgId;
-                query.org_cla = true;
+            } else if (args.repoId) {
+                query.repoId = args.repoId;
                 findCla();
             } else {
-                query.repoId = args.repoId;
+                query.ownerId = args.orgId;
+                query.org_cla = true;
                 findCla();
             }
             return deferred.promise;
