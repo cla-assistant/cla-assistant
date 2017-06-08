@@ -85,6 +85,7 @@ describe('', function () {
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
+                all: JSON.parse(JSON.stringify(testData.repo_from_db))
             },
             orgService: {
                 get: JSON.parse(JSON.stringify(testData.org_from_db)), //clone object
@@ -100,7 +101,8 @@ describe('', function () {
                 user: null
             },
             repoService: {
-                get: null
+                get: null,
+                all: null
             },
             orgService: {
                 get: null
@@ -403,6 +405,9 @@ describe('', function () {
                 cb(null, true);
             });
             sinon.stub(prService, 'editComment', function () { });
+            sinon.stub(repo_service, 'all', function (cb) {
+                cb(error.repoService.all, [resp.repoService.all]);
+            });
         });
 
         afterEach(function () {
@@ -410,6 +415,7 @@ describe('', function () {
             cla.sign.restore();
             prService.editComment.restore();
             statusService.update.restore();
+            repo_service.all.restore();
         });
 
         it('should call cla service on sign', function (it_done) {
