@@ -59,26 +59,26 @@ module.exports = function (req, res) {
 
 
         setTimeout(function () {
-            orgService.get({
-                orgId: args.orgId
-            }, function (err, org) {
-                if (org) {
-                    args.token = org.token;
-                    args.gist = org.gist; //TODO: Test it!!
-                    if (!org.isRepoExcluded(args.repo)) {
-                        repoService.getGHRepo(args, function (err, repo) {
-                            if (repo) {
-                                handleWebHook(args);
-                            }
-                        });
-                    }
-                } else {
+            repoService.get(args, function (e, repo) {
+                if (repo) {
                     args.orgId = undefined;
-                    repoService.get(args, function (e, repo) {
-                        if (repo) {
-                            args.token = repo.token;
-                            args.gist = repo.gist; //TODO: Test it!!
-                            handleWebHook(args);
+                    args.token = repo.token;
+                    args.gist = repo.gist; //TODO: Test it!!
+                    handleWebHook(args);
+                } else {
+                    orgService.get({
+                        orgId: args.orgId
+                    }, function (err, org) {
+                        if (org) {
+                            args.token = org.token;
+                            args.gist = org.gist; //TODO: Test it!!
+                            if (!org.isRepoExcluded(args.repo)) {
+                                repoService.getGHRepo(args, function (err, repo) {
+                                    if (repo) {
+                                        handleWebHook(args);
+                                    }
+                                });
+                            }
                         }
                     });
                 }
