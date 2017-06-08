@@ -8,9 +8,11 @@
 var isInArray = function(item, items) {
     function check(linkedItem) {
         if (!item.full_name) {
+            // The item is an org
             return linkedItem.org === item.login;
         } else {
-            return (linkedItem.repo === item.name && linkedItem.owner === item.owner.login) || linkedItem.org === item.owner.login;
+            // The item is an repo
+            return linkedItem.repo === item.name && linkedItem.owner === item.owner.login;
         }
     }
     return items.some(check);
