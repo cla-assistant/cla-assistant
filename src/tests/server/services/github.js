@@ -218,7 +218,7 @@ describe('github:call', function () {
             obj: 'obj',
             fun: 'fun',
             token: 'abc'
-        }, function (err, res, meta) {
+        }, function (err, res) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
             assert.equal(github.resetList.abc, undefined);
@@ -236,7 +236,7 @@ describe('github:call', function () {
             obj: 'obj',
             fun: 'fun',
             token: 'abc'
-        }, function (err, res, meta) {
+        }, function (err, res) {
             githubCalledBack = true;
         });
         setTimeout(function () {
