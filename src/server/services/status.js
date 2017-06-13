@@ -72,21 +72,32 @@ var findStatusToBeChanged = function (args, done) {
         var statuses = '';
         var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
-        var status = { context: 'license/cla', description: description };
+        var status = {
+            context: 'license/cla',
+            description: description
+        };
         try {
             statuses = JSON.parse(response);
         } catch (error) {
             statuses = response;
         }
         var statString = JSON.stringify(statuses);
-        if (statString.includes('licence/cla')) { // temporary fix if both contexts are there
-            createStatus(args, 'licence/cla', status.description);
-        }
-        else if (statuses) {
+        if (statString.includes('licence/cla') && args.state == 'success') { // temporary fix if both contexts are there
+            var shouldBeChanged = false;
             statuses.some(function findClaStatusToChange(s) {
-                if (s.context.match(/licen.e\/cla/g)) {
-                    status = undefined;
-                    status = s.state !== args.state ? s : status;
+                if (s.context.match(/licence\/cla/g)) {
+                    shouldBeChanged = s.state === 'pending';
+                    return true;
+                }
+            });
+            if (shouldBeChanged) {
+                createStatus(args, 'licence/cla', status.description);
+            }
+        }
+        if (statuses) {
+            statuses.some(function findClaStatusToChange(s) {
+                if (s.context.match(/license\/cla/g)) {
+                    status = s.state !== args.state ? status : undefined;
                     return true;
                 }
             });
