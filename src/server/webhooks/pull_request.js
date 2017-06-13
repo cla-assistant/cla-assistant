@@ -44,7 +44,7 @@ function handleWebHook(args) {
 }
 
 module.exports = function (req, res) {
-    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1) {
+    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
             console.log('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
         }

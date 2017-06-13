@@ -472,6 +472,21 @@ describe('webhook pull request', function () {
 		}, 8);
 	});
 
+	it('should do nothing if the pull request hook comes from private repository of an org', function (it_done) {
+		test_req.args.repository.private = true;
+
+		pull_request(test_req, res);
+		this.timeout(20);
+		setTimeout(function () {
+			assert.equal(orgService.get.called, false);
+			assert.equal(repoService.get.called, false);
+			assert.equal(repoService.getPRCommitters.called, false);
+			assert.equal(cla.check.called, false);
+			it_done();
+			test_req.args.repository.private = false;
+		}, 8);
+	});
+
 	it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {
 		repoService.getPRCommitters.restore();
 		sinon.stub(repoService, 'getPRCommitters', function (args, done) {
