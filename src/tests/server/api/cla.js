@@ -402,7 +402,7 @@ describe('', function () {
             sinon.stub(cla, 'check', function (args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () { });
+            sinon.stub(prService, 'editComment', function () {});
         });
 
         afterEach(function () {
@@ -462,44 +462,52 @@ describe('', function () {
         it('should update status of all repos of the org', function (it_done) {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
+            global.config.server.github.timeToWait = 10;
 
-            // this.timeout(100);
+            this.timeout(100);
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
-                assert.equal(statusService.update.callCount, 4);
-                it_done();
-                // setTimeout(function () {
-                // }, 50);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 4);
+                    it_done();
+                }, 50);
             });
         });
 
-        // it('should update status of all repos of the org in 100 blocks', function (it_done) {
-        //     this.timeout(1100);
-        //     resp.repoService.get = null;
-        //     resp.cla.getLinkedItem = resp.orgService.get;
-        //     console.log(resp.github.callRepos.length);
-        //     for (var index = 0; index < 100; index++) {
-        //         resp.github.callRepos.push({
-        //             id: 'test_' + index,
-        //             owner: {
-        //                 login: 'org'
-        //             }
-        //         });
-        //     }
-        //     console.log(resp.github.callRepos.length);
-        //     cla_api.sign(req, function (err, res) {
-        //         assert.ifError(err);
-        //         assert.ok(res);
-        //         setTimeout(function () {
-        //             assert.equal(statusService.update.callCount, 100 * 2);
-        //         }, 50);
-        //         setTimeout(function () {
-        //             assert.equal(statusService.update.callCount, 102 * 2);
-        //             it_done();
-        //         }, 550);
-        //     });
-        // });
+        it('should update status of all repos of the org slowing down', function (it_done) {
+            this.timeout(1100);
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+            console.log(resp.github.callRepos.length);
+            for (var index = 0; index < 100; index++) {
+                resp.github.callRepos.push({
+                    id: 'test_' + index,
+                    owner: {
+                        login: 'org'
+                    }
+                });
+            }
+            console.log(resp.github.callRepos.length);
+            global.config.server.github.timeToWait = 10;
+
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 10 * 2);
+                }, 100);
+                // 10 * timeToWait delay each 10th block
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 20 * 2);
+                    it_done();
+                }, 300);
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 30 * 2);
+                    it_done();
+                }, 500);
+            });
+        });
 
         it('should update status of all open pull requests for the repo', function (it_done) {
             cla_api.sign(req, function (err, res) {
@@ -938,7 +946,7 @@ describe('', function () {
             sinon.stub(cla, 'check', function (args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () { });
+            sinon.stub(prService, 'editComment', function () {});
         });
 
         afterEach(function () {
