@@ -799,7 +799,7 @@ describe('Home Controller', function() {
 
         ($RPCService.call.calledWithMatch('webhook', 'remove', {
             repo: 'myRepo',
-            user: 'login'
+            owner: 'login'
         })).should.be.equal(true);
         (homeCtrl.scope.errorMsg[0]).should.not.be.equal('This repository is already set up.');
     });
