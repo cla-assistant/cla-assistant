@@ -11,6 +11,8 @@ var orgService = require('../services/org');
 var prService = require('../services/pullRequest');
 var log = require('../services/logger');
 
+var config = require('../../config');
+
 var token;
 
 function markdownRender(content, token) {
@@ -70,10 +72,10 @@ function renderFiles(files, renderToken) {
         });
     }
     q.all([contentPromise, metaPromise]).then(function (data) {
-        gistContent.raw = data[0];
-        gistContent.meta = data[1];
-        deferred.resolve(gistContent);
-    },
+            gistContent.raw = data[0];
+            gistContent.meta = data[1];
+            deferred.resolve(gistContent);
+        },
         function (msg) {
             deferred.reject(msg);
         });
@@ -230,11 +232,12 @@ module.exports = {
         }, function (err, repos) {
             orgService.get(req.args, function (err, linkedOrg) {
                 if (repos && !repos.message && repos.length > 0) {
+                    var time = config.server.github.timeToWait;
                     repos
                         .filter(function (repo) {
                             return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name);
                         })
-                        .forEach(function (repo) {
+                        .forEach(function (repo, index) {
                             var validateRequest = {
                                 args: {
                                     owner: repo.owner.login,
@@ -243,7 +246,12 @@ module.exports = {
                                 },
                                 user: req.user
                             };
-                            self.validatePullRequests(validateRequest);
+                            //try to avoid rasing githubs abuse rate limit:
+                            //take 1 second per repo and wait 10 seconds after each 10th repo
+                            setTimeout(function () {
+                                log.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo);
+                                self.validatePullRequests(validateRequest);
+                            }, time * (index + (Math.floor(index / 10) * 10)));
                         });
                 }
                 if (typeof done === 'function') {
