@@ -502,12 +502,11 @@ describe('', function () {
                 // 10 * timeToWait delay each 10th block
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 20 * 2);
-                    it_done();
                 }, 300);
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 30 * 2);
-                    it_done();
                     global.config.server.github.timeToWait = 0;
+                    it_done();
                 }, 500);
             });
         });
