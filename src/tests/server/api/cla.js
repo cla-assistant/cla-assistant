@@ -482,7 +482,7 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
             console.log(resp.github.callRepos.length);
-            for (var index = 0; index < 40; index++) {
+            for (var index = 0; index < 30; index++) {
                 resp.github.callRepos.push({
                     id: 'test_' + index,
                     owner: {
