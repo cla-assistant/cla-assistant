@@ -31,7 +31,6 @@ describe('', function () {
     var error;
 
     beforeEach(function () {
-        global.config.server.github.timeToWait = 0;
         reqArgs = {
             cla: {
                 getGist: {
@@ -154,6 +153,7 @@ describe('', function () {
         github.call.restore();
         org_service.get.restore();
         repo_service.get.restore();
+        global.config.server.github.timeToWait = 0;
     });
 
     describe('cla:get', function () {
