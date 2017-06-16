@@ -29,6 +29,8 @@ describe('', function () {
     var reqArgs;
     var resp;
     var error;
+    global.config.server.github.timeToWait = 0;
+
     beforeEach(function () {
         reqArgs = {
             cla: {
@@ -476,11 +478,11 @@ describe('', function () {
         });
 
         it('should update status of all repos of the org slowing down', function (it_done) {
-            this.timeout(1100);
+            this.timeout(600);
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
             console.log(resp.github.callRepos.length);
-            for (var index = 0; index < 100; index++) {
+            for (var index = 0; index < 40; index++) {
                 resp.github.callRepos.push({
                     id: 'test_' + index,
                     owner: {
@@ -505,6 +507,7 @@ describe('', function () {
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 30 * 2);
                     it_done();
+                    global.config.server.github.timeToWait = 0;
                 }, 500);
             });
         });
