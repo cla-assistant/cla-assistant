@@ -327,7 +327,7 @@ describe('webhook pull request', function () {
 
 	it('should update status of pull request if not signed', function (it_done) {
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert(pullRequest.badgeComment.called);
 			it_done();
@@ -348,7 +348,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert(pullRequest.badgeComment.called);
 			it_done();
@@ -362,7 +362,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			// assert(!pullRequest.badgeComment.called);
 			assert(pullRequest.badgeComment.called);
@@ -374,7 +374,7 @@ describe('webhook pull request', function () {
 	it('should update status of pull request if not signed and new user', function (it_done) {
 		pull_request(test_req, res);
 
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert(cla.check.called);
 			it_done();
@@ -388,7 +388,7 @@ describe('webhook pull request', function () {
 			done(null, []);
 		});
 		sinon.stub(logger, 'warn', function () {});
-		this.timeout(50);
+		this.timeout(150);
 		test_req.args.handleDelay = 0;
 
 		pull_request(test_req, res);
@@ -424,7 +424,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert.equal(repoService.get.called, true);
 			assert.equal(orgService.get.called, true);
@@ -441,7 +441,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert.equal(repoService.getGHRepo.called, true);
 			assert.equal(orgService.get.called, true);
@@ -463,7 +463,7 @@ describe('webhook pull request', function () {
 		});
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert.equal(repoService.get.called, true);
 			assert.equal(repoService.getPRCommitters.called, false);
@@ -476,7 +476,7 @@ describe('webhook pull request', function () {
 		test_req.args.repository.private = true;
 
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert.equal(orgService.get.called, false);
 			assert.equal(repoService.get.called, false);
