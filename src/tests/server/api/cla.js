@@ -29,9 +29,9 @@ describe('', function () {
     var reqArgs;
     var resp;
     var error;
-    global.config.server.github.timeToWait = 0;
 
     beforeEach(function () {
+        global.config.server.github.timeToWait = 0;
         reqArgs = {
             cla: {
                 getGist: {
