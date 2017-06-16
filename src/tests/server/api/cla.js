@@ -482,7 +482,7 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
             console.log(resp.github.callRepos.length);
-            for (var index = 0; index < 30; index++) {
+            for (var index = 0; index < 28; index++) {
                 resp.github.callRepos.push({
                     id: 'test_' + index,
                     owner: {
@@ -507,7 +507,7 @@ describe('', function () {
                     assert.equal(statusService.update.callCount, 30 * 2);
                     global.config.server.github.timeToWait = 0;
                     it_done();
-                }, 500);
+                }, 550);
             });
         });
 
