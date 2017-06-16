@@ -328,7 +328,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     org: linkedItem.org
                 } : {
                     repo: linkedItem.repo,
-                    user: linkedItem.owner
+                    owner: linkedItem.owner
                 };
                 $RPCService.call('webhook', 'remove', arg, function () {});
             };
