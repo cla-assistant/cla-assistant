@@ -146,6 +146,17 @@ describe('', function () {
             assert.deepEqual(args, reqArgs.orgService.get);
             cb(error.orgService.get, resp.orgService.get);
         });
+
+        sinon.stub(log, 'error', function (msg) {
+            assert(msg);
+        });
+        sinon.stub(log, 'warn', function (msg) {
+            assert(msg);
+        });
+        sinon.stub(log, 'info', function (msg) {
+            assert(msg);
+        });
+
     });
     afterEach(function () {
         cla.getGist.restore();
@@ -154,6 +165,9 @@ describe('', function () {
         org_service.get.restore();
         repo_service.get.restore();
         global.config.server.github.timeToWait = 0;
+        log.error.restore();
+        log.warn.restore();
+        log.info.restore();
     });
 
     describe('cla:get', function () {
@@ -288,7 +302,6 @@ describe('', function () {
                 assert(github.call.calledTwice);
                 assert(gistContent.raw);
                 assert(gistContent.meta);
-                // assert(github.call.calledWithMatch({ obj: 'misc', fun: 'renderMarkdown', token: testData.repo_from_db.token }));
 
                 it_done();
             });
@@ -305,20 +318,6 @@ describe('', function () {
                     token: 'abc'
                 }
             };
-
-            beforeEach(function () {
-                // sinon.stub(github, 'call', function(args, cb) {
-                //     cb(githubError, githubResponse);
-                // });
-                sinon.stub(log, 'error', function (err) {
-                    assert(err);
-                });
-            });
-
-            afterEach(function () {
-                log.error.restore();
-                // github.call.restore();
-            });
 
             it('should handle github error', function (it_done) {
                 resp.github.callMarkdown = {};
@@ -497,14 +496,14 @@ describe('', function () {
                 assert.ifError(err);
                 assert.ok(res);
                 setTimeout(function () {
-                    assert.equal(statusService.update.callCount, 10 * 2);
+                    assert.equal(statusService.update.callCount, 10 * resp.github.callPullRequest.length);
                 }, 100);
                 // 10 * timeToWait delay each 10th block
                 setTimeout(function () {
-                    assert.equal(statusService.update.callCount, 20 * 2);
+                    assert.equal(statusService.update.callCount, 20 * resp.github.callPullRequest.length);
                 }, 300);
                 setTimeout(function () {
-                    assert.equal(statusService.update.callCount, 30 * 2);
+                    assert.equal(statusService.update.callCount, 30 * resp.github.callPullRequest.length);
                     global.config.server.github.timeToWait = 0;
                     it_done();
                 }, 550);

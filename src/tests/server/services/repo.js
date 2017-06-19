@@ -10,6 +10,7 @@ var Repo = require('../../../server/documents/repo').Repo;
 //services
 var github = require('../../../server/services/github');
 var orgService = require('../../../server/services/org');
+var logger = require('../../../server/services/logger');
 
 // service under test
 var repo = require('../../../server/services/repo');
@@ -228,12 +229,25 @@ describe('repo:getPRCommitters', function () {
         sinon.stub(Repo, 'findOne', function (args, done) {
             done(null, test_repo);
         });
+
+        sinon.stub(logger, 'error', function (msg) {
+            assert(msg);
+        });
+        sinon.stub(logger, 'warn', function (msg) {
+            assert(msg);
+        });
+        sinon.stub(logger, 'info', function (msg) {
+            assert(msg);
+        });
     });
 
     afterEach(function () {
         github.call.restore();
         orgService.get.restore();
         Repo.findOne.restore();
+        logger.error.restore();
+        logger.warn.restore();
+        logger.info.restore();
     });
 
     it('should get committer for a pull request', function (it_done) {

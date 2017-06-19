@@ -313,6 +313,15 @@ describe('webhook pull request', function () {
 				}
 			});
 		});
+		sinon.stub(logger, 'error', function (msg) {
+			assert(msg);
+		});
+		sinon.stub(logger, 'warn', function (msg) {
+			assert(msg);
+		});
+		sinon.stub(logger, 'info', function (msg) {
+			assert(msg);
+		});
 	});
 
 	afterEach(function () {
@@ -323,6 +332,9 @@ describe('webhook pull request', function () {
 		repoService.getGHRepo.restore();
 		repoService.getPRCommitters.restore();
 		status.update.restore();
+		logger.error.restore();
+		logger.warn.restore();
+		logger.info.restore();
 	});
 
 	it('should update status of pull request if not signed', function (it_done) {
@@ -387,7 +399,6 @@ describe('webhook pull request', function () {
 		sinon.stub(repoService, 'getPRCommitters', function (args, done) {
 			done(null, []);
 		});
-		sinon.stub(logger, 'warn', function () {});
 		this.timeout(150);
 		test_req.args.handleDelay = 0;
 
@@ -397,7 +408,6 @@ describe('webhook pull request', function () {
 			assert(!cla.check.called);
 			assert(logger.warn.called);
 
-			logger.warn.restore();
 			it_done();
 		}, 40);
 
