@@ -14,15 +14,13 @@ var formatter = function (record, levelName) {
 
 log = bunyan.createLogger({
     src: true,
-    name: config.server.http.host
-});
-try {
-    log.addStream({
+    name: config.server.http.host,
+    streams: [{
         name: 'stdout',
         level: process.env.ENV == 'debug' ? 'info' : 'debug',
         stream: process.stdout
-    });
-} catch (e) {}
+    }]
+});
 
 try {
     log.addStream({
