@@ -13,6 +13,7 @@ var https = require('https');
 var org_service = require('../../../server/services/org');
 var repo_service = require('../../../server/services/repo');
 var statusService = require('../../../server/services/status');
+var logger = require('../../../server/services/logger');
 
 var config = require('../../../config');
 // test data
@@ -23,7 +24,7 @@ var cla = require('../../../server/services/cla');
 
 var callbacks = {};
 var req = {
-    end: function () { },
+    end: function () {},
     error: function (err) {
         callbacks.error(err);
     },
@@ -84,6 +85,17 @@ function stub() {
     sinon.stub(repo_service, 'getGHRepo', function (args, done) {
         done(null, testData.repo);
     });
+
+    sinon.stub(logger, 'error', function (msg) {
+        assert(msg);
+    });
+    sinon.stub(logger, 'warn', function (msg) {
+        assert(msg);
+    });
+    sinon.stub(logger, 'info', function (msg) {
+        assert(msg);
+    });
+
 }
 
 function restore() {
@@ -94,6 +106,9 @@ function restore() {
     org_service.get.restore();
     repo_service.get.restore();
     repo_service.getGHRepo.restore();
+    logger.error.restore();
+    logger.warn.restore();
+    logger.info.restore();
 }
 
 describe('cla:get', function () {
