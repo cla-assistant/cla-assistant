@@ -364,7 +364,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     repo: $scope.selected.item.name,
                     owner: $scope.selected.item.owner.login,
                     repoId: $scope.selected.item.id,
-                    gist: $scope.selected.gist.url
+                    gist: $scope.selected.gist.url,
+                    sharedGist: $scope.selected.sharedGist
                 };
                 newClaRepo = mixRepoData(newClaRepo);
                 return linkItem('repo', newClaRepo);
@@ -375,7 +376,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     orgId: $scope.selected.item.id,
                     org: $scope.selected.item.login,
                     gist: $scope.selected.gist.url,
-                    excludePattern: $scope.selected.item.excludePattern
+                    excludePattern: $scope.selected.item.excludePattern,
+                    sharedGist: $scope.selected.sharedGist
                 };
                 mixOrgData(newClaOrg);
                 return linkItem('org', newClaOrg);

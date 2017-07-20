@@ -34,6 +34,9 @@
 						>
 					</customfield>
 				</form>
+				<p class="row" ng-if="linkedItem.sharedGist">
+					<em>* This CLA applies to multiple repos or orgs.<em>
+				</p>
 				<p class="row" ng-hide="signed">
 					<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
 					<button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
