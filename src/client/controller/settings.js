@@ -51,7 +51,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
                 gist: {
                     gist_url: linkedItem.gist,
                     gist_version: gist_version
-                }
+                },
+                sharedGist: linkedItem.sharedGist
             }, cb);
         };
 

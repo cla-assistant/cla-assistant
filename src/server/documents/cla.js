@@ -11,10 +11,7 @@ var CLASchema = mongoose.Schema({
     ownerId: String,
     repo: String,
     repoId: String,
-    org_cla: {
-        type: Boolean,
-        default: false
-    },
+    org_cla: Boolean,
     user: String,
     userId: String,
 });

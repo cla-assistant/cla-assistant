@@ -567,6 +567,18 @@ describe('', function () {
                 it_done();
             });
         });
+
+        it('should call validateSharedGistItems to update status of all repos and orgs with the same shared gist', function (it_done) {
+            sinon.stub(cla_api, 'validateSharedGistItems', function (args, done) {
+                done();
+            });
+            resp.cla.getLinkedItem.sharedGist = true;
+            cla_api.sign(req, function (error) {
+                assert(cla_api.validateSharedGistItems.called);
+                cla_api.validateSharedGistItems.restore();
+                it_done();
+            });
+        });
     });
 
     describe('cla api', function () {
@@ -1005,6 +1017,91 @@ describe('', function () {
                 args: args
             }, function () {
                 assert(cla.getLinkedItem.called);
+                it_done();
+            });
+        });
+    });
+
+    describe('cla: validateSharedGistItems', function () {
+        var req;
+
+        beforeEach(function () {
+            req = {
+                args: {
+                    repo: 'Hello-World',
+                    owner: 'octocat1',
+                    gist: testData.repo_from_db.gist,
+                    sharedGist: true
+                }
+            };
+            var repoWithSharedGist = {
+                repoId: 1296269,
+                owner: 'octocat1',
+                repo: 'Hello-World',
+                gist: 'gist1',
+                token: 'token1',
+                sharedGist: true
+            };
+            var orgWithSharedGist = {
+                orgId: 1,
+                org: 'octocat2',
+                token: 'token',
+                gist: 'gist1',
+                sharedGist: true
+            };
+            error.repoService.getRepoWithSharedGist = null;
+            error.orgService.getOrgWithSharedGist = null;
+            resp.repoService.getRepoWithSharedGist = [repoWithSharedGist];
+            resp.orgService.getOrgWithSharedGist = [orgWithSharedGist];
+            sinon.stub(repo_service, 'getRepoWithSharedGist', function (gist, done) {
+                done(error.repoService.getRepoWithSharedGist, resp.repoService.getRepoWithSharedGist);
+            });
+            sinon.stub(org_service, 'getOrgWithSharedGist', function (gist, done) {
+                done(error.orgService.getOrgWithSharedGist, resp.orgService.getOrgWithSharedGist);
+            });
+            sinon.stub(cla_api, 'validateOrgPullRequests', function (args, done) {
+                done();
+            });
+            sinon.stub(cla_api, 'validatePullRequests', function (args, done) {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            cla_api.validateOrgPullRequests.restore();
+            cla_api.validatePullRequests.restore();
+            repo_service.getRepoWithSharedGist.restore();
+            org_service.getOrgWithSharedGist.restore();
+        });
+
+        it('should call validateOrgPullRequests and validatePullRequests to update status of all repos and orgs with the same shared gist', function (it_done) {
+            cla_api.validateSharedGistItems(req, function (error) {
+                assert.equal(cla_api.validateOrgPullRequests.callCount, 1);
+                assert.equal(cla_api.validatePullRequests.callCount, 1);
+                it_done();
+            });
+        });
+
+        it('should return error when gist not is provided', function (it_done) {
+            req.args.gist = undefined;
+            cla_api.validateSharedGistItems(req, function (err) {
+                assert(err);
+                it_done();
+            });
+        });
+
+        it('should log error when repoService.getRepoWithSharedGist() failed', function (it_done) {
+            error.repoService.getRepoWithSharedGist = 'Error: get shared gist repo failed';
+            cla_api.validateSharedGistItems(req, function (err) {
+                assert(log.error.calledWith(error.repoService.getRepoWithSharedGist));
+                it_done();
+            });
+        });
+
+        it('should log error when orgService.getOrgWithSharedGist() failed', function (it_done) {
+            error.orgService.getOrgWithSharedGist = 'Error: get shared gist org failed';
+            cla_api.validateSharedGistItems(req, function (err) {
+                assert(log.error.calledWith(error.orgService.getOrgWithSharedGist));
                 it_done();
             });
         });

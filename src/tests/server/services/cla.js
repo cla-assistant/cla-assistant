@@ -177,6 +177,35 @@ describe('cla:get', function () {
             it_done();
         });
     });
+
+    it('should find a shared cla with given user', function (it_done) {
+        var args = {
+            orgId: 1,
+            repoId: 1296269,
+            user: 'login',
+            gist: 'gistUrl',
+            gist_version: 'xyz',
+            sharedGist: true
+        };
+        cla.get(args, function () {
+            assert(CLA.findOne.calledWith({
+                $or: [{
+                    user: args.user,
+                    gist_url: args.gist,
+                    gist_version: args.gist_version,
+                    ownerId: args.orgId,
+                    org_cla: true
+                }, {
+                    user: args.user,
+                    gist_url: args.gist,
+                    gist_version: args.gist_version,
+                    repo: undefined,
+                    owner: undefined
+                }]
+            }));
+            it_done();
+        });
+    });
 });
 
 describe('cla:getLastSignature', function () {
@@ -223,6 +252,37 @@ describe('cla:getLastSignature', function () {
                 repoId: 123,
                 gist_url: 'url/gistId'
             }), true);
+            it_done();
+        });
+    });
+
+    it('should get cla for repos or orgs with shared gist', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'login'
+        };
+        testRes.repoServiceGet = {
+            repoId: 123,
+            repo: 'myRepo',
+            owner: 'owner',
+            gist: 'url/gistId',
+            token: 'abc',
+            sharedGist: true
+        };
+        cla.getLastSignature(args, function () {
+            assert(CLA.findOne.calledWith({
+                $or: [{
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    repoId: testRes.repoServiceGet.repoId
+                }, {
+                    owner: undefined,
+                    repo: undefined,
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist
+                }]
+            }));
             it_done();
         });
     });
@@ -539,6 +599,48 @@ describe('cla:check', function () {
 
         cla.check(args, function (err) {
             assert(err);
+            it_done();
+        });
+    });
+
+    it('should positive check when signed a shared gist before', function (it_done) {
+        var args = {
+            user: 'login',
+            repo: 'myRepo',
+            owner: 'owner',
+            gist: 'gist',
+            token: 'token'
+        };
+        var linkedRepo = Object.assign({
+            repoId: 1,
+            sharedGist: true
+        }, args);
+        var version = '123';
+        testRes.orgServiceGet = null;
+        testRes.repoServiceGet = linkedRepo;
+        testGistData = JSON.stringify({
+            url: args.gist,
+            history: [{
+                version: version
+            }]
+        });
+        cla.check(args, function (error) {
+            assert(repo_service.getGHRepo.called);
+            assert(CLA.findOne.calledWith({
+                $or: [{
+                    user: args.user,
+                    gist_url: args.gist,
+                    gist_version: version,
+                    org_cla: false,
+                    repoId: linkedRepo.repoId
+                }, {
+                    owner: undefined,
+                    repo: undefined,
+                    user: args.user,
+                    gist_url: args.gist,
+                    gist_version: version
+                }]
+            }));
             it_done();
         });
     });
@@ -974,6 +1076,38 @@ describe('cla:getAll', function () {
         cla.getAll(args, function (err) {
             assert(err);
 
+            it_done();
+        });
+    });
+
+    it('should get all clas for shared gist repo/org', function (it_done) {
+        CLA.find.restore();
+        sinon.stub(CLA, 'find', function (arg, done) {
+            assert(arg);
+            done();
+        });
+        var args = {
+            repoId: testData.repo.id,
+            gist: {
+                gist_url: 'gistUrl',
+                gist_version: 'xyz'
+            },
+            sharedGist: true
+        };
+
+        cla.getAll(args, function (err) {
+            assert(CLA.find.calledWith({
+                $or: [{
+                    gist_url: args.gist.gist_url,
+                    gist_version: args.gist.gist_version,
+                    repoId: args.repoId
+                }, {
+                    repo: undefined,
+                    owner: undefined,
+                    gist_url: args.gist.gist_url,
+                    gist_version: args.gist.gist_version
+                }]
+            }));
             it_done();
         });
     });

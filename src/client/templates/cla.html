@@ -13,6 +13,9 @@
 				<div class="cla-box well">
 					<div ng-bind-html="cla"></div>
 				</div>
+				<div class="row" ng-if="showSharedGistMsg()" style="font-size:18px; margin:10px">
+					<em>This CLA applies to multiple repos or orgs.</em>
+				</div>
 				<form class="row" ng-if="hasCustomFields">
 					<p>
 						<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
