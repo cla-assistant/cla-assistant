@@ -16,6 +16,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			$scope.params = $stateParams;
 			$scope.user = {};
 			$scope.signed = false;
+			$scope.isSharedSignature = false;
 
 			function getUserEmail(key) {
 				$HUBService.call('users', 'getEmails', {}, function (err, data) {
@@ -47,13 +48,18 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 					repo: $stateParams.repo,
 					owner: $stateParams.user
 				}, function (err, res) {
-					if (res && res.value && res.value.custom_fields) {
+					if ($scope.hasCustomFields && res && res.value && res.value.custom_fields) {
 						var customFields = JSON.parse(res.value.custom_fields);
 						$scope.customKeys.forEach(function (key) {
 							$scope.customValues[key] = customFields[key];
 						});
 					}
+					$scope.isSharedSignature = isSharedSignature(res.value);
 				});
+			}
+
+			function isSharedSignature(cla) {
+				return !cla.owner;
 			}
 
 			function getCLA() {
@@ -176,6 +182,10 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 				return valid;
 			};
 
+			$scope.showSharedGistMsg = function () {
+				return $scope.linkedItem && $scope.linkedItem.sharedGist && (!$scope.signed || ($scope.signed && $scope.isSharedSignature));
+			};
+
 			$q.all([userPromise, repoPromise]).then(function () {
 				if ($scope.user && $scope.user.value && $scope.linkedItem) {
 					// var claPromise = getCLA();
@@ -186,7 +196,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 						}
 					});
 					$q.all([claPromise, signedPromise]).then(function () {
-						if ($scope.signed && $scope.hasCustomFields) {
+						if ($scope.signed) {
 							getSignedValues();
 						} else {
 							getGithubValues();

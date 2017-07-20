@@ -32,6 +32,9 @@
 			<div style="margin-bottom:10px">- or -</div>
 			<div style="margin-bottom: 5px;">Paste a URL from a Gist</div>
 			<input ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url" placeholder="https://gist.github.com/<your cla gist id>" required></input>
+			<div style="margin-top: 15px;">
+				<input type="checkbox" ng-model="selected.sharedGist" ng-init="selected.sharedGist = false">&nbsp;Share the gist with multiple repos or orgs</input>
+  		</div>
 		</div>
 
 		<h5 ng-if="!user.value.org_admin" class="col-xs-12 link-topic-2">
@@ -88,11 +91,14 @@
 						<div class="col-sm-3 col-lg-2">
 							CLA
 						</div>
-						<div class="col-lg-3 hidden-xs hidden-sm hidden-md">
+						<div class="col-lg-2 hidden-xs hidden-sm hidden-md">
 							Gist
 						</div>
 						<div class="col-sm-2 col-lg-2">
 							Last updated
+						</div>
+						<div class="col-sm-1 col-lg-1">
+							Shared Gist
 						</div>
 						<div class="col-sm-2 col-lg-1 text">
 							Contributors
@@ -128,11 +134,14 @@
 						<div class="col-sm-3 col-lg-2">
 							CLA
 						</div>
-						<div class="col-lg-3 hidden-xs hidden-sm hidden-md">
+						<div class="col-lg-2 hidden-xs hidden-sm hidden-md">
 							Gist
 						</div>
 						<div class="col-sm-2 col-lg-2">
 							Last updated
+						</div>
+						<div class="col-sm-1 col-lg-1">
+							Shared Gist
 						</div>
 						<div class="col-sm-2 col-lg-1 text">
 							Contributors

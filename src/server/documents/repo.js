@@ -6,7 +6,8 @@ var RepoSchema = mongoose.Schema({
     repo: String,
     owner: String,
     gist: String,
-    token: String
+    token: String,
+    sharedGist: Boolean
 });
 
 RepoSchema.index({

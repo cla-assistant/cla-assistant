@@ -82,6 +82,26 @@ function renderFiles(files, renderToken) {
     return deferred.promise;
 }
 
+function getLinkedItemsWithSharedGist(gist, done) {
+    if (!gist) {
+        return done('Gist is required.');
+    }
+    repoService.getRepoWithSharedGist(gist, function (error, repos) {
+        if (error) {
+            log.error(error);
+        }
+        orgService.getOrgWithSharedGist(gist, function (err, orgs) {
+            if (err) {
+                log.error(err);
+            }
+            done(null, {
+                repos: repos,
+                orgs: orgs
+            });
+        });
+    });
+}
+
 module.exports = {
     getGist: function (req, done) {
         if (req.user && req.user.token && req.args.gist) {
@@ -191,6 +211,7 @@ module.exports = {
                         return;
                     }
                     params.token = item.token;
+                    params.sharedGist = item.sharedGist;
                     if (item.orgId) {
                         params.orgId = item.orgId;
                     } else if (item.repoId) {
@@ -339,6 +360,34 @@ module.exports = {
         }, collectData);
     },
 
+    validateSharedGistItems: function (req, done) {
+        var self = this;
+        getLinkedItemsWithSharedGist(req.args.gist, function (error, sharedItems) {
+            if (error) {
+                done(error);
+            }
+            var items = (sharedItems.repos || []).concat(sharedItems.orgs || []);
+            async.series(items.map(function (item) {
+                return function (callback) {
+                    var tmpReq = {
+                        args: {
+                            token: item.token
+                        }
+                    };
+                    if (item.org) {
+                        tmpReq.args.org = item.org;
+                        return self.validateOrgPullRequests(tmpReq, callback);
+                    }
+                    tmpReq.args.repo = item.repo;
+                    tmpReq.args.owner = item.owner;
+                    self.validatePullRequests(tmpReq, callback);
+                };
+            }), function (err) {
+                done(error);
+            });
+        });
+    },
+
     sign: function (req, done) {
         var args = {
             repo: req.args.repo,
@@ -365,7 +414,14 @@ module.exports = {
                     log.error(e);
                 }
                 req.args.token = item.token;
-                if (item.org) {
+                if (item.sharedGist) {
+                    req.args.gist = item.gist;
+                    self.validateSharedGistItems(req, function (error) {
+                        if (error) {
+                            log.error(error);
+                        }
+                    });
+                } else if (item.org) {
                     req.args.org = item.org;
                     self.validateOrgPullRequests(req);
                 } else {
