@@ -567,6 +567,46 @@ describe('', function () {
                 it_done();
             });
         });
+
+        it('should update status of all repos and orgs with the same shared gist', function (it_done) {
+            var linkedRepo = {
+                repo: 'Hello-World',
+                owner: 'octocat',
+                gist: req.args.gist,
+                sharedGist: true,
+                token: 'token1'
+            };
+            sinon.stub(repo_service, 'getRepoWithSharedGist', function (gist, done) {
+                return done(null, [linkedRepo]);
+            });
+            sinon.stub(org_service, 'getOrgWithSharedGist', function (gist, done) {
+                return done(null, [resp.orgService.get]);
+            });
+            org_service.get.restore();
+            sinon.stub(org_service, 'get', function (args, cb) {
+                cb(error.orgService.get, resp.orgService.get);
+            });
+            req.args.sharedGist = true;
+            resp.cla.getLinkedItem = linkedRepo;
+            reqArgs.cla.getLinkedItem = null;
+            resp.github.callRepos = testData.orgRepos;
+            resp.github.callPullRequest = [{
+                number: 1,
+                head: {
+                    sha: 'sha1'
+                }
+            }];
+            config.server.github.timeToWait = 0;
+            cla_api.sign(req, function (error) {
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 2);
+                    assert.equal(prService.editComment.callCount, 2);
+                    repo_service.getRepoWithSharedGist.restore();
+                    org_service.getOrgWithSharedGist.restore();
+                    it_done();
+                }, config.server.github.timeToWait);
+            });
+        });
     });
 
     describe('cla api', function () {

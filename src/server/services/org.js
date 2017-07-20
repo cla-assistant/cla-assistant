@@ -14,7 +14,8 @@ module.exports = {
             org: args.org,
             gist: args.gist,
             token: args.token,
-            excludePattern: args.excludePattern
+            excludePattern: args.excludePattern,
+            sharedGist: !!args.sharedGist
         }, function (err, org) {
             done(err, org);
         });
@@ -26,6 +27,10 @@ module.exports = {
 
     getMultiple: function (args, done) {
         Org.find({ orgId: { $in: args.orgId } }, done);
+    },
+
+    getOrgWithSharedGist: function (gist, done) {
+        Org.find({ gist: gist, sharedGist: true }, done);
     },
 
     remove: function (args, done) {

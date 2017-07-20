@@ -177,6 +177,28 @@ describe('cla:get', function () {
             it_done();
         });
     });
+
+    it('should find a shared cla with given user', function (it_done) {
+        var args = {
+            orgId: 1,
+            repoId: 1296269,
+            user: 'login',
+            gist: 'gistUrl',
+            gist_version: 'xyz',
+            sharedGist: true
+        };
+        var expArgs = {
+            repo: undefined,
+            owner: undefined,
+            user: 'login',
+            gist_url: 'gistUrl',
+            gist_version: 'xyz'
+        };
+        cla.get(args, function () {
+            assert(CLA.findOne.calledWith(expArgs));
+            it_done();
+        });
+    });
 });
 
 describe('cla:getLastSignature', function () {
