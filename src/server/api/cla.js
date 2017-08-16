@@ -535,6 +535,7 @@ let ClaApi = {
         let args = {
             repo: req.args.repo,
             owner: req.args.owner,
+            number: req.args.number,
             user: req.user.login
         };
 

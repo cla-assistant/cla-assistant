@@ -67,7 +67,7 @@ describe('CLA Controller', function() {
         httpBackend.when('GET', '/config').respond({ });
 
         scope = $rootScope.$new();
-        stateParams = {user: 'login', repo: 'myRepo'};
+        stateParams = {user: 'login', repo: 'myRepo', pullRequest: '1'};
 
         user.value = {id: 123, login: 'login'};
         user.meta = {scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'};
@@ -80,7 +80,7 @@ describe('CLA Controller', function() {
         createCtrl = function() {
             // httpBackend.when('POS  T', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(user);
             httpBackend.when('POST', '/api/cla/getLinkedItem', {repo: stateParams.repo, owner: stateParams.user}).respond(linkedItem);
-            httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user}).respond(claSigned);
+            httpBackend.when('POST', '/api/cla/check', {repo: stateParams.repo, owner: stateParams.user, number: stateParams.pullRequest}).respond(claSigned);
             httpBackend.when('POST', '/api/cla/get', {repoId: linkedItem.repoId}).respond(claText);
 
             var ctrl = $controller('ClaController', {
@@ -327,7 +327,7 @@ describe('CLA Controller', function() {
         httpBackend.flush();
         _timeout.flush();
 
-        (_window.location.href).should.be.equal('https://github.com/login/myRepo');
+        (_window.location.href).should.be.equal('https://github.com/login/myRepo/pull/1');
         (claController.scope.signed).should.be.ok;
     });
 
@@ -388,7 +388,7 @@ describe('CLA Controller', function() {
         httpBackend.flush();
 
         claController.scope.agree();
-        (_window.location.href).should.be.equal('/accept/login/myRepo');
+        (_window.location.href).should.be.equal('/accept/login/myRepo?pullRequest=1');
     });
 
     it('should call cla:sign on agree if there are customFields and user is logged in', function(){
