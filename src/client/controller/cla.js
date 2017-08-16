@@ -46,7 +46,8 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			function getSignedValues() {
 				$RPCService.call('cla', 'getLastSignature', {
 					repo: $stateParams.repo,
-					owner: $stateParams.user
+					owner: $stateParams.user,
+					number: $stateParams.pullRequest
 				}, function (err, res) {
 					if ($scope.hasCustomFields && res && res.value && res.value.custom_fields) {
 						var customFields = JSON.parse(res.value.custom_fields);
@@ -82,7 +83,8 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			function checkCLA() {
 				return $RPCService.call('cla', 'check', {
 					repo: $stateParams.repo,
-					owner: $stateParams.user
+					owner: $stateParams.user,
+					number: $stateParams.pullRequest
 				}, function (err, signed) {
 					if (!err && signed.value) {
 						$scope.signed = true;

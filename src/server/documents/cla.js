@@ -4,6 +4,7 @@ mongoose.Promise = require('q').Promise;
 
 var CLASchema = mongoose.Schema({
     created_at: Date,
+    end_at: Date,
     custom_fields: String,
     gist_url: String,
     gist_version: String,

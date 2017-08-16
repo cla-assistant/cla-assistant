@@ -60,7 +60,8 @@ function stub() {
     testRes.repoServiceGet = {
         repoId: 123,
         gist: 'url/gistId',
-        token: 'abc'
+        token: 'abc',
+        sharedGist: false
     };
     testRes.repoServiceGetCommitters = [{
         name: 'login2'
@@ -97,6 +98,17 @@ function stub() {
         assert(msg);
     });
 
+    sinon.stub(github, 'call').callsFake(function (args, done) {
+        if (args.obj === 'pullRequests' && args.fun === 'get') {
+            return done(testErr.getPR, testRes.getPR);
+        } else if (args.obj === 'gists' && args.fun === 'get') {
+            if (testErr.gistData) {
+                return Promise.reject(testErr.gistData);
+            } else {
+                return Promise.resolve(testRes.gistData);
+            }
+        }
+    });
 }
 
 function restore() {
@@ -110,167 +122,56 @@ function restore() {
     logger.error.restore();
     logger.warn.restore();
     logger.info.restore();
+    github.call.restore();
 }
 
-describe('cla:get', function () {
-    var expClaFindOneArgs;
-    var resRepoServiceGet;
-
-    beforeEach(function () {
-        expClaFindOneArgs = {
-            repoId: 1296269,
-            user: 'login',
-            gist_url: 'gistUrl',
-            gist_version: 'xyz',
-            org_cla: false
-        };
-        resRepoServiceGet = testData.repo_from_db;
-        sinon.stub(repo_service, 'get').callsFake(function (args, done) {
-            done(null, resRepoServiceGet);
-        });
-        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
-            done(null, true);
-        });
-    });
-    afterEach(function () {
-        CLA.findOne.restore();
-        repo_service.get.restore();
-    });
-
-    it('should find repoId if not given and get cla entry for the repo', function (it_done) {
-        var args = {
-            repo: 'Hello-World',
-            owner: 'octocat',
-            user: 'login',
-            gist: 'gistUrl',
-            gist_version: 'xyz'
-        };
-        cla.get(args, function () {
-            assert(repo_service.get.calledWithMatch({
-                owner: 'octocat',
-                repo: 'Hello-World'
-            }));
-            assert(CLA.findOne.calledWith(expClaFindOneArgs));
-            it_done();
-        });
-    });
-
-    it('should find cla with given repoId', function (it_done) {
-        var args = expClaFindOneArgs;
-        cla.get(args, function () {
-            assert(!repo_service.get.called);
-            it_done();
-        });
-    });
-
-    it('should find cla with repoId regardless of orgId', function (it_done) {
-        var args = {
-            orgId: 1,
-            repoId: 1296269,
-            user: 'login',
-            gist: 'gistUrl',
-            gist_version: 'xyz'
-        };
-        cla.get(args, function () {
-            assert(CLA.findOne.calledWith(expClaFindOneArgs));
-            it_done();
-        });
-    });
-
-    it('should find cla with orgId if repoId is not provided', function (it_done) {
-        var args = {
-            orgId: 1,
-            user: 'login',
-            gist: 'gistUrl',
-            gist_version: 'xyz'
-        };
-        var expArgs = {
-            ownerId: 1,
-            user: 'login',
-            gist_url: 'gistUrl',
-            gist_version: 'xyz',
-            org_cla: true
-        };
-        resRepoServiceGet = null;
-        cla.get(args, function () {
-            assert(CLA.findOne.calledWith(expArgs));
-            it_done();
-        });
-    });
-
-    it('should find a shared cla with given user', function (it_done) {
-        var args = {
-            orgId: 1,
-            repoId: 1296269,
-            user: 'login',
-            gist: 'gistUrl',
-            gist_version: 'xyz',
-            sharedGist: true
-        };
-        cla.get(args, function () {
-            assert(CLA.findOne.calledWith({
-                $or: [{
-                    user: args.user,
-                    gist_url: args.gist,
-                    gist_version: args.gist_version,
-                    repoId: args.repoId,
-                    org_cla: false
-                }, {
-                    user: args.user,
-                    gist_url: args.gist,
-                    gist_version: args.gist_version,
-                    repo: undefined,
-                    owner: undefined
-                }]
-            }));
-            it_done();
-        });
-    });
-});
-
 describe('cla:getLastSignature', function () {
+    var now = new Date();
+    var clock = null;
+
     beforeEach(function () {
         stub();
+        testRes.gistData = {
+            data: {
+                history: [{
+                    version: "xyz"
+                }]
+            }
+        };
+        clock = sinon.useFakeTimers(now.getTime());
     });
+
     afterEach(function () {
         restore();
-    });
-
-    it('should search for org clas if org is linked', function (it_done) {
-        testRes.repoServiceGet = null;
-        testRes.claFindOne = {
-            ownerId: 123,
-            user: 'login',
-            org_cla: true
-        };
-        testRes.orgServiceGet = {
-            orgId: 1,
-            org: 'org'
-        };
-        var args = {
-            repo: undefined,
-            owner: 'org'
-        };
-
-        cla.getLastSignature(args, function () {
-            assert.equal(CLA.findOne.calledWithMatch({
-                ownerId: 1,
-                org_cla: true
-            }), true);
-            it_done();
-        });
+        clock.restore();
     });
 
     it('should get cla entry for equal repo, user and gist url', function (it_done) {
         var args = {
             repo: 'myRepo',
-            owner: 'owner'
+            owner: 'owner',
+            user: 'user'
         };
 
         cla.getLastSignature(args, function () {
             assert.equal(CLA.findOne.calledWithMatch({
-                repoId: 123,
-                gist_url: 'url/gistId'
+                $or: [{
+                    user: 'user',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: 'user',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }]
             }), true);
             it_done();
         });
@@ -282,131 +183,96 @@ describe('cla:getLastSignature', function () {
             owner: 'owner',
             user: 'login'
         };
-        testRes.repoServiceGet = {
-            repoId: 123,
+        testRes.repoServiceGet.sharedGist = true;
+        cla.getLastSignature(args, function () {
+            assert(CLA.findOne.calledWith({
+                $or: [{
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }, {
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    owner: undefined,
+                    repo: undefined,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    owner: undefined,
+                    repo: undefined,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }]
+            }));
+            it_done();
+        });
+    });
+
+    it('should search a cla on current date and a pull request date when PR number is provided', function (it_done) {
+        var args = {
             repo: 'myRepo',
             owner: 'owner',
-            gist: 'url/gistId',
-            token: 'abc',
-            sharedGist: true
+            number: '1',
+            user: 'login'
+        };
+        var prCreateDateString = '1970-01-01T00:00:00.000Z';
+        var prCreateDate = new Date(prCreateDateString);
+        testErr.getPR = null;
+        testRes.getPR = {
+            created_at: prCreateDate
         };
         cla.getLastSignature(args, function () {
             assert(CLA.findOne.calledWith({
                 $or: [{
                     user: args.user,
                     gist_url: testRes.repoServiceGet.gist,
-                    repoId: testRes.repoServiceGet.repoId
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
                 }, {
-                    owner: undefined,
-                    repo: undefined,
                     user: args.user,
-                    gist_url: testRes.repoServiceGet.gist
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }, {
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: prCreateDate },
+                    end_at: { $gt: prCreateDate }
+                }, {
+                    user: args.user,
+                    gist_url: testRes.repoServiceGet.gist,
+                    gist_version: 'xyz',
+                    repoId: testRes.repoServiceGet.repoId,
+                    org_cla: false,
+                    created_at: { $lte: prCreateDate },
+                    end_at: undefined
                 }]
             }));
-            it_done();
-        });
-    });
-});
-
-describe('cla:check', function () {
-    var testGistData = '{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}';
-
-    beforeEach(function () {
-
-        stub();
-
-        sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
-            assert(arg.number ? arg.number : arg.user);
-            done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
-        });
-
-        sinon.stub(github, 'call').callsFake(function (args, done) {
-            assert(args.token);
-            done(null, JSON.parse(testGistData));
-        });
-    });
-
-    afterEach(function () {
-        restore();
-
-        repo_service.getPRCommitters.restore();
-        github.call.restore();
-    });
-
-    it('should check for linked repo even when its org also linked', function (it_done) {
-        expArgs.claFindOne = {
-            repoId: '123',
-            user: 'login',
-            gist_url: 'url/gistId',
-            gist_version: 'xyz',
-            org_cla: false
-        };
-        testRes.repoServiceGet = {
-            repoId: '123',
-            repo: 'myRepo',
-            owner: 'owner',
-            gist: 'url/gistId',
-            token: 'abc'
-        };
-        testRes.claFindOne = {
-            id: 456,
-            gist_url: 'url/gistId',
-            created_at: '2012-06-20T11:34:15Z',
-            gist_version: 'xyz'
-        };
-
-        var args = {
-            orgId: 1,
-            repo: 'myRepo',
-            owner: 'owner',
-            user: 'login'
-        };
-
-        cla.check(args, function (err, result) {
-            assert(repo_service.get.called);
-            assert(!org_service.get.called);
-            assert(CLA.findOne.calledWith(expArgs.claFindOne));
-            assert.ifError(err);
-            assert(result);
-            it_done();
-        });
-    });
-
-    it('should check for linked org when the repo is NOT linked', function (it_done) {
-        expArgs.claFindOne = {
-            ownerId: 123,
-            user: 'login',
-            gist_url: 'url/gistId',
-            gist_version: 'xyz',
-            org_cla: true
-        };
-        testRes.orgServiceGet = {
-            orgId: 123,
-            gist: 'url/gistId',
-            token: 'abc'
-        };
-        testRes.claFindOne = {
-            id: 456,
-            gist_url: 'url/gistId',
-            created_at: '2012-06-20T11:34:15Z',
-            gist_version: 'xyz'
-        };
-        testRes.repoServiceGet = null;
-
-        var args = {
-            orgId: 1,
-            repo: 'myRepo',
-            owner: 'owner',
-            user: 'login'
-        };
-
-        cla.check(args, function (err, result) {
-            assert(repo_service.get.called);
-            assert(org_service.get.called);
-            assert(CLA.findOne.calledWith(expArgs.claFindOne));
-            sinon.assert.calledOnce(github.call);
-            assert.ifError(err);
-            assert(result);
             it_done();
         });
     });
@@ -418,265 +284,310 @@ describe('cla:check', function () {
             owner: 'owner',
             user: 'login'
         };
-        cla.check(args, function (err, signed) {
+        cla.getLastSignature(args, function (err, cla) {
             assert(!err);
-            assert(signed);
+            assert(cla);
+            it_done();
+        });
+    });
+
+    it('should send error if there is no linked repo or org', function (it_done) {
+        testErr.repoServiceGet = 'Repository not found in Database';
+        testErr.orgServiceGet = 'Organization not found in Database';
+        testRes.repoServiceGet = null;
+        testRes.orgServiceGet = null;
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'login'
+        };
+        cla.getLastSignature(args, function (err, cla) {
+            assert(err);
+            assert(!cla);
             it_done();
         });
     });
 
     it('should send error if getGist has an error', function (it_done) {
-        github.call.restore();
-        sinon.stub(github, 'call').callsFake(function (args, done) {
-            done('Error', null);
-        });
+        testErr.gistData = 'Error';
         var args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
         };
+        cla.getLastSignature(args, function (err, cla) {
+            assert(err);
+            assert(!cla);
+            it_done();
+        });
+    });
 
-        cla.check(args, function (err, result) {
+    it('should send error if get pull request failed when pull request number is given', function (it_done) {
+        testErr.getPR = 'Error';
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'login',
+            number: '1'
+        };
+        cla.getLastSignature(args, function (err, cla) {
+            assert(err);
+            assert(!cla);
+            it_done();
+        });
+    });
+
+    it('should send error if user is not given', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner'
+        };
+        cla.getLastSignature(args, function (err, cla) {
+            assert(err);
+            assert(!cla);
+            it_done();
+        });
+    });
+});
+
+describe('cla:checkUserSignature', function () {
+    beforeEach(function () {
+        sinon.stub(cla, 'getLastSignature').callsFake(function (args, done) {
+            return done(null, {});
+        });
+    });
+
+    afterEach(function () {
+        cla.getLastSignature.restore();
+    });
+
+    it('should call get last signature for the user', function (it_done) {
+        var args = {
+            repo: 'repo',
+            owner: 'owner',
+            user: 'user'
+        };
+        cla.checkUserSignature(args, function (error, result) {
+            assert.ifError(error);
+            assert(result.signed);
+            assert(cla.getLastSignature.called);
+            it_done();
+        });
+    });
+});
+
+describe('cla:checkPullRequestSignatures', function () {
+    var now = new Date();
+    var clock = null;
+    beforeEach(function () {
+        stub();
+        testRes.gistData = {
+            data: {
+                url: 'url',
+                files: { xyFile: { content: 'some content' } },
+                updated_at: '2011-06-20T11:34:15Z',
+                history: [{ version: 'xyz' }]
+            }
+        };
+        testRes.repoServiceGet = {
+            repoId: '123',
+            repo: 'myRepo',
+            owner: 'owner',
+            gist: 'url/gistId',
+            sharedGist: false,
+            token: 'abc'
+        };
+        clock = sinon.useFakeTimers(now.getTime());
+        var prCreateDateString = '1970-01-01T00:00:00.000Z';
+        var prCreateDate = new Date(prCreateDateString);
+        testErr.getPR = null;
+        testRes.getPR = {
+            created_at: prCreateDate
+        };
+        sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
+            done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
+        });
+    });
+
+    afterEach(function () {
+        restore();
+        repo_service.getPRCommitters.restore();
+        clock.restore();
+    });
+
+    it('should send error if there is no linked repo or org', function (it_done) {
+        testErr.repoServiceGet = 'Repository not found in Database';
+        testErr.orgServiceGet = 'Organization not found in Database';
+        testRes.repoServiceGet = null;
+        testRes.orgServiceGet = null;
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+        cla.checkPullRequestSignatures(args, function (err, result) {
             assert(err);
             assert(!result);
+            it_done();
+        });
+    });
 
+    it('should send error if getGist has an error', function (it_done) {
+        testErr.gistData = 'Error';
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert(err);
+            assert(!result);
             it_done();
         });
 
     });
 
-    it('should positive check whether user has already signed', function (it_done) {
-        expArgs.claFindOne = {
-            repoId: 123,
-            user: 'login',
-            gist_url: 'url/gistId',
-            gist_version: 'xyz',
-            org_cla: false
-        };
-        testRes.claFindOne = {
-            id: 456,
-            gist_url: 'url/gistId',
-            created_at: '2012-06-20T11:34:15Z',
-            gist_version: 'xyz'
-        };
-
+    it('should send error if get pull request failed', function (it_done) {
+        testErr.getPR = 'Error';
         var args = {
             repo: 'myRepo',
             owner: 'owner',
-            user: 'login'
+            number: '1'
         };
-
-        cla.check(args, function (err, result) {
-            assert(CLA.findOne.calledWith(expArgs.claFindOne));
-            assert.ifError(err);
-            assert(result);
-            it_done();
-        });
-    });
-
-    it('should negative check whether user has already signed', function (it_done) {
-        expArgs.claFindOne = {
-            repoId: 123,
-            user: 'login',
-            gist_url: 'url/gistId',
-            gist_version: 'xyz',
-            org_cla: false
-        };
-        testRes.claFindOne = null;
-
-        var args = {
-            repo: 'myRepo',
-            owner: 'owner',
-            user: 'login'
-        };
-
-        cla.check(args, function (err, result) {
-            assert(CLA.findOne.calledWith(expArgs.claFindOne));
-            assert.ifError(err);
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert(err);
             assert(!result);
             it_done();
         });
     });
 
-    it('should positive check for pull request if pull request number given', function (it_done) {
-        testRes.claFindOne = {
-            id: 123,
-            gist_url: 'url/gistId',
-            created_at: '2012-06-20T11:34:15Z',
-            gist_version: 'xyz'
-        };
-
-        var args = {
-            repo: 'myRepo',
-            owner: 'owner',
-            number: 1
-        };
-
-        cla.check(args, function (err, result) {
-            assert.ifError(err);
-            assert(CLA.findOne.calledTwice);
-            assert(result);
-            it_done();
-        });
-    });
-
-    it('should negative check for pull request if pull request number given', function (it_done) {
-        CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
-            if (arg.user === 'login') {
-                done(null, {
-                    id: 123,
-                    gist_url: 'url/gistId',
-                    created_at: '2012-06-20T11:34:15Z',
-                    gist_version: 'xyz'
-                });
-            } else {
-                done(null, null);
-            }
-        });
-
-        var args = {
-            repo: 'myRepo',
-            owner: 'owner',
-            number: 1
-        };
-
-        cla.check(args, function (err, result) {
-            assert.ifError(err);
-            assert(!result);
-            it_done();
-        });
-    });
-
-    it('should return map of committers who has signed and who has not signed cla', function (it_done) {
-        CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
-            if (arg.user === 'login') {
-                done(null, {
-                    id: 123,
-                    user: 'login',
-                    gist_url: 'url/gistId',
-                    created_at: '2012-06-20T11:34:15Z',
-                    gist_version: 'xyz'
-                });
-            } else {
-                done(null, null);
-            }
-        });
-
-        var args = {
-            repo: 'myRepo',
-            owner: 'owner',
-            number: 1
-        };
-
-        cla.check(args, function (err, signed, map) {
-            assert.ifError(err);
-            assert(!signed);
-            assert.equal(map.not_signed[0], 'login2');
-            assert.equal(map.signed[0], 'login');
-            it_done();
-        });
-    });
-
-    it('should return map of committers containing list of users without github account', function (it_done) {
-        testRes.repoServiceGetCommitters = [{
-            name: 'login',
-            id: '123'
-        }, {
-            name: 'login2',
-            id: ''
-        }, {
-            name: 'login3',
-            id: ''
-        }];
-
-        CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
-            if (arg.user === 'login') {
-                done(null, {
-                    id: 123,
-                    user: 'login',
-                    gist_url: 'url/gistId',
-                    created_at: '2012-06-20T11:34:15Z',
-                    gist_version: 'xyz'
-                });
-            } else {
-                done(null, null);
-            }
-        });
-
-        var args = {
-            repo: 'myRepo',
-            owner: 'owner',
-            number: 1
-        };
-
-        cla.check(args, function (err, signed, map) {
-            assert.ifError(err);
-            assert(!signed);
-            assert.equal(map.unknown.length, 2);
-            assert.equal(map.unknown[0], 'login2');
-            assert.equal(map.not_signed[0], 'login2');
-            assert.equal(map.signed[0], 'login');
-            it_done();
-        });
-    });
-
-    it('should not fail if committers list is empty', function (it_done) {
+    it('should send error if committers list is empty', function (it_done) {
         testErr.repoServiceGetCommitters = 'err';
         testRes.repoServiceGetCommitters = undefined;
 
         var args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: '1'
         };
 
-        cla.check(args, function (err) {
+        cla.checkPullRequestSignatures(args, function (err) {
             assert(err);
             it_done();
         });
     });
 
-    it('should positive check when signed a shared gist before', function (it_done) {
+    it('should positive check if an repo has a null CLA', function (it_done) {
+        testRes.repoServiceGet.gist = undefined;
         var args = {
-            user: 'login',
             repo: 'myRepo',
             owner: 'owner',
-            gist: 'gist',
-            token: 'token'
+            number: '1'
         };
-        var linkedRepo = Object.assign({
-            repoId: 1,
-            sharedGist: true
-        }, args);
-        var version = '123';
-        testRes.orgServiceGet = null;
-        testRes.repoServiceGet = linkedRepo;
-        testGistData = JSON.stringify({
-            url: args.gist,
-            history: [{
-                version: version
-            }]
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert(!err);
+            assert(result.signed);
+            it_done();
         });
-        cla.check(args, function (error) {
-            assert(repo_service.getGHRepo.called);
-            assert(CLA.findOne.calledWith({
-                $or: [{
-                    user: args.user,
-                    gist_url: args.gist,
-                    gist_version: version,
-                    org_cla: false,
-                    repoId: linkedRepo.repoId
-                }, {
-                    owner: undefined,
-                    repo: undefined,
-                    user: args.user,
-                    gist_url: args.gist,
-                    gist_version: version
-                }]
-            }));
+    });
+
+    it('should return map of committers who has signed, who has not signed and who has no github account', function (it_done) {
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }, {
+            name: 'login3',
+            id: ''
+        }];
+        CLA.findOne.restore();
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, selector, options, done) {
+            if (!options && !done) {
+                done = selector;
+            }
+            if (arg.$or[0].user === 'login1') {
+                done(null, {
+                    id: 123,
+                    user: 'login1',
+                    gist_url: 'url/gistId',
+                    created_at: '2012-06-20T11:34:15Z',
+                    gist_version: 'xyz'
+                });
+            } else {
+                done(null, null);
+            }
+        });
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert.ifError(err);
+            assert(!result.signed);
+            assert.equal(result.user_map.signed[0], 'login1');
+            assert.equal(result.user_map.not_signed[0], 'login2');
+            assert.equal(result.user_map.not_signed[1], 'login3');
+            assert.equal(result.user_map.unknown[0], 'login3');
+            it_done();
+        });
+    });
+});
+
+describe('cla.check', function () {
+    beforeEach(function () {
+        sinon.stub(cla, 'checkUserSignature').callsFake(function (args, done) {
+            return done(null, { signed: true });
+        });
+        sinon.stub(cla, 'checkPullRequestSignatures').callsFake(function (args, done) {
+            return done(null, { signed: true, user_map: {} });
+        });
+    });
+
+    afterEach(function () {
+        cla.checkUserSignature.restore();
+        cla.checkPullRequestSignatures.restore();
+    });
+
+    it('Should call checkUser when user is given', function (it_done) {
+        var args = {
+            repo: 'repo',
+            owner: 'owner',
+            user: 'user'
+        };
+        cla.check(args, function (error, done) {
+            assert(cla.checkUserSignature.called);
+            assert(!cla.checkPullRequestSignatures.called);
+            it_done();
+        });
+    });
+
+    it('Should call checkPullRequest when user is NOT given and pull request number is given', function (it_done) {
+        var args = {
+            repo: 'repo',
+            owner: 'owner',
+            number: '1'
+        };
+        cla.check(args, function (error, done) {
+            assert(cla.checkPullRequestSignatures.called);
+            assert(!cla.checkUserSignature.called);
+            it_done();
+        });
+    });
+
+    it('Should send error if user or pull request number is NOT given', function (it_done) {
+        var args = {
+            repo: 'repo',
+            owner: 'owner'
+        };
+        cla.check(args, function (error, done) {
+            assert(error);
+            assert(!cla.checkPullRequestSignatures.called);
+            assert(!cla.checkUserSignature.called);
             it_done();
         });
     });
@@ -684,9 +595,9 @@ describe('cla:check', function () {
 
 describe('cla:sign', function () {
     var testArgs = {};
-    var testGistData = '{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}';
 
     beforeEach(function () {
+        stub();
         testArgs.claSign = {
             repo: 'myRepo',
             owner: 'owner',
@@ -694,18 +605,12 @@ describe('cla:sign', function () {
             userId: 3
         };
 
-        testRes.claGet = {
-            id: 123,
-            gist_url: 'url/gistId',
-            created_at: '2011-06-20T11:34:15Z',
-            gist_version: 'xyz'
-        };
-
         testRes.repoServiceGet = {
             repoId: '123',
             repo: 'myRepo',
             owner: 'owner',
             gist: 'url/gistId',
+            sharedGist: false,
             token: 'abc'
         };
 
@@ -713,21 +618,22 @@ describe('cla:sign', function () {
             orgId: '1',
             org: 'test_org',
             gist: 'url/gistId',
+            sharedGist: false,
             token: 'abc'
         };
 
-        sinon.stub(github, 'call').callsFake(function (args, done) {
-            assert(args.token);
-            done(null, JSON.parse(testGistData));
-        });
-
-        sinon.stub(cla, 'get').callsFake(function (args, done) {
-            if (args.user !== 'login') {
-                done(null, testRes.claGet);
-            } else {
-                done(null, undefined);
+        testRes.claFindOne = null;
+        testRes.gistData = {
+            data: {
+                url: 'url',
+                files: { xyFile: { content: 'some content' } },
+                updated_at: '2011-06-20T11:34:15Z',
+                history: [{ version: 'xyz' }]
             }
-        });
+        };
+        testErr.orgServiceGet = null;
+        testErr.repoServiceGet = null;
+        testErr.repoServiceGet = null;
 
         sinon.stub(CLA, 'create').callsFake(function (args, done) {
             assert(args);
@@ -740,39 +646,17 @@ describe('cla:sign', function () {
             assert(args.gist_version);
             done(testErr.claCreate, testRes.claCreate);
         });
-
-        sinon.stub(org_service, 'get').callsFake(function (args, done) {
-            assert(args);
-            done(null, testRes.orgServiceGet);
-        });
-
-        sinon.stub(repo_service, 'get').callsFake(function (args, done) {
-            assert(args);
-            done(null, testRes.repoServiceGet);
-        });
-
-        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
-            done(null, testData.repo);
-        });
-
-        sinon.stub(statusService, 'update').callsFake(function (args) {
-            assert(args.signed);
-        });
     });
 
     afterEach(function () {
-        cla.get.restore();
+        restore();
         CLA.create.restore();
-        org_service.get.restore();
-        repo_service.get.restore();
-        repo_service.getGHRepo.restore();
-        statusService.update.restore();
-        github.call.restore();
     });
 
     it('should store signed cla data for repo if not signed yet', function (it_done) {
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
+            assert(CLA.findOne.called);
             assert(!org_service.get.called);
             it_done();
         });
@@ -782,25 +666,11 @@ describe('cla:sign', function () {
         testRes.repoServiceGet = null;
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
+
             assert(CLA.create.calledWithMatch({
                 gist_url: 'url/gistId'
             }));
             assert(org_service.get.called);
-
-            it_done();
-        });
-    });
-
-    it('should not call getLinkedItem if there is an item provided', function (it_done) {
-        let args = JSON.parse(JSON.stringify(testArgs.claSign));
-        args.item = testRes.repoServiceGet;
-        cla.sign(args, function () {
-            assert(CLA.create.called);
-            assert(CLA.create.calledWithMatch({
-                gist_url: 'url/gistId'
-            }));
-            assert(!org_service.get.called);
-            assert(!repo_service.get.called);
 
             it_done();
         });
@@ -824,6 +694,7 @@ describe('cla:sign', function () {
 
     it('should do nothing if user has already signed', function (it_done) {
         testArgs.claSign.user = 'signedUser';
+        testRes.claFindOne = {};
 
         cla.sign(testArgs.claSign, function () {
             assert.equal(CLA.create.called, false);
@@ -993,13 +864,12 @@ describe('cla:getAll', function () {
     beforeEach(function () {
         sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
-            assert(arg.gist_url);
             var resp = [{
                 id: 2,
                 created_at: '2011-06-20T11:34:15Z',
                 gist_version: 'xyz'
             }];
-            if (!arg.gist_version) {
+            if (!arg.$or[0].gist_version) {
                 resp.push({
                     id: 1,
                     created_at: '2010-06-20T11:34:15Z',
@@ -1025,8 +895,11 @@ describe('cla:getAll', function () {
 
         cla.getAll(args, function (err, arr) {
             assert.ifError(err);
-            assert.equal(CLA.find.calledWithMatch({
-                ownerId: 1
+            assert.equal(CLA.find.calledWith({
+                $or: [{
+                    ownerId: 1,
+                    gist_url: 'gistUrl'
+                }]
             }), true);
             assert.equal(arr.length, 2);
             assert.equal(arr[0].id, 2);
@@ -1046,7 +919,10 @@ describe('cla:getAll', function () {
         cla.getAll(args, function (err, arr) {
             assert.ifError(err);
             assert.equal(CLA.find.calledWithMatch({
-                repoId: testData.repo.id
+                $or: [{
+                    repoId: testData.repo.id,
+                    gist_url: 'gistUrl'
+                }]
             }), true);
 
             assert.equal(arr.length, 2);
@@ -1213,6 +1089,19 @@ describe('cla:getGist', function () {
 
 describe('cla:getLinkedItem', function () {
     beforeEach(function () {
+        testRes.repoServiceGet = {
+            repoId: '1',
+            repo: 'Hello-World',
+            owner: 'octocat',
+            gist: 'url/gistId',
+            token: 'abc'
+        };
+        testRes.orgServiceGet = {
+            orgId: '1',
+            org: 'octocat',
+            gist: 'url/gistId',
+            token: 'abc'
+        };
         testErr.repoServiceGetGHRepo = null;
         config.server.github.token = 'token';
         sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
@@ -1298,6 +1187,87 @@ describe('cla:getLinkedItem', function () {
             assert(org_service.get.called);
             assert(!repo_service.get.called);
             assert(!repo_service.getGHRepo.called);
+            it_done();
+        });
+    });
+});
+
+describe('cla:terminate', function () {
+    var testArgs = {};
+
+    beforeEach(function () {
+        stub();
+        testRes.repoServiceGet = {
+            repoId: '123',
+            repo: 'myRepo',
+            owner: 'owner',
+            gist: 'url/gistId',
+            sharedGist: false,
+            token: 'abc'
+        };
+        testErr.orgServiceGet = null;
+        testErr.repoServiceGet = null;
+        testErr.repoServiceGet = null;
+        testRes.gistData = {
+            data: {
+                history: [{
+                    version: "xyz"
+                }]
+            }
+        };
+    });
+
+    afterEach(function () {
+        restore();
+    });
+
+    it('should send error when terminate a null cla', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            token: 'test_token'
+        };
+        testRes.repoServiceGet.gist = undefined;
+        cla.terminate(args, function (error, dbCla) {
+            assert(error);
+            assert(!dbCla);
+            it_done();
+        });
+    });
+
+    it('should send error when cannot find a signed cla to terminate', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            token: 'test_token'
+        };
+        testRes.claFindOne = null;
+        cla.terminate(args, function (error, dbCla) {
+            assert(error);
+            assert(!dbCla);
+            it_done();
+        });
+    });
+
+    it('should successfully update the end_at when terminate a cla', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'user',
+            token: 'test_token'
+        };
+        testRes.claFindOne = {
+            repoId: 'repoId',
+            gist_url: 'url/gistId',
+            created_at: '2012-06-20T11:34:15Z',
+            gist_version: 'xyz',
+            save: function () {
+                return Promise.resolve('Success');
+            }
+        };
+        cla.terminate(args, function (error, dbCla) {
+            assert.ifError(error);
+            assert(dbCla);
             it_done();
         });
     });
