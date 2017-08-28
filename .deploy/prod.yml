@@ -1,0 +1,84 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cla-prod
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cla
+        env: prod
+    spec:
+      containers:
+      - image: ospok8sprod.azurecr.io/cla-prod:__BUILD_BUILDID__
+        name: cla-prod
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PROTOCOL
+          value: https
+        - name: HOST
+          value: cla.opensource.microsoft.com
+        - name: GITHUB_CLIENT
+          valueFrom:
+            secretKeyRef:
+              name: github-oauth-microsoft-cla-secret
+              key: clientId
+        - name: GITHUB_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: github-oauth-microsoft-cla-secret
+              key: value
+        - name: GITHUB_USER
+          value: msftclas
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-msftclas-token
+              key: value
+        - name: GITHUB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: github-msftclas-token
+              key: value
+        - name: MONGODB
+          valueFrom:
+            secretKeyRef:
+              name: msftclas-docdb-prod
+              key: value
+        - name: AZURE_APP_INSIGHTS
+          valueFrom:
+            secretKeyRef:
+              name: msftclas-app-insights-prod
+              key: value
+        - name: GITHUB_ADMIN_USERS
+          value: msftgits
+        - name: CLOSE_COMMENT
+          value: 'true'
+        - name: ALWAYS_SHOW_UNSIGNED_LIST
+          value: 'true'
+        - name: CACHE_PULL_REQUESTS
+          value: 'true'
+        - name: REQUIRED_SIGNEES
+          value: 'submitter'
+        - name: ENABLE_PRIVATE_REPOS
+          value: 'true'
+        - name: GITHUB_DELAY
+          value: '7000'
+      imagePullSecrets:
+        - name: ospok8sprod.azurecr.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cla-prod
+spec:
+  selector:
+    app: cla
+    env: prod
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+    name: http

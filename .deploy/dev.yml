@@ -1,0 +1,84 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cla-dev
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cla
+        env: dev
+    spec:
+      containers:
+      - image: ospok8sprod.azurecr.io/cla-dev:__BUILD_BUILDID__
+        name: cla-dev
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PROTOCOL
+          value: https
+        - name: HOST
+          value: cla.opensource-dev.microsoft.com
+        - name: GITHUB_CLIENT
+          valueFrom:
+            secretKeyRef:
+              name: github-oauth-msftclas-secret-dev
+              key: clientId
+        - name: GITHUB_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: github-oauth-msftclas-secret-dev
+              key: value
+        - name: GITHUB_USER
+          value: msftclas
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-msftclas-token
+              key: value
+        - name: GITHUB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: github-msftclas-token
+              key: value
+        - name: MONGODB
+          valueFrom:
+            secretKeyRef:
+              name: msftclas-docdb-dev
+              key: value
+        - name: AZURE_APP_INSIGHTS
+          valueFrom:
+            secretKeyRef:
+              name: msftclas-app-insights-dev
+              key: value
+        - name: GITHUB_ADMIN_USERS
+          value: 'jeffmcaffer, willbar, jeffwilcox, geneh, notlaforge, arnom-ms, capfei, MichaelTsengLZ, MichaelTsengZL'
+        - name: CLOSE_COMMENT
+          value: 'true'
+        - name: ALWAYS_SHOW_UNSIGNED_LIST
+          value: 'true'
+        - name: CACHE_PULL_REQUESTS
+          value: 'true'
+        - name: REQUIRED_SIGNEES
+          value: 'submitter'
+        - name: ENABLE_PRIVATE_REPOS
+          value: 'true'
+        - name: GITHUB_DELAY
+          value: '7000'
+      imagePullSecrets:
+        - name: ospok8sprod.azurecr.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cla-dev
+spec:
+  selector:
+    app: cla
+    env: dev
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+    name: http
