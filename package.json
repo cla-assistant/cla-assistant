@@ -38,7 +38,7 @@
     "karma-mocha": "^1.1.1",
     "memory-cache": "^0.1.6",
     "merge": "^1.2.0",
-    "mongoose": "^4.5.2",
+    "mongoose": "^4.11",
     "node-sass-middleware": "^0.10.0",
     "passport": "^0.3.2",
     "passport-accesstoken": "^0.1.0",
@@ -80,7 +80,7 @@
     "supertest": "2.0.1"
   },
   "engines": {
-    "node": "6.10.3"
+    "node": "7.10"
   },
   "scripts": {
     "start": "node app.js",

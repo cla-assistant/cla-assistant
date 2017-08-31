@@ -1,0 +1,5 @@
+applications:
+- name: cla-assistant-staging
+  services:
+  - cla-staging-env
+  - my-logs

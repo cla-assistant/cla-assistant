@@ -142,15 +142,13 @@ async.series([
         var mongoose = require('mongoose');
 
         mongoose.connect(config.server.mongodb.uri, {
-            server: {
-                socketOptions: {
-                    keepAlive: 1
-                }
-            }
+            useMongoClient: true,
+            keepAlive: true
+        }, (err, db) => {
+            bootstrap('documents', callback);
         });
 
         global.models = {};
-        bootstrap('documents', callback);
     },
 
     function (callback) {
