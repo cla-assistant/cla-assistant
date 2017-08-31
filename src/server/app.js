@@ -144,7 +144,7 @@ async.series([
         mongoose.connect(config.server.mongodb.uri, {
             useMongoClient: true,
             keepAlive: true
-        }, (err, db) => {
+        }, function () {
             bootstrap('documents', callback);
         });
 
