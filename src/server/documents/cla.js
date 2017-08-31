@@ -11,7 +11,10 @@ var CLASchema = mongoose.Schema({
     ownerId: String,
     repo: String,
     repoId: String,
-    org_cla: { type: Boolean, default: false },
+    org_cla: {
+        type: Boolean,
+        default: false
+    },
     user: String,
     userId: String,
 });
@@ -30,7 +33,7 @@ var indexOptions = {
 
 var CLA = mongoose.model('CLA', CLASchema);
 
-CLA.collection.dropAllIndexes(function(err, results) {
+CLA.collection.dropAllIndexes(function (err, results) {
     if (err) {
         logger.warn('CLA collection dropAllIndexes error: ', err);
         logger.warn('dropAllIndexes results: ', results);
