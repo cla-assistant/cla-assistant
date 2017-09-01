@@ -38,7 +38,7 @@ try {
 try {
     log.addStream({
         name: 'sentry',
-        level: 'info',
+        level: 'warn',
         type: 'raw', // Mandatory type for SentryStream
         stream: new SentryStream(client)
     });
