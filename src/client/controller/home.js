@@ -261,6 +261,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 });
             };
 
+            $scope.gistShareInfo = function () {
+                $modal.open({
+                    templateUrl: '/modals/templates/info_share_gist.html',
+                    controller: 'InfoCtrl',
+                    windowClass: 'howto'
+                });
+            };
+
             $scope.getDefaultClaFiles = function () {
                 var promise = $RAW.get('/static/cla-assistant.json');
                 promise.then(function (data) {
