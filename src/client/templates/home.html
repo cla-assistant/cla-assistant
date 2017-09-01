@@ -33,8 +33,9 @@
 			<div style="margin-bottom: 5px;">Paste a URL from a Gist</div>
 			<input ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url" placeholder="https://gist.github.com/<your cla gist id>" required></input>
 			<div style="margin-top: 15px;">
-				<input type="checkbox" ng-model="selected.sharedGist" ng-init="selected.sharedGist = false">&nbsp;Share the gist with multiple repos or orgs</input>
-  		</div>
+				<input type="checkbox" ng-model="selected.sharedGist" ng-init="selected.sharedGist = false">&nbsp;Share the Gist &nbsp;</input>
+				<span class="clickable" ng-click="gistShareInfo()" style="font-size:12px; text-decoration:underline">(want to share?)</span>
+  			</div>
 		</div>
 
 		<h5 ng-if="!user.value.org_admin" class="col-xs-12 link-topic-2">
