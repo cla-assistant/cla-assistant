@@ -59,7 +59,7 @@ module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW',
 			}
 
 			function isSharedSignature(cla) {
-				return !cla.owner;
+				return cla && !cla.owner;
 			}
 
 			function getCLA() {
