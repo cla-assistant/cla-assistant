@@ -7,6 +7,12 @@ var passport = require('passport');
 var Strategy = require('passport-github').Strategy;
 var merge = require('merge');
 
+function updateToken(item, newToken) {
+    item.token = newToken;
+    item.save();
+    logger.debug('Update access token for repo / org', item.repo || item.org);
+}
+
 function checkToken(item, accessToken) {
     var newToken = accessToken;
     var oldToken = item.token;
@@ -24,10 +30,15 @@ function checkToken(item, accessToken) {
     };
 
     github.call(args, function (err, data) {
-        if (err || (data && data.scopes && data.scopes.indexOf('write:repo_hook') < 0)) {
-            item.token = newToken;
-            item.save();
-            logger.debug('Update access token for repo / org', item.repo || item.org);
+        if (err || !(data && data.scopes && data.scopes.indexOf('write:repo_hook') >= 0)) {
+            updateToken(item, newToken);
+        } else if (item.repo) {
+            repoService.getGHRepo(item, function (err, ghRepo) {
+                if (err || !(ghRepo && ghRepo.permissions && ghRepo.permissions.admin)) {
+                    updateToken(item, newToken);
+                    logger.info('Update access token for repo ', item.repo, ' admin rights have been changed');
+                }
+            });
         }
     });
 }
