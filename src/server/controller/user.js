@@ -15,7 +15,7 @@ function checkReturnTo(req, res, next) {
         req.session = {};
     }
 
-    if (req.query.public  === 'true') {
+    if (req.query.public === 'true') {
         scope = config.server.github.user_scope.concat();
         req.session.requiredScope = 'public';
     }
@@ -27,30 +27,32 @@ function checkReturnTo(req, res, next) {
         scope.push('admin:org_hook');
         req.session.requiredScope = 'org_admin';
     }
-    var returnTo = req.query.public === 'true' ?  req.session.next : '/';
-    if (returnTo) {
-        req.session.returnTo = returnTo;
-    }
-    passport.authenticate('github', {scope: scope})(req, res, next);
+
+    req.session.returnTo = req.query.public === 'true' ? req.session.next || req.headers.referer : '/';
+
+    passport.authenticate('github', {
+        scope: scope
+    })(req, res, next);
 }
 
 router.get('/auth/github', checkReturnTo);
 
-// router.get('/auth/github/callback', passport.authenticate('github', { successReturnToOrRedirect: '/', failureRedirect: '/' }));
-router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/' }),
+router.get('/auth/github/callback', passport.authenticate('github', {
+        failureRedirect: '/'
+    }),
     function (req, res) {
         function couldBeAdmin(username) {
-          return config.server.github.admin_users.length === 0 || config.server.github.admin_users.indexOf(username) >= 0;
+            return config.server.github.admin_users.length === 0 || config.server.github.admin_users.indexOf(username) >= 0;
         }
         if (req.user && req.session.requiredScope != 'public' && couldBeAdmin(req.user.login) && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
             return res.redirect('/auth/github?admin=true');
         }
-        res.redirect(req.session.returnTo || '/');
+        res.redirect(req.session.returnTo || req.headers.referer || '/');
         req.session.next = null;
     });
 
 router.get('/logout',
-    function(req, res, next) {
+    function (req, res, next) {
         req.logout();
         if (!req.query.noredirect) {
             res.redirect('/');
