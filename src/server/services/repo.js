@@ -94,7 +94,8 @@ module.exports = {
             owner: args.owner,
             repoId: args.repoId,
             gist: args.gist,
-            token: args.token
+            token: args.token,
+            sharedGist: !!args.sharedGist
         }, function (err, repo) {
             done(err, repo);
         });
@@ -123,6 +124,10 @@ module.exports = {
         Repo.find({
             owner: owner
         }, done);
+    },
+
+    getRepoWithSharedGist: function (gist, done) {
+        Repo.find({ gist: gist, sharedGist: true }, done);
     },
 
     update: function (args, done) {
