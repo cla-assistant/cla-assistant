@@ -1,6 +1,8 @@
 require('../documents/repo');
 let mongoose = require('mongoose');
 let Repo = mongoose.model('Repo');
+let _ = require('lodash');
+let async = require('async');
 
 //services
 let github = require('../services/github');
@@ -94,9 +96,20 @@ module.exports = {
                 repoId: repo.repoId
             });
         });
-        Repo.find({
-            $or: repoIds
-        }, done);
+        var idChunk = _.chunk(repoIds, 100);
+        async.parallelLimit(idChunk.map(function (chunk) {
+            return function (callback) {
+                Repo.find({
+                    $or: chunk
+                }, callback);
+            };
+        }), 3, function (err, repoChunk) {
+            if (err) {
+                return done(err);
+            }
+            repos = _.concat.apply(null, repoChunk);
+            done(null, repos);
+        });
     },
 
     getByOwner: function (owner, done) {
