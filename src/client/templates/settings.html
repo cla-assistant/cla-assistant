@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="col-xs-12 col-lg-3 hidden-xs hidden-sm hidden-md text">
+    <div class="col-xs-12 col-lg-2 hidden-xs hidden-sm hidden-md text">
         <a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
     </div>
 
@@ -25,7 +25,11 @@
         {{gist.updated_at | date:'longDate'}}
     </div>
 
-    <div class="col-xs-4 col-sm-2 col-lg-1" style="text-align:center; text-decoration: underline;">
+    <div class="col-xs-12 col-sm-1 col-lg-1 text">
+        {{ item.sharedGist ? 'Yes' : 'No' }}
+    </div>
+
+    <div class="col-xs-4 col-sm-1 col-lg-1" style="text-align:center; text-decoration: underline;">
         <a ng-click="getReport(item);" class="clickable">{{signatures.value.length}}</a>
     </div>
 
