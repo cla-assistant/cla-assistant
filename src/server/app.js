@@ -39,14 +39,8 @@ app.use(function (req, res, next) {
 app.use(require('x-frame-options')());
 app.use(require('body-parser').json());
 app.use(require('cookie-parser')());
-app.use(require('cookie-session')({
-    secret: config.server.security.sessionSecret,
-    cookie: {
-        maxAge: config.server.security.cookieMaxAge
-    }
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+var expressSession = require('express-session');
+var MongoStore = require('connect-mongo')(expressSession);
 
 // custom mrepodleware
 app.use('/api', require('./middleware/param'));
@@ -147,6 +141,21 @@ async.series([
         }, function () {
             bootstrap('documents', callback);
         });
+
+        app.use(expressSession({
+            secret: config.server.security.sessionSecret,
+            saveUninitialized: true,
+            resave: false,
+            cookie: {
+                maxAge: config.server.security.cookieMaxAge
+            },
+            store: new MongoStore({
+                mongooseConnection: mongoose.connection,
+                collection: 'cookieSession'
+            })
+        }));
+        app.use(passport.initialize());
+        app.use(passport.session());
 
         global.models = {};
     },
