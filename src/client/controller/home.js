@@ -60,7 +60,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
             var getLinkedOrgs = function () {
                 $scope.claOrgs = [];
-                return $RPCService.call('org', 'getForUser', {}, function (err, data) {
+                $RPCService.call('org', 'getForUser', {}, function (err, data) {
                     if (data && data.value) {
                         data.value.forEach(function (org) {
                             mixOrgData(org);
@@ -87,7 +87,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                         repoId: repo.id
                     });
                 });
-                return $RPCService.call('repo', 'getAll', {
+                $RPCService.call('repo', 'getAll', {
                     set: repoSet
                 }, function (err, data) {
                     if (err || !data) {
@@ -149,7 +149,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
                 $scope.gists = $scope.defaultClas.concat([]);
 
-                return $HUBService.call('gists', 'getAll').then(function (data) {
+                $HUBService.call('gists', 'getAll').then(function (data) {
                     if (data && data.value) {
                         data.value.forEach(function (gist) {
                             var gistFile = {};
@@ -289,14 +289,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 });
             };
 
-            var deferred = $q.defer();
-            $scope.startPromise = deferred.promise;
-            $scope.start = getUser().then(function () {
-                return $q.all([getOrgs().then(function () {
-                    return $q.all([getLinkedOrgs(), getRepos()]);
+            getUser().then(function () {
+                getOrgs().then(function () {
+                    getLinkedOrgs();
+                    getRepos();
                 }, function () {
-                    return getRepos();
-                }), getGists()]);
+                    getRepos();
+                });
+                getGists();
             }, function () {
                 $scope.count();
             });

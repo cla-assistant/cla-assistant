@@ -9,8 +9,7 @@ var module = angular.module('app', ['cla.filters',
     'ngAnimate',
     'ngCsv',
     'angulartics',
-    'angulartics.google.analytics',
-    'cgBusy',
+    'angulartics.google.analytics'
 ]);
 
 var filters = angular.module('cla.filters', []);
