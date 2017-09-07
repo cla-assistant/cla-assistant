@@ -27,6 +27,7 @@ module.exports = function(config) {
             'http://cdnjs.cloudflare.com/ajax/libs/angulartics/0.17.2/angulartics-ga.min.js',
 
             'http://cdnjs.cloudflare.com/ajax/libs/sinon.js/1.7.3/sinon-min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-busy/4.1.4/angular-busy.min.js',
 
             'src/bower/should/should.js',
 
