@@ -44,6 +44,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.selectedIndex = -1;
             $scope.users = [];
             $scope.user = {};
+            $scope.isLoading = false;
 
             $scope.logAdminIn = function () {
                 $window.location.href = '/auth/github';
@@ -60,7 +61,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
             var getLinkedOrgs = function () {
                 $scope.claOrgs = [];
-                $RPCService.call('org', 'getForUser', {}, function (err, data) {
+                return $RPCService.call('org', 'getForUser', {}).then(function (data) {
                     if (data && data.value) {
                         data.value.forEach(function (org) {
                             mixOrgData(org);
@@ -87,10 +88,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                         repoId: repo.id
                     });
                 });
-                $RPCService.call('repo', 'getAll', {
+                return $RPCService.call('repo', 'getAll', {
                     set: repoSet
-                }, function (err, data) {
-                    if (err || !data) {
+                }).then(function (data) {
+                    if (!data) {
                         return;
                     }
                     $scope.claRepos = data.value;
@@ -98,8 +99,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                         claRepo = mixRepoData(claRepo);
                     });
                 });
-
-                $scope.reposAndOrgs = $scope.user.value.org_admin ? $scope.orgs.concat($scope.repos) : $scope.repos;
             };
 
             var getUser = function () {
@@ -134,7 +133,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                             }
                         });
                         if ($scope.repos.length > 0) {
-                            getLinkedRepos();
+                            return getLinkedRepos();
                         }
                     });
                 }
@@ -163,12 +162,18 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
             var getOrgs = function () {
                 var deferred = $q.defer();
-                deferred.reject();
-                return $scope.user.value.org_admin ? $RPCService.call('org', 'getGHOrgsForUser').then(function (res) {
+                if (!$scope.user.value.org_admin) {
+                    deferred.resolve();
+                    return deferred.promise;
+                }
+                return $RPCService.call('org', 'getGHOrgsForUser').then(function (res) {
                     if (res && res.value) {
                         $scope.orgs = res.value;
                     }
-                }) : deferred.promise;
+                    if ($scope.orgs.length > 0) {
+                        return getLinkedOrgs();
+                    }
+                });
             };
 
             var showErrorMessage = function (text) {
@@ -290,13 +295,17 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             };
 
             getUser().then(function () {
-                getOrgs().then(function () {
-                    getLinkedOrgs();
-                    getRepos();
+                $scope.isLoading = true;
+                $q.all([
+                    getOrgs(),
+                    getRepos(),
+                    getGists()
+                ]).then(function () {
+                    $scope.reposAndOrgs = $scope.user.value.org_admin ? $scope.orgs.concat($scope.repos) : $scope.repos;
+                    $scope.isLoading = false;
                 }, function () {
-                    getRepos();
+                    $scope.isLoading = false;
                 });
-                getGists();
             }, function () {
                 $scope.count();
             });
