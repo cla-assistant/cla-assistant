@@ -288,8 +288,8 @@ describe('Home Controller', function() {
             var response;
             var error;
             if (o === 'repo' && f === 'getAll') {
+                var deferred = $q.defer();
                 args.set[0].repoId.should.be.ok;
-
                 response = rpcRepoGetAllData || {
                     value: [{
                         repo: 'Hello-World',
@@ -298,6 +298,12 @@ describe('Home Controller', function() {
                     }]
                 };
                 error = rpcRepoGetAllError ? rpcRepoGetAllError : null;
+                if (error) {
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(response);
+                }
+                return deferred.promise;
             } else if (o === 'repo' && f === 'create') {
                 args.repoId.should.be.equal(123);
                 args.gist.should.be.equal(homeCtrl.scope.selected.gist.url);
@@ -315,9 +321,12 @@ describe('Home Controller', function() {
                     value: true
                 };
             } else if (o === 'org' && f === 'getForUser') {
+                var deferred = $q.defer();
                 response = expRes.RPC.org && expRes.RPC.org.getForUser ? expRes.RPC.org.getForUser : {
                     value: []
                 };
+                deferred.resolve(response);
+                return deferred.promise;
             } else if (o === 'org' && f === 'getGHOrgsForUser') {
                 var deferred = $q.defer();
                 response = expRes.RPC.org && expRes.RPC.org.getGHOrgForUser ? expRes.RPC.org.getGHOrgForUser : {
