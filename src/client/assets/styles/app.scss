@@ -351,6 +351,29 @@ small {
     -moz-animation:spin 4s linear infinite;
     animation:spin 4s linear infinite;
 }
+
+.loading-indicator {
+  position: fixed;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.center-div {
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.center-div .spin-img {
+  top: -60px
+}
+
 .spin-img.ng-hide-add-active {
     display: none !important;
 }
