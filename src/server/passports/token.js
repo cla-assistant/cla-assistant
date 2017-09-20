@@ -32,7 +32,6 @@ function checkToken(accessToken, cb) {
     };
 
     github.call(args, function (err, data) {
-        logger.info('err: ', err, ' data: ', data);
         if (err || (data && data.scopes && data.scopes.indexOf('write:repo_hook') < 0) || !data) {
             err = err || 'You have not enough rights to call this API';
         }
@@ -47,7 +46,10 @@ passport.use(new Strategy(
                 done(err || 'Could not find GitHub user for given token');
                 return;
             }
-            models.User.findOne({ uuid: data.id, name: data.login }, function (err, dbUser) {
+            models.User.findOne({
+                uuid: data.id,
+                name: data.login
+            }, function (err, dbUser) {
                 if (err || !dbUser) {
                     done(err || 'Could not find ' + data.login);
                     return;
