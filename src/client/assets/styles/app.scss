@@ -299,6 +299,11 @@ small {
   background-color: $white;
 }
 
+a.anchor .octicon-link {
+  width: 0;
+  visibility: hidden;
+}
+
 .dots {
   font-size:10px;
   margin-left:10px;
