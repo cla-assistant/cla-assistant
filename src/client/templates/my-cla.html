@@ -16,8 +16,10 @@
                 <a ng-show="!user.value.login" href="/auth/github" target="_self">
                     <b>Sign in with GitHub</b>
                 </a>
-                <a ng-hide="!user.value.login" href="/logout" target="_self" tooltip-placement="left" tooltip="Sign out" class="octicon octicon-sign-out"
-                    style="font-size:19px"></a>
+                <a ng-hide="!user.value.login" href="/logout" target="_self" tooltip-placement="left" tooltip="Sign out"
+                    style="font-size:19px">
+                    <img src="/octicons/lib/svg/sign-out.svg">
+                </a>
             </div>
         </div>
         <div class="navbar-center navbar-home-text" style="z-index:-1">

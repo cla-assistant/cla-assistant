@@ -11,25 +11,25 @@ module.exports = function (config) {
         files: [
             // Testing libs
             // CDN
-            'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-animate.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-route.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.17/angular-ui-router.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.4/ui-bootstrap-tpls.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.19.8/select.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-sanitize.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.min.js',
-
-            'http://cdnjs.cloudflare.com/ajax/libs/sinon.js/1.7.3/sinon-min.js',
-
-            'src/bower/should/should.js',
+            'http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.3.min.js',
+            'http://www.google-analytics.com/analytics.js',
 
             // Bower
+            'src/bower/should/should.js',
+            'src/bower/angular/angular.min.js',
+            'src/bower/angular-animate/angular-animate.min.js',
+            'src/bower/angular-route/angular-route.js',
+            'src/bower/angular-ui-router/release/angular-ui-router.min.js',
+            'src/bower/angular-bootstrap/ui-bootstrap-tpls.min.js',
+            'src/bower/angular-ui-select/dist/select.min.js',
+            'src/bower/angular-ui-utils/ui-utils.min.js',
+            'src/bower/angular-sanitize/angular-sanitize.min.js',
+            'src/bower/ng-csv/build/ng-csv.min.js',
+            'src/bower/angulartics/dist/angulartics.min.js',
+            'src/bower/angulartics/dist/angulartics-ga.min.js',
             'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
             'src/bower/angular-mocks/angular-mocks.js',
+            'src/bower/sinonjs/sinon.js',
 
             // Client code
             'src/client/app.js',

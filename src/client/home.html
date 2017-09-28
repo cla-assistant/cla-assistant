@@ -2,35 +2,46 @@
 <html>
 
 <head>
-    <title>CLA assistant</title>
+    <title>Contributor License Agreement</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <base href="/">
-    <!-- COMPONENT SCRIPTS -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-animate.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-route.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.17/angular-ui-router.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.4/ui-bootstrap-tpls.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.19.8/select.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-sanitize.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js"></script>
-    <!-- APP -->
-    <script src="app.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="/">
+  <link rel="icon" href="https://opensource.microsoft.com/favicon.ico" type="image/x-icon" />
+  <!-- COMPONENT SCRIPTS -->
+  <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.3.min.js"></script>
+  <script src="/angular/angular.min.js"></script>
+  <script src="/angular-animate/angular-animate.min.js"></script>
+  <script src="/angular-route/angular-route.js"></script>
+  <script src="/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+  <script src="/angular-ui-select/dist/select.min.js"></script>
+  <script src="/angular-ui-utils/ui-utils.min.js"></script>
+  <script src="/angular-scroll/angular-scroll.min.js"></script>
+  <script src="/angular-sanitize/angular-sanitize.min.js"></script>
+  <script src="//www.google-analytics.com/analytics.js"></script>
+  <script src="/ng-csv/build/ng-csv.min.js"></script>
+  <script src="//www.google-analytics.com/analytics.js"></script>
+  <script src="/angulartics/dist/angulartics.min.js"></script>
+  <script src="/angulartics/dist/angulartics-ga.min.js"></script>
+  <script src="/papaparse/papaparse.min.js"></script>
+  <script src="/clipboard/dist/clipboard.min.js"></script>
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  </script>
+  <!-- APP -->
+  <script src="app.min.js"></script>
 
     <!-- INTERCEPTORS -->
     <!-- <script src="/interceptors/401.js"></script> -->
 
-    <!-- COMPONENT STYLESHEETS -->
-    <link href="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
+  <!-- COMPONENT STYLESHEETS -->
+  <link href="/angular-ui-select/dist/select.min.css" rel="stylesheet">
+  <link href="/selectize/dist/css/selectize.css" rel="stylesheet">
+  <link href="/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="/octicons/lib/octicons.css" rel="stylesheet">
 
     <!-- APP STYLESHEET -->
     <link href="/assets/styles/app.css" rel="stylesheet">
@@ -53,8 +64,10 @@
                 </div>
             </div>
             <div class="nav navbar-home-right">
-                <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px" tooltip-placement="left"
-                    tooltip="Sign out"></a>
+                <a ng-hide="!user.value.login" href="/logout" target="_self" style="font-size:19px" tooltip-placement="left"
+                    tooltip="Sign out">
+                    <img src="/octicons/lib/svg/sign-out.svg">
+                </a>
             </div>
             <div class="navbar-center">
                 <a href="/">
@@ -74,25 +87,33 @@
         <div class="navbar-top-border">
             <div class="container-fluid">
                 <div class="navbar-text navbar-left">
-                    <p style="margin-bottom:0px">© 2015 SAP SE</p>
+                    <p style="margin-bottom:0px">© 2017 Microsoft Corporation</p>
                 </div>
                 <div class="navbar-text navbar-center" style="z-index:-1;">
                     <p class="hidden-xs hidden-sm" style="margin-bottom: 0px;">
-                        Made with
-                        <span class="octicon octicon-heart"></span> from the GitHub team at SAP
+                        CLA Assistant made with
+                        <img src="/octicons/lib/svg/heart.svg"></span> from the GitHub team at SAP
                     </p>
                 </div>
+                <!--
                 <div class="center-block">
                     <div class="navbar-text navbar-right">
-                        <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
-                            <span class="octicon octicon-mark-github"></span> Open an issue
-                        </a>
+                    <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+                        <span class="octicon octicon-mark-github"></span> Open an issue
+                    </a>
                     </div>
                 </div>
-                <div ng-show="showTOS()" class="center-block">
+                -->
+                <div class="center-block">
                     <div class="navbar-text navbar-right">
-                        <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" style="margin-right: 10px">
-                            Terms of Service &amp Privacy Policy
+                        <a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="space" style="margin-right: 10px">
+                            Privacy &amp; cookies
+                        </a>
+                        <a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="space" style="margin-right: 10px">
+                            Terms of use
+                        </a>
+                        <a href="https://www.microsoft.com/trademarks" target="space" style="margin-right: 10px">
+                            Trademarks
                         </a>
                     </div>
                 </div>

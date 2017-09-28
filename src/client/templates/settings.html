@@ -3,7 +3,8 @@
     <div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
         <div class="text clickable">
             <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
-                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
+                <img ng-src="{{ item.fork ? '/octicons/lib/svg/repo-forked.svg' : '/octicons/lib/svg/repo.svg' }}">
+                &nbsp; {{ item.owner }} / {{ item.repo }}
             </a>
             <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space" tooltip-placement="bottom" tooltip="{{ item.excludePattern ? 'Excluded Repositories: ' + item.excludePattern : 'No Excluded Repositories'}}">
                 <img src="{{item.avatarUrl}}" alt="" class="org">&nbsp; {{ item.org }}

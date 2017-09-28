@@ -4,24 +4,30 @@
   bottom: 0;
   height: 100vH;
   width: 100%;
+/*
   background-image: url('/assets/images/background.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  */
 }
 
 .lp-background-overlay {
+/*
   background:black;
   opacity:0.5;
+  */
   height:100%;
 }
 
 .lp-header {
   margin: 25px 70px;
   height: 75px;
-  border: 1px;
+  border: 0;
   border-bottom-style: solid;
-  color: white;
+  /*
+  color: gray;
+  */
   position: relative;
 
   .navbar-brand {
@@ -43,7 +49,7 @@
 }
 
 .lp-premium {
-  color: $text-invert;
+  color: #000;
 }
 
 .lp-premium-darker {

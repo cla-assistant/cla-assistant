@@ -1,7 +1,7 @@
 // overwrite bootstrap styles
 
 // fonts
-$font-family-sans-serif: 'Source Sans Pro', sans-serif;
+$font-family-sans-serif: 'Segoe UI', 'Source Sans Pro', sans-serif;
 
 // colours
 $gray-darkest: #2c3e50;
@@ -16,22 +16,22 @@ $green: #39b54a;
 // brand colours
 $brand-primary-lightest: #ffffff;
 $brand-primary-lighter: #e2f1fc;
-$brand-primary: #0594c6;
+$brand-primary: #0072C6;
 /*$brand-primary: #77acc3;*/
-$brand-primary-darker: #4d8fac;
-$brand-primary-darkest: #2c3e50;
-$brand-accent: #ee524f;
-$brand-primary-2nd: #9fcdc8;
+$brand-primary-darker: #002050;
+$brand-primary-darkest: #505050;
+$brand-accent: #008272;
+$brand-primary-2nd: #008272;
 $brand-primary-muted: #abd5d5;
-$brand-primary-hover: #2c827c;
-$brand-warning: #ffa159;
-$brand-danger: #ee524f;
+$brand-primary-hover: #008272;
+$brand-warning: #ff8c00;
+$brand-danger: #e81123;
 $brand-info: #deefef;
-$brand-merged: #6e5494;
-$link-color: #3c3c3d;
+$brand-merged: #5c2d91;
+$link-color: #0072C6;
 
 // body
-$body-bg: $gray-lighter;
+$body-bg: $white;
 
 // typography
 $text-color: $brand-primary-darkest;

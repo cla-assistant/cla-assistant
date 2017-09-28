@@ -1,21 +1,26 @@
 <html>
 
 <head>
-    <title>CLA assistant</title>
+    <title>Contributor License Agreement (CLA) - Microsoft Open Source</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <base href="/">
+    <link rel="icon" href="https://opensource.microsoft.com/favicon.ico" type="image/x-icon" />
+
     <!-- COMPONENT SCRIPTS -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-animate.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-route.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.17/angular-ui-router.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.4/ui-bootstrap-tpls.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.19.8/select.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-sanitize.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.3.min.js"></script>
+    <script src="/angular/angular.min.js"></script>
+    <script src="/angular-animate/angular-animate.min.js"></script>
+    <script src="/angular-route/angular-route.js"></script>
+    <script src="/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="/angular-ui-select/dist/select.min.js"></script>
+    <script src="/angular-ui-utils/ui-utils.min.js"></script>
+    <script src="/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="/ng-csv/build/ng-csv.min.js"></script>
+    <script src="//www.google-analytics.com/analytics.js"></script>
+    <script src="/angulartics/dist/angulartics.min.js"></script>
+    <script src="/angulartics/dist/angulartics-ga.min.js"></script>
 
     <script type="text/javascript" charset="utf-8" src="assets/js/edge.5.0.1.min.js"></script>
     <style>
@@ -37,15 +42,15 @@
             width: "550px",
             height: "400px"
         }, {
-                dom: []
-            }, {
-                dom: []
-            });
+            dom: []
+        }, {
+            dom: []
+        });
     </script>
 
     <!-- COMPONENT STYLESHEETS -->
-    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
+    <link href="/components-font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/octicons/lib/octicons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600" rel="stylesheet" type="text/css">
     <!-- APP STYLESHEET -->
     <link href="/assets/styles/app.css" rel="stylesheet">
@@ -62,7 +67,8 @@
             <!-- Header -->
             <div class="lp-header">
                 <a class="navbar-brand" href="/">
-                    <img src="/assets/images/CLA_logo.svg" class="img-responsive" alt="CLA assistant" style="width:55px" />
+                    <img src="https://opensource.microsoft.com/mslogo.png" alt="Microsoft" style="width:80px;height:17px" /><br />
+                    <h4>Contributor License Agreement</h4>
                 </a>
                 <a class="lp-signin text-invert" href="" ng-click="logAdminIn()" target="_self">
                     <b>Sign in</b>
@@ -71,17 +77,45 @@
             <!-- Header -->
 
             <div class="row lp-premium lp-section">
+                <div style="margin-left:48px;margin-right:48px">
+                    <p>
+                        We appreciate community contributions to code repositories open sourced by Microsoft. By signing a
+                        contributor license agreement, we ensure that the community is free to use your contributions.
+                    </p>
+                    <p style="margin-top:48px">
+                        <small>
+                            <strong>Review the CLA document</strong><br />
+                            The <a href="https://opensource.microsoft.com/pdf/microsoft-contribution-license-agreement.pdf"
+                            style="color:#0072C6">Microsoft Contributor License Agreement (CLA)</a>
+                            document is available for review as a PDF.
+                        </small>
+                    </p>
+                    <p>
+                        <small>
+                            <strong>Sign the CLA</strong><br />
+                            When you contribute to a Microsoft open source project on GitHub with a new pull request,
+                            a bot will evaluate whether you have signed the CLA. If required, the bot will comment on
+                            the pull request, including a link to this system to accept the agreement.
+                        </small>
+                    </p>
+                </div>
+                <!--
+
+
                 <img class="center-block img-responsive" src="/assets/images/CLA_text.svg" style="width:200px">
                 <div class="center-block" style="font-size:25px;font-weight:200;line-height:36px; margin-top:30px;">
                     <p>Easily handle Contributor License Agreements (CLAs)</p>
                     <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px">
-                        <span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+                        <span class="octicon octicon-mark-github"></span>&nbsp;Administrator sign in</btn>
                 </div>
+
+
+                -->
             </div>
 
 
         </div>
-        <div style="margin-bottom:50px">
+        <div style="margin-bottom:50px;display:none">
 
 
             <div class="row lp-white lp-section" style="font-size: 25px;">
@@ -126,11 +160,11 @@
                 </div>
                 <div class="col-md-4 col-md-offset-4" text-slider active="active" time='5000' style="text-align: center;  margin-top: 3em">
                     <p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 0]">
-                        <i class="octicon octicon-repo"></i> {{numberRepos}} registered repositories</p>
+                        <img src="/octicons/lib/svg/repo.svg"> {{numberRepos}} registered repositories</p>
                     <p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 1]">
-                        <img src="/assets/images/CLA_logo.svg" class="lp-textblock-icon" /> {{numberClas}} signed CLAs</p>
+                        <img src="/assets/images/CLA_logo.svg" class="lp-textblock-icon"/> {{numberClas}} signed CLAs</p>
                     <p class="lp-textblock" ng-class="{true:'lp-textblock-animate', false:''}[active === 2]">
-                        <i class="octicon octicon-star"></i> {{numberStars}} GitHub stars</p>
+                        <img src="/octicons/lib/svg/star.svg"> {{numberStars}} GitHub stars</p>
                 </div>
             </div>
 
@@ -231,7 +265,7 @@
             <div class="row lp-premium lp-section center-block">
                 <div class="center-block">
                     <btn class="btn btn-md btn-primary" ng-click="logAdminIn()" style="margin-top:20px; width:195px; font-size: 16px">
-                        <span class="octicon octicon-mark-github"></span>&nbsp;Sign in with GitHub</btn>
+                        <img src="/octicons/lib/svg/mark-github.svg">&nbsp;Sign in with GitHub</btn>
                 </div>
             </div>
         </div>
@@ -241,26 +275,33 @@
                 <div class="container-fluid">
                     <div class="center-block">
                         <div class="navbar-text navbar-left">
-                            <p style="margin-bottom: 0px">© 2015 SAP SE</p>
+                            <p style="margin-bottom:0px">© 2017 Microsoft Corporation</p>
                         </div>
                     </div>
                     <div class="navbar-text navbar-center" style="z-index:-1;">
                         <p class="hidden-xs hidden-sm">
-                            Made with
-                            <span class="octicon octicon-heart"></span> from the GitHub team at SAP
+                            <a href="https://github.com/cla-assistant/cla-assistant">CLA Assistant</a> made with <img src="/octicons/lib/svg/heart.svg"> from the GitHub team at SAP
                         </p>
                     </div>
-                    <div class="center-block">
-                        <div class="navbar-text navbar-right">
-                            <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
-                                <span class="octicon octicon-mark-github"></span> Open an issue
-                            </a>
-                        </div>
+                <!--
+                <div class="center-block">
+                    <div class="navbar-text navbar-right">
+                        <a href="https://github.com/cla-assistant/cla-assistant/issues/new" target="space">
+                            <span class="octicon octicon-mark-github"></span> Open an issue
+                        </a>
                     </div>
+                </div>
+                -->
                     <div class="center-block">
                         <div class="navbar-text navbar-right">
-                            <a href="https://gist.github.com/CLAassistant/3a73e4cd729c9d0a6e30" target="space" style="margin-right: 10px">
-                                Terms of Service &amp Privacy Policy
+                            <a href="https://go.microsoft.com/fwlink/?LinkId=521839" target="space" style="margin-right: 10px">
+                                Privacy &amp; cookies
+                            </a>
+                            <a href="https://go.microsoft.com/fwlink/?LinkID=206977" target="space" style="margin-right: 10px">
+                                Terms of use
+                            </a>
+                            <a href="https://www.microsoft.com/trademarks" target="space" style="margin-right: 10px">
+                                Trademarks
                             </a>
                         </div>
                     </div>
