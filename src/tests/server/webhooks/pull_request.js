@@ -277,7 +277,11 @@ describe('webhook pull request', function () {
 				getGHRepo: { }
 			},
 			cla: {
-				isClaRequired: true
+				isClaRequired: true,
+				getLinkedItem: {
+					gist: 'gist',
+					token: 'token'
+				}
 			}
         };
         testUser = {
@@ -310,7 +314,11 @@ describe('webhook pull request', function () {
 		});
 
 		sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {
-			done(null, testRes.repoService.getGHRepo);
+            done(null, testRes.repoService.getGHRepo);
+        });
+
+		sinon.stub(cla, 'getLinkedItem').callsFake(function (args, done) {
+			return done(null, Object.assign(args, testRes.cla.getLinkedItem));
 		});
 
 		sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
@@ -358,12 +366,13 @@ describe('webhook pull request', function () {
 	afterEach(function () {
 		cla.check.restore();
 		cla.isClaRequired.restore();
-		orgService.get.restore();
+		cla.getLinkedItem.restore();
 		pullRequest.badgeComment.restore();
 		pullRequest.deleteComment.restore();
-		repoService.get.restore();
-		repoService.getGHRepo.restore();
-		repoService.getPRCommitters.restore();
+        repoService.getPRCommitters.restore();
+        repoService.get.restore();
+        repoService.getGHRepo.restore();
+        orgService.get.restore();
 		status.update.restore();
 		status.updateForClaNotRequired.restore();
 		logger.error.restore();
@@ -550,60 +559,12 @@ describe('webhook pull request', function () {
 	// 	assert.equal(cla.check.called, true);
 	// });
 
-	it('should NOT try to access org cla if repo cla is exist', function (it_done) {
-		pull_request(test_req, res);
-		this.timeout(100);
-		setTimeout(function () {
-			assert(repoService.get.called);
-			assert(!orgService.get.called);
-			assert(repoService.getPRCommitters.called);
-			assert(cla.check.called);
-			it_done();
-		}, 8);
-	});
-
-	it('should try to access org cla if repo cla is NOT exist', function (it_done) {
-		testRes.repoService.get = null;
-		pull_request(test_req, res);
-		this.timeout(100);
-		setTimeout(function () {
-			assert.equal(repoService.get.called, true);
-			assert.equal(orgService.get.called, true);
-			assert.equal(repoService.getPRCommitters.called, true);
-			assert.equal(cla.check.called, true);
-			it_done();
-		}, 8);
-	});
-
-	it('should update status of PR even if org is unknown but from known repo', function (it_done) {
-		testRes.repoService.getGHRepo = null;
-		testRes.repoService.get = null;
-		pull_request(test_req, res);
-		this.timeout(100);
-		setTimeout(function () {
-			assert.equal(repoService.getGHRepo.called, true);
-			assert.equal(orgService.get.called, true);
-			assert.equal(repoService.get.called, true);
-			assert.equal(repoService.getPRCommitters.called, false);
-			assert.equal(cla.check.called, false);
-			it_done();
-		}, 8);
-	});
-
 	it('should do nothing if the pull request hook comes from unknown repository and unknown org', function (it_done) {
-		repoService.get.restore();
-		sinon.stub(repoService, 'get').callsFake(function (args, done) {
-			done(null, null);
-		});
-		orgService.get.restore();
-		sinon.stub(orgService, 'get').callsFake(function (args, done) {
-			done(null, null);
-		});
-
+		testRes.cla.getLinkedItem = null;
 		pull_request(test_req, res);
 		this.timeout(100);
 		setTimeout(function () {
-			assert.equal(repoService.get.called, true);
+			assert.equal(cla.getLinkedItem.called, true);
 			assert.equal(repoService.getPRCommitters.called, false);
 			assert.equal(cla.check.called, false);
 			it_done();
@@ -616,8 +577,7 @@ describe('webhook pull request', function () {
 		pull_request(test_req, res);
 		this.timeout(100);
 		setTimeout(function () {
-			assert.equal(orgService.get.called, false);
-			assert.equal(repoService.get.called, false);
+			assert.equal(cla.getLinkedItem.called, false);
 			assert.equal(repoService.getPRCommitters.called, false);
 			assert.equal(cla.check.called, false);
 			it_done();
@@ -643,9 +603,9 @@ describe('webhook pull request', function () {
 
 	});
 
-	it('should NOT try to update a repo that has a null CLA linked even the corresponding org has linked', function (it_done) {
+	it('should NOT try to update a repo that has a null CLA', function (it_done) {
 		this.timeout(100);
-		testRes.repoService.get.gist = null;
+		testRes.cla.getLinkedItem.gist = null;
 		test_req.args.handleDelay = 0;
 		pull_request(test_req, res);
 		setTimeout(function () {

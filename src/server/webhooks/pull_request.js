@@ -113,32 +113,21 @@ module.exports = function (req, res) {
 
 
         setTimeout(function () {
-            repoService.get(args, function (e, repo) {
-                if (repo) {
-                    if (!repo.gist) {
-                        return;
-                    }
-                    args.orgId = undefined;
-                    args.token = repo.token;
-                    args.gist = repo.gist; //TODO: Test it!!
-                    handleWebHook(args);
-                } else {
-                    orgService.get({
-                        orgId: args.orgId
-                    }, function (err, org) {
-                        if (org) {
-                            args.token = org.token;
-                            args.gist = org.gist; //TODO: Test it!!
-                            if (!org.isRepoExcluded(args.repo)) {
-                                repoService.getGHRepo(args, function (err, repo) {
-                                    if (repo) {
-                                        handleWebHook(args);
-                                    }
-                                });
-                            }
-                        }
-                    });
+            cla.getLinkedItem(args, function (err, item) {
+                if (!item) {
+                    return;
                 }
+                let nullCla = !item.gist;
+                let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo);
+                if (nullCla || isExcluded) {
+                    return;
+                }
+                args.token = item.token;
+                args.gist = item.gist;
+                if (item.repoId) {
+                    args.orgId = undefined;
+                }
+                return handleWebHook(args);
             });
         }, config.server.github.enforceDelay);
     }
