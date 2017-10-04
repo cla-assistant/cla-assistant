@@ -1,4 +1,6 @@
-version: v1.5.2
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.7.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:minimatch:20160620':
     - node-sass-middleware > node-sass > node-gyp > minimatch:
@@ -17,6 +19,7 @@ ignore:
     - karma > socket.io > engine.io > accepts > negotiator:
         reason: None given
         expires: '2016-08-18T07:45:03.181Z'
+# patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:minimatch:20160620':
     - node-sass-middleware > node-sass > node-gyp > glob > minimatch:
@@ -64,16 +67,16 @@ patch:
   'npm:ws:20160624':
     - karma > socket.io > socket.io-client > engine.io-client > ws:
         patched: '2016-07-25T08:23:48.823Z'
-      karma > socket.io > engine.io > ws:
-        patched: '2016-10-26T08:01:33.363Z'
     - karma > socket.io > engine.io > ws:
         patched: '2016-07-25T08:23:48.823Z'
-      karma > socket.io > socket.io-client > engine.io-client > ws:
-        patched: '2016-10-26T08:01:33.363Z'
     - socket.io > socket.io-client > engine.io-client > ws:
         patched: '2016-07-25T08:23:48.823Z'
     - socket.io > engine.io > ws:
         patched: '2016-07-25T08:23:48.823Z'
+    - karma > socket.io > engine.io > ws:
+        patched: '2016-10-26T08:01:33.363Z'
+    - karma > socket.io > socket.io-client > engine.io-client > ws:
+        patched: '2016-10-26T08:01:33.363Z'
   'npm:negotiator:20160616':
     - karma > socket.io > engine.io > accepts > negotiator:
         patched: '2016-10-26T08:01:33.363Z'
@@ -82,3 +85,20 @@ patch:
   'npm:tough-cookie:20160722':
     - karma > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
         patched: '2016-10-26T08:01:33.363Z'
+  'npm:debug:20170905':
+    - karma > socket.io > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > engine.io > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-adapter > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-client > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-client > engine.io-client > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-parser > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-adapter > socket.io-parser > debug:
+        patched: '2017-10-02T22:30:08.358Z'
+    - karma > socket.io > socket.io-client > socket.io-parser > debug:
+        patched: '2017-10-02T22:30:08.358Z'

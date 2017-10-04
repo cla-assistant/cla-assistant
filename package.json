@@ -46,7 +46,7 @@
     "q": "^1.4.1",
     "raven": "^0.12.1",
     "request": "^2.74.0",
-    "snyk": "^1.17.1",
+    "snyk": "^1.42.2",
     "socket.io": "^2.0.2",
     "valid-url": "^1.0.9",
     "x-frame-options": "^1.0.0"
@@ -88,7 +88,8 @@
     "test": "grunt test",
     "snyk-monitor": "snyk auth $SNYK_TOKEN && snyk monitor",
     "snyk-protect": "snyk protect",
-    "prepublish": "npm run snyk-protect"
+    "prepublish": "npm run snyk-protect",
+    "prepare": "npm run snyk-protect"
   },
   "snyk": true
 }
