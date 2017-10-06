@@ -86,7 +86,17 @@ module.exports = {
         api_access: {
             free: ['/api/cla/get', '/api/cla/getLinkedItem'],
             external: ['/api/cla/getAll'],
-            admin_only: ['/api/cla/addSignature', '/api/cla/hasSignature', '/api/cla/terminateSignature', '/api/cla/validate', '/api/cla/getGist']
+            admin_only: [
+                '/api/cla/addSignature',
+                '/api/cla/hasSignature',
+                '/api/cla/terminateSignature',
+                '/api/cla/validate',
+                '/api/cla/getGist',
+                '/api/org/create',
+                '/api/org/remove',
+                '/api/repo/create',
+                '/api/repo/remove'
+            ]
         },
 
         static: [

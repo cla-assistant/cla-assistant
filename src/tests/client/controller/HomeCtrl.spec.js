@@ -266,16 +266,6 @@ describe('Home Controller', function () {
                 response = expRes.RPC.org && expRes.RPC.org.remove ? expRes.RPC.org.remove : {
                     value: true
                 };
-            } else if (o === 'webhook' && f === 'create') {
-                response = expRes.RPC.webhook && expRes.RPC.webhook.create ? expRes.RPC.webhook.create : {
-                    value: {
-                        active: true
-                    }
-                };
-            } else if (o === 'webhook' && f === 'remove') {
-                response = expRes.RPC.webhook && expRes.RPC.webhook.remove ? expRes.RPC.webhook.remove : {
-                    value: true
-                };
             } else {
                 return rpcCall(o, f, args, cb);
             }
@@ -556,7 +546,7 @@ describe('Home Controller', function () {
         (homeCtrl.scope.repos.length).should.be.equal(0);
     });
 
-    it('should create repo entry and webhook on link action', function () {
+    it('should create repo entry on link action', function () {
         homeCtrl = createCtrl();
         httpBackend.flush();
 
@@ -585,7 +575,6 @@ describe('Home Controller', function () {
         (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
         (homeCtrl.scope.claRepos[1].active).should.be.ok;
         (homeCtrl.scope.claRepos[1].fork).should.be.ok;
-        calledApi.RPC.webhook.create.should.be.ok;
     });
 
     it('should link organisation', function () {
@@ -604,48 +593,9 @@ describe('Home Controller', function () {
         (homeCtrl.scope.claOrgs[0].avatarUrl).should.be.equal(testDataOrgs[0].avatarUrl);
         // (homeCtrl.scope.claRepos[1].active).should.be.ok;
         // (homeCtrl.scope.claRepos[1].fork).should.be.ok;
-        calledApi.RPC.webhook.create.should.be.ok;
     });
 
-    it('should set active flag depending on webhook response', function () {
-        homeCtrl = createCtrl();
-        httpBackend.flush();
-
-        homeCtrl.scope.repos = [{
-            name: 'myRepo',
-            owner: {
-                login: 'login'
-            },
-            fork: true
-        }];
-
-        homeCtrl.scope.selected.item = {
-            id: 123,
-            name: 'myRepo',
-            full_name: 'login/myRepo',
-            owner: {
-                login: 'login'
-            }
-        };
-        homeCtrl.scope.selected.gist = {
-            url: 'https://gist.github.com/gistId'
-        };
-
-        expRes.RPC.webhook = {
-            create: {
-                value: {
-                    active: false
-                }
-            }
-        };
-
-        homeCtrl.scope.link();
-
-        (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
-        (homeCtrl.scope.claRepos[1].active).should.be.not.ok;
-    });
-
-    it('should remove repo from claRepos list and remove webhook from github if create failed on backend', function () {
+    it('should remove repo from claRepos list from github if create failed on backend', function () {
         homeCtrl = createCtrl();
         httpBackend.flush();
 
@@ -675,36 +625,7 @@ describe('Home Controller', function () {
 
         homeCtrl.scope.link();
 
-        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(true);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
-    });
-
-    it('should show error message if create failed but not remove webhook if repo already linked', function () {
-        homeCtrl = createCtrl();
-        httpBackend.flush();
-
-        homeCtrl.scope.selected.gist = {
-            url: 'https://gist.github.com/gistId'
-        };
-        homeCtrl.scope.selected.item = {
-            id: 123,
-            name: 'myRepo',
-            full_name: 'login/myRepo',
-            owner: {
-                login: 'login'
-            }
-        };
-
-        rpcRepoCreate = {
-            error: {
-                errmsg: 'nsertDocument :: caused by :: 11000 E11000 duplicate key error index: cla-staging.repos.$repo_1_owner_1  dup key: { : "myRepo", : "login" }'
-            }
-        };
-
-        homeCtrl.scope.link();
-
-        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(false);
-        (homeCtrl.scope.errorMsg[0]).should.be.equal('This repository is already set up.');
     });
 
     it('should cleanup if create failed', function () {
@@ -731,14 +652,10 @@ describe('Home Controller', function () {
 
         homeCtrl.scope.link();
 
-        ($RPCService.call.calledWithMatch('webhook', 'remove', {
-            repo: 'myRepo',
-            owner: 'login'
-        })).should.be.equal(true);
         (homeCtrl.scope.errorMsg[0]).should.not.be.equal('This repository is already set up.');
     });
 
-    it('should delete db entry and webhook on remove for linked org', function () {
+    it('should delete db entry on remove for linked org', function () {
         homeCtrl = createCtrl();
         httpBackend.flush();
 
@@ -750,14 +667,11 @@ describe('Home Controller', function () {
         homeCtrl.scope.claOrgs = [org];
         homeCtrl.scope.remove(org);
 
-        ($RPCService.call.calledWithMatch('webhook', 'remove', {
-            org: 'octocat'
-        })).should.be.equal(true);
         ($RPCService.call.calledWithMatch('org', 'remove')).should.be.equal(true);
         (homeCtrl.scope.claOrgs.length).should.be.equal(0);
     });
 
-    it('should delete db entry and webhook on remove for linked repo', function () {
+    it('should delete db entry on remove for linked repo', function () {
         homeCtrl = createCtrl();
         httpBackend.flush();
 
@@ -772,7 +686,6 @@ describe('Home Controller', function () {
         homeCtrl.scope.claRepos = [repo];
         homeCtrl.scope.remove(repo);
 
-        ($RPCService.call.calledWithMatch('webhook', 'remove')).should.be.equal(true);
         ($RPCService.call.calledWithMatch('repo', 'remove')).should.be.equal(true);
         ($RPCService.call.calledWithMatch('repo', 'getAll')).should.be.equal(true);
     });
