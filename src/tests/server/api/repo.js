@@ -6,6 +6,7 @@ var sinon = require('sinon');
 
 // module
 var repo = require('../../../server/services/repo');
+var webhook = require('../../../server/api/webhook');
 
 //model
 var Repo = require('../../../server/documents/repo').Repo;
@@ -42,6 +43,15 @@ describe('repo', function () {
                 repoUpdate: {
                     err: null,
                     data: null
+                },
+                repoCreate: {
+                    err: null,
+                    data: {
+                        repoId: 123,
+                        repo: 'myRepo',
+                        owner: 'login',
+                        gist: 1234
+                    }
                 }
             };
             sinon.stub(repo, 'get').callsFake(function (args, done) {
@@ -51,10 +61,13 @@ describe('repo', function () {
                 done(res.repoGetGHRepo.err, res.repoGetGHRepo.data);
             });
             sinon.stub(repo, 'create').callsFake(function (args, done) {
-                done();
+                done(res.repoCreate.err, res.repoCreate.data);
             });
             sinon.stub(repo, 'update').callsFake(function (args, done) {
                 done(res.repoUpdate.err, res.repoUpdate.data);
+            });
+            sinon.stub(webhook, 'create').callsFake(function (args, done) {
+                done();
             });
         });
         afterEach(function () {
@@ -62,6 +75,7 @@ describe('repo', function () {
             repo.get.restore();
             repo.getGHRepo.restore();
             repo.update.restore();
+            webhook.create.restore();
         });
 
         it('should create repo via service', function (it_done) {
@@ -74,7 +88,7 @@ describe('repo', function () {
                     gist: 1234,
                     token: 'abc'
                 }), true);
-
+                assert(webhook.create.called);
                 it_done();
             });
         });
@@ -141,6 +155,52 @@ describe('repo', function () {
                 it_done();
             });
         });
+
+        it('should create webhook after create repo entry', function (it_done) {
+            repo_api.create(req, function (err) {
+                assert.ifError(err);
+                assert(!repo.getGHRepo.called);
+                assert(repo.create.called);
+                assert(webhook.create.called);
+                it_done();
+            });
+        });
+
+        it('should NOT create webhook for null cla repo', function (it_done) {
+            res.repoCreate.data.gist = null;
+            repo_api.create(req, function (err) {
+                assert.ifError(err);
+                assert(!repo.getGHRepo.called);
+                assert(repo.create.called);
+                assert(!webhook.create.called);
+                it_done();
+            });
+        });
+
+        it('should send validation error when owner, repo, repoId, token is absent', function (it_done) {
+            req = {
+                args: {},
+                user: {}
+            };
+            repo_api.create(req, function (err) {
+                assert(err);
+                assert(!repo.getGHRepo.called);
+                assert(!repo.create.called);
+                assert(!webhook.create.called);
+                it_done();
+            });
+        });
+
+        it('should send error when create repo fail', function (it_done) {
+            res.repoCreate.err = 'Create repo error';
+            repo_api.create(req, function (err) {
+                assert(err);
+                assert(!repo.getGHRepo.called);
+                assert(repo.create.called);
+                assert(!webhook.create.called);
+                it_done();
+            });
+        });
     });
 
     it('should check via repo service', function (it_done) {
@@ -192,29 +252,82 @@ describe('repo', function () {
         });
     });
 
-    it('should remove via repo service', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'remove').callsFake(function () {
-            var r = {
-                exec: function (cb) {
-                    cb(null);
+    describe('remove', function () {
+        var req = null;
+        var res = null;
+        beforeEach(function () {
+            req = {
+                args: {
+                    repoId: 123,
+                },
+                user: {
+                    token: 'token'
                 }
             };
-            return r;
+            res = {
+                repoRemove: {
+                    err: null,
+                    data: {
+                        repoId: 123,
+                        repo: 'myRepo',
+                        owner: 'login',
+                        gist: 1234
+                    }
+                }
+            };
+            sinon.stub(repo, 'remove').callsFake(function(args, done) {
+                done(res.repoRemove.err, res.repoRemove.data);
+            });
+            sinon.stub(webhook, 'remove').callsFake(function (args, done) {
+                done();
+            });
         });
 
-        var req = {
-            args: {
-                repo: 'myRepo',
-                owner: 'login',
-                gist: 'url'
-            }
-        };
+        afterEach(function () {
+            repo.remove.restore();
+            webhook.remove.restore();
+        });
 
-        repo_api.remove(req, function () {
-            assert.equal(repoStub.called, 1);
-            repoStub.restore();
+        it('should remove repo entry and webhook when unlink a repo', function (it_done) {
+            repo_api.remove(req, function () {
+                assert(req.args.owner);
+                assert(req.args.repo);
+                assert(repo.remove.called);
+                assert(webhook.remove.called);
+                it_done();
+            });
+        });
 
-            it_done();
+        it('should remove repo entry but not remove webhook when unlink a null CLA repo', function (it_done) {
+            res.repoRemove.data.gist = null;
+            repo_api.remove(req, function () {
+                assert(repo.remove.called);
+                assert(!webhook.remove.called);
+                it_done();
+            });
+        });
+
+        it('should send validation error when owner, repo, or repoId is absent', function (it_done) {
+            req = {
+                args: {},
+                user: {}
+            };
+            repo_api.create(req, function (err) {
+                assert(err);
+                assert(!repo.remove.called);
+                assert(!webhook.remove.called);
+                it_done();
+            });
+        });
+
+        it('should send error when remove repo fail', function (it_done) {
+            res.repoRemove.err = 'Remove repo error';
+            repo_api.create(req, function (err) {
+                assert(err);
+                assert(!repo.remove.called);
+                assert(!webhook.remove.called);
+                it_done();
+            });
         });
     });
 

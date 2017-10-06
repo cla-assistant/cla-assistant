@@ -332,50 +332,25 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return item && item.full_name ? true : false;
         };
 
-        $scope.addWebhook = function (item) {
-            if (item.gist) {
-                $RPCService.call('webhook', 'create', item, function (err, data) {
-                    if (!err && data && data.value) {
-                        item.active = data.value.active;
-                    }
-                });
-            }
-        };
-
-        $scope.removeWebhook = function (linkedItem) {
-            var arg = linkedItem.org ? {
-                org: linkedItem.org
-            } : {
-                    repo: linkedItem.repo,
-                    owner: linkedItem.owner
-                };
-            $RPCService.call('webhook', 'remove', arg, function () { });
-        };
-
-
         $scope.linkCla = function () {
             confirmAdd();
         };
 
         var linkItem = function (obj, item) {
             var linkedArray = obj === 'org' ? $scope.claOrgs : $scope.claRepos;
-            var promise1 = $RPCService.call(obj, 'create', item, function (err, data) {
+            item.active = false;
+            return $RPCService.call(obj, 'create', item, function (err, data) {
                 if (err && err.errmsg.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 } else if (err || !data.value) {
                     err && err.errmsg ? showErrorMessage(err.errmsg) : null;
-                    $scope.removeWebhook(item);
                     deleteFromArray(item, linkedArray);
                 } else {
+                    item.active = true;
                     linkedArray.push(item);
                     $scope.query.text = '';
                 }
             });
-
-            item.active = false;
-
-            var promise2 = $scope.addWebhook(item);
-            return $q.all([promise1, promise2]);
         };
 
         var linkRepo = function () {
@@ -415,15 +390,13 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var removeArgs = linkedItem.orgId ? {
                 orgId: linkedItem.orgId
             } : {
-                    repoId: linkedItem.repoId
-                };
+                repoId: linkedItem.repoId
+            };
             $RPCService.call(api, 'remove', removeArgs, function (err) {
                 if (!err) {
                     return api === 'org' ? getLinkedOrgs() : getLinkedRepos();
                 }
             });
-
-            $scope.removeWebhook(linkedItem);
         };
 
         $scope.isActive = function (viewLocation) {

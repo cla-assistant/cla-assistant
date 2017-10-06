@@ -125,7 +125,7 @@ module.exports = {
         });
     },
     remove: function (args, done) {
-        Repo.remove(selection(args)).exec(done);
+        Repo.findOneAndRemove(selection(args), done);
     },
 
     getPRCommitters: function (args, done) {

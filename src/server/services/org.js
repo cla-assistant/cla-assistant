@@ -41,6 +41,6 @@ module.exports = {
     },
 
     remove: function (args, done) {
-        Org.remove(selection(args), done);
+        Org.findOneAndRemove(selection(args), done);
     }
 };

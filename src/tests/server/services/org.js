@@ -87,21 +87,22 @@ describe('org:getMultiple', function () {
     });
 });
 describe('org:remove', function () {
-    afterEach(function () {
-        Org.remove.restore();
-    });
-
-    it('should find org entry ', function (it_done) {
-        sinon.stub(Org, 'remove').callsFake(function (args, done) {
+    beforeEach(function () {
+        sinon.stub(Org, 'findOneAndRemove').callsFake(function(args, done) {
             assert(args.orgId);
             done(null, {});
         });
+    });
 
+    afterEach(function() {
+        Org.findOneAndRemove.restore();
+    });
+
+    it('should find org entry ', function(it_done) {
         var args = {
             orgId: testData.orgs[0].id,
             org: testData.orgs[0].login,
         };
-
         org.remove(args, function (err, org) {
             assert.ifError(err);
             assert(org);
