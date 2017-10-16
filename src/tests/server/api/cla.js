@@ -109,7 +109,7 @@ describe('', function () {
         };
 
 
-        sinon.stub(cla, 'getGist', function (args, cb) {
+        sinon.stub(cla, 'getGist').callsFake(function (args, cb) {
             if (args.gist && args.gist.gist_url) {
                 assert.equal(args.gist.gist_url, reqArgs.cla.getGist.gist);
             } else {
@@ -118,14 +118,14 @@ describe('', function () {
             cb(error.cla.getGist, resp.cla.getGist);
         });
 
-        sinon.stub(cla, 'getLinkedItem', function (args, cb) {
+        sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
             if (reqArgs.cla.getLinkedItem) {
                 assert.deepEqual(args, reqArgs.cla.getLinkedItem);
             }
             cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
         });
 
-        sinon.stub(github, 'call', function (args, cb) {
+        sinon.stub(github, 'call').callsFake(function (args, cb) {
             if (args.obj === 'pullRequests') {
                 assert(args.token);
 
@@ -138,22 +138,22 @@ describe('', function () {
                 cb(error.github.repos, resp.github.callRepos);
             }
         });
-        sinon.stub(repo_service, 'get', function (args, cb) {
+        sinon.stub(repo_service, 'get').callsFake(function (args, cb) {
             assert.deepEqual(args, reqArgs.repoService.get);
             cb(error.repoService.get, resp.repoService.get);
         });
-        sinon.stub(org_service, 'get', function (args, cb) {
+        sinon.stub(org_service, 'get').callsFake(function (args, cb) {
             assert.deepEqual(args, reqArgs.orgService.get);
             cb(error.orgService.get, resp.orgService.get);
         });
 
-        sinon.stub(log, 'error', function (msg) {
+        sinon.stub(log, 'error').callsFake(function (msg) {
             assert(msg);
         });
-        sinon.stub(log, 'warn', function (msg) {
+        sinon.stub(log, 'warn').callsFake(function (msg) {
             assert(msg);
         });
-        sinon.stub(log, 'info', function (msg) {
+        sinon.stub(log, 'info').callsFake(function (msg) {
             assert(msg);
         });
 
@@ -241,7 +241,7 @@ describe('', function () {
 
         it('should handle wrong gist url', function (it_done) {
 
-            var repoStub = sinon.stub(Repo, 'findOne', function (args, cb) {
+            var repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, cb) {
                 var repo = {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -348,7 +348,7 @@ describe('', function () {
                 error.github.markdown = 'any error';
 
                 log.error.restore();
-                sinon.stub(log, 'error', function () {
+                sinon.stub(log, 'error').callsFake(function () {
                     assert();
                 });
 
@@ -393,17 +393,17 @@ describe('', function () {
                 owner: 'octocat'
             };
 
-            sinon.stub(statusService, 'update', function (args) {
+            sinon.stub(statusService, 'update').callsFake(function (args) {
                 assert(args.signed);
             });
-            sinon.stub(cla, 'sign', function (args, cb) {
+            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
                 assert.deepEqual(args, expArgs.claSign);
                 cb(null, 'done');
             });
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () {});
+            sinon.stub(prService, 'editComment').callsFake(function () { });
         });
 
         afterEach(function () {
@@ -529,13 +529,13 @@ describe('', function () {
             cla.check.restore();
             prService.editComment.restore();
 
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 cb(null, true, {
                     signed: [],
                     not_signed: []
                 });
             });
-            sinon.stub(prService, 'editComment', function (args) {
+            sinon.stub(prService, 'editComment').callsFake(function (args) {
                 assert(args.user_map.signed);
             });
 
@@ -569,7 +569,7 @@ describe('', function () {
         });
 
         it('should call validateSharedGistItems to update status of all repos and orgs with the same shared gist', function (it_done) {
-            sinon.stub(cla_api, 'validateSharedGistItems', function (args, done) {
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(function (args, done) {
                 done();
             });
             resp.cla.getLinkedItem.sharedGist = true;
@@ -602,7 +602,7 @@ describe('', function () {
         });
 
         it('should call cla service on getLastSignature', function (it_done) {
-            sinon.stub(cla, 'getLastSignature', function (args, cb) {
+            sinon.stub(cla, 'getLastSignature').callsFake(function (args, cb) {
                 cb(null, {});
             });
 
@@ -628,7 +628,7 @@ describe('', function () {
         });
 
         it('should call cla service on getSignedCLA', function (it_done) {
-            sinon.stub(cla, 'getSignedCLA', function (args, cb) {
+            sinon.stub(cla, 'getSignedCLA').callsFake(function (args, cb) {
                 assert.deepEqual(args, {
                     user: 'user'
                 });
@@ -649,7 +649,7 @@ describe('', function () {
         });
 
         it('should call cla service on check', function (it_done) {
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -669,7 +669,7 @@ describe('', function () {
 
         it('should call cla service on getAll', function (it_done) {
             req.args.gist = testData.repo_from_db.gist;
-            sinon.stub(cla, 'getAll', function (args, cb) {
+            sinon.stub(cla, 'getAll').callsFake(function (args, cb) {
                 assert.deepEqual(args, {
                     repo: 'Hello-World',
                     owner: 'octocat',
@@ -774,7 +774,7 @@ describe('', function () {
                 owner: 'octocat'
             };
             resp.cla.getAll = [{}];
-            sinon.stub(cla, 'getAll', function (args, cb) {
+            sinon.stub(cla, 'getAll').callsFake(function (args, cb) {
                 assert(args.gist.gist_url);
                 assert(args.gist.gist_version);
                 assert(args.repoId || args.orgId);
@@ -872,7 +872,7 @@ describe('', function () {
                     token: 'user_token'
                 }
             };
-            sinon.stub(cla, 'sign', function (args, cb) {
+            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
                 cb(error.cla.sign, reqArgs.cla.sign);
             });
         });
@@ -951,15 +951,15 @@ describe('', function () {
                     token: 'test_token'
                 }
             };
-            sinon.stub(statusService, 'update', function (args) {
+            sinon.stub(statusService, 'update').callsFake(function (args) {
                 assert(args.signed);
                 assert(args.token);
                 assert(args.sha);
             });
-            sinon.stub(cla, 'check', function (args, cb) {
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment', function () {});
+            sinon.stub(prService, 'editComment').callsFake(function () { });
         });
 
         afterEach(function () {
@@ -1053,16 +1053,16 @@ describe('', function () {
             error.orgService.getOrgWithSharedGist = null;
             resp.repoService.getRepoWithSharedGist = [repoWithSharedGist];
             resp.orgService.getOrgWithSharedGist = [orgWithSharedGist];
-            sinon.stub(repo_service, 'getRepoWithSharedGist', function (gist, done) {
+            sinon.stub(repo_service, 'getRepoWithSharedGist').callsFake(function (gist, done) {
                 done(error.repoService.getRepoWithSharedGist, resp.repoService.getRepoWithSharedGist);
             });
-            sinon.stub(org_service, 'getOrgWithSharedGist', function (gist, done) {
+            sinon.stub(org_service, 'getOrgWithSharedGist').callsFake(function (gist, done) {
                 done(error.orgService.getOrgWithSharedGist, resp.orgService.getOrgWithSharedGist);
             });
-            sinon.stub(cla_api, 'validateOrgPullRequests', function (args, done) {
+            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(function (args, done) {
                 done();
             });
-            sinon.stub(cla_api, 'validatePullRequests', function (args, done) {
+            sinon.stub(cla_api, 'validatePullRequests').callsFake(function (args, done) {
                 done();
             });
         });

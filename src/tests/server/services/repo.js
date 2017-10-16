@@ -24,7 +24,7 @@ describe('repo:create', function () {
     });
 
     it('should create repo entry ', function (it_done) {
-        sinon.stub(Repo, 'create', function (args, done) {
+        sinon.stub(Repo, 'create').callsFake(function (args, done) {
             assert(args);
             assert(args.gist);
             assert(args.owner);
@@ -55,7 +55,7 @@ describe('repo:check', function () {
     });
 
     it('should check repo entry with repo name and owner', function (it_done) {
-        sinon.stub(Repo, 'findOne', function (args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             assert(args);
             assert(args.repo);
             assert(args.owner);
@@ -74,7 +74,7 @@ describe('repo:check', function () {
     });
 
     it('should check repo entry only with repo id if given', function (it_done) {
-        sinon.stub(Repo, 'findOne', function (args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             assert(args);
             assert(args.repoId);
             assert(!args.repo);
@@ -101,7 +101,7 @@ describe('repo:get', function () {
         Repo.findOne.restore();
     });
     it('should find the cla repo', function (it_done) {
-        sinon.stub(Repo, 'findOne', function (args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             done(null, response);
         });
         repo.get({
@@ -113,7 +113,7 @@ describe('repo:get', function () {
         });
     });
     it('should raise an error, if the cla repo was not found', function (it_done) {
-        sinon.stub(Repo, 'findOne', function (args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             done(null, null);
         });
         repo.get({
@@ -130,12 +130,12 @@ describe('repo:getAll', function () {
     var arg;
     var response;
     beforeEach(function () {
-        sinon.stub(Repo, 'find', function (args, done) {
+        sinon.stub(Repo, 'find').callsFake(function (args, done) {
             assert(args.$or[0].repoId);
             assert(!args.$or[0].repo);
             assert(!args.$or[0].owner);
             done(null, response || [{
-                save: function () {}
+                save: function () { }
             }]);
         });
 
@@ -185,7 +185,7 @@ describe('repo:getPRCommitters', function () {
             owner: 'myOwner',
             repoId: '1',
             token: 'abc',
-            save: function () {}
+            save: function () { }
         };
         test_org = null;
         githubCallRes = {
@@ -207,7 +207,7 @@ describe('repo:getPRCommitters', function () {
             }
         };
 
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.obj == 'pullRequests' && args.fun == 'get') {
                 done(githubCallRes.getPR.err, githubCallRes.getPR.data);
             }
@@ -222,21 +222,21 @@ describe('repo:getPRCommitters', function () {
             }
         });
 
-        sinon.stub(orgService, 'get', function (args, done) {
+        sinon.stub(orgService, 'get').callsFake(function (args, done) {
             done(null, test_org);
         });
 
-        sinon.stub(Repo, 'findOne', function (args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             done(null, test_repo);
         });
 
-        sinon.stub(logger, 'error', function (msg) {
+        sinon.stub(logger, 'error').callsFake(function (msg) {
             assert(msg);
         });
-        sinon.stub(logger, 'warn', function (msg) {
+        sinon.stub(logger, 'warn').callsFake(function (msg) {
             assert(msg);
         });
-        sinon.stub(logger, 'info', function (msg) {
+        sinon.stub(logger, 'info').callsFake(function (msg) {
             assert(msg);
         });
     });
@@ -526,22 +526,22 @@ describe('repo:getPRCommitters', function () {
         sinon.stub(github, 'call');
         github.call.onFirstCall().callsArgWith(1, githubCallRes.getPR.err, githubCallRes.getPR.data);
         github.call.withArgs({
-                obj: 'pullRequests',
-                fun: 'getCommits',
-                token: 'abc',
-                arg: {
-                    number: '1',
-                    owner: 'owner',
-                    per_page: 100,
-                    repo: 'myRepo'
-                }
-            })
+            obj: 'pullRequests',
+            fun: 'getCommits',
+            token: 'abc',
+            arg: {
+                number: '1',
+                owner: 'owner',
+                per_page: 100,
+                repo: 'myRepo'
+            }
+        })
             .onFirstCall().callsArgWith(1, null, {
                 message: 'Moved Permanently'
             });
         github.call.onThirdCall().callsArgWith(1, null, testData.commits);
 
-        sinon.stub(repo, 'getGHRepo', function (args, done) {
+        sinon.stub(repo, 'getGHRepo').callsFake(function (args, done) {
             done(null, {
                 name: 'test_repo',
                 owner: {
@@ -605,16 +605,16 @@ describe('repo:getUserRepos', function () {
                 owner: 'login',
                 repo: 'repo1',
                 repoId: 123,
-                save: function () {}
+                save: function () { }
             }]
         };
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.obj == 'repos' && args.fun == 'getAll') {
                 done(githubCallRes.err, githubCallRes.data);
             }
         });
 
-        sinon.stub(Repo, 'find', function (args, done) {
+        sinon.stub(Repo, 'find').callsFake(function (args, done) {
             if (assertFunction) {
                 assertFunction(args);
             }
@@ -671,7 +671,7 @@ describe('repo:getUserRepos', function () {
 
     it('should handle affiliation attribute', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             assert(args.arg.affiliation === 'x,y');
             assert(args.token);
             done(githubCallRes.err, githubCallRes.data);
@@ -690,7 +690,7 @@ describe('repo:getUserRepos', function () {
 
     it('should handle affiliation if not provided', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             assert(args.arg.affiliation === 'owner,organization_member');
             assert(args.token);
             done(githubCallRes.err, githubCallRes.data);
@@ -742,7 +742,7 @@ describe('repo:getUserRepos', function () {
             repo: 'myRepo',
             owner: 'owner',
             repoId: 123,
-            save: function () {}
+            save: function () { }
         }];
 
         sinon.spy(repoFindRes.data[0], 'save');
@@ -768,7 +768,7 @@ describe('repo:getGHRepo', function () {
             data: testData.repo
         };
 
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             done(githubCallRes.err, githubCallRes.data);
         });
 

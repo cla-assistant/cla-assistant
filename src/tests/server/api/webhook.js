@@ -16,23 +16,23 @@ var webhook_api = require('../../../server/api/webhook');
 
 var testData = require('../testData').data;
 
-describe('webhookApi', function() {
+describe('webhookApi', function () {
     var resGetHooks;
-    beforeEach(function() {
+    beforeEach(function () {
         resGetHooks = [{
             id: 123,
             config: {
                 url: url.baseWebhook
             }
         }];
-        sinon.stub(github, 'call', function(args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.fun === 'getHooks') {
                 done(null, resGetHooks);
             } else {
                 done();
             }
         });
-        sinon.stub(Repo, 'findOne', function(args, done) {
+        sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             var repo = {
                 repo: 'myRepo',
                 owner: 'login',
@@ -41,12 +41,12 @@ describe('webhookApi', function() {
             done(null, repo);
         });
     });
-    afterEach(function() {
+    afterEach(function () {
         github.call.restore();
         Repo.findOne.restore();
     });
-    describe('webhook:create', function() {
-        it('should call github service with user token', function(it_done) {
+    describe('webhook:create', function () {
+        it('should call github service with user token', function (it_done) {
             var expArgs = {
                 obj: 'repos',
                 fun: 'createHook',
@@ -76,13 +76,13 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.create(req, function() {
+            webhook_api.create(req, function () {
                 assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
 
-        it('should create a webhook for an organisation', function(it_done) {
+        it('should create a webhook for an organisation', function (it_done) {
             var expArgs = {
                 obj: 'orgs',
                 fun: 'createHook',
@@ -111,15 +111,15 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.create(req, function() {
+            webhook_api.create(req, function () {
                 assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
     });
 
-    describe('webhook:get', function() {
-        it('should call github service with user token for repo hooks', function(it_done) {
+    describe('webhook:get', function () {
+        it('should call github service with user token for repo hooks', function (it_done) {
             var expArgs = {
                 obj: 'repos',
                 fun: 'getHooks',
@@ -148,14 +148,14 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.get(req, function(err, hooks) {
+            webhook_api.get(req, function (err, hooks) {
                 assert(hooks);
                 github.call.calledWithMatch(expArgs);
                 it_done();
             });
         });
 
-        it('should call github service with user token for org hooks', function(it_done) {
+        it('should call github service with user token for org hooks', function (it_done) {
             var expArgs = {
                 obj: 'orgs',
                 fun: 'getHooks',
@@ -182,7 +182,7 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.get(req, function(err, hooks) {
+            webhook_api.get(req, function (err, hooks) {
                 assert(hooks);
                 github.call.calledWithMatch(expArgs);
                 it_done();
@@ -190,8 +190,8 @@ describe('webhookApi', function() {
         });
     });
 
-    describe('webhook:remove', function() {
-        it('should call github service with user token for REPO hook', function(it_done) {
+    describe('webhook:remove', function () {
+        it('should call github service with user token for REPO hook', function (it_done) {
             var expArgs = {
                 obj: 'repos',
                 fun: 'deleteHook',
@@ -215,13 +215,13 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.remove(req, function() {
+            webhook_api.remove(req, function () {
                 assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
 
-        it('should call github service with user token for ORG hook', function(it_done) {
+        it('should call github service with user token for ORG hook', function (it_done) {
             var expArgs = {
                 obj: 'orgs',
                 fun: 'deleteHook',
@@ -243,13 +243,13 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.remove(req, function() {
+            webhook_api.remove(req, function () {
                 assert(github.call.calledWithMatch(expArgs));
                 it_done();
             });
         });
 
-        it('should report error if could not delete hook', function(it_done) {
+        it('should report error if could not delete hook', function (it_done) {
             resGetHooks = [{
                 id: 123,
                 config: {
@@ -269,7 +269,7 @@ describe('webhookApi', function() {
                 }
             };
 
-            webhook_api.remove(req, function(error) {
+            webhook_api.remove(req, function (error) {
                 assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
 
                 it_done();

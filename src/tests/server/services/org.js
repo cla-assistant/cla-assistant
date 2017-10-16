@@ -19,7 +19,7 @@ describe('org:create', function () {
     });
 
     it('should create org entry ', function (it_done) {
-        sinon.stub(Org, 'create', function (args, done) {
+        sinon.stub(Org, 'create').callsFake(function (args, done) {
             assert(args.orgId);
             assert(args.org);
             assert(args.gist);
@@ -41,13 +41,13 @@ describe('org:create', function () {
     });
 
 });
-describe('org:get', function() {
-    afterEach(function() {
+describe('org:get', function () {
+    afterEach(function () {
         Org.findOne.restore();
     });
 
-    it('should find org entry ', function(it_done) {
-        sinon.stub(Org, 'findOne', function(args, done) {
+    it('should find org entry ', function (it_done) {
+        sinon.stub(Org, 'findOne').callsFake(function (args, done) {
             assert(args.orgId);
             done(null, {
                 org: args.org
@@ -66,9 +66,9 @@ describe('org:get', function() {
         });
     });
 });
-describe('org:getMultiple', function() {
+describe('org:getMultiple', function () {
     it('should find muliple entries', function (it_done) {
-        sinon.stub(Org, 'find', function (args, done) {
+        sinon.stub(Org, 'find').callsFake(function (args, done) {
             assert(args.orgId.$in.length > 0);
             done(null, [{}, {}]);
         });
@@ -85,13 +85,13 @@ describe('org:getMultiple', function() {
         });
     });
 });
-describe('org:remove', function() {
-    afterEach(function() {
+describe('org:remove', function () {
+    afterEach(function () {
         Org.remove.restore();
     });
 
-    it('should find org entry ', function(it_done) {
-        sinon.stub(Org, 'remove', function(args, done) {
+    it('should find org entry ', function (it_done) {
+        sinon.stub(Org, 'remove').callsFake(function (args, done) {
             assert(args.orgId);
             done(null, {});
         });
