@@ -148,15 +148,15 @@ var testDataComments_withoutCLA = [{
 }];
 
 
-describe('pullRequest:badgeComment', function() {
+describe('pullRequest:badgeComment', function () {
     var direct_call_data, assertionCallBack;
     cla_config.server.github.user = 'cla-assistant';
     cla_config.server.github.pass = 'secret_pass';
 
-    beforeEach(function() {
+    beforeEach(function () {
         cla_config.server.github.token = 'xyz';
 
-        sinon.stub(github, 'call', function(args, git_done) {
+        sinon.stub(github, 'call').callsFake(function (args, git_done) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 git_done(null, direct_call_data);
                 return;
@@ -167,14 +167,14 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         assertionCallBack = undefined;
         github.call.restore();
     });
 
-    it('should create comment with cla-assistant user', function(it_done) {
+    it('should create comment with cla-assistant user', function (it_done) {
         direct_call_data = [];
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'createComment');
             assert(!args.token);
             assert.equal(args.basicAuth.user, 'cla-assistant');
@@ -187,9 +187,9 @@ describe('pullRequest:badgeComment', function() {
         pullRequest.badgeComment('login', 'myRepo', 1);
     });
 
-    it('should edit comment with cla-assistant user', function(it_done) {
+    it('should edit comment with cla-assistant user', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'editComment');
             assert.equal(args.basicAuth.user, 'cla-assistant');
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
@@ -200,9 +200,9 @@ describe('pullRequest:badgeComment', function() {
         pullRequest.badgeComment('login', 'myRepo', 1);
     });
 
-    it('should add a note to the comment if there is a committer who is not a github user', function(it_done) {
+    it('should add a note to the comment if there is a committer who is not a github user', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'editComment');
             assert.equal(args.basicAuth.user, 'cla-assistant');
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0);
@@ -217,9 +217,9 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    it('should add a note to the comment with name of ONE committer who has no github account', function(it_done) {
+    it('should add a note to the comment with name of ONE committer who has no github account', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert(args.arg.body.indexOf('**user1** seems not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
             git_done(null, 'res', 'meta');
             it_done();
@@ -232,9 +232,9 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    it('should add a note to the comment with names of MULTIPLE committers who has no github account', function(it_done) {
+    it('should add a note to the comment with names of MULTIPLE committers who has no github account', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert(args.arg.body.indexOf('**user1, user2** seem not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
             git_done(null, 'res', 'meta');
             it_done();
@@ -247,9 +247,9 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    it('should write a list of signed and not signed users on create', function(it_done) {
+    it('should write a list of signed and not signed users on create', function (it_done) {
         direct_call_data = [];
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'createComment');
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
             assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
@@ -265,9 +265,9 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    it('should NOT write a list of signed and not signed users on create if there is only one committer', function(it_done) {
+    it('should NOT write a list of signed and not signed users on create if there is only one committer', function (it_done) {
         direct_call_data = [];
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'createComment');
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
             assert(args.arg.body.indexOf('**0** out of **1**') < 0);
@@ -282,9 +282,9 @@ describe('pullRequest:badgeComment', function() {
         });
     });
 
-    it('should write a list of signed and not signed users on edit', function(it_done) {
+    it('should write a list of signed and not signed users on edit', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function(args, git_done) {
+        assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'editComment');
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
             assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
@@ -301,11 +301,11 @@ describe('pullRequest:badgeComment', function() {
     });
 });
 
-describe('pullRequest:getComment', function(done) {
-    beforeEach(function() {
+describe('pullRequest:getComment', function (done) {
+    beforeEach(function () {
         cla_config.server.github.token = 'xyz';
 
-        sinon.stub(github, 'call', function(args, cb) {
+        sinon.stub(github, 'call').callsFake(function (args, cb) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
@@ -313,18 +313,18 @@ describe('pullRequest:getComment', function(done) {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         github.call.restore();
     });
 
-    it('should get CLA assistant_s commment', function(it_done) {
+    it('should get CLA assistant_s commment', function (it_done) {
 
         var args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
         };
-        pullRequest.getComment(args, function(err, comment) {
+        pullRequest.getComment(args, function (err, comment) {
             assert.ifError(err);
             assert(github.call.called);
             assert.deepEqual(comment, testDataComments_withCLAComment[1]);
@@ -332,9 +332,9 @@ describe('pullRequest:getComment', function(done) {
         });
     });
 
-    it('should not find the comment if it is not there', function(it_done) {
+    it('should not find the comment if it is not there', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function(arg, cb) {
+        sinon.stub(github, 'call').callsFake(function (arg, cb) {
             cb(null, testDataComments_withoutCLA);
         });
         var args = {
@@ -342,7 +342,7 @@ describe('pullRequest:getComment', function(done) {
             owner: 'owner',
             number: 1
         };
-        pullRequest.getComment(args, function(err, comment) {
+        pullRequest.getComment(args, function (err, comment) {
             assert.ifError(err);
             assert(github.call.called);
             assert(!comment);
@@ -350,9 +350,9 @@ describe('pullRequest:getComment', function(done) {
         });
     });
 
-    it('should not find the comment if github is not answering in a proper way', function(it_done) {
+    it('should not find the comment if github is not answering in a proper way', function (it_done) {
         github.call.restore();
-        sinon.stub(github, 'call', function(arg, cb) {
+        sinon.stub(github, 'call').callsFake(function (arg, cb) {
             cb(null, {
                 message: 'Error'
             });
@@ -362,7 +362,7 @@ describe('pullRequest:getComment', function(done) {
             owner: 'owner',
             number: 1
         };
-        pullRequest.getComment(args, function(err, comment) {
+        pullRequest.getComment(args, function (err, comment) {
             assert(err);
             assert(github.call.called);
             assert(!comment);
@@ -371,12 +371,12 @@ describe('pullRequest:getComment', function(done) {
     });
 });
 
-describe('pullRequest:editComment', function() {
+describe('pullRequest:editComment', function () {
     var assertionCallBack;
-    beforeEach(function() {
+    beforeEach(function () {
         cla_config.server.github.token = 'xyz';
 
-        sinon.stub(github, 'call', function(args, cb) {
+        sinon.stub(github, 'call').callsFake(function (args, cb) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
@@ -392,26 +392,26 @@ describe('pullRequest:editComment', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
         github.call.restore();
         assertionCallBack = undefined;
     });
 
-    it('should edit comment if not signed', function(it_done) {
+    it('should edit comment if not signed', function (it_done) {
         var args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
         };
 
-        pullRequest.editComment(args, function() {
+        pullRequest.editComment(args, function () {
             assert(github.call.calledTwice);
 
             it_done();
         });
     });
 
-    it('should write a list of signed and not signed users on edit if not signed', function(it_done) {
+    it('should write a list of signed and not signed users on edit if not signed', function (it_done) {
         var args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -423,7 +423,7 @@ describe('pullRequest:editComment', function() {
             }
         };
 
-        assertionCallBack = function(params, git_done) {
+        assertionCallBack = function (params, git_done) {
             assert.equal(params.fun, 'editComment');
             assert(params.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
             assert(params.arg.body.indexOf('**1** out of **2**') >= 0);
@@ -432,14 +432,14 @@ describe('pullRequest:editComment', function() {
             git_done(null, 'res', 'meta');
         };
 
-        pullRequest.editComment(args, function() {
+        pullRequest.editComment(args, function () {
             assert(github.call.called);
 
             it_done();
         });
     });
 
-    it('should edit comment if signed', function(it_done) {
+    it('should edit comment if signed', function (it_done) {
         var args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -447,7 +447,7 @@ describe('pullRequest:editComment', function() {
             signed: true
         };
 
-        pullRequest.editComment(args, function() {
+        pullRequest.editComment(args, function () {
             assert(github.call.called);
             assert(github.call.called);
 
@@ -455,7 +455,7 @@ describe('pullRequest:editComment', function() {
         });
     });
 
-    it('should not fail if no callback provided', function() {
+    it('should not fail if no callback provided', function () {
         var args = {
             repo: 'myRepo',
             owner: 'owner',

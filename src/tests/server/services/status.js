@@ -288,7 +288,7 @@ describe('status:update', function () {
             data: testStatusesPending,
             err: null
         };
-        sinon.stub(github, 'call', function (args, done) {
+        sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.obj === 'pullRequests' && args.fun === 'get') {
                 assert(args.token);
                 done(githubCallPRGet.err, githubCallPRGet.data);

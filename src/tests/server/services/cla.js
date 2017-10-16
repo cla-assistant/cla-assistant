@@ -67,32 +67,32 @@ function stub() {
         name: 'login'
     }];
 
-    sinon.stub(CLA, 'findOne', function (args, selector, options, done) {
+    sinon.stub(CLA, 'findOne').callsFake(function (args, selector, options, done) {
         if (!options && !done) {
             done = selector;
         }
         done(testErr.claFindOne, testRes.claFindOne);
     });
 
-    sinon.stub(org_service, 'get', function (args, done) {
+    sinon.stub(org_service, 'get').callsFake(function (args, done) {
         done(testErr.orgServiceGet, testRes.orgServiceGet);
     });
 
-    sinon.stub(repo_service, 'get', function (args, done) {
+    sinon.stub(repo_service, 'get').callsFake(function (args, done) {
         done(testErr.repoServiceGet, testRes.repoServiceGet);
     });
 
-    sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+    sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
         done(null, testData.repo);
     });
 
-    sinon.stub(logger, 'error', function (msg) {
+    sinon.stub(logger, 'error').callsFake(function (msg) {
         assert(msg);
     });
-    sinon.stub(logger, 'warn', function (msg) {
+    sinon.stub(logger, 'warn').callsFake(function (msg) {
         assert(msg);
     });
-    sinon.stub(logger, 'info', function (msg) {
+    sinon.stub(logger, 'info').callsFake(function (msg) {
         assert(msg);
     });
 
@@ -122,10 +122,10 @@ describe('cla:get', function () {
             gist_version: 'xyz',
             org_cla: false
         };
-        sinon.stub(repo_service, 'get', function (args, done) {
+        sinon.stub(repo_service, 'get').callsFake(function (args, done) {
             done(null, testData.repo_from_db);
         });
-        sinon.stub(CLA, 'findOne', function (arg, done) {
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
             done(null, true);
         });
     });
@@ -300,12 +300,12 @@ describe('cla:check', function () {
 
         stub();
 
-        sinon.stub(repo_service, 'getPRCommitters', function (arg, done) {
+        sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
             assert(arg.number ? arg.number : arg.user);
             done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
         });
 
-        sinon.stub(https, 'request', function (options, done) {
+        sinon.stub(https, 'request').callsFake(function (options, done) {
             assert.equal(options.hostname, 'api.github.com');
             assert(options.headers.Authorization);
 
@@ -313,7 +313,7 @@ describe('cla:check', function () {
             triggerHttpsResponse();
             return req;
         });
-        // sinon.stub(https, 'request', function (options, done) {
+        // sinon.stub(https, 'request').callsFake(function (options, done) {
         //     assert.deepEqual(options, {
         //         hostname: 'api.github.com',
         //         port: 443,
@@ -486,7 +486,7 @@ describe('cla:check', function () {
 
     it('should negative check for pull request if pull request number given', function (it_done) {
         CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne', function (arg, done) {
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
             if (arg.user === 'login') {
                 done(null, {
                     id: 123,
@@ -514,7 +514,7 @@ describe('cla:check', function () {
 
     it('should return map of committers who has signed and who has not signed cla', function (it_done) {
         CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne', function (arg, done) {
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
             if (arg.user === 'login') {
                 done(null, {
                     id: 123,
@@ -556,7 +556,7 @@ describe('cla:check', function () {
         }];
 
         CLA.findOne.restore();
-        sinon.stub(CLA, 'findOne', function (arg, done) {
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
             if (arg.user === 'login') {
                 done(null, {
                     id: 123,
@@ -684,14 +684,14 @@ describe('cla:sign', function () {
             token: 'abc'
         };
 
-        sinon.stub(cla, 'get', function (args, done) {
+        sinon.stub(cla, 'get').callsFake(function (args, done) {
             if (args.user !== 'login') {
                 done(null, testRes.claGet);
             } else {
                 done(null, undefined);
             }
         });
-        sinon.stub(CLA, 'create', function (args, done) {
+        sinon.stub(CLA, 'create').callsFake(function (args, done) {
             assert(args);
 
             assert(args.repoId ? args.repoId : args.ownerId);
@@ -703,7 +703,7 @@ describe('cla:sign', function () {
             done(testErr.claCreate, testRes.claCreate);
         });
 
-        // sinon.stub(github, 'direct_call', function (args, done) {
+        // sinon.stub(github, 'direct_call').callsFake(function (args, done) {
         //     assert(args.url);
         //     assert(args.token);
         //     assert.equal(args.url, url.githubPullRequests('owner', 'myRepo', 'open'));
@@ -717,7 +717,7 @@ describe('cla:sign', function () {
         //     });
         // });
 
-        sinon.stub(https, 'request', function (options, done) {
+        sinon.stub(https, 'request').callsFake(function (options, done) {
             assert.equal(options.hostname, 'api.github.com');
             assert(options.headers.Authorization);
 
@@ -726,21 +726,21 @@ describe('cla:sign', function () {
             return req;
         });
 
-        sinon.stub(org_service, 'get', function (args, done) {
+        sinon.stub(org_service, 'get').callsFake(function (args, done) {
             assert(args);
             done(null, testRes.orgServiceGet);
         });
 
-        sinon.stub(repo_service, 'get', function (args, done) {
+        sinon.stub(repo_service, 'get').callsFake(function (args, done) {
             assert(args);
             done(null, testRes.repoServiceGet);
         });
 
-        sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
             done(null, testData.repo);
         });
 
-        sinon.stub(statusService, 'update', function (args) {
+        sinon.stub(statusService, 'update').callsFake(function (args) {
             assert(args.signed);
         });
     });
@@ -821,7 +821,7 @@ describe('cla:create', function () {
     });
 
     it('should create cla entry for equal repo, user and gist url', function (it_done) {
-        sinon.stub(CLA, 'create', function (arg, done) {
+        sinon.stub(CLA, 'create').callsFake(function (arg, done) {
             assert(arg);
             assert(arg.gist_url);
             assert(arg.gist_version);
@@ -852,7 +852,7 @@ describe('cla:create', function () {
 
 describe('cla:getSignedCLA', function () {
     it('should get all clas signed by the user but only one per repo (linked or not)', function (it_done) {
-        sinon.stub(repo_service, 'all', function (done) {
+        sinon.stub(repo_service, 'all').callsFake(function (done) {
             done(null, [{
                 repo: 'repo1',
                 gist_url: 'gist_url'
@@ -862,7 +862,7 @@ describe('cla:getSignedCLA', function () {
             }]);
         });
 
-        sinon.stub(CLA, 'find', function (arg, selectionCriteria, sortCriteria, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, selectionCriteria, sortCriteria, done) {
             var listOfAllCla = [{
                 repo: 'repo1',
                 user: 'login',
@@ -901,7 +901,7 @@ describe('cla:getSignedCLA', function () {
     });
 
     it('should select cla for the actual linked gist per repo even if it is signed earlier than others', function (it_done) {
-        sinon.stub(repo_service, 'all', function (done) {
+        sinon.stub(repo_service, 'all').callsFake(function (done) {
             done(null, [{
                 repo: 'repo1',
                 gist_url: 'gist_url2'
@@ -913,7 +913,7 @@ describe('cla:getSignedCLA', function () {
                 gist_url: 'gist_url'
             }]);
         });
-        sinon.stub(CLA, 'find', function (arg, selectionCriteria, sortCriteria, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, selectionCriteria, sortCriteria, done) {
             var listOfAllCla = [{
                 repo: 'repo1',
                 user: 'login',
@@ -963,7 +963,7 @@ describe('cla:getSignedCLA', function () {
 
 describe('cla:getAll', function () {
     beforeEach(function () {
-        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
             assert(arg.gist_url);
             var resp = [{
@@ -1048,7 +1048,7 @@ describe('cla:getAll', function () {
 
     it('should handle undefined clas', function (it_done) {
         CLA.find.restore();
-        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
             done('Error!', undefined);
         });
@@ -1082,7 +1082,7 @@ describe('cla:getAll', function () {
 
     it('should get all clas for shared gist repo/org', function (it_done) {
         CLA.find.restore();
-        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
             done();
         });
@@ -1150,7 +1150,7 @@ describe('cla:getAll', function () {
 
 describe('cla:getGist', function () {
     it('should extract valid gist ID', function (it_done) {
-        sinon.stub(https, 'request', function (options, done) {
+        sinon.stub(https, 'request').callsFake(function (options, done) {
             assert.equal(options.path, '/gists/gistId/versionId');
             done(res);
             return req;
@@ -1186,13 +1186,13 @@ describe('cla:getLinkedItem', function () {
     it('should find linked item using reponame and owner parameters', function (it_done) {
         config.server.github.token = 'test_token';
 
-        sinon.stub(repo_service, 'get', function (args, done) {
+        sinon.stub(repo_service, 'get').callsFake(function (args, done) {
             done(null, testRes.repoServiceGet);
         });
-        sinon.stub(org_service, 'get', function (args, done) {
+        sinon.stub(org_service, 'get').callsFake(function (args, done) {
             done(null, testRes.orgServiceGet);
         });
-        sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
             assert(args.token);
             done(null, testData.repo);
         });
@@ -1216,7 +1216,7 @@ describe('cla:getLinkedItem', function () {
             repo: 'DoesNotExist',
             owner: 'NoOne'
         };
-        sinon.stub(repo_service, 'getGHRepo', function (args, done) {
+        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
             assert(testArgs.repo === args.repo);
             assert(testArgs.owner === args.owner);
             done('GH Repo not found', null);

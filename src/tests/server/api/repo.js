@@ -16,7 +16,7 @@ var repo_api = require('../../../server/api/repo');
 
 
 describe('repo', function () {
-    describe('on repo:create', function() {
+    describe('on repo:create', function () {
         var req, res;
         beforeEach(function () {
             req = {
@@ -44,16 +44,16 @@ describe('repo', function () {
                     data: null
                 }
             };
-            sinon.stub(repo, 'get', function (args, done) {
+            sinon.stub(repo, 'get').callsFake(function (args, done) {
                 done(res.repoGet.err, res.repoGet.data);
             });
-            sinon.stub(repo, 'getGHRepo', function (args, done) {
+            sinon.stub(repo, 'getGHRepo').callsFake(function (args, done) {
                 done(res.repoGetGHRepo.err, res.repoGetGHRepo.data);
             });
-            sinon.stub(repo, 'create', function (args, done) {
+            sinon.stub(repo, 'create').callsFake(function (args, done) {
                 done();
             });
-            sinon.stub(repo, 'update', function (args, done) {
+            sinon.stub(repo, 'update').callsFake(function (args, done) {
                 done(res.repoUpdate.err, res.repoUpdate.data);
             });
         });
@@ -144,7 +144,7 @@ describe('repo', function () {
     });
 
     it('should check via repo service', function (it_done) {
-        var repoStub = sinon.stub(repo, 'check', function (args, done) {
+        var repoStub = sinon.stub(repo, 'check').callsFake(function (args, done) {
             assert.deepEqual(args, {
                 repo: 'myRepo',
                 owner: 'login'
@@ -166,7 +166,7 @@ describe('repo', function () {
     });
 
     it('should update via repo service', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'findOne', function (args, done) {
+        var repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
             var r = {
                 owner: 'login',
                 gist: 1234,
@@ -193,7 +193,7 @@ describe('repo', function () {
     });
 
     it('should remove via repo service', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'remove', function () {
+        var repoStub = sinon.stub(Repo, 'remove').callsFake(function () {
             var r = {
                 exec: function (cb) {
                     cb(null);
@@ -219,13 +219,13 @@ describe('repo', function () {
     });
 
     it('should get all repos for user', function () {
-        sinon.stub(Repo, 'find', function (args, cb) {
+        sinon.stub(Repo, 'find').callsFake(function (args, cb) {
             if (args.$or && args.$or[0].repoId === 123) {
                 var r = {
                     owner: 'login',
                     gist: 1234,
                     repoId: 123,
-                    save: function () {}
+                    save: function () { }
                 };
                 cb(null, [r]);
                 return;
