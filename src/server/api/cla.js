@@ -344,6 +344,7 @@ let ClaApi = {
     getLastSignature: function (req, done) {
         let args = req.args;
         args.user = req.user.login;
+        args.userId = req.user.id;
         cla.getLastSignature(args, done);
     },
 
@@ -582,7 +583,8 @@ let ClaApi = {
             repo: req.args.repo,
             owner: req.args.owner,
             number: req.args.number,
-            user: req.user.login
+            user: req.user.login,
+            userId: req.user.id
         };
 
         cla.check(args, done);
