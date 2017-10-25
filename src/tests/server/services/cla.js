@@ -2,7 +2,6 @@
 // unit test
 let assert = require('assert');
 let sinon = require('sinon');
-const util = require('util');
 
 //model
 let CLA = require('../../../server/documents/cla').CLA;

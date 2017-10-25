@@ -8,116 +8,110 @@ let repoService = require('../services/repo');
 let logger = require('../services/logger');
 let config = require('../../config');
 let User = require('mongoose').model('User');
-
+const promisify = require('../util').promisify;
+const promiseDelay = require('../util').promiseDelay;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // GitHub Pull Request Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-function storeRequest(committers, repo, owner, number) {
+function storeRequest(committers, repo, owner, number, done) {
     committers.forEach(function (committer) {
         User.findOne({ name: committer }, (err, user) => {
             if (err) {
-                logger.warn(err.stack);
+                done(err);
             }
             let pullRequest = { repo: repo, owner: owner, numbers: [number] };
             if (!user) {
-                User.create({ name: committer, requests: [pullRequest] }, (error) => {
-                    if (error) {
-                        logger.warn(error.stack);
-                    }
-                });
-
-                return;
+                return User.create({ name: committer, requests: [pullRequest] }, done);
             }
             if (!user.requests || user.requests.length < 1) {
                 user.requests = user.requests ? user.requests : [];
                 user.requests.push(pullRequest);
-                user.save();
 
-                return;
+                return user.save(done);
             }
             let repoPullRequests = user.requests.find((request) => {
                 return request.repo === repo && request.owner === owner;
             });
             if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
                 repoPullRequests.numbers.push(number);
-                user.save();
+
+                return user.save(done);
             }
             if (!repoPullRequests) {
                 user.requests.push(pullRequest);
-                user.save();
+
+                return user.save(done);
             }
         });
     });
 }
 
-function updateStatusAndComment(args) {
-    repoService.getPRCommitters(args, function (err, committers) {
-        if (!err && committers && committers.length > 0) {
-            cla.check(args, function (error, signed, user_map) {
-                if (error) {
-                    logger.warn(new Error(error).stack);
-                }
-                args.signed = signed;
-                if (!user_map ||
-                    (user_map.signed && user_map.signed.length > 0) ||
-                    (user_map.not_signed && user_map.not_signed.length > 0) ||
-                    (user_map.unknown && user_map.unknown.length > 0)
-                ) {
-                    status.update(args);
-                } else {
-                    status.updateForClaNotRequired(args);
-                }
-                // if (!signed) {
-                pullRequest.badgeComment(
-                    args.owner,
-                    args.repo,
-                    args.number,
-                    signed,
-                    user_map
-                );
-                if (user_map && user_map.not_signed) {
-                    storeRequest(user_map.not_signed, args.repo, args.owner, args.number);
-                }
-                // }
-            });
-        } else {
-            if (!args.handleCount || args.handleCount < 2) {
-                args.handleCount = args.handleCount ? ++args.handleCount : 1;
-                setTimeout(function () {
-                    updateStatusAndComment(args);
-                }, 10000 * args.handleCount * args.handleDelay);
-            } else {
-                logger.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
-            }
+async function updateStatusAndComment(args) {
+    try {
+        const [committers] = await promisify(repoService.getPRCommitters.bind(repoService))(args);
+        if (!committers || committers.length === 0) {
+            throw new Error('Cannot get committers of the pull request');
         }
-    });
+        const [signed, user_map] = await promisify(cla.check.bind(cla))(args);
+        args.signed = signed;
+        if (!user_map ||
+            (user_map.signed && user_map.signed.length > 0) ||
+            (user_map.not_signed && user_map.not_signed.length > 0) ||
+            (user_map.unknown && user_map.unknown.length > 0)
+        ) {
+            await promisify(status.update.bind(status))(args);
+        } else {
+            await promisify(status.updateForClaNotRequired.bind(status))(args);
+        }
+        if (!signed || config.server.feature_flag.close_comment !== 'true') {
+            await promisify(pullRequest.badgeComment.bind(pullRequest))(
+                args.owner,
+                args.repo,
+                args.number,
+                signed,
+                user_map
+            );
+        }
+        if (user_map && user_map.not_signed) {
+            await promisify(storeRequest)(user_map.not_signed, args.repo, args.owner, args.number);
+        }
+    } catch (err) {
+        if (!args.handleCount || args.handleCount < 2) {
+            args.handleCount = args.handleCount ? ++args.handleCount : 1;
+            await promiseDelay(10000 * args.handleCount * args.handleDelay);
+            await updateStatusAndComment(args);
+        } else {
+            logger.warn(new Error(err).stack, 'called with args: ', { repo: args.repo, owner: args.owner, number: args.number, handleCount: args.handleCount });
+            throw err;
+        }
+    }
 }
 
 async function handleWebHook(args) {
     try {
-        const claRequired = await cla.isClaRequired(args);
-        if (claRequired) {
-            updateStatusAndComment(args);
+        args.isClaRequired = await cla.isClaRequired(args);
+        if (args.isClaRequired) {
+            await updateStatusAndComment(args);
         } else {
-            status.updateForClaNotRequired(args);
-            pullRequest.deleteComment({
+            await promisify(status.updateForClaNotRequired.bind(status))(args);
+            await promisify(pullRequest.deleteComment.bind(pullRequest))({
                 repo: args.repo,
                 owner: args.owner,
                 number: args.number
             });
         }
     } catch (error) {
-        return logger.error(error);
+        logger.error(error, { repo: args.repo, owner: args.owner, number:args.number, sha: args.sha, signed: args.signed });
+        throw error;
     }
 }
 
 module.exports = function (req, res) {
-    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
+    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && isRepoEnabled(req.args.repository)) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
-            // eslint-disable-next-line no-console
-            console.log('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
+            logger.info('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
         }
         let args = {
             owner: req.args.repository.owner.login,
@@ -127,7 +121,7 @@ module.exports = function (req, res) {
         };
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
-
+        let startTime = process.hrtime();
 
         setTimeout(async function () {
             try {
@@ -142,14 +136,44 @@ module.exports = function (req, res) {
                 if (item.repoId) {
                     args.orgId = undefined;
                 }
+                await handleWebHook(args);
 
-                return handleWebHook(args);
+                return collectMetrics(req.args.pull_request, startTime, args.signed, req.args.action, args.isClaRequired);
             } catch (e) {
-                logger.warn(e);
-
+                logger.error(e, 'CLAAssistantHandleWebHookFail', { owner: args.owner, repo: args.repo, number: args.number });
             }
         }, config.server.github.enforceDelay);
     }
 
     res.status(200).send('OK');
 };
+
+function isRepoEnabled(repository) {
+    return repository && (repository.private === false || config.server.feature_flag.enable_private_repos === 'true');
+}
+
+function collectMetrics(pullRequest, startTime, signed, action, isClaRequired) {
+    let diffTime = process.hrtime(startTime);
+    const logProperty = {
+        owner: pullRequest.base.repo.owner.login,
+        repo: pullRequest.base.repo.name,
+        number: pullRequest.number,
+        signed: signed,
+        isClaRequired: isClaRequired,
+        action: action
+    };
+    logger.trackEvent('CLAAssistantPullRequestDuration', logProperty, { CLAAssistantPullRequestDuration: diffTime[0] * 1000 + Math.round(diffTime[1] / Math.pow(10, 6)) });
+    if (action !== 'opened') {
+        return;
+    }
+
+    return cla.isEmployee(pullRequest.user.id, function (err, isEmployee) {
+        if (err) {
+            return logger.error(err, 'CLAAssistantCheckEmployeeFail', logProperty);
+        }
+        logger.trackEvent('CLAAssistantPullRequest', Object.assign(logProperty, { isEmployee: isEmployee }), { CLAAssistantPullRequest: isEmployee ? 0 : 1 });
+        if (!isEmployee && isClaRequired) {
+            logger.trackEvent(signed ? 'CLAAssistantAlreadySignedPullRequest' : 'CLAAssistantCLARequiredPullRequest', logProperty, signed ? { CLAAssistantAlreadySignedPullRequest: 1 } : { CLAAssistantCLARequiredPullRequest: 1 });
+        }
+    });
+}

@@ -438,7 +438,7 @@ module.exports = function () {
             args.orgId = item.orgId;
             args.onDates = [new Date()];
 
-            if (!args.gist) { 
+            if (!args.gist) {
                 return ({ signed: true });
             }
 
@@ -760,6 +760,16 @@ module.exports = function () {
 
         isClaRequired: function (args) {
             return isSignificantPullRequest(args.repo, args.owner, args.number, args.token);
+        },
+
+        isEmployee: function (userId, done) {
+            return CLA.findOne({
+                userId: userId,
+                custom_fields: { $regex: 'Microsoft employee or intern' },
+                end_at: { $exists: false }
+            }, function (err, signature) {
+                done(err, !!signature);
+            });
         }
     };
 

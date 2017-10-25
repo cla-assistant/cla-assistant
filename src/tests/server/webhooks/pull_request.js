@@ -255,6 +255,10 @@ describe('webhook pull request', function () {
     };
 
     let test_req, testRes, testUser, testUserSaved;
+    const noOpCallBack = (...args) => {
+        const done = args.pop();
+        done();
+    };
 
     beforeEach(function () {
         test_req = {
@@ -330,16 +334,17 @@ describe('webhook pull request', function () {
             done(null, testRes.getPRCommitters);
         });
 
-        sinon.stub(pullRequest, 'badgeComment').callsFake(function () { });
-        sinon.stub(pullRequest, 'deleteComment').callsFake(function () { });
-        sinon.stub(status, 'update').callsFake(function (args) {
+        sinon.stub(pullRequest, 'badgeComment').callsFake(noOpCallBack);
+        sinon.stub(pullRequest, 'deleteComment').callsFake(noOpCallBack);
+        sinon.stub(status, 'update').callsFake(function (args, done) {
             assert(args.owner);
             assert(args.repo);
             assert(args.number);
             assert(args.signed !== undefined);
             assert(args.token);
+            done();
         });
-        sinon.stub(status, 'updateForClaNotRequired').callsFake(function () { });
+        sinon.stub(status, 'updateForClaNotRequired').callsFake(noOpCallBack);
 
         sinon.stub(orgService, 'get').callsFake(function (args, done) {
             assert(args.orgId);
@@ -636,7 +641,7 @@ describe('webhook pull request', function () {
 
     it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {
         repoService.getPRCommitters.restore();
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
+        sinon.stub(repoService, 'getPRCommitters').callsFake(function (_args, done) {
             done('Could not get committers', null);
         });
         this.timeout(1000);

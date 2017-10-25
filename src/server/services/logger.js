@@ -28,6 +28,13 @@ if (config.server.appInsights) {
         .setAutoCollectConsole(true)
         .setAutoCollectDependencies(false)
         .start();
+    log.trackEvent = function (name, properties, measurements) {
+        return appInsights.defaultClient.trackEvent({ name, properties, measurements });
+    };
+} else {
+    log.trackEvent = function (name, properties, measurements) {
+        log.info({ name, properties, measurements });
+    };
 }
 
 try {

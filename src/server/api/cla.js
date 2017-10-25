@@ -224,6 +224,11 @@ async function updateUsersPullRequests(args) {
         if (!user || !user.requests || user.requests.length < 1) {
             throw 'user or PRs not found';
         }
+        let pullRequestNumber = 0;
+        user.requests.forEach(request => {
+            pullRequestNumber += request.numbers.length;
+        });
+        log.trackEvent('CLAAssistantSignedPullRequest', { requests: JSON.stringify(user.requests) }, { CLAAssistantSignedPullRequest: pullRequestNumber });
 
         return prepareForValidation(args.item, user);
     } catch (e) {
@@ -607,6 +612,7 @@ let ClaApi = {
             args.custom_fields = req.args.custom_fields;
         }
         try {
+            let startTime = new Date();
             const item = await this.getLinkedItem({
                 args: {
                     repo: args.repo,
@@ -619,7 +625,9 @@ let ClaApi = {
             args.origin = `sign|${req.user.login}`;
 
             const signed = await cla.sign(args);
+            log.info({ name: 'CLAAssistantUserSign', repo: args.repo, owner: args.owner });
             await updateUsersPullRequests(args);
+            log.trackEvent('CLAAssistantUserSignDuration', { repo: args.repo, owner: args.owner }, { CLAAssistantUserSignDuration: (new Date() - startTime) / 1000 });
 
             return signed;
         } catch (e) {

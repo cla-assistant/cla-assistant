@@ -48,9 +48,7 @@ describe('github:call', function () {
         authenticateStub.reset();
         getNextPageStub.reset();
         cache.clear();
-        sinon.stub(logger, 'info').callsFake(function () {
-            return;
-        });
+        sinon.stub(logger, 'info').callsFake(() => { }); //eslint-disable-line no-empty-function
     });
 
     afterEach(function () {
