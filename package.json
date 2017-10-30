@@ -22,32 +22,32 @@
         "array-sugar": "^1.2.2",
         "async": "^2.0.0-rc",
         "body-parser": "^1.18.2",
-        "bower": "^1.7.9",
+        "bower": "^1.8.2",
         "bunyan": "^1.8.1",
-        "bunyan-sentry-stream": "^1.0.2",
+        "bunyan-sentry-stream": "^1.2.1",
         "bunyan-slack": "0.0.10",
         "colors": "^1.1.2",
         "connect-mongo": "^2.0.0",
         "cookie-parser": "^1.4.3",
         "ejs": "^2.4.2",
-        "express": "^4.16.0",
+        "express": "^4.16.2",
         "express-session": "^1.15.6",
         "github": "^11.0.0",
         "glob": "^7.0.5",
-        "karma": "^1.7.1",
+        "karma": "^1.1.0",
         "karma-mocha": "^1.1.1",
         "memory-cache": "^0.2.0",
         "merge": "^1.2.0",
-        "mongoose": "^4.11",
+        "mongoose": "^4.12.2",
         "node-sass-middleware": "^0.11.0",
         "passport": "^0.4.0",
         "passport-accesstoken": "^0.1.0",
         "passport-github": "^1.1.0",
         "q": "^1.4.1",
         "raven": "^2.2.1",
-        "request": "^2.81.0",
-        "snyk": "^1.47.0",
-        "socket.io": "^2.0.3",
+        "request": "^2.83.0",
+        "snyk": "^1.42.7",
+        "socket.io": "^2.0.2",
         "valid-url": "^1.0.9",
         "x-frame-options": "^1.0.0"
     },
@@ -62,9 +62,10 @@
         "grunt-http": "2.2.0",
         "grunt-karma": "^2.0.0",
         "grunt-mocha-istanbul": "^5.0.1",
-        "grunt-mocha-test": "^0.13.2",
+        "grunt-mocha-test": "^0.13.3",
         "grunt-scss-lint": "^0.5.0",
         "istanbul": "^0.4.4",
+        "karma": "^1.0.0",
         "karma-chrome-launcher": "^2.0.0",
         "karma-mocha": "^1.0.1",
         "karma-ng-html2js-preprocessor": "~1.0.0",
@@ -79,7 +80,7 @@
         "supertest": "3.0.0"
     },
     "engines": {
-        "node": ">=8.4"
+        "node": "8.4"
     },
     "scripts": {
         "start": "node app.js",
@@ -87,8 +88,7 @@
         "test": "grunt test",
         "snyk-monitor": "snyk auth $SNYK_TOKEN && snyk monitor",
         "snyk-protect": "snyk protect",
-        "prepublish": "npm run snyk-protect",
-        "prepare": "npm run snyk-protect"
+        "prepublish": "npm run snyk-protect"
     },
     "snyk": true
 }

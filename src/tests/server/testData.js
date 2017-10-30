@@ -86,7 +86,7 @@ var testData = {
         'org': 'octocat',
         'token': 'testToken',
         'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
-        'isRepoExcluded': function() {
+        'isRepoExcluded': function () {
             return false;
         }
     },
@@ -932,7 +932,121 @@ var testData = {
         'additions': 100,
         'deletions': 3,
         'changed_files': 5
+    },
+
+    ////////////////////////////////////////////
+    //////////////// GRAPH QL //////////////////
+    ////////////////////////////////////////////
+
+    'graphqlPRCommitters': {
+        'data': {
+            'repository': {
+                'pullRequest': {
+                    'commits': {
+                        'totalCount': 2,
+                        'edges': [
+                            {
+                                'node': {
+                                    'commit': {
+                                        'author': {
+                                            'email': 'octocat@users.noreply.github.com',
+                                            'name': 'octocat',
+                                            'user': {
+                                                'id': 'MDQ6VXNlcjg5Mjc5Nzg=',
+                                                'login': 'octocat'
+                                            }
+                                        },
+                                        'committer': {
+                                            'user': {
+                                                'id': 'MDQ6VXNlcjg5Mjc5Nzg=',
+                                                'login': 'octocat'
+                                            },
+                                            'email': 'octocat@users.noreply.github.com',
+                                            'name': 'octocat'
+                                        }
+                                    }
+                                },
+                                'cursor': 'MQ=0'
+                            },
+                            {
+                                'node': {
+                                    'commit': {
+                                        'author': {
+                                            'user': {
+                                                'id': '123',
+                                                'login': 'testUser'
+                                            },
+                                            'email': 'testUser@users.noreply.github.com',
+                                            'name': 'testUser'
+                                        },
+                                        'committer': {
+                                            'email': 'octocat@users.noreply.github.com',
+                                            'name': 'octocat',
+                                            'user': {
+                                                'id': 'MDQ6VXNlcjg5Mjc5Nzg=',
+                                                'login': 'octocat'
+                                            }
+                                        }
+                                    }
+                                },
+                                'cursor': 'MQ=='
+                            }
+                        ],
+                        'pageInfo': {
+                            'endCursor': 'MQ==',
+                            'hasNextPage': false
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    'graphqlUserOrgs': {
+        'data': {
+            'user': {
+                'organizations': {
+                    'edges': [
+                        {
+                            'cursor': 'Y3Vyc29yOnYyOpHOAHb2wg==',
+                            'node': {
+                                'login': 'org1',
+                                'name': 'Org 1',
+                                'id': '1',
+                                'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
+                                'viewerCanAdminister': false
+                            }
+                        },
+                        {
+                            'cursor': 'Y3Vyc29yOnYyOpHOAJEA8w==',
+                            'node': {
+                                'login': 'org2',
+                                'name': 'Org 2',
+                                'id': '2',
+                                'avatarUrl': 'https://avatars1.githubusercontent.com/u/9502963?v=4',
+                                'viewerCanAdminister': true
+                            }
+                        },
+                        {
+                            'cursor': 'Y3Vyc29yOnYyOpHOAJIbrg==',
+                            'node': {
+                                'login': 'org3',
+                                'name': 'Org 3',
+                                'id': '3',
+                                'avatarUrl': 'https://avatars0.githubusercontent.com/u/9575342?v=4',
+                                'viewerCanAdminister': true
+                            }
+                        }
+                    ],
+                    'pageInfo': {
+                        'endCursor': 'Y3Vyc29yOnYyOpHOAJIbrg==',
+                        'hasNextPage': false
+                    }
+                }
+            }
+        }
     }
+
 
 };
 

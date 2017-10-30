@@ -1,20 +1,23 @@
 require('../documents/repo');
-var mongoose = require('mongoose');
-var Repo = mongoose.model('Repo');
+let mongoose = require('mongoose');
+let Repo = mongoose.model('Repo');
 
 //services
-var github = require('../services/github');
-var logger = require('../services/logger');
-var orgService = require('../services/org');
+let github = require('../services/github');
+let logger = require('../services/logger');
+let orgService = require('../services/org');
+
+//queries
+let queries = require('../graphQueries/github');
 
 //services
-var url = require('../services/url');
+let url = require('../services/url');
 
-var isTransferredRenamed = function (dbRepo, ghRepo) {
+let isTransferredRenamed = function (dbRepo, ghRepo) {
     return ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
 };
 
-var compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
+let compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
     if (isTransferredRenamed(dbRepo, ghRepo)) {
         dbRepo.owner = ghRepo.owner;
         dbRepo.repo = ghRepo.repo;
@@ -25,7 +28,7 @@ var compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
     }
 };
 
-var compareAllRepos = function (ghRepos, dbRepos, done) {
+let compareAllRepos = function (ghRepos, dbRepos, done) {
     dbRepos.forEach(function (dbRepo) {
         ghRepos.some(function (ghRepo) {
             return compareRepoNameAndUpdate(dbRepo, ghRepo);
@@ -34,45 +37,19 @@ var compareAllRepos = function (ghRepos, dbRepos, done) {
     done();
 };
 
-var extractUserFromCommit = function (commit) {
-    var committer = commit.author || commit.commit.author || commit.committer || commit.commit.committer;
+let extractUserFromCommit = function (commit) {
+    let committer = commit.author.user || commit.committer.user || commit.author || commit.committer;
 
     return committer;
 };
 
-var getPullRequest = function (owner, repo, number, token, done) {
-    github.call({
-        obj: 'pullRequests',
-        fun: 'get',
-        arg: {
-            repo: repo,
-            owner: owner,
-            number: number
-        },
-        token: token
-    }, done);
-};
-
-var getCommit = function (owner, repo, sha, token, done) {
-    github.call({
-        obj: 'repos',
-        fun: 'getCommit',
-        arg: {
-            repo: repo,
-            owner: owner,
-            sha: sha
-        },
-        token: token
-    }, done);
-};
-
-var selection = function (args) {
+let selection = function (args) {
     return args.repoId ? {
         repoId: args.repoId
     } : {
-        repo: args.repo,
-        owner: args.owner
-    };
+            repo: args.repo,
+            owner: args.owner
+        };
 };
 
 module.exports = {
@@ -109,7 +86,7 @@ module.exports = {
         });
     },
     getAll: function (args, done) {
-        var repoIds = [];
+        let repoIds = [];
         args.set.forEach(function (repo) {
             repoIds.push({
                 repoId: repo.repoId
@@ -131,7 +108,7 @@ module.exports = {
     },
 
     update: function (args, done) {
-        var repoArgs = {
+        let repoArgs = {
             repo: args.repo,
             owner: args.owner
         };
@@ -150,135 +127,110 @@ module.exports = {
     },
 
     getPRCommitters: function (args, done) {
-        var self = this;
+        let self = this;
 
-        var handleError = function (err, arguments) {
-            if (!arguments.count) {
-                logger.info(new Error(err).stack);
-                logger.info('getPRCommitters with arg: ', arguments);
+        let handleError = function (err, message, a) {
+            logger.warn(err);
+            if (!a.count) {
+                logger.info('getPRCommitters with arg: ', a);
             }
-            done(err);
+            done(message);
         };
 
-        var callGithub = function (arg, linkedItem) {
-            var committers = [];
-            var linkedRepo = linkedItem && linkedItem.repoId ? linkedItem : undefined;
+        let callGithub = function (arg, linkedItem) {
+            let committers = [];
+            let linkedRepo = linkedItem && linkedItem.repoId ? linkedItem : undefined;
 
-            github.call(arg, function (err, res) {
-                if (err) {
-                    logger.info(new Error(err).stack);
-                    if (!res) {
-                        handleError('No result on GH call, getting PR committers!', arg);
-                        return;
-                    }
+            let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '');
+
+            github.callGraphql(query, arg.token, function (err, res, body) {
+                if (err || res.statusCode > 200) {
+                    let msg = 'No result on GH call, getting PR committers!' + err;
+                    handleError(new Error(msg).stack, msg, arg);
+                    return;
                 }
                 if (res && !res.message) {
-                    res.forEach(function (commit) {
+                    body = JSON.parse(body);
+                    let data = body.data;
+
+                    if (body.errors) {
+                        logger.info(new Error(body.errors[0].message).stack);
+                    }
+                    if (!data) {
+                        done('No committers found');
+                        return;
+                    }
+                    data.repository.pullRequest.commits.edges.forEach((edge) => {
                         try {
-                            var committer = extractUserFromCommit(commit);
-                        } catch (error) {
-                            logger.warn('Problem on PR ', url.githubPullRequest(arg.owner, arg.repo, arg.number));
-                            logger.warn(new Error('commit info seems to be wrong; ' + error).stack);
-                            return;
-                        }
-                        var user = {
-                            name: committer.login || committer.name,
-                            id: committer.id || ''
-                        };
-                        if (committers.length === 0 || committers.map(function (c) {
+                            let committer = extractUserFromCommit(edge.node.commit);
+                            let user = {
+                                name: committer.login || committer.name,
+                                id: committer.id || ''
+                            };
+                            if (committers.length === 0 || committers.map(function (c) {
                                 return c.name;
                             }).indexOf(user.name) < 0) {
-                            committers.push(user);
+                                committers.push(user);
+                            }
+                        } catch (error) {
+                            let msg = 'Problem on PR ' + url.githubPullRequest(arg.owner, arg.repo, arg.number) + 'commit info seems to be wrong; ' + error;
+                            handleError(new Error(msg).stack, msg, arg);
+                            return;
                         }
                     });
-                    done(null, committers);
+
+                    if (data.repository.pullRequest.commits.pageInfo.hasNextPage) {
+                        arg.query = queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, data.repository.pullRequest.commits.pageInfo.endCursor);
+                        callGithub(arg, linkedItem);
+                    } else {
+                        done(null, committers);
+                    }
                 } else if (res.message) {
                     if (res && res.message === 'Moved Permanently' && linkedRepo) {
                         self.getGHRepo(args, function (err, res) {
                             if (res && res.id && compareRepoNameAndUpdate(linkedRepo, {
-                                    repo: res.name,
-                                    owner: res.owner.login,
-                                    repoId: res.id
-                                })) {
+                                repo: res.name,
+                                owner: res.owner.login,
+                                repoId: res.id
+                            })) {
                                 arg.arg.repo = res.name;
                                 arg.arg.owner = res.owner.login;
 
                                 callGithub(arg);
                             } else {
-                                handleError('Moved Permanently ', err, arg);
+                                let msg = 'Moved Permanently ' + err;
+                                handleError(new Error(msg).stack, msg, arg);
                             }
                         });
                     } else {
-                        if (!arg.count) {
-                            arg.count = self.timesToRetryGitHubCall;
-                            setTimeout(function () {
-                                callGithub(arg, linkedItem);
-                            }, 1000 * self.timesToRetryGitHubCall);
-                            return;
-                        }
-                        done(res.message);
+                        handleError(new Error(res.message).stack, res.message, arg);
+                        // if (!arg.count && self.timesToRetryGitHubCall && self.timesToRetryGitHubCall > 0) {
+                        //     arg.count = self.timesToRetryGitHubCall;
+                        //     setTimeout(function () {
+                        //         callGithub(arg, linkedItem);
+                        //     }, 1000 * self.timesToRetryGitHubCall);
+                        //     return;
+                        // } else {
+                        //     done(res.message);
+                        // }
                     }
                 }
 
             });
         };
 
-        var collectTokenAndCallGithub = function (args, item) {
+        let collectTokenAndCallGithub = function (args, item) {
             args.token = item.token;
-            getPullRequest(args.owner, args.repo, args.number, args.token, function (err, pr) {
-                if (err || !pr || pr.message) {
-                    if (!args.count) {
-                        args.count = self.timesToRetryGitHubCall;
-                        setTimeout(function () {
-                            console.log('call again ');
-                            collectTokenAndCallGithub(args, item);
-                        }, 1000 * self.timesToRetryGitHubCall);
-                        return;
-                    }
-                }
-                // args.url = url.githubPullRequestCommits(args.owner, args.repo, args.number);
-                var params = {
-                    obj: 'pullRequests',
-                    fun: 'getCommits',
-                    arg: {
-                        owner: args.owner,
-                        repo: args.repo,
-                        number: args.number,
-                        per_page: 100
-                    },
-                    token: args.token
-                };
-                if (!pr || !pr.commits || pr.commits < 250) { // 250 - limitation from GitHub for the PR-Commits API
-                    callGithub(params, item);
-                } else {
-                    var headCommit = pr.head;
-                    getCommit(args.owner, args.repo, pr.base.sha, args.token, function (err, commit) {
-                        try {
-                            if (err || !commit || !commit.commit.author.date) {
-                                throw new Error(err);
-                            }
-                            // args.url = url.githubCommits(headCommit.repo.owner.login, headCommit.repo.name, headCommit.ref, commit.commit.author.date);
-                            var allCommitsParams = {
-                                obj: 'repos',
-                                fun: 'getCommits',
-                                arg: {
-                                    owner: headCommit.repo.owner.login,
-                                    repo: headCommit.repo.name,
-                                    sha: headCommit.ref,
-                                    since: commit.commit.author.date,
-                                    per_page: 100
-                                },
-                                token: args.token
-                            };
-                            callGithub(allCommitsParams, item);
-                        } catch (e) {
-                            logger.info('Could not load all commits for the log PR, ', new Error(err).stack, ' called with args: ', args);
-                            callGithub(params, item);
-                            return;
-                        }
-                    });
-                }
-            });
+            let params = {
+                arg: {
+                    owner: args.owner,
+                    repo: args.repo,
+                    number: args.number,
+                    per_page: 100
+                },
+                token: args.token
+            };
+            callGithub(params, item);
 
         };
 
@@ -288,7 +240,7 @@ module.exports = {
             if (!org) {
                 self.get(args, function (e, repo) {
                     if (e || !repo) {
-                        handleError(e, args);
+                        handleError(new Error(e).stack, e, args);
                         return;
                     }
                     collectTokenAndCallGithub(args, repo);
@@ -300,8 +252,8 @@ module.exports = {
     },
 
     getUserRepos: function (args, done) {
-        var that = this;
-        var affiliation = args.affiliation ? args.affiliation : 'owner,organization_member';
+        let that = this;
+        let affiliation = args.affiliation ? args.affiliation : 'owner,organization_member';
         github.call({
             obj: 'repos',
             fun: 'getAll',
@@ -317,7 +269,7 @@ module.exports = {
                 return;
             }
 
-            var repoSet = [];
+            let repoSet = [];
             res.forEach(function (githubRepo) {
                 if (githubRepo.permissions.push) {
                     repoSet.push({
@@ -342,10 +294,10 @@ module.exports = {
     },
 
     // updateDBData: function(req, done) {
-    //     var self = this;
+    //     let self = this;
     //     Repo.find({}, function(error, dbRepos){
     //         dbRepos.forEach(function(dbRepo){
-    //             var params = {
+    //             let params = {
     //                 url: url.githubRepository(dbRepo.owner, dbRepo.repo),
     //                 token: req.user.token
     //             };
@@ -363,7 +315,7 @@ module.exports = {
     // },
 
     getGHRepo: function (args, done) {
-        var params = {
+        let params = {
             obj: 'repos',
             fun: 'get',
             arg: {

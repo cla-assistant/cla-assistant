@@ -397,7 +397,6 @@ describe('', function () {
                 assert(args.signed);
             });
             sinon.stub(cla, 'sign').callsFake(function (args, cb) {
-                assert.deepEqual(args, expArgs.claSign);
                 cb(null, 'done');
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
@@ -414,10 +413,10 @@ describe('', function () {
         });
 
         it('should call cla service on sign', function (it_done) {
-
             cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(cla.sign.called);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
 
                 it_done();
             });
@@ -430,6 +429,7 @@ describe('', function () {
             cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(cla.sign.called);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
 
                 it_done();
             });
@@ -440,6 +440,7 @@ describe('', function () {
                 assert.ifError(err);
                 assert.ok(res);
                 assert(statusService.update.called);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
 
                 it_done();
             });
@@ -453,6 +454,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 setTimeout(function () {
                     assert(statusService.update.called);
                     it_done();
@@ -469,6 +472,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 4);
                     it_done();
@@ -495,6 +500,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 10 * resp.github.callPullRequest.length);
                 }, 100);
@@ -514,6 +521,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.call.calledWithMatch({
                     obj: 'pullRequests',
@@ -542,6 +551,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 assert(github.call.calledWithMatch({
                     obj: 'pullRequests',
                     fun: 'getAll'
@@ -558,6 +569,8 @@ describe('', function () {
             cla_api.sign(req, function (err, res) {
                 assert.ifError(err);
                 assert.ok(res);
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
                 assert(github.call.calledWithMatch({
                     obj: 'pullRequests',
                     fun: 'getAll'

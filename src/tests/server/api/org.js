@@ -23,9 +23,15 @@ describe('org api', function () {
     beforeEach(function () {
         testErr.githubCall = null;
         testRes.githubCall = testData.orgs;
+        testErr.githubCallGraphql = null;
+        testRes.githubCallGraphql = { res: '', body: JSON.stringify(testData.graphqlUserOrgs) };
         testErr.githubGetMembership = null;
         testRes.githubGetMembership = { data: { role: 'admin' } };
 
+        sinon.stub(github, 'callGraphql').callsFake(function (query, token, done) {
+            assert(token);
+            done(testErr.githubCallGraphql, testRes.githubCallGraphql.res, testRes.githubCallGraphql.body);
+        });
         sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.fun === 'getOrgs') {
                 done(testErr.githubCall, testRes.githubCall);
@@ -48,6 +54,7 @@ describe('org api', function () {
     });
     afterEach(function () {
         github.call.restore();
+        github.callGraphql.restore();
         org.getMultiple.restore();
         org.create.restore();
         logger.warn.restore();
@@ -87,13 +94,9 @@ describe('org api', function () {
             };
 
             org_api.getForUser(req, function (err, orgs) {
-                assert.equal(github.call.calledWithMatch({
-                    obj: 'users',
-                    fun: 'getOrgMembership',
-                    token: 'abc'
-                }), true);
+                sinon.assert.calledOnce(github.callGraphql);
 
-                assert.equal(org.getMultiple.calledWithMatch({ orgId: [1, 2] }), true);
+                assert.equal(org.getMultiple.calledWith({ orgId: ['2', '3'] }), true);
                 assert.equal(orgs.length, 2);
                 it_done();
             });

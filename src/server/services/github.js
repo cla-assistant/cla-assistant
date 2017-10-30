@@ -1,14 +1,16 @@
-var q = require('q');
+let q = require('q');
+let request = require('request');
 
-var cache = require('memory-cache');
-var config = require('../../config');
-var GitHubApi = require('github');
+let cache = require('memory-cache');
+let config = require('../../config');
+let GitHubApi = require('github');
 
-// var githubApi;
+
+// let githubApi;
 
 function callGithub(github, obj, fun, arg, stringArgs, done) {
-    var cacheKey = stringArgs;
-    var cachedRes = arg.noCache ? null : cache.get(cacheKey);
+    let cacheKey = stringArgs;
+    let cachedRes = arg.noCache ? null : cache.get(cacheKey);
     delete arg.noCache;
     if (cachedRes && config.server.cache_time > 0 && typeof done === 'function') {
         if (cachedRes.meta) {
@@ -43,7 +45,7 @@ function concatData(collection, chunk) {
 
 function newGithubApi() {
     // githubApi = githubApi ? githubApi : new GitHubApi({
-    var githubApi = new GitHubApi({
+    let githubApi = new GitHubApi({
         protocol: config.server.github.protocol,
         version: config.server.github.version,
         host: config.server.github.api,
@@ -53,30 +55,30 @@ function newGithubApi() {
 }
 
 
-var githubService = {
+let githubService = {
     resetList: {},
 
     call: function (call, done) {
-        var arg = call.arg || {};
-        var basicAuth = call.basicAuth;
-        var data = null;
-        var deferred = q.defer();
-        var fun = call.fun;
-        var obj = call.obj;
-        var token = call.token;
+        let arg = call.arg || {};
+        let basicAuth = call.basicAuth;
+        let data = null;
+        let deferred = q.defer();
+        let fun = call.fun;
+        let obj = call.obj;
+        let token = call.token;
 
-        var stringArgs = JSON.stringify({
+        let stringArgs = JSON.stringify({
             obj: call.obj,
             fun: call.fun,
             arg: call.arg,
             token: call.token
         });
-        var github = newGithubApi();
+        let github = newGithubApi();
 
         function collectData(err, res) {
-            data = concatData(data, res);
+            data = res && res.data ? concatData(data, res).data : data;
 
-            var meta = {};
+            let meta = {};
             try {
                 meta.link = res.meta.link;
                 meta.hasMore = !!github.hasNextPage(res.meta.link);
@@ -143,12 +145,12 @@ var githubService = {
     },
 
     hasNextPage: function (link) {
-        var github = newGithubApi();
+        let github = newGithubApi();
         return github.hasNextPage(link);
     },
 
     getNextPage: function (link, cb) {
-        var github = newGithubApi();
+        let github = newGithubApi();
         return github.getNextPage(link, cb);
     },
 
@@ -159,10 +161,21 @@ var githubService = {
     //         currentSize: cache.size()
     //     };
     // }
+
+    callGraphql: function (query, token, cb) {
+        request.post({
+            headers: {
+                'Authorization': `bearer ${token}`,
+                'User-Agent': 'CLA assistant'
+            },
+            url: config.server.github.graphqlEndpoint,
+            body: query
+        }, cb);
+    }
 };
 
 function getRateLimitTime(token) {
-    var remainingTime = githubService.resetList[token] ? githubService.resetList[token] - Date.now() : 0;
+    let remainingTime = githubService.resetList[token] ? githubService.resetList[token] - Date.now() : 0;
     return Math.max(remainingTime, 0);
 }
 
@@ -174,7 +187,7 @@ function removeRateLimit(token) {
 
 function setRateLimit(token, limit) {
     githubService.resetList[token] = limit * 1000;
-    var remainingTime = (limit * 1000) - Date.now();
+    let remainingTime = (limit * 1000) - Date.now();
     setTimeout(function () {
         removeRateLimit(token);
     }, remainingTime);

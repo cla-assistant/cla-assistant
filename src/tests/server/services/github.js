@@ -66,7 +66,7 @@ describe('github:call', function () {
     });
 
     it('should authenticate when token is set', function (it_done) {
-        callStub.yields(null, {});
+        callStub.yields(null, { data: {}, meta: {} });
         github.call({
             obj: 'obj',
             fun: 'fun',
@@ -81,7 +81,7 @@ describe('github:call', function () {
     });
 
     it('should authenticate when basic authentication is required', function (it_done) {
-        callStub.yields(null, {});
+        callStub.yields(null, { data: {}, meta: {} });
         github.call({
             obj: 'obj',
             fun: 'fun',
@@ -100,7 +100,7 @@ describe('github:call', function () {
     });
 
     it('should not authenticate when neither token nor basicAuth are provided', function (it_done) {
-        callStub.yields(null, {});
+        callStub.yields(null, { data: {}, meta: {} });
         github.call({
             obj: 'obj',
             fun: 'fun'
@@ -111,20 +111,21 @@ describe('github:call', function () {
     });
 
     it('should call the appropriate function on the github api', function (it_done) {
-        callStub.yields(null, {});
+        callStub.yields(null, { data: {}, meta: {} });
         github.call({
             obj: 'obj',
             fun: 'fun'
         }, function (err, res, meta) {
             assert.equal(err, null);
             assert.deepEqual(res, {});
-            assert.equal(meta, null);
+            assert(meta);
             it_done();
         });
     });
 
     it('should call the appropriate function on the github api with meta', function (it_done) {
         callStub.yields(null, {
+            data: {},
             meta: {
                 link: null,
                 'x-oauth-scopes': []
@@ -147,12 +148,14 @@ describe('github:call', function () {
 
     it('should call the appropriate function on the github api with meta and link', function (it_done) {
         callStub.yields(null, {
+            data: {},
             meta: {
                 link: 'link',
                 'x-oauth-scopes': []
             }
         });
         getNextPageStub.yields(null, {
+            data: {},
             meta: {
                 link: null,
                 'x-oauth-scopes': []
@@ -185,6 +188,7 @@ describe('github:call', function () {
     it('should set and delete RateLimit-Reset timer', function (it_done) {
         var resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
+            data: {},
             meta: {
                 'x-ratelimit-remaining': 9,
                 'x-ratelimit-reset': resetTime,
@@ -208,6 +212,7 @@ describe('github:call', function () {
     it('should set RateLimit-Reset timer only if there are less than 100 calls allowed', function (it_done) {
         var resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
+            data: {},
             meta: {
                 'x-ratelimit-remaining': 115,
                 'x-ratelimit-reset': resetTime,
@@ -230,7 +235,7 @@ describe('github:call', function () {
         github.resetList.abc = Date.now() + 1000;
         var githubCalledBack = false;
 
-        callStub.yields(null, {});
+        callStub.yields(null, { data: {}, meta: {} });
         this.timeout(1050);
         github.call({
             obj: 'obj',
