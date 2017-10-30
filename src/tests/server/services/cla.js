@@ -24,7 +24,7 @@ var cla = require('../../../server/services/cla');
 
 var callbacks = {};
 var req = {
-    end: function () {},
+    end: function () { },
     error: function (err) {
         callbacks.error(err);
     },
@@ -963,7 +963,7 @@ describe('cla:getSignedCLA', function () {
 
 describe('cla:getAll', function () {
     beforeEach(function () {
-        sinon.stub(CLA, 'find', function (arg, done) {
+        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
             assert(arg);
             assert(arg.gist_url);
             var resp = [{
@@ -1048,7 +1048,7 @@ describe('cla:getAll', function () {
 
     it('should handle undefined clas', function (it_done) {
         CLA.find.restore();
-        sinon.stub(CLA, 'find', function (arg, done) {
+        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
             assert(arg);
             done('Error!', undefined);
         });
@@ -1082,7 +1082,7 @@ describe('cla:getAll', function () {
 
     it('should get all clas for shared gist repo/org', function (it_done) {
         CLA.find.restore();
-        sinon.stub(CLA, 'find', function (arg, done) {
+        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
             assert(arg);
             done();
         });
@@ -1108,6 +1108,41 @@ describe('cla:getAll', function () {
                     gist_version: args.gist.gist_version
                 }]
             }));
+            it_done();
+        });
+    });
+
+    it('should get only one newest cla per user if gist_version provided', function (it_done) {
+        CLA.find.restore();
+        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
+            assert(arg);
+            assert(options.sort);
+            done(null, [{
+                id: 1,
+                created_at: '2011-06-20T11:34:15Z',
+                repo: 'abc',
+                userId: 1,
+                gist_version: 'xyz'
+            }, {
+                id: 2,
+                repo: undefined,
+                userId: 1,
+                created_at: '2017-06-20T11:34:15Z',
+                gist_version: 'xyz'
+            }]);
+        });
+        var args = {
+            repoId: testData.repo.id,
+            gist: {
+                gist_url: 'gistUrl',
+                gist_version: 'xyz'
+            },
+            sharedGist: true
+        };
+
+        cla.getAll(args, function (err, arr) {
+            assert.equal(arr.length, 1);
+
             it_done();
         });
     });
