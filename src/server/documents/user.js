@@ -9,10 +9,11 @@ var UserSchema = mongoose.Schema({
 });
 
 UserSchema.index({
-    name: 1
+    name: 1,
+    uuid: 1
 }, {
-    unique: true
-});
+        unique: true
+    });
 
 var User = mongoose.model('User', UserSchema);
 
