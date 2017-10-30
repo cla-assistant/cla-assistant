@@ -24,3 +24,5 @@ labels:
     color: 00c775
   - name: help wanted
     color: 006b75
+  - name: wontfix
+    color: eeeeee
