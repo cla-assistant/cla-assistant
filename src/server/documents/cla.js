@@ -18,14 +18,17 @@ var CLASchema = mongoose.Schema({
 
 var index = {
     repo: 1,
+    repoId: 1,
     owner: 1,
+    ownerId: 1,
     user: 1,
     gist_url: 1,
     gist_version: 1,
     org_cla: 1
 };
 var indexOptions = {
-    unique: true
+    unique: true,
+    background: true
 };
 
 var CLA = mongoose.model('CLA', CLASchema);

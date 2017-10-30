@@ -10,14 +10,26 @@ var RepoSchema = mongoose.Schema({
     sharedGist: Boolean
 });
 
-RepoSchema.index({
+var index = {
+    repoId: 1,
     repo: 1,
     owner: 1
-}, {
-    unique: true
-});
+};
+var indexOptions = {
+    unique: true,
+    background: true
+};
 
 var Repo = mongoose.model('Repo', RepoSchema);
+
+Repo.collection.dropAllIndexes(function (err, results) {
+    if (err) {
+        logger.warn('Repo collection dropAllIndexes error: ', err);
+        logger.warn('dropAllIndexes results: ', results);
+    }
+});
+
+Repo.collection.createIndex(index, indexOptions);
 
 module.exports = {
     Repo: Repo
