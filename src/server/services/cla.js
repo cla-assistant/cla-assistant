@@ -129,45 +129,45 @@ module.exports = function () {
         var deferred = q.defer();
 
         getGistObject(gist_url, undefined, token).then(function (gist) {
-                if (!gist.history) {
-                    deferred.reject('No versions found for the given gist url');
-                    return;
-                }
+            if (!gist.history) {
+                deferred.reject('No versions found for the given gist url');
+                return;
+            }
 
-                var args = {
-                    user: user,
-                    gist: gist_url,
-                    gist_version: gist.history[0].version,
-                    repo: repo,
-                    owner: owner,
-                    sharedGist: sharedGist
-                };
-                args.repoId = repoId ? repoId : undefined;
-                args.orgId = orgId ? orgId : undefined;
+            var args = {
+                user: user,
+                gist: gist_url,
+                gist_version: gist.history[0].version,
+                repo: repo,
+                owner: owner,
+                sharedGist: sharedGist
+            };
+            args.repoId = repoId ? repoId : undefined;
+            args.orgId = orgId ? orgId : undefined;
 
-                if (user) {
-                    claService.get(args, function (error, cla) {
-                        deferred.resolve({
-                            signed: !!cla
-                        });
+            if (user) {
+                claService.get(args, function (error, cla) {
+                    deferred.resolve({
+                        signed: !!cla
                     });
-                } else if (pr_number) {
-                    args.number = pr_number;
-                    repoService.getPRCommitters(args, function (error, committers) {
-                        if (error) {
-                            logger.warn(new Error(error).stack);
+                });
+            } else if (pr_number) {
+                args.number = pr_number;
+                repoService.getPRCommitters(args, function (error, committers) {
+                    if (error) {
+                        logger.warn(new Error(error).stack);
+                    }
+                    checkAll(committers, args).then(
+                        function (result) {
+                            deferred.resolve(result);
+                        },
+                        function (error_msg) {
+                            deferred.reject(error_msg);
                         }
-                        checkAll(committers, args).then(
-                            function (result) {
-                                deferred.resolve(result);
-                            },
-                            function (error_msg) {
-                                deferred.reject(error_msg);
-                            }
-                        );
-                    });
-                }
-            },
+                    );
+                });
+            }
+        },
             function (e) {
                 deferred.reject(e);
             }
@@ -433,22 +433,22 @@ module.exports = function () {
                     'gist_url': '*',
                     'gist_version': '*'
                 }, {
-                    sort: {
-                        'created_at': -1
-                    }
-                }, function (err, clas) {
-                    if (err) {
-                        logger.warn(new Error(err).stack);
-                    } else {
-                        clas.forEach(function (cla) {
-                            if (repoList.indexOf(cla.repo) < 0) {
-                                repoList.push(cla.repo);
-                                claList.push(cla);
-                            }
-                        });
-                    }
-                    cb();
-                });
+                        sort: {
+                            'created_at': -1
+                        }
+                    }, function (err, clas) {
+                        if (err) {
+                            logger.warn(new Error(err).stack);
+                        } else {
+                            clas.forEach(function (cla) {
+                                if (repoList.indexOf(cla.repo) < 0) {
+                                    repoList.push(cla.repo);
+                                    claList.push(cla);
+                                }
+                            });
+                        }
+                        cb();
+                    });
             };
 
             repoService.all(function (e, repos) {
@@ -539,8 +539,12 @@ module.exports = function () {
             var selection = {
                 gist_url: args.gist.gist_url
             };
+            var options = {};
             if (args.gist.gist_version) {
                 selection.gist_version = args.gist.gist_version;
+                options.sort = {
+                    'created_at': -1
+                };
             }
             if (args.repoId) {
                 selection.repoId = args.repoId;
@@ -549,7 +553,26 @@ module.exports = function () {
                 selection.ownerId = args.orgId;
             }
             selection = updateQuery(selection, args.sharedGist);
-            CLA.find(selection, done);
+
+            if (!args.gist.gist_version) {
+                CLA.find(selection, {}, options, done);
+            } else {
+                CLA.find(selection, {}, options, function (err, clas) {
+                    if (err || !clas) {
+                        done(err);
+                        return;
+                    }
+                    var foundSigners = [];
+                    var distinctClas = clas.filter(function (cla) {
+                        if (foundSigners.indexOf(cla.userId) < 0) {
+                            foundSigners.push(cla.userId);
+                            return true;
+                        }
+                        return false;
+                    });
+                    done(null, distinctClas);
+                });
+            }
         },
 
         create: function (args, done) {
