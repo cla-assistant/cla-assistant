@@ -11,6 +11,7 @@ var Repo = require('../../../server/documents/repo').Repo;
 var github = require('../../../server/services/github');
 var orgService = require('../../../server/services/org');
 var logger = require('../../../server/services/logger');
+let queries = require('../../../server/graphQueries/github');
 
 // service under test
 var repo = require('../../../server/services/repo');
@@ -177,7 +178,7 @@ describe('repo:getAll', function () {
 });
 
 describe('repo:getPRCommitters', function () {
-    var test_repo, test_org, githubCallRes;
+    var test_repo, test_org, githubCallGraphqlRes, pagesNumber = 1;
 
     beforeEach(function () {
         test_repo = {
@@ -188,38 +189,29 @@ describe('repo:getPRCommitters', function () {
             save: function () { }
         };
         test_org = null;
-        githubCallRes = {
-            getCommit: {
+        githubCallGraphqlRes = {
+            getPRCommitters: {
                 err: null,
-                data: testData.commit[0]
-            },
-            getCommits: {
-                err: null,
-                data: testData.commit
-            },
-            getPR: {
-                err: null,
-                data: testData.pull_request
-            },
-            getPRCommits: {
-                err: null,
-                data: testData.commits
+                res: {},
+                body: JSON.parse(JSON.stringify(testData.graphqlPRCommitters))
             }
         };
 
-        sinon.stub(github, 'call').callsFake(function (args, done) {
-            if (args.obj == 'pullRequests' && args.fun == 'get') {
-                done(githubCallRes.getPR.err, githubCallRes.getPR.data);
+        sinon.stub(github, 'callGraphql').callsFake(function (query, token, done) {
+            assert(query);
+            assert(token);
+            if (pagesNumber > 1) {
+                githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.pageInfo.hasNextPage = true;
+                pagesNumber--;
+            } else if (githubCallGraphqlRes.getPRCommitters.body && githubCallGraphqlRes.getPRCommitters.body.data) {
+                githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.pageInfo.hasNextPage = false;
             }
-            if (args.obj == 'pullRequests' && args.fun == 'getCommits') {
-                done(githubCallRes.getPRCommits.err, githubCallRes.getPRCommits.data);
-            }
-            if (args.obj == 'repos' && args.fun == 'getCommit') {
-                done(githubCallRes.getCommit.err, githubCallRes.getCommit.data);
-            }
-            if (args.obj == 'repos' && args.fun == 'getCommits') {
-                done(githubCallRes.getCommits.err, githubCallRes.getCommits.data);
-            }
+
+            done(
+                githubCallGraphqlRes.getPRCommitters.err,
+                githubCallGraphqlRes.getPRCommitters.res,
+                JSON.stringify(githubCallGraphqlRes.getPRCommitters.body)
+            );
         });
 
         sinon.stub(orgService, 'get').callsFake(function (args, done) {
@@ -242,7 +234,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     afterEach(function () {
-        github.call.restore();
+        github.callGraphql.restore();
         orgService.get.restore();
         Repo.findOne.restore();
         logger.error.restore();
@@ -256,17 +248,12 @@ describe('repo:getPRCommitters', function () {
             owner: 'owner',
             number: '1'
         };
-        githubCallRes.getPRCommits.data = testData.commit;
 
         repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
-            assert.equal(data.length, 1);
+            assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
 
             it_done();
         });
@@ -274,7 +261,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should get all committers of a pull request with more than 250 commits from the forked repo', function (it_done) {
-        testData.pull_request.commits = 554;
+        pagesNumber = 2;
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
@@ -283,44 +270,40 @@ describe('repo:getPRCommitters', function () {
 
         repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
-            assert.equal(data.length, 1);
+            assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'repos',
-                fun: 'getCommits'
-            }));
+            sinon.assert.calledTwice(github.callGraphql);
 
-            testData.pull_request.commits = 3;
             it_done();
         });
     });
 
-    it('should call pull request api if could not find/load base commit', function (it_done) {
-        testData.pull_request.commits = 554;
-        githubCallRes.getCommit.err = 'Any Error';
-        githubCallRes.getCommit.data = null;
-        var arg = {
-            repo: 'myRepo',
-            owner: 'owner',
-            number: '1'
-        };
-        githubCallRes.getPRCommits.data = testData.commit;
+    // it('should call pull request api if could not find/load base commit', function (it_done) {
+    //     testData.pull_request.commits = 554;
+    //     githubCallRes.getCommit.err = 'Any Error';
+    //     githubCallRes.getCommit.data = null;
+    //     var arg = {
+    //         repo: 'myRepo',
+    //         owner: 'owner',
+    //         number: '1'
+    //     };
+    //     githubCallRes.getPRCommits.data = testData.commit;
 
-        repo.getPRCommitters(arg, function (err, data) {
-            assert.ifError(err);
-            assert.equal(data.length, 1);
-            assert.equal(data[0].name, 'octocat');
-            assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+    //     repo.getPRCommitters(arg, function (err, data) {
+    //         assert.ifError(err);
+    //         assert.equal(data.length, 1);
+    //         assert.equal(data[0].name, 'octocat');
+    //         assert(Repo.findOne.called);
+    //         assert(github.call.calledWithMatch({
+    //             obj: 'pullRequests',
+    //             fun: 'getCommits'
+    //         }));
 
-            testData.pull_request.commits = 3;
-            it_done();
-        });
-    });
+    //         testData.pull_request.commits = 3;
+    //         it_done();
+    //     });
+    // });
 
     it('should get author of commit if committer is a github bot', function (it_done) {
         var arg = {
@@ -329,17 +312,36 @@ describe('repo:getPRCommitters', function () {
             number: '1'
         };
 
-        githubCallRes.getPRCommits.data = testData.commit_done_by_bot;
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.committer.user.login = 'web-flow';
 
         repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
-            assert.equal(data.length, 1);
+            assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
             assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            sinon.assert.called(github.callGraphql);
+
+            it_done();
+        });
+
+    });
+
+    it('should get author of commit if committer is another github bot', function (it_done) {
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.committer.user = null;
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.committer.name = 'GitHub';
+
+        repo.getPRCommitters(arg, function (err, data) {
+            assert.ifError(err);
+            assert.equal(data.length, 2);
+            assert.equal(data[0].name, 'octocat');
+            assert(Repo.findOne.called);
+            sinon.assert.called(github.callGraphql);
 
             it_done();
         });
@@ -356,12 +358,9 @@ describe('repo:getPRCommitters', function () {
         repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
             assert.equal(data.length, 2);
-            assert.equal(data[0].name, 'octocat');
+            assert.equal(data[1].name, 'testUser');
             assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            sinon.assert.called(github.callGraphql);
 
             it_done();
         });
@@ -369,7 +368,10 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should handle committers who has no github user', function (it_done) {
-        githubCallRes.getPRCommits.data = testData.commit_with_no_user;
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.committer.user = null;
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.committer.name = 'Unknown User';
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.author.user = null;
+        githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.author.name = 'Unknown User';
 
         var arg = {
             repo: 'myRepo',
@@ -379,19 +381,16 @@ describe('repo:getPRCommitters', function () {
 
         repo.getPRCommitters(arg, function (err, data) {
             assert.ifError(err);
-            assert.equal(data.length, 1);
-            // assert.equal(data[0].name, 'octocat');
-            // assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            assert.equal(data.length, 2);
+            assert.equal(data[0].name, 'Unknown User');
+            sinon.assert.called(github.callGraphql);
+
         });
         it_done();
     });
 
-    it('should handle error', function (it_done) {
-        githubCallRes.getPRCommits.data = {
+    it('should handle github error', function (it_done) {
+        githubCallGraphqlRes.getPRCommitters.res = {
             message: 'Any Error message'
         };
 
@@ -404,68 +403,85 @@ describe('repo:getPRCommitters', function () {
         repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            sinon.assert.called(github.callGraphql);
         });
 
         it_done();
     });
 
-    it('should retry api call if gitHub returns "Not Found"', function (it_done) {
-        // githubCallRes.getPRCommits.data = {
-        //     message: 'Not Found'
-        // };
-        this.timeout(4000);
-        repo.timesToRetryGitHubCall = 1;
-        githubCallRes.getPR.err = 'Not Found';
-        githubCallRes.getPR.data = null;
+    it('should handle query error', function (it_done) {
+        githubCallGraphqlRes.getPRCommitters.res = {};
+        githubCallGraphqlRes.getPRCommitters.body = {
+            data: null,
+            errors: [
+                {
+                    message: "Field 'names' doesn't exist on type 'Organization'",
+                }
+            ]
+        };
+
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function (err) {
-            // assert(err);
+        repo.getPRCommitters(arg, function (err, committers) {
+            assert(err);
+            assert(!committers);
             assert(Repo.findOne.called);
-            assert(github.call.calledThrice);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
-            it_done();
+            sinon.assert.called(logger.info);
+            sinon.assert.called(github.callGraphql);
         });
+
+        it_done();
     });
 
-    it('should retry api call if gitHub returns "Not Found"', function (it_done) {
-        githubCallRes.getPRCommits.data = {
-            message: 'Not Found'
-        };
-        this.timeout(4000);
-        repo.timesToRetryGitHubCall = 1;
-        githubCallRes.getPR.err = null;
-        githubCallRes.getPR.data = {
-            message: 'Not Found'
-        };
+    it('should handle call error', function (it_done) {
+        githubCallGraphqlRes.getPRCommitters.err = 'Any error';
+
         var arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
 
-        repo.getPRCommitters(arg, function (err) {
-            // assert(err);
+        repo.getPRCommitters(arg, function (err, committers) {
+            assert(err);
+            assert(!committers);
             assert(Repo.findOne.called);
-            assert.equal(github.call.callCount, 4);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
-            it_done();
+            sinon.assert.called(logger.info);
+            sinon.assert.called(github.callGraphql);
         });
+
+        it_done();
     });
+
+    // it('should retry api call if gitHub returns "Not Found"', function (it_done) {
+    //     github.callGraphql.restore();
+    //     sinon.stub(github, 'callGraphql').callsFake(function (query, token, done) {
+    //         done(
+    //             githubCallGraphqlRes.getPRCommitters.err,
+    //             { message: 'Not Found' },
+    //             "null"
+    //         );
+    //     });
+    //     this.timeout(4000);
+    //     repo.timesToRetryGitHubCall = 2;
+    //     var arg = {
+    //         repo: 'myRepo',
+    //         owner: 'owner',
+    //         number: '1'
+    //     };
+
+    //     repo.getPRCommitters(arg, function (err) {
+    //         // assert(err);
+    //         assert(Repo.findOne.called);
+    //         sinon.assert.calledThrice(github.callGraphql);
+
+    //         it_done();
+    //     });
+    // });
 
 
     it('should get list of committers for a pull request using linked org', function (it_done) {
@@ -488,10 +504,7 @@ describe('repo:getPRCommitters', function () {
                 orgId: 1
             }), true);
             assert.equal(Repo.findOne.called, false);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            sinon.assert.called(github.callGraphql);
 
             it_done();
         });
@@ -510,10 +523,7 @@ describe('repo:getPRCommitters', function () {
         repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
-            assert(!github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getCommits'
-            }));
+            sinon.assert.notCalled(github.callGraphql);
         });
 
         it_done();
@@ -522,24 +532,12 @@ describe('repo:getPRCommitters', function () {
     it('should update db entry if repo was transferred', function (it_done) {
         this.timeout(3000);
 
-        github.call.restore();
-        sinon.stub(github, 'call');
-        github.call.onFirstCall().callsArgWith(1, githubCallRes.getPR.err, githubCallRes.getPR.data);
-        github.call.withArgs({
-            obj: 'pullRequests',
-            fun: 'getCommits',
-            token: 'abc',
-            arg: {
-                number: '1',
-                owner: 'owner',
-                per_page: 100,
-                repo: 'myRepo'
-            }
-        })
-            .onFirstCall().callsArgWith(1, null, {
-                message: 'Moved Permanently'
-            });
-        github.call.onThirdCall().callsArgWith(1, null, testData.commits);
+        github.callGraphql.restore();
+        sinon.stub(github, 'callGraphql');
+        github.callGraphql.onFirstCall().callsArgWith(2, null, {
+            message: 'Moved Permanently'
+        }, 'null');
+        github.callGraphql.onSecondCall().callsArgWith(2, null, {}, JSON.stringify(githubCallGraphqlRes.getPRCommitters.body));
 
         sinon.stub(repo, 'getGHRepo').callsFake(function (args, done) {
             done(null, {
@@ -560,7 +558,9 @@ describe('repo:getPRCommitters', function () {
         repo.getPRCommitters(arg, function (err) {
             assert.ifError(err);
             assert(Repo.findOne.called);
-            assert(github.call.calledThrice);
+            assert(repo.getGHRepo.called);
+            sinon.assert.calledWithMatch(github.callGraphql, queries.getPRCommitters('test_owner', 'test_repo', '1', ''));
+            assert(github.callGraphql.calledTwice);
 
             it_done();
             repo.getGHRepo.restore();

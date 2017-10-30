@@ -72,6 +72,8 @@ var bootstrap = function (files, callback) {
                             global.plugins[path.basename(f, '.js')] = require(f);
                         } else if (files === 'controller') {
                             app.use('/', require(f));
+                        } else if (files === 'graphQueries') {
+                            require(f);
                         } else if (files === 'documents') {
                             global.models = merge(global.models, require(f));
                         } else if (files === 'webhooks') {
@@ -169,6 +171,10 @@ async.series([
     },
 
     function (callback) {
+        bootstrap('graphQueries', callback);
+    },
+
+    function (callback) {
         bootstrap('api', callback);
     },
 
@@ -193,7 +199,9 @@ app.use('/api', require('./middleware/authenticated'));
 app.all('/api/:obj/:fun', function (req, res) {
     res.set('Content-Type', 'application/json');
     api[req.params.obj][req.params.fun](req, function (err, obj) {
-        if (err) {
+        if (err && typeof err === 'string') {
+            return res.status(500).send(err);
+        } else if (err) {
             return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err));
         }
         if (obj) {

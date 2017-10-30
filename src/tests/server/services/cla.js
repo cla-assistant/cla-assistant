@@ -12,6 +12,7 @@ var https = require('https');
 //services
 var org_service = require('../../../server/services/org');
 var repo_service = require('../../../server/services/repo');
+var github = require('../../../server/services/github');
 var statusService = require('../../../server/services/status');
 var logger = require('../../../server/services/logger');
 
@@ -22,21 +23,21 @@ var testData = require('../testData').data;
 // service under test
 var cla = require('../../../server/services/cla');
 
-var callbacks = {};
-var req = {
-    end: function () { },
-    error: function (err) {
-        callbacks.error(err);
-    },
-    on: function (fun, cb) {
-        callbacks[fun] = cb;
-    }
-};
-var res = {
-    on: function (fun, callback) {
-        callbacks[fun] = callback;
-    }
-};
+// var callbacks = {};
+// var req = {
+//     end: function () { },
+//     error: function (err) {
+//         callbacks.error(err);
+//     },
+//     on: function (fun, cb) {
+//         callbacks[fun] = cb;
+//     }
+// };
+// var res = {
+//     on: function (fun, callback) {
+//         callbacks[fun] = callback;
+//     }
+// };
 
 var expArgs = {};
 var testRes = {};
@@ -290,13 +291,8 @@ describe('cla:getLastSignature', function () {
 
 describe('cla:check', function () {
     var testGistData = '{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}';
-    var triggerHttpsResponse;
 
     beforeEach(function () {
-        triggerHttpsResponse = function () {
-            callbacks.data(testGistData);
-            callbacks.end();
-        };
 
         stub();
 
@@ -305,35 +301,17 @@ describe('cla:check', function () {
             done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
         });
 
-        sinon.stub(https, 'request').callsFake(function (options, done) {
-            assert.equal(options.hostname, 'api.github.com');
-            assert(options.headers.Authorization);
-
-            done(res);
-            triggerHttpsResponse();
-            return req;
+        sinon.stub(github, 'call').callsFake(function (args, done) {
+            assert(args.token);
+            done(null, JSON.parse(testGistData));
         });
-        // sinon.stub(https, 'request').callsFake(function (options, done) {
-        //     assert.deepEqual(options, {
-        //         hostname: 'api.github.com',
-        //         port: 443,
-        //         path: '/gists/gistId',
-        //         method: 'GET',
-        //         headers: {
-        //             'Authorization': 'token abc',
-        //             'User-Agent': 'cla-assistant'
-        //         }
-        //     });
-        //     done(res);
-        //     return req;
-        // });
     });
 
     afterEach(function () {
         restore();
 
         repo_service.getPRCommitters.restore();
-        https.request.restore();
+        github.call.restore();
     });
 
     it('should check for linked org as well as for repo', function (it_done) {
@@ -366,6 +344,7 @@ describe('cla:check', function () {
         cla.check(args, function (err, result) {
             assert(org_service.get.called);
             assert(CLA.findOne.calledWith(expArgs.claFindOne));
+            sinon.assert.calledOnce(github.call);
             assert.ifError(err);
             assert(result);
             it_done();
@@ -390,10 +369,10 @@ describe('cla:check', function () {
     });
 
     it('should send error if getGist has an error', function (it_done) {
-        triggerHttpsResponse = function () {
-            callbacks.error('Error');
-            callbacks.end();
-        };
+        github.call.restore();
+        sinon.stub(github, 'call').callsFake(function (args, done) {
+            done('Error', null);
+        });
         var args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -649,10 +628,6 @@ describe('cla:check', function () {
 describe('cla:sign', function () {
     var testArgs = {};
     var testGistData = '{"url": "url", "files": {"xyFile": {"content": "some content"}}, "updated_at": "2011-06-20T11:34:15Z", "history": [{"version": "xyz"}]}';
-    var triggerHttpsResponse = function () {
-        callbacks.data(testGistData);
-        callbacks.end();
-    };
 
     beforeEach(function () {
         testArgs.claSign = {
@@ -684,6 +659,11 @@ describe('cla:sign', function () {
             token: 'abc'
         };
 
+        sinon.stub(github, 'call').callsFake(function (args, done) {
+            assert(args.token);
+            done(null, JSON.parse(testGistData));
+        });
+
         sinon.stub(cla, 'get').callsFake(function (args, done) {
             if (args.user !== 'login') {
                 done(null, testRes.claGet);
@@ -691,6 +671,7 @@ describe('cla:sign', function () {
                 done(null, undefined);
             }
         });
+
         sinon.stub(CLA, 'create').callsFake(function (args, done) {
             assert(args);
 
@@ -701,29 +682,6 @@ describe('cla:sign', function () {
             assert(args.gist_url);
             assert(args.gist_version);
             done(testErr.claCreate, testRes.claCreate);
-        });
-
-        // sinon.stub(github, 'direct_call').callsFake(function (args, done) {
-        //     assert(args.url);
-        //     assert(args.token);
-        //     assert.equal(args.url, url.githubPullRequests('owner', 'myRepo', 'open'));
-
-        //     done(null, {
-        //         data: [{
-        //             number: 1
-        //         }, {
-        //                 number: 2
-        //             }]
-        //     });
-        // });
-
-        sinon.stub(https, 'request').callsFake(function (options, done) {
-            assert.equal(options.hostname, 'api.github.com');
-            assert(options.headers.Authorization);
-
-            done(res);
-            triggerHttpsResponse();
-            return req;
         });
 
         sinon.stub(org_service, 'get').callsFake(function (args, done) {
@@ -748,18 +706,17 @@ describe('cla:sign', function () {
     afterEach(function () {
         cla.get.restore();
         CLA.create.restore();
-        https.request.restore();
         org_service.get.restore();
         repo_service.get.restore();
         repo_service.getGHRepo.restore();
         statusService.update.restore();
+        github.call.restore();
     });
 
     it('should store signed cla data for repo if not signed yet', function (it_done) {
         testRes.orgServiceGet = null;
 
         cla.sign(testArgs.claSign, function () {
-
             assert(CLA.create.called);
             it_done();
         });
@@ -768,11 +725,25 @@ describe('cla:sign', function () {
     it('should store signed cla data for org', function (it_done) {
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
-
             assert(CLA.create.calledWithMatch({
                 gist_url: 'url/gistId'
             }));
             assert(org_service.get.called);
+
+            it_done();
+        });
+    });
+
+    it('should not call getLinkedItem if there is an item provided', function (it_done) {
+        let args = JSON.parse(JSON.stringify(testArgs.claSign));
+        args.item = testRes.repoServiceGet;
+        cla.sign(args, function () {
+            assert(CLA.create.called);
+            assert(CLA.create.calledWithMatch({
+                gist_url: 'url/gistId'
+            }));
+            assert(!org_service.get.called);
+            assert(!repo_service.get.called);
 
             it_done();
         });
@@ -1150,10 +1121,9 @@ describe('cla:getAll', function () {
 
 describe('cla:getGist', function () {
     it('should extract valid gist ID', function (it_done) {
-        sinon.stub(https, 'request').callsFake(function (options, done) {
-            assert.equal(options.path, '/gists/gistId/versionId');
-            done(res);
-            return req;
+        sinon.stub(github, 'call').callsFake(function (args, done) {
+            assert.equal(args.arg.id, 'gistId');
+            done(null, {});
         });
 
         var repo = {
@@ -1164,15 +1134,12 @@ describe('cla:getGist', function () {
         };
 
         cla.getGist(repo, function () {
-            https.request.restore();
+            github.call.restore();
             it_done();
         });
-        callbacks.data('{}');
-        callbacks.end();
     });
 
     it('should handle repo without gist', function (it_done) {
-        // var repo = {gist: 'wronGistUrl'};
         var repo = {};
 
         cla.getGist(repo, function (err) {

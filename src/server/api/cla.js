@@ -72,10 +72,10 @@ function renderFiles(files, renderToken) {
         });
     }
     q.all([contentPromise, metaPromise]).then(function (data) {
-            gistContent.raw = data[0];
-            gistContent.meta = data[1];
-            deferred.resolve(gistContent);
-        },
+        gistContent.raw = data[0];
+        gistContent.meta = data[1];
+        deferred.resolve(gistContent);
+    },
         function (msg) {
             deferred.reject(msg);
         });
@@ -400,18 +400,19 @@ module.exports = {
         }
         var self = this;
 
-        cla.sign(args, function (err, signed) {
-            if (err) {
-                log.error(err);
+        self.getLinkedItem({
+            args: {
+                repo: args.repo,
+                owner: args.owner
             }
-            self.getLinkedItem({
-                args: {
-                    repo: args.repo,
-                    owner: args.owner
-                }
-            }, function (e, item) {
-                if (e) {
-                    log.error(e);
+        }, function (e, item) {
+            if (e) {
+                log.error(e);
+            }
+            args.item = item;
+            cla.sign(args, function (err, signed) {
+                if (err) {
+                    log.error(err);
                 }
                 req.args.token = item.token;
                 if (item.sharedGist) {
@@ -427,8 +428,8 @@ module.exports = {
                 } else {
                     self.validatePullRequests(req);
                 }
+                done(err, signed);
             });
-            done(err, signed);
         });
     },
 

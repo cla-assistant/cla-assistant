@@ -6,7 +6,7 @@
                 <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
             </a>
             <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space" tooltip-placement="bottom" tooltip="{{ item.excludePattern ? 'Excluded Repositories: ' + item.excludePattern : 'No Excluded Repositories'}}">
-                <img src="{{item.avatar_url}}" alt="" class="org">&nbsp; {{ item.org }}
+                <img src="{{item.avatarUrl}}" alt="" class="org">&nbsp; {{ item.org }}
             </a>
         </div>
     </div>
@@ -38,7 +38,8 @@
         <i class="fa" ng-class="valid.webhook ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> webhook</i>
     </script>
     <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
-        <img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateLink.html'" popover-trigger="mouseenter" popover-popup-delay="300">
+        <img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateLink.html'"
+            popover-trigger="mouseenter" popover-popup-delay="300">
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
@@ -47,8 +48,9 @@
         <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo">Get Badge</button>
     </script>
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
-        <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..."
-             popover-placement="right" popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
-        <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom" tooltip="Unlink"></i>
+        <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..." popover-placement="right" popover-template="'moreActions.html'"
+            popover-is-open="popoverIsOpen"></i>
+        <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom"
+            tooltip="Unlink"></i>
     </div>
 </td>

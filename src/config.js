@@ -16,6 +16,8 @@ module.exports = {
             enterprise: !!process.env.GITHUB_HOST, // flag enterprise version
             version: process.env.GITHUB_VERSION || '3.0.0',
 
+            graphqlEndpoint: process.env.GITHUB_GRAPHQL || 'https://api.github.com/graphql',
+
             // required
             client: process.env.GITHUB_CLIENT,
             secret: process.env.GITHUB_SECRET,
@@ -106,6 +108,10 @@ module.exports = {
         controller: [
             path.join(__dirname, 'server', 'controller', '!(default).js'),
             path.join(__dirname, 'server', 'controller', 'default.js')
+        ],
+
+        graphQueries: [
+            path.join(__dirname, 'server', 'graphQueries', '*.js')
         ],
 
         middleware: [

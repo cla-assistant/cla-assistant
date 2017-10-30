@@ -44,10 +44,9 @@ function getHook(obj, arg, token, done) {
         arg: arg,
         token: token
     }, function callback(err, hooks) {
-        var hook = null;
-
+        let hook = null;
         if (!err && hooks && hooks.length > 0) {
-            hooks.forEach(function(webhook) {
+            hooks.forEach(function (webhook) {
                 if (webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
                     hook = webhook;
                 }
@@ -64,7 +63,7 @@ function deactevateRepoHook(owner, repo, token, done) {
     getHook('repos', {
         owner: owner,
         repo: repo
-    }, token, function(err, hook) {
+    }, token, function (err, hook) {
         if (hook && hook.id) {
             updateRepoHook(owner, repo, hook.id, false, token, done);
         }
@@ -86,12 +85,12 @@ function createOrgHook(req, done) {
         },
         token: req.user.token
     };
-    github.call(args, function(err, data) {
+    github.call(args, function (err, data) {
         done(err, data);
-        repoService.getByOwner(org, function(err, repos) {
+        repoService.getByOwner(org, function (err, repos) {
             if (repos && repos.length > 0) {
-                repos.forEach(function(repo) {
-                    deactevateRepoHook(org, repo.repo, repo.token, function() {});
+                repos.forEach(function (repo) {
+                    deactevateRepoHook(org, repo.repo, repo.token, function () { });
                 });
             }
         });
@@ -103,15 +102,15 @@ function extractGithubArgs(args) {
     var arg = args.org ? {
         org: args.org
     } : {
-        owner: args.owner,
-        repo: args.repo
-    };
+            owner: args.owner,
+            repo: args.repo
+        };
     return { obj: obj, arg: arg };
 }
 
 module.exports = {
 
-    get: function(req, done) {
+    get: function (req, done) {
         var githubArgs = extractGithubArgs(req.args);
 
         getHook(githubArgs.obj, githubArgs.arg, req.user.token, done);
@@ -126,12 +125,12 @@ module.exports = {
         // }
     },
 
-    create: function(req, done) {
+    create: function (req, done) {
         return req.args && req.args.orgId ? createOrgHook(req, done) : createRepoHook(req, done);
     },
 
-    remove: function(req, done) {
-        this.get(req, function(err, hook) {
+    remove: function (req, done) {
+        this.get(req, function (err, hook) {
             if (err || !hook) {
                 done(err || 'No webhook found with base url ' + url.baseWebhook);
                 return;
