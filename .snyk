@@ -19,6 +19,13 @@ ignore:
     - karma > socket.io > engine.io > accepts > negotiator:
         reason: None given
         expires: '2016-08-18T07:45:03.181Z'
+  'npm:parsejson:20170908':
+    - socket.io > socket.io-client > engine.io-client > parsejson:
+        reason: None given
+        expires: '2017-12-02T12:37:04.466Z'
+    - karma > socket.io > socket.io-client > engine.io-client > parsejson:
+        reason: None given
+        expires: '2017-12-02T12:37:04.467Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:minimatch:20160620':
@@ -88,6 +95,8 @@ patch:
   'npm:debug:20170905':
     - karma > socket.io > debug:
         patched: '2017-10-02T22:30:08.358Z'
+      karma > chokidar > fsevents > node-pre-gyp > tar-pack > debug:
+        patched: '2017-11-02T10:28:27.408Z'
     - karma > socket.io > engine.io > debug:
         patched: '2017-10-02T22:30:08.358Z'
     - karma > socket.io > socket.io-adapter > debug:
@@ -102,3 +111,23 @@ patch:
         patched: '2017-10-02T22:30:08.358Z'
     - karma > socket.io > socket.io-client > socket.io-parser > debug:
         patched: '2017-10-02T22:30:08.358Z'
+  'npm:ms:20170412':
+    - karma > socket.io > engine.io > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-adapter > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-client > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-client > engine.io-client > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-client > socket.io-parser > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-parser > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+    - karma > socket.io > socket.io-adapter > socket.io-parser > debug > ms:
+        patched: '2017-11-02T10:28:27.408Z'
+  'npm:tough-cookie:20170905':
+    - karma > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
+        patched: '2017-11-02T10:28:27.408Z'
