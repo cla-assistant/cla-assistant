@@ -16,8 +16,7 @@ var index = {
     owner: 1
 };
 var indexOptions = {
-    unique: true,
-    background: true
+    unique: true
 };
 
 var Repo = mongoose.model('Repo', RepoSchema);
