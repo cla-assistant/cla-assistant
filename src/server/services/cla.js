@@ -137,21 +137,6 @@ module.exports = function () {
         return query;
     };
 
-<<<<<<< HEAD
-    var check = function (repo, owner, gist_url, user, pr_number, token, repoId, orgId, sharedGist) {
-        var deferred = q.defer();
-
-        getGistObject(gist_url, undefined, token).then(function (gist) {
-            if (!gist.history) {
-                deferred.reject('No versions found for the given gist url');
-                return;
-            }
-
-            var args = {
-                user: user,
-                gist: gist_url,
-                gist_version: gist.history[0].version,
-=======
     let check = function (repo, owner, gist_url, user, pr_number, token, repoId, orgId, sharedGist, gist_version) {
         let deferred = q.defer();
 
@@ -160,7 +145,6 @@ module.exports = function () {
                 user: user,
                 gist: gist_url,
                 gist_version: gist_version,
->>>>>>> update all dependencies; fix tests after update; add github graph apis
                 repo: repo,
                 owner: owner,
                 sharedGist: sharedGist
@@ -189,13 +173,6 @@ module.exports = function () {
                         }
                     );
                 });
-<<<<<<< HEAD
-            }
-        },
-            function (e) {
-                deferred.reject(e);
-=======
->>>>>>> update all dependencies; fix tests after update; add github graph apis
             }
         };
 
