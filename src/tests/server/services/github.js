@@ -11,6 +11,7 @@ global.config = require('../../../config');
 // service
 let github = rewire('../../../server/services/github');
 let cache = require('memory-cache');
+let logger = require('../../../server/services/logger');
 
 let callStub = sinon.stub();
 let authenticateStub = sinon.stub();
@@ -47,6 +48,13 @@ describe('github:call', function () {
         authenticateStub.reset();
         getNextPageStub.reset();
         cache.clear();
+        sinon.stub(logger, 'info').callsFake(function () {
+            return;
+        });
+    });
+
+    afterEach(function () {
+        logger.info.restore();
     });
 
     it('should return an error if obj is not set', function (it_done) {

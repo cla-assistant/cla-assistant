@@ -5,15 +5,21 @@ let cache = require('memory-cache');
 let config = require('../../config');
 let GitHubApi = require('github');
 let stringify = require('json-stable-stringify');
-let logger = require('../services/logger');
+let logger = require('./logger');
 
 
 // let githubApi;
 
-function callGithub(github, obj, fun, arg, stringArgs, done) {
-    let cacheKey = stringArgs;
-    let cachedRes = arg.noCache ? null : cache.get(cacheKey);
+function callGithub(github, obj, fun, arg, token, done) {
+    let noCache = arg.noCache;
     delete arg.noCache;
+    let cacheKey = stringify({
+        obj: obj,
+        fun: fun,
+        arg: arg,
+        token: token
+    });
+    let cachedRes = noCache ? null : cache.get(cacheKey);
     if (cachedRes && config.server.cache_time > 0 && typeof done === 'function') {
         if (cachedRes.meta) {
             cachedRes.data.meta = cachedRes.meta;
@@ -29,6 +35,8 @@ function callGithub(github, obj, fun, arg, stringArgs, done) {
                 meta: res && res.meta ? res.meta : undefined
             }, 60000 * config.server.cache_time);
         }
+
+        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: JSON.stringify(arg), token: token ? token.slice(0, 4) + '***' : '', remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
 
         if (typeof done === 'function') {
             done(err, res);
@@ -71,15 +79,6 @@ let githubService = {
         let obj = call.obj;
         let token = call.token;
 
-        let argWithoutNoCache = Object.assign({}, arg);
-        delete argWithoutNoCache.noCache;
-
-        let stringArgs = stringify({
-            obj: call.obj,
-            fun: call.fun,
-            arg: argWithoutNoCache,
-            token: call.token
-        });
         let github = newGithubApi();
 
         function collectData(err, res) {
@@ -159,7 +158,7 @@ let githubService = {
         }
 
         setTimeout(function () {
-            callGithub(github, obj, fun, arg, stringArgs, collectData);
+            callGithub(github, obj, fun, arg, token, collectData);
         }, getRateLimitTime(token));
 
         return deferred.promise;
