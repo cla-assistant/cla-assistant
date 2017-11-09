@@ -1,23 +1,25 @@
 // modules
-var async = require('async');
-var q = require('q');
+let async = require('async');
+let q = require('q');
+require('../documents/user');
 
 // services
-var github = require('../services/github');
-var cla = require('../services/cla');
-var status = require('../services/status');
-var repoService = require('../services/repo');
-var orgService = require('../services/org');
-var prService = require('../services/pullRequest');
-var log = require('../services/logger');
+let github = require('../services/github');
+let cla = require('../services/cla');
+let status = require('../services/status');
+let repoService = require('../services/repo');
+let orgService = require('../services/org');
+let prService = require('../services/pullRequest');
+let log = require('../services/logger');
 
-var config = require('../../config');
+let config = require('../../config');
+let User = require('mongoose').model('User');
 
-var token;
+let token;
 
 function markdownRender(content, token) {
-    var deferred = q.defer();
-    var args = {
+    let deferred = q.defer();
+    let args = {
         obj: 'misc',
         fun: 'renderMarkdown',
         arg: {
@@ -27,7 +29,7 @@ function markdownRender(content, token) {
     };
 
     github.call(args, function (error, response) {
-        var callback_error;
+        let callback_error;
         if (!response || response.statusCode !== 200) {
             callback_error = response && response.message ? response.message : error;
             if (callback_error) {
@@ -48,9 +50,9 @@ function markdownRender(content, token) {
 }
 
 function renderFiles(files, renderToken) {
-    var deferred = q.defer();
+    let deferred = q.defer();
+    let content;
     try {
-        var content;
         Object.keys(files).some(function (name) {
             content = name != 'metadata' ? files[name].content : content;
             return name != 'metadata';
@@ -59,10 +61,11 @@ function renderFiles(files, renderToken) {
         deferred.reject(e);
         return deferred.promise;
     }
-    var metadata = files && files['metadata'] ? files['metadata'].content : undefined;
+    let metadata = files && files['metadata'] ? files['metadata'].content : undefined;
 
-    var gistContent = {},
-        contentPromise, metaPromise;
+    let gistContent = {};
+    let contentPromise;
+    let metaPromise;
     contentPromise = markdownRender(content, renderToken).then(function (data) {
         return data.raw;
     });
@@ -102,7 +105,87 @@ function getLinkedItemsWithSharedGist(gist, done) {
     });
 }
 
-module.exports = {
+function validatePullRequest(args, done) {
+    args.token = args.token ? args.token : token;
+    cla.check(args, function (cla_err, all_signed, user_map) {
+        if (cla_err) {
+            log.error(cla_err);
+        }
+        args.signed = all_signed;
+        status.update(args, done);
+        prService.editComment({
+            repo: args.repo,
+            owner: args.owner,
+            number: args.number,
+            signed: args.signed,
+            user_map: user_map
+        });
+    });
+}
+
+// Check/update status and comment of PRs saved for the user and matching linked item
+// Params:
+// user (mandatory)
+// repo (mandatory)
+// owner (mandatory)
+// item (mandatory)
+//      gist (mandatory)
+//      sharedGist (optional)
+// token (mandatory)
+function updateUsersPullRequests(args) {
+    User.findOne({ name: args.user }, (err, user) => {
+        if (err || !user || !user.requests || user.requests.length < 1) {
+            let req = {
+                args: {
+                    repo: args.repo,
+                    owner: args.owner,
+                    gist: args.item.gist,
+                    sharedGist: args.item.sharedGist,
+                    token: args.token
+                }
+            };
+            ClaApi.validatePullRequests(req, () => { });
+            return;
+        }
+        if (args.item.sharedGist) {
+            getLinkedItemsWithSharedGist(args.item.gist, function (error, sharedItems) {
+                if (error || !sharedItems || !(sharedItems.repos && sharedItems.orgs)) {
+                    return;
+                }
+                let linkedItems = (sharedItems.repos || []).concat(sharedItems.orgs || []);
+                linkedItems.forEach((item) => {
+                    prepareForValidation(item, user);
+                });
+            });
+        } else {
+            prepareForValidation(args.item, user);
+        }
+    });
+    function prepareForValidation(linkedItem, user) {
+        for (let index = user.requests.length - 1; index >= 0; index--) {
+            let contributedRepo = user.requests[index];
+            if ((linkedItem.repo === contributedRepo.repo && linkedItem.owner === contributedRepo.owner) || linkedItem.org === contributedRepo.owner) {
+                user.requests.splice(index, 1);
+                validateUserPRs(contributedRepo.repo, contributedRepo.owner, linkedItem.gist, linkedItem.sharedGist, contributedRepo.numbers, linkedItem.token);
+            }
+        }
+        user.save();
+    }
+    function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
+        numbers.forEach((prNumber) => {
+            validatePullRequest({
+                repo: repo,
+                owner: owner,
+                number: prNumber,
+                gist: gist,
+                sharedGist: sharedGist,
+                token: token
+            }, function () { });
+        });
+    }
+}
+
+let ClaApi = {
     getGist: function (req, done) {
         if (req.user && req.user.token && req.args.gist) {
             cla.getGist({
@@ -110,14 +193,14 @@ module.exports = {
                 gist: req.args.gist
             }, done);
         } else {
-            var service = req.args.orgId ? orgService : repoService;
+            let service = req.args.orgId ? orgService : repoService;
             service.get(req.args, function (err, item) {
                 if (err || !item) {
                     log.warn(new Error(err).stack, 'with args: ', req.args);
                     done(err);
                     return;
                 }
-                var gist_args = {
+                let gist_args = {
                     gist_url: item.gist
                 };
                 gist_args = req.args.gist ? req.args.gist : gist_args;
@@ -144,7 +227,7 @@ module.exports = {
                 return;
             }
 
-            var renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
+            let renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
             renderFiles(res.files, renderToken).then(
                 function success(gistContent) {
                     done(null, gistContent);
@@ -167,7 +250,7 @@ module.exports = {
     //Get users last signature for given repository (if repo is currently linked)
     //Parameters: repo, owner (mandatory)
     getLastSignature: function (req, done) {
-        var args = req.args;
+        let args = req.args;
         args.user = req.user.login;
         cla.getLastSignature(args, done);
     },
@@ -197,8 +280,8 @@ module.exports = {
     //	gist.gist_url (optional)
     //	gist.gist_version (optional)
     countCLA: function (req, done) {
-        var params = req.args;
-        var self = this;
+        let params = req.args;
+        let self = this;
 
         function getMissingParams(cb) {
             if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
@@ -241,7 +324,7 @@ module.exports = {
     },
 
     validateOrgPullRequests: function (req, done) {
-        var self = this;
+        let self = this;
         github.call({
             obj: 'repos',
             fun: 'getForOrg',
@@ -253,17 +336,19 @@ module.exports = {
         }, function (err, repos) {
             orgService.get(req.args, function (err, linkedOrg) {
                 if (repos && !repos.message && repos.length > 0) {
-                    var time = config.server.github.timeToWait;
+                    let time = config.server.github.timeToWait;
                     repos
                         .filter(function (repo) {
                             return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name);
                         })
                         .forEach(function (repo, index) {
-                            var validateRequest = {
+                            let validateRequest = {
                                 args: {
                                     owner: repo.owner.login,
                                     repo: repo.name,
-                                    token: req.args.token || req.user.token
+                                    token: req.args.token || req.user.token,
+                                    gist: req.args.gist,
+                                    sharedGist: req.args.sharedGist
                                 },
                                 user: req.user
                             };
@@ -287,30 +372,18 @@ module.exports = {
     // repo (mandatory)
     // owner (mandatory)
     // number (mandatory)
-    // sha (optional)
+    // gist (optional)
+    // sharedGist (optional)
     // token (optional)
+    // sha (optional)
     validatePullRequest: function (args, done) {
-        args.token = args.token ? args.token : token;
-        cla.check(args, function (cla_err, all_signed, user_map) {
-            if (cla_err) {
-                log.error(cla_err);
-            }
-            args.signed = all_signed;
-            status.update(args, done);
-            prService.editComment({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number,
-                signed: args.signed,
-                user_map: user_map
-            });
-        });
+        validatePullRequest(args, done);
     },
 
     validatePullRequests: function (req, done) {
-        var self = this;
-        var pullRequests = [];
-        var token = req.args.token ? req.args.token : req.user.token;
+        let self = this;
+        let pullRequests = [];
+        let token = req.args.token ? req.args.token : req.user.token;
 
         function collectData(err, res, meta) {
             if (err) {
@@ -331,10 +404,12 @@ module.exports = {
         function validateData(err) {
             if (pullRequests.length > 0 && !err) {
                 pullRequests.forEach(function (pullRequest) {
-                    var status_args = {
+                    let status_args = {
                         repo: req.args.repo,
                         owner: req.args.owner,
                         sha: pullRequest.head.sha,
+                        gist: req.args.gist,
+                        sharedGist: req.args.sharedGist,
                         token: token
                     };
                     status_args.number = pullRequest.number;
@@ -361,17 +436,19 @@ module.exports = {
     },
 
     validateSharedGistItems: function (req, done) {
-        var self = this;
+        let self = this;
         getLinkedItemsWithSharedGist(req.args.gist, function (error, sharedItems) {
             if (error) {
                 done(error);
             }
-            var items = (sharedItems.repos || []).concat(sharedItems.orgs || []);
+            let items = (sharedItems.repos || []).concat(sharedItems.orgs || []);
             async.series(items.map(function (item) {
                 return function (callback) {
-                    var tmpReq = {
+                    let tmpReq = {
                         args: {
-                            token: item.token
+                            token: item.token,
+                            gist: item.gist,
+                            sharedGist: true
                         }
                     };
                     if (item.org) {
@@ -389,7 +466,7 @@ module.exports = {
     },
 
     sign: function (req, done) {
-        var args = {
+        let args = {
             repo: req.args.repo,
             owner: req.args.owner,
             user: req.user.login,
@@ -398,7 +475,7 @@ module.exports = {
         if (req.args.custom_fields) {
             args.custom_fields = req.args.custom_fields;
         }
-        var self = this;
+        let self = this;
 
         self.getLinkedItem({
             args: {
@@ -410,31 +487,19 @@ module.exports = {
                 log.error(e);
             }
             args.item = item;
+            args.token = item.token;
             cla.sign(args, function (err, signed) {
                 if (err) {
                     log.error(err);
                 }
-                req.args.token = item.token;
-                if (item.sharedGist) {
-                    req.args.gist = item.gist;
-                    self.validateSharedGistItems(req, function (error) {
-                        if (error) {
-                            log.error(error);
-                        }
-                    });
-                } else if (item.org) {
-                    req.args.org = item.org;
-                    self.validateOrgPullRequests(req);
-                } else {
-                    self.validatePullRequests(req);
-                }
+                updateUsersPullRequests(args);
                 done(err, signed);
             });
         });
     },
 
     check: function (req, done) {
-        var args = {
+        let args = {
             repo: req.args.repo,
             owner: req.args.owner,
             user: req.user.login
@@ -445,7 +510,7 @@ module.exports = {
 
     upload: function (req, done) {
 
-        var users = req.args.users || [];
+        let users = req.args.users || [];
 
         async.each(users, function (user, callback) {
             github.call({
@@ -477,3 +542,5 @@ module.exports = {
     //     // });
     // }
 };
+
+module.exports = ClaApi;

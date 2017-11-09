@@ -12,6 +12,8 @@ var logger = require('../../../server/services/logger');
 
 var config = require('../../../config');
 
+var User = require('../../../server/documents/user').User;
+
 // webhook under test
 var pull_request = require('../../../server/webhooks/pull_request');
 
@@ -250,7 +252,7 @@ describe('webhook pull request', function () {
         }
     };
 
-    var test_req, testRes;
+    var test_req, testRes, testUser, testUserSaved;
 
     beforeEach(function () {
         test_req = {
@@ -267,6 +269,18 @@ describe('webhook pull request', function () {
                 name: 'login'
             }]
         };
+        testUser = {
+            save: function () {
+                testUserSaved = true;
+            },
+            name: 'testUser',
+            requests: [{
+                repo: 'Hello-World',
+                owner: 'octocat',
+                numbers: [1]
+            }]
+        };
+        testUserSaved = false;
 
         sinon.stub(cla, 'check').callsFake(function (args, done) {
             assert(args.number);
@@ -322,6 +336,9 @@ describe('webhook pull request', function () {
         sinon.stub(logger, 'info').callsFake(function (msg) {
             assert(msg);
         });
+        sinon.stub(User, 'findOne').callsFake((selector, cb) => {
+            cb(null, testUser);
+        });
     });
 
     afterEach(function () {
@@ -335,6 +352,7 @@ describe('webhook pull request', function () {
         logger.error.restore();
         logger.warn.restore();
         logger.info.restore();
+        User.findOne.restore();
     });
 
     it('should update status of pull request if not signed', function (it_done) {
@@ -363,6 +381,94 @@ describe('webhook pull request', function () {
         this.timeout(100);
         setTimeout(function () {
             assert(pullRequest.badgeComment.called);
+            it_done();
+        }, 8);
+    });
+
+    it('should store PR number if not signed', function (it_done) {
+        cla.check.restore();
+        testUser.save = function () {
+            testUserSaved = true;
+            assert(testUser.requests[0].numbers.indexOf(1347) > -1);
+        };
+
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, false, {
+                not_signed: ['test_user']
+            });
+        });
+
+        pull_request(test_req, res);
+        this.timeout(100);
+        setTimeout(function () {
+            sinon.assert.called(User.findOne);
+            assert(testUserSaved);
+            it_done();
+        }, 8);
+    });
+
+    it('should create PR numbers store if not given yet', function (it_done) {
+        cla.check.restore();
+        testUser.requests = [];
+        testUser.save = function () {
+            testUserSaved = true;
+            assert(testUser.requests[0].numbers.indexOf(1347) > -1);
+        };
+
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, false, {
+                not_signed: ['test_user']
+            });
+        });
+
+        pull_request(test_req, res);
+        this.timeout(100);
+        setTimeout(function () {
+            sinon.assert.called(User.findOne);
+            assert(testUserSaved);
+            it_done();
+        }, 8);
+    });
+
+    it('should create user if not given yet', function (it_done) {
+        cla.check.restore();
+        testUser = null;
+        sinon.stub(User, 'create').callsFake(function (doc, done) {
+            done();
+        });
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, false, {
+                not_signed: ['test_user']
+            });
+        });
+
+        pull_request(test_req, res);
+        this.timeout(100);
+        setTimeout(function () {
+            sinon.assert.called(User.findOne);
+            sinon.assert.called(User.create);
+            User.create.restore();
+            it_done();
+        }, 8);
+    });
+
+    it('should store only distinct PR number if not signed', function (it_done) {
+        test_req.args.number = 1;
+        cla.check.restore();
+        testUser.save = function () {
+            assert('shold not be called');
+        };
+
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, false, {
+                not_signed: ['test_user']
+            });
+        });
+
+        pull_request(test_req, res);
+        this.timeout(100);
+        setTimeout(function () {
+            sinon.assert.called(User.findOne);
             it_done();
         }, 8);
     });

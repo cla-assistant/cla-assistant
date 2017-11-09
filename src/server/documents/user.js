@@ -4,7 +4,11 @@ mongoose.Promise = require('q').Promise;
 var UserSchema = mongoose.Schema({
     uuid: Number,
     name: String,
-    // requests: Array,
+    requests: [{
+        repo: String,
+        owner: String,
+        numbers: [Number]
+    }],
     token: String
 });
 
