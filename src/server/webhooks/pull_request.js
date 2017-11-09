@@ -1,15 +1,48 @@
+require('../documents/user');
+
 // services
-var pullRequest = require('../services/pullRequest');
-var status = require('../services/status');
-var cla = require('../services/cla');
-var repoService = require('../services/repo');
-var orgService = require('../services/org');
-var log = require('../services/logger');
-var config = require('../../config');
+let pullRequest = require('../services/pullRequest');
+let status = require('../services/status');
+let cla = require('../services/cla');
+let repoService = require('../services/repo');
+let orgService = require('../services/org');
+let log = require('../services/logger');
+let config = require('../../config');
+let User = require('mongoose').model('User');
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Github Pull Request Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
+
+function storeRequest(committers, repo, owner, number) {
+    committers.forEach(function (committer) {
+        User.findOne({ name: committer }, (err, user) => {
+            let pullRequest = { repo: repo, owner: owner, numbers: [number] };
+            if (!user) {
+                User.create({ name: committer, requests: [pullRequest] }, (err, user) => {
+                    if (err) {
+                        log.warn(new Error(err).stack);
+                    }
+                });
+                return;
+            }
+            if (!user.requests || user.requests.length < 1) {
+                user.requests = user.requests ? user.requests : [];
+                user.requests.push(pullRequest);
+                user.save();
+                return;
+            }
+            let repoPullRequests = user.requests.find((request) => {
+                return request.repo === repo && request.owner === owner;
+            });
+            if (repoPullRequests.numbers.indexOf(number) < 0) {
+                repoPullRequests.numbers.push(number);
+                user.save();
+            }
+        });
+    });
+}
 
 function handleWebHook(args) {
     repoService.getPRCommitters(args, function (err, committers) {
@@ -28,6 +61,9 @@ function handleWebHook(args) {
                     signed,
                     user_map
                 );
+                if (user_map && user_map.not_signed) {
+                    storeRequest(user_map.not_signed, args.repo, args.owner, args.number);
+                }
                 // }
             });
         } else {
@@ -48,7 +84,7 @@ module.exports = function (req, res) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
             console.log('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
         }
-        var args = {
+        let args = {
             owner: req.args.repository.owner.login,
             repoId: req.args.repository.id,
             repo: req.args.repository.name,

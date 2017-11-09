@@ -1085,7 +1085,7 @@ describe('cla:getAll', function () {
 
     it('should get only one newest cla per user if gist_version provided', function (it_done) {
         CLA.find.restore();
-        sinon.stub(CLA, 'find', function (arg, prop, options, done) {
+        sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
             assert(options.sort);
             done(null, [{

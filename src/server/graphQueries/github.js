@@ -1,6 +1,7 @@
 
 module.exports = {
     getPRCommitters: function (owner, repo, number, cursor) {
+        number = typeof number === 'string' ? parseInt(number) : number;
         let query = `
             query($owner:String! $name:String! $number:Int! $cursor:String!){
                 repository(owner: $owner, name: $name) {

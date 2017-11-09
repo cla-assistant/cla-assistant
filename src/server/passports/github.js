@@ -44,24 +44,38 @@ function checkToken(item, accessToken) {
 }
 
 passport.use(new Strategy({
-        clientID: config.server.github.client,
-        clientSecret: config.server.github.secret,
-        callbackURL: url.githubCallback,
-        authorizationURL: url.githubAuthorization,
-        tokenURL: url.githubToken,
-        userProfileURL: url.githubProfile()
-        // scope: config.server.github.scopes
-    },
+    clientID: config.server.github.client,
+    clientSecret: config.server.github.secret,
+    callbackURL: url.githubCallback,
+    authorizationURL: url.githubAuthorization,
+    tokenURL: url.githubToken,
+    userProfileURL: url.githubProfile()
+    // scope: config.server.github.scopes
+},
     function (accessToken, refreshToken, params, profile, done) {
-        models.User.update({
-            uuid: profile.id
-        }, {
-            name: profile.username,
-            email: '', // needs fix
-            token: accessToken
-        }, {
-            upsert: true
-        }, function () {});
+        models.User.findOne({ name: profile.username }, (err, user) => {
+            if (!user) {
+                user = { uuid: profile.id, name: profile.username, token: accessToken };
+                models.User.create(user, (err) => {
+                    logger.warn(new Error('Could not create new user ' + err));
+                });
+            }
+
+            if (user && !user.uuid) {
+                user.uuid = profile.id;
+            }
+            user.token = accessToken;
+            user.save();
+        });
+        // models.User.update({
+        //     uuid: profile.id
+        // }, {
+        //     name: profile.username,
+        //     email: '', // needs fix
+        //     token: accessToken
+        // }, {
+        //     upsert: true
+        // }, function () {});
 
         if (params.scope.indexOf('write:repo_hook') >= 0) {
             repoService.getUserRepos({
