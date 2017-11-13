@@ -52,7 +52,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         var mixOrgData = function (claOrg) {
             $scope.orgs.some(function (org) {
-                if (org.id == claOrg.orgId) {
+                // if (org.id == claOrg.orgId) {
+                if (org.login == claOrg.org) {
                     claOrg.avatarUrl = org.avatarUrl;
                     return true;
                 }

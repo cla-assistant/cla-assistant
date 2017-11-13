@@ -105,20 +105,17 @@ describe('Home Controller', function () {
     }];
 
     var testDataOrgs = [{
-        'login': 'github',
-        'id': 1,
-        'url': 'https://api.github.com/orgs/github',
-        'repos_url': 'https://api.github.com/orgs/github/repos',
-        'events_url': 'https://api.github.com/orgs/github/events',
-        'hooks_url': 'https://api.github.com/orgs/github/hooks',
-        'issues_url': 'https://api.github.com/orgs/github/issues',
-        'members_url': 'https://api.github.com/orgs/github/members{/member}',
-        'public_members_url': 'https://api.github.com/orgs/github/public_members{/member}',
-        'avatarUrl': 'https://github.com/images/error/octocat_happy.gif',
-        'description': 'A great organization'
+        'id': 'MDEyOk9yZ2FuaXphdGlvbjc3OTY0MTg=',
+        'login': 'org1',
+        'name': 'Org 1',
+        'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
+        'viewerCanAdminister': true
     }, {
-        'login': 'testOrg',
-        'id': 2
+        'id': 'MDEyOk9yZ2FuaXphdGlvbjk1MDI5NjM=',
+        'login': 'org2',
+        'name': 'Org 2',
+        'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
+        'viewerCanAdminister': true
     }];
 
     // var testDataMemberships = {
@@ -441,7 +438,8 @@ describe('Home Controller', function () {
         expRes.RPC.org = {
             getForUser: {
                 value: [{
-                    orgId: '1'
+                    orgId: '1',
+                    org: 'org1'
                 }]
             }
         };
