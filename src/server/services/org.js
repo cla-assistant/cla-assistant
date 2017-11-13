@@ -26,7 +26,7 @@ module.exports = {
     },
 
     getMultiple: function (args, done) {
-        Org.find({ orgId: { $in: args.orgId } }, done);
+        Org.find({ org: { $in: args.login } }, done);
     },
 
     getOrgWithSharedGist: function (gist, done) {

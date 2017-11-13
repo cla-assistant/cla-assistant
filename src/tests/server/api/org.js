@@ -95,8 +95,7 @@ describe('org api', function () {
 
             org_api.getForUser(req, function (err, orgs) {
                 sinon.assert.calledOnce(github.callGraphql);
-
-                assert.equal(org.getMultiple.calledWith({ orgId: ['2', '3'] }), true);
+                sinon.assert.calledWithMatch(org.getMultiple, { orgId: ['2', '3'], login: ['org2', 'org3'] });
                 assert.equal(orgs.length, 2);
                 it_done();
             });

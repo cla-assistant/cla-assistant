@@ -34,7 +34,8 @@ module.exports = {
                 return;
             }
             var argsForOrg = {
-                orgId: extractIds(res)
+                orgId: res.map((org) => { return org.id; }),
+                login: res.map((org) => { return org.login; })
             };
             org.getMultiple(argsForOrg, done);
         });
