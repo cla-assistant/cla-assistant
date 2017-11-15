@@ -59,6 +59,7 @@ passport.use(new Strategy({
                 models.User.create(user, (err) => {
                     logger.warn(new Error('Could not create new user ' + err));
                 });
+                return;
             }
 
             if (user && !user.uuid) {
@@ -93,7 +94,8 @@ passport.use(new Strategy({
         if (params.scope.indexOf('admin:org_hook') >= 0) {
             orgApi.getForUser({
                 user: {
-                    token: accessToken
+                    token: accessToken,
+                    login: profile.username
                 }
             }, function (err, res) {
                 if (res && res.length > 0) {
@@ -101,7 +103,7 @@ passport.use(new Strategy({
                         checkToken(org, accessToken);
                     });
                 } else if (err) {
-                    logger.warn(err);
+                    logger.warn(new Error(err).stack);
                 }
             });
         }
