@@ -69,14 +69,13 @@ describe('org:get', function () {
 describe('org:getMultiple', function () {
     it('should find multiple entries', function (it_done) {
         sinon.stub(Org, 'find').callsFake(function (args, done) {
-            assert(args.org.$in.length > 0);
+            assert(args.orgId.$in.length > 0);
             // assert(args.orgId.$in.length > 0);
             done(null, [{}, {}]);
         });
 
         var args = {
-            orgId: [1, 2],
-            login: ['Org1', 'Org2']
+            orgId: [1, 2]
         };
 
         org.getMultiple(args, function (err, res) {

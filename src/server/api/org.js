@@ -34,8 +34,7 @@ module.exports = {
                 return;
             }
             var argsForOrg = {
-                orgId: res.map((org) => { return org.id; }),
-                login: res.map((org) => { return org.login; })
+                orgId: res.map((org) => { return org.id; })
             };
             org.getMultiple(argsForOrg, done);
         });
@@ -61,12 +60,15 @@ module.exports = {
                 if (body && body.data && !res.message) {
                     try {
                         let data = body.data.user.organizations;
-                        data.edges.forEach((edge) => {
-                            let org = edge.node;
-                            if (org.viewerCanAdminister) {
-                                organizations.push(org);
+
+                        organizations = data.edges.reduce((orgs, edge) => {
+                            if (edge.node.viewerCanAdminister) {
+                                edge.node.id = edge.node.databaseId;
+                                orgs.push(edge.node);
                             }
-                        });
+                            return orgs;
+                        }, organizations);
+
                         if (data.pageInfo.hasNextPage) {
                             arg.query = queries.getUserOrgs(req.user.login, data.pageInfo.endCursor);
                             callGithub(arg);

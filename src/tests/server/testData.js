@@ -1012,7 +1012,8 @@ var testData = {
                             'node': {
                                 'login': 'org1',
                                 'name': 'Org 1',
-                                'id': '1',
+                                'id': 'graphqlid1',
+                                'databaseId': '1',
                                 'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
                                 'viewerCanAdminister': false
                             }
@@ -1022,7 +1023,8 @@ var testData = {
                             'node': {
                                 'login': 'org2',
                                 'name': 'Org 2',
-                                'id': '2',
+                                'id': 'graphqlid2',
+                                'databaseId': '2',
                                 'avatarUrl': 'https://avatars1.githubusercontent.com/u/9502963?v=4',
                                 'viewerCanAdminister': true
                             }
@@ -1032,7 +1034,8 @@ var testData = {
                             'node': {
                                 'login': 'org3',
                                 'name': 'Org 3',
-                                'id': '3',
+                                'id': 'graphqlid3',
+                                'databaseId': '3',
                                 'avatarUrl': 'https://avatars0.githubusercontent.com/u/9575342?v=4',
                                 'viewerCanAdminister': true
                             }

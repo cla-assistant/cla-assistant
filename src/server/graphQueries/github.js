@@ -16,6 +16,7 @@ module.exports = {
                                         name
                                         user {
                                             id
+                                            databaseId
                                             login
                                         }
                                     }
@@ -23,6 +24,7 @@ module.exports = {
                                         name
                                         user {
                                             id
+                                            databaseId
                                             login
                                         }
                                     }
@@ -59,6 +61,7 @@ module.exports = {
                             login
                             name
                             id
+                            databaseId
                             avatarUrl
                             viewerCanAdminister
                         }
