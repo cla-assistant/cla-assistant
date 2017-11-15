@@ -18,7 +18,7 @@ module.exports = {
     getForUser: function (req, done) {
         this.getGHOrgsForUser(req, function (err, res) {
             if (err) {
-                log.warn(err);
+                log.warn(new Error(err).stack);
                 done(err);
                 return;
             }
