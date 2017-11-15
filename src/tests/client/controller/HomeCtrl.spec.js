@@ -105,13 +105,13 @@ describe('Home Controller', function () {
     }];
 
     var testDataOrgs = [{
-        'id': 'MDEyOk9yZ2FuaXphdGlvbjc3OTY0MTg=',
+        'id': '1',
         'login': 'org1',
         'name': 'Org 1',
         'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
         'viewerCanAdminister': true
     }, {
-        'id': 'MDEyOk9yZ2FuaXphdGlvbjk1MDI5NjM=',
+        'id': '2',
         'login': 'org2',
         'name': 'Org 2',
         'avatarUrl': 'https://avatars2.githubusercontent.com/u/7796418?v=4',
