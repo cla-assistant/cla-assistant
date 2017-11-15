@@ -6,17 +6,6 @@ var q = require('q');
 //queries
 let queries = require('../graphQueries/github');
 
-var extractIds = function (orgs) {
-    var ids = [];
-    try {
-        orgs.forEach(function (org) {
-            ids.push(org.id);
-        });
-    } catch (ex) {
-
-    }
-    return ids;
-};
 module.exports = {
 
     // check: function(req, done) {
