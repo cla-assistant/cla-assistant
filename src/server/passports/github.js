@@ -57,7 +57,9 @@ passport.use(new Strategy({
             if (!user) {
                 user = { uuid: profile.id, name: profile.username, token: accessToken };
                 models.User.create(user, (err) => {
-                    logger.warn(new Error('Could not create new user ' + err));
+                    if (err) {
+                        logger.warn(new Error('Could not create new user ' + err));
+                    }
                 });
                 return;
             }
