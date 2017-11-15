@@ -301,6 +301,7 @@ module.exports = function () {
                         if (typeof done === 'function') {
                             done(error);
                         }
+                        return;
                     }
                     query.repoId = repo.repoId;
                     findCla();
