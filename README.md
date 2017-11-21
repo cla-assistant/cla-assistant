@@ -1,5 +1,18 @@
 [![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) [![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant) [![Code Climate](https://codeclimate.com/github/cla-assistant/cla-assistant/badges/gpa.svg)](https://codeclimate.com/github/cla-assistant/cla-assistant)
 
+Table of Contents
+===
+- [Contributor License Agreement assistant](#contributor-license-agreement-assistant)
+- [Try](#try)
+- [Request more information from the CLA signer](#request-more-information-from-the-cla-signer)
+- [FAQ](#faq)
+- [Setup your own instance of CLA assistant](#setup-your-own-instance-of-cla-assistant)
+- [Supported environment variables](#supported-environment-variables)
+- [Run the CLA assistant instance with Docker](#run-the-cla-assistant-instance-with-docker)
+- [License](#license)
+- [Stickers](#stickers)
+- [Credits](#credits)
+
 Contributor License Agreement assistant
 ===
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
