@@ -31,7 +31,7 @@ Following steps need to be done:
  - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/add_custom_fields.gif))
  - describe custom fields in JSON format (according to the [JSON Schema](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/custom-fields-schema.json))
 
-    ```json
+    ```js
     {
         "name": {
             "title": "Full Name",
