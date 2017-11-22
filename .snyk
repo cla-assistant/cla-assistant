@@ -95,8 +95,6 @@ patch:
   'npm:debug:20170905':
     - karma > socket.io > debug:
         patched: '2017-10-02T22:30:08.358Z'
-      karma > chokidar > fsevents > node-pre-gyp > tar-pack > debug:
-        patched: '2017-11-02T10:28:27.408Z'
     - karma > socket.io > engine.io > debug:
         patched: '2017-10-02T22:30:08.358Z'
     - karma > socket.io > socket.io-adapter > debug:
@@ -111,6 +109,8 @@ patch:
         patched: '2017-10-02T22:30:08.358Z'
     - karma > socket.io > socket.io-client > socket.io-parser > debug:
         patched: '2017-10-02T22:30:08.358Z'
+    - karma > chokidar > fsevents > node-pre-gyp > tar-pack > debug:
+        patched: '2017-11-02T10:28:27.408Z'
   'npm:ms:20170412':
     - karma > socket.io > engine.io > debug > ms:
         patched: '2017-11-02T10:28:27.408Z'
