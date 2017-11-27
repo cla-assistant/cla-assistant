@@ -32,6 +32,11 @@ RepoSchema.methods.isUserWhitelisted = function (user) {
 
 let Repo = mongoose.model('Repo', RepoSchema);
 
+/**
+ *  TODO: Remove this for now because Document DB don't support creating index with this many index properties.
+ *        And dropAllIndexes() will exclude any query path, which means almost all queries will not work.
+ * */
+
 // Repo.collection.dropAllIndexes(function (err, results) {
 //     if (err) {
 //         logger.warn('Repo collection dropAllIndexes error: ', err);
@@ -39,7 +44,7 @@ let Repo = mongoose.model('Repo', RepoSchema);
 //     }
 // });
 
-Repo.collection.createIndex(index, indexOptions);
+// Repo.collection.createIndex(index, indexOptions);
 
 module.exports = {
     Repo: Repo
