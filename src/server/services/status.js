@@ -41,7 +41,21 @@ var getStatuses = function (args, done) {
     }, done);
 };
 
-var createStatus = function (args, context, description, done) {
+var getCombinedStatus = function (args, done) {
+    github.call({
+        obj: 'repos',
+        fun: 'getCombinedStatus',
+        arg: {
+            owner: args.owner,
+            repo: args.repo,
+            ref: args.sha,
+            noCache: true
+        },
+        token: args.token
+    }, done);
+};
+
+var createStatus = function (args, context, description, state, target_url, done) {
     github.call({
         obj: 'repos',
         fun: 'createStatus',
@@ -49,9 +63,9 @@ var createStatus = function (args, context, description, done) {
             owner: args.owner,
             repo: args.repo,
             sha: args.sha,
-            state: args.state,
+            state: state,
             description: description,
-            target_url: args.noUrl ? undefined : url.claURL(args.owner, args.repo, args.number),
+            target_url: target_url,
             context: context,
             noCache: true
         },
@@ -74,7 +88,9 @@ var findStatusToBeChanged = function (args, done) {
 
         var status = {
             context: 'license/cla',
-            description: description
+            description: description,
+            state: args.signed ? 'success' : 'pending',
+            target_url: url.claURL(args.owner, args.repo, args.number)
         };
         try {
             statuses = JSON.parse(response);
@@ -82,7 +98,7 @@ var findStatusToBeChanged = function (args, done) {
             statuses = response;
         }
         var statString = JSON.stringify(statuses);
-        if (statString.includes('licence/cla') && args.state == 'success') { // temporary fix if both contexts are there
+        if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
             var shouldBeChanged = false;
             statuses.some(function findClaStatusToChange(s) {
                 if (s.context.match(/licence\/cla/g)) {
@@ -91,13 +107,13 @@ var findStatusToBeChanged = function (args, done) {
                 }
             });
             if (shouldBeChanged) {
-                createStatus(args, 'licence/cla', status.description);
+                createStatus(args, 'licence/cla', status.description, status.state, status.target_url);
             }
         }
         if (statuses) {
             statuses.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
-                    status = s.state !== args.state ? status : undefined;
+                    status = s.state !== status.state ? status : undefined;
                     return true;
                 }
             });
@@ -107,9 +123,23 @@ var findStatusToBeChanged = function (args, done) {
     });
 };
 
-var updateStatus = function (args, done) {
-    args.state = args.signed ? 'success' : 'pending';
+var findClaStatus = function (args, done) {
+    getCombinedStatus(args, function (err, resp) {
+        if (err) {
+            return done(err);
+        }
+        var claStatus = null;
+        resp.statuses.some(function (status) {
+            if (status.context.match(/license\/cla/g)) {
+                claStatus = status;
+                return true;
+            }
+        });
+        return done(null, claStatus);
+    });
+};
 
+var updateStatus = function (args, done) {
     findStatusToBeChanged(args, function (status) {
         if (!status) {
             if (typeof done === 'function') {
@@ -117,17 +147,51 @@ var updateStatus = function (args, done) {
             }
             return;
         }
-        createStatus(args, status.context, status.description, done);
+        createStatus(args, status.context, status.description, status.state, status.target_url, done);
     });
 };
 
-var deleteStatus = function (args, done) {
-    // Github api don't support delete status. We override previous one.
-    args.state = 'success';
-    args.noUrl = true;
-    var description = 'No need to sign Contributor License Agreement.';
-    var context = 'license/cla';
-    createStatus(args, context, description, done);
+var getPullRequestHeadShaIfNeeded = function (args, done) {
+    if (args.sha) {
+        return done(null, args);
+    }
+    getPR(args, function (err, resp) {
+        if (!resp || !resp.head) {
+            err = new Error('Cannot get pull request head.');
+        }
+        args.sha = resp.head.sha;
+        done(err, args);
+    });
+};
+
+var doneIfNeeded = function (done, err, result) {
+    if (typeof done === 'function') {
+        return done(err, result);
+    }
+};
+
+var updateStatusIfNeeded = function (args, status, allowAbsent, done) {
+    if (!status) {
+        return doneIfNeeded(done, new Error('Status is required for updateStatusIfNeeded.'));
+    }
+    getPullRequestHeadShaIfNeeded(args, function (err, argsWithSha) {
+        if (err) {
+            log(err, argsWithSha, args);
+            return doneIfNeeded(done, err);
+        }
+        findClaStatus(args, function (err, claStatus) {
+            if (err) {
+                return doneIfNeeded(done, err);
+            }
+            if (!claStatus && allowAbsent) {
+                return doneIfNeeded(done, null);
+            }
+            if (!claStatus || claStatus.state !== status.state || claStatus.description !== status.description || claStatus.target_url !== status.target_url) {
+                return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url, done);
+            }
+            doneIfNeeded(done);
+        });
+    });
 };
 
 module.exports = {
@@ -148,20 +212,23 @@ module.exports = {
         }
     },
 
-    delete: function (args, done) {
-        if (args && !args.sha) {
-            getPR(args, function (err, resp) {
-                if (!err && resp && resp.head) {
-                    args.sha = resp.head.sha;
-                    deleteStatus(args, done);
-                } else {
-                    if (typeof done === 'function') {
-                        done(err);
-                    }
-                }
-            });
-        } else if (args) {
-            deleteStatus(args, done);
-        }
+    updateForNullCla: function (args, done) {
+        var status = {
+            context: 'license/cla',
+            state: 'success',
+            description: 'No Contributor License Agreement required.',
+            target_url: null
+        };
+        updateStatusIfNeeded(args, status, true, done);
+    },
+
+    updateForClaNotRequired: function (args, done) {
+        var status = {
+            context: 'license/cla',
+            state: 'success',
+            description: 'All CLA requirements met.',
+            target_url: null
+        };
+        updateStatusIfNeeded(args, status, false, done);
     }
 };

@@ -44,7 +44,7 @@ function storeRequest(committers, repo, owner, number) {
     });
 }
 
-function handleWebHook(args) {
+function updateStatusAndComment(args) {
     repoService.getPRCommitters(args, function (err, committers) {
         if (!err && committers && committers.length > 0) {
             cla.check(args, function (error, signed, user_map) {
@@ -70,12 +70,30 @@ function handleWebHook(args) {
             if (!args.handleCount || args.handleCount < 2) {
                 args.handleCount = args.handleCount ? ++args.handleCount : 1;
                 setTimeout(function () {
-                    handleWebHook(args);
+                    updateStatusAndComment(args);
                 }, 10000 * args.handleCount * args.handleDelay);
             } else {
                 log.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
             }
         }
+    });
+};
+
+function handleWebHook(args) {
+    cla.isClaRequired(args, function (error, isClaRequired) {
+        if (error) {
+            return log.error(error);
+        }
+        if (!isClaRequired) {
+            status.updateForClaNotRequired(args);
+            pullRequest.deleteComment({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number
+            });
+            return;
+        }
+        updateStatusAndComment(args);
     });
 }
 

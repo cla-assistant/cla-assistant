@@ -16,7 +16,7 @@
 		<div ng-click="newLink = !newLink" class="fa fa-times close-button" style="position:absolute; right:20px"></div>
 		<h5 ng-if="!user.value.org_admin" class="col-xs-12 link-topic-2">
 			<span class="link-topic-number">1</span>&nbsp;Choose a repository
-            <span class="clickable" ng-click="addScope()" style="font-size:12px; text-decoration:underline">(want to link an org?)</span>
+      		<span class="clickable" ng-click="addScope()" style="font-size:12px; text-decoration:underline">(want to link an org?)</span>
 		</h5>
 		<h5 ng-if="user.value.org_admin" class="col-xs-12 link-topic-2">
 			<span class="link-topic-number">1</span>&nbsp;Choose an org or a repo
@@ -64,11 +64,26 @@
 			<div style="margin-bottom:10px">- or -</div>
 			<div style="margin-bottom: 5px;">Paste a URL from a Gist</div>
 			<input ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url" placeholder="https://gist.github.com/<your cla gist id>" required></input>
-			<div style="margin-top: 15px;">
+			<div style="margin-bottom: 15px; margin-top: 15px;">
 				<input type="checkbox" ng-model="selected.sharedGist" ng-init="selected.sharedGist = false" ng-disabled="selected.gist && !selected.gist.url">&nbsp;Share the Gist &nbsp;</input>
 				<span class="clickable" ng-click="gistShareInfo()" style="font-size:12px; text-decoration:underline">(want to share?)</span>
 			</div>
 		</div>
+		<h5 class="link-topic-1">
+			<span class="link-topic-number">3</span>&nbsp;CLA Requirement Settings (Optional)
+		</h5>
+		<div class="col-xs-12">
+			<div class="form-group">
+				<div style="margin-bottom:5px">Minimum File Number Changes</div>
+				<input class="form-control" type="number" ng-model="selected.minFileChanges" ng-disabled="selected.gist && !selected.gist.url" placeholder="Number"></input>
+			</div>
+			<div style="margin-bottom:10px">- or -</div>
+			<div class="form-group">
+				<div style="margin-bottom:5px;">Minimum Line Number Changes</div>
+				<input class="form-control" type="number" ng-model="selected.minCodeChanges" ng-disabled="selected.gist && !selected.gist.url" placeholder="Number"></input>
+			</div>
+		</div>
+
 
 		<div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
 			<span class="fa fa-warning" aria-hidden="true"></span>

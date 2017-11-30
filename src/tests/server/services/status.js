@@ -277,6 +277,22 @@ var testStatusesFailure = [
     }
 ];
 
+var statusForElse = {
+    id: 2,
+    state: 'success',
+    description: 'Build has completed successfully',
+    target_url: 'www.test.com',
+    context: 'anything/else'
+};
+
+var statusForClaNotSigned = {
+    id: 1,
+    state: 'pending',
+    description: 'Contributor License Agreement is not signed yet.',
+    target_url: 'www.test.com',
+    context: 'license/cla'
+};
+
 describe('status', function () {
     var githubCallPRGet, githubCallStatusGet, assertFunction;
     beforeEach(function () {
@@ -288,6 +304,10 @@ describe('status', function () {
             data: testStatusesPending,
             err: null
         };
+        githubCallCombinedStatus = {
+            data: null,
+            err: null
+        };
         sinon.stub(github, 'call').callsFake(function (args, done) {
             if (args.obj === 'pullRequests' && args.fun === 'get') {
                 assert(args.token);
@@ -295,6 +315,8 @@ describe('status', function () {
             } else if (args.obj === 'repos' && args.fun === 'getStatuses') {
                 assert.equal(args.token, 'abc');
                 done(githubCallStatusGet.err, githubCallStatusGet.data);
+            } else if (args.obj === 'repos' && args.fun === 'getCombinedStatus') {
+                done(githubCallCombinedStatus.err, githubCallCombinedStatus.data);
             } else {
                 assert.equal(args.token, 'abc');
                 assertFunction ? assertFunction(args) : 'do nothing';
@@ -474,59 +496,157 @@ describe('status', function () {
         });
     });
 
-    describe('delete', function () {
-        var args, expArgsGithubPullRequests;
+    describe('updateForNullCla', function () {
+        var args = null;
+
+        var statusForNullCla = {
+            id: 1,
+            state: 'success',
+            description: 'No Contributor License Agreement required.',
+            target_url: null,
+            context: "license/cla"
+        };
+
+        var testCombinedStatus = {
+            state: 'pending',
+            statuses: [ statusForClaNotSigned, statusForElse]
+        };
+
+        var testNoClaCombinedStatus = {
+            state: 'success',
+            statuses: [statusForElse]
+        };
+
+        var testNullClaCombinedStatus = {
+            state: 'success',
+            statuses: [statusForNullCla, statusForElse]
+        };
+
         beforeEach(function () {
             args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
+                signed: true,
                 token: 'abc'
-            };
-
-            expArgsGithubPullRequests = {
-                createStatus: {
-                    obj: 'repos',
-                    fun: 'createStatus',
-                    arg: {
-                        owner: args.owner,
-                        repo: args.repo,
-                        sha: githubCallPRGet.data.head.sha,
-                        state: 'success',
-                        description: 'No need to sign Contributor License Agreement.',
-                        target_url: undefined,
-                        context: 'license/cla',
-                        noCache: true
-                    },
-                    token: args.token
-                },
-                get: {
-                    obj: 'pullRequests',
-                    fun: 'get',
-                    arg: {
-                        owner: args.owner,
-                        repo: args.repo,
-                        number: args.number,
-                        noCache: true
-                    },
-                    token: args.token
-                }
             };
         });
 
-        it('should delete status when sha is not provided', function (it_done) {
-            status.delete(args, function (error, done) {
-                assert(github.call.calledWith(expArgsGithubPullRequests.get));
-                assert(github.call.calledWith(expArgsGithubPullRequests.createStatus));
+        it('should create status if previous status is not for null cla', function (it_done) {
+            githubCallCombinedStatus.data = testCombinedStatus;
+            status.updateForNullCla(args, function () {
+                assert(github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
                 it_done();
             });
         });
 
-        it('should delete status when sha is provided', function (it_done) {
-            args.sha = githubCallPRGet.data.head.sha;
-            status.delete(args, function (error, done) {
-                assert(!github.call.calledWith(expArgsGithubPullRequests.get));
-                assert(github.call.calledWith(expArgsGithubPullRequests.createStatus));
+        it('should not create status if there is no cla status', function (it_done) {
+            githubCallCombinedStatus.data = testNoClaCombinedStatus;
+            status.updateForNullCla(args, function () {
+                assert(!github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
+                it_done();
+            });
+        });
+
+        it('should not create status if previous status is a null cla status', function (it_done) {
+            githubCallCombinedStatus.data = testNullClaCombinedStatus;
+            status.updateForNullCla(args, function () {
+                assert(!github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
+                it_done();
+            });
+        });
+
+        it('should send error when get pull request head sha failed', function (it_done) {
+            githubCallPRGet.err = 'Get pull request failed';
+            status.updateForNullCla(args, function (err) {
+                assert.equal(err, githubCallPRGet.err);
+                it_done();
+            });
+        });
+    });
+
+    describe('updateForClaNotRequired', function () {
+        var args = null;
+
+        var statusForClaNotRequired = {
+            id: 1,
+            context: 'license/cla',
+            state: 'success',
+            description: 'All CLA requirements met.',
+            target_url: null
+        };
+
+        var testNoClaCombinedStatus = {
+            state: 'success',
+            statuses: [statusForElse]
+        };
+
+        var testCombinedStatus = {
+            state: 'pending',
+            statuses: [statusForClaNotSigned, statusForElse]
+        };
+
+        var testCombinedStatusForClaNotRequired = {
+            state: 'success',
+            statuses: [statusForClaNotRequired, statusForElse]
+        };
+
+        beforeEach(function () {
+            args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc'
+            };
+        });
+
+        it('should create status if previous status is not for cla not required', function (it_done) {
+            githubCallCombinedStatus.data = testCombinedStatus;
+            status.updateForClaNotRequired(args, function () {
+                assert(github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
+                it_done();
+            });
+        });
+
+        it('should create status if there is no cla status', function (it_done) {
+            githubCallCombinedStatus.data = testNoClaCombinedStatus;
+            status.updateForClaNotRequired(args, function () {
+                assert(github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
+                it_done();
+            });
+        });
+
+        it('should not create status if previous status is for cla not required', function (it_done) {
+            githubCallCombinedStatus.data = testCombinedStatusForClaNotRequired;
+            status.updateForClaNotRequired(args, function () {
+                assert(!github.call.calledWithMatch({
+                    obj: 'repos',
+                    fun: 'createStatus'
+                }));
+                it_done();
+            });
+        });
+
+        it('should send error when get pull request head sha failed', function (it_done) {
+            githubCallPRGet.err = 'Get pull request failed';
+            status.updateForClaNotRequired(args, function (err) {
+                assert.equal(err, githubCallPRGet.err);
                 it_done();
             });
         });

@@ -7,7 +7,9 @@ var RepoSchema = mongoose.Schema({
     owner: String,
     gist: String,
     token: String,
-    sharedGist: Boolean
+    sharedGist: Boolean,
+    minFileChanges: Number,
+    minCodeChanges: Number
 });
 
 var index = {
