@@ -245,21 +245,21 @@ module.exports = function () {
                     // could not find the GH Repo
                     deferred.reject(e);
                 } else {
-                    orgService.get({
-                        orgId: ghRepo.owner.id
-                    }, function (err, linkedOrg) {
-                        if (!linkedOrg) {
-                            repoService.get({
-                                repoId: ghRepo.id
-                            }, function (error, linkedRepo) {
-                                if (linkedRepo) {
-                                    deferred.resolve(linkedRepo);
+                    repoService.get({
+                        repoId: ghRepo.id
+                    }, function (error, linkedRepo) {
+                        if (linkedRepo) {
+                            deferred.resolve(linkedRepo);
+                        } else {
+                            orgService.get({
+                                orgId: ghRepo.owner.id
+                            }, function (err, linkedOrg) {
+                                if (linkedOrg) {
+                                    deferred.resolve(linkedOrg);
                                 } else {
-                                    deferred.reject(error);
+                                    deferred.reject(error || err);
                                 }
                             });
-                        } else {
-                            deferred.resolve(linkedOrg);
                         }
                     });
                 }
@@ -306,12 +306,12 @@ module.exports = function () {
                     query.repoId = repo.repoId;
                     findCla();
                 });
-            } else if (args.orgId) {
-                query.ownerId = args.orgId;
-                query.org_cla = true;
+            } else if (args.repoId) {
+                query.repoId = args.repoId;
                 findCla();
             } else {
-                query.repoId = args.repoId;
+                query.ownerId = args.orgId;
+                query.org_cla = true;
                 findCla();
             }
             return deferred.promise;
@@ -369,7 +369,12 @@ module.exports = function () {
                     if (item.orgId) {
                         args.orgId = item.orgId;
                     } else if (item.repoId) {
+                        args.orgId = undefined;
                         args.repoId = item.repoId;
+                    }
+                    if (!item.gist) {
+                        done(null, true);
+                        return;
                     }
 
                     check(args.repo, args.owner, args.gist, args.user, args.number, item.token, args.repoId, args.orgId, item.sharedGist).then(function (result) {
@@ -538,7 +543,7 @@ module.exports = function () {
             let selection = {
                 gist_url: args.gist.gist_url
             };
-            var options = {};
+            let options = {};
             if (args.gist.gist_version) {
                 selection.gist_version = args.gist.gist_version;
                 options.sort = {
@@ -561,8 +566,8 @@ module.exports = function () {
                         done(err);
                         return;
                     }
-                    var foundSigners = [];
-                    var distinctClas = clas.filter(function (cla) {
+                    let foundSigners = [];
+                    let distinctClas = clas.filter(function (cla) {
                         if (foundSigners.indexOf(cla.userId) < 0) {
                             foundSigners.push(cla.userId);
                             return true;

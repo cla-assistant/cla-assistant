@@ -51,7 +51,7 @@ var createStatus = function (args, context, description, done) {
             sha: args.sha,
             state: args.state,
             description: description,
-            target_url: url.claURL(args.owner, args.repo, args.number),
+            target_url: args.noUrl ? undefined : url.claURL(args.owner, args.repo, args.number),
             context: context,
             noCache: true
         },
@@ -121,6 +121,15 @@ var updateStatus = function (args, done) {
     });
 };
 
+var deleteStatus = function (args, done) {
+    // Github api don't support delete status. We override previous one.
+    args.state = 'success';
+    args.noUrl = true;
+    var description = 'No need to sign Contributor License Agreement.';
+    var context = 'license/cla';
+    createStatus(args, context, description, done);
+};
+
 module.exports = {
     update: function (args, done) {
         if (args && !args.sha) {
@@ -136,6 +145,23 @@ module.exports = {
             });
         } else if (args) {
             updateStatus(args, done);
+        }
+    },
+
+    delete: function (args, done) {
+        if (args && !args.sha) {
+            getPR(args, function (err, resp) {
+                if (!err && resp && resp.head) {
+                    args.sha = resp.head.sha;
+                    deleteStatus(args, done);
+                } else {
+                    if (typeof done === 'function') {
+                        done(err);
+                    }
+                }
+            });
+        } else if (args) {
+            deleteStatus(args, done);
         }
     }
 };

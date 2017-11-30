@@ -114,6 +114,7 @@ function restore() {
 
 describe('cla:get', function () {
     var expClaFindOneArgs;
+    var resRepoServiceGet;
 
     beforeEach(function () {
         expClaFindOneArgs = {
@@ -123,8 +124,9 @@ describe('cla:get', function () {
             gist_version: 'xyz',
             org_cla: false
         };
+        resRepoServiceGet = testData.repo_from_db;
         sinon.stub(repo_service, 'get').callsFake(function (args, done) {
-            done(null, testData.repo_from_db);
+            done(null, resRepoServiceGet);
         });
         sinon.stub(CLA, 'findOne').callsFake(function (arg, done) {
             done(null, true);
@@ -161,7 +163,7 @@ describe('cla:get', function () {
         });
     });
 
-    it('should find cla with orgId if it is an org_cla regardless of repoId', function (it_done) {
+    it('should find cla with repoId regardless of orgId', function (it_done) {
         var args = {
             orgId: 1,
             repoId: 1296269,
@@ -169,12 +171,29 @@ describe('cla:get', function () {
             gist: 'gistUrl',
             gist_version: 'xyz'
         };
-        expClaFindOneArgs.ownerId = 1;
-        expClaFindOneArgs.org_cla = true;
-        delete expClaFindOneArgs.repoId;
-
         cla.get(args, function () {
             assert(CLA.findOne.calledWith(expClaFindOneArgs));
+            it_done();
+        });
+    });
+
+    it('should find cla with orgId if repoId is not provided', function (it_done) {
+        var args = {
+            orgId: 1,
+            user: 'login',
+            gist: 'gistUrl',
+            gist_version: 'xyz'
+        };
+        var expArgs = {
+            ownerId: 1,
+            user: 'login',
+            gist_url: 'gistUrl',
+            gist_version: 'xyz',
+            org_cla: true
+        };
+        resRepoServiceGet = null;
+        cla.get(args, function () {
+            assert(CLA.findOne.calledWith(expArgs));
             it_done();
         });
     });
@@ -194,8 +213,8 @@ describe('cla:get', function () {
                     user: args.user,
                     gist_url: args.gist,
                     gist_version: args.gist_version,
-                    ownerId: args.orgId,
-                    org_cla: true
+                    repoId: args.repoId,
+                    org_cla: false
                 }, {
                     user: args.user,
                     gist_url: args.gist,
@@ -314,16 +333,18 @@ describe('cla:check', function () {
         github.call.restore();
     });
 
-    it('should check for linked org as well as for repo', function (it_done) {
+    it('should check for linked repo even when its org also linked', function (it_done) {
         expArgs.claFindOne = {
-            ownerId: 123,
+            repoId: '123',
             user: 'login',
             gist_url: 'url/gistId',
             gist_version: 'xyz',
-            org_cla: true
+            org_cla: false
         };
-        testRes.orgServiceGet = {
-            orgId: 123,
+        testRes.repoServiceGet = {
+            repoId: '123',
+            repo: 'myRepo',
+            owner: 'owner',
             gist: 'url/gistId',
             token: 'abc'
         };
@@ -342,6 +363,45 @@ describe('cla:check', function () {
         };
 
         cla.check(args, function (err, result) {
+            assert(repo_service.get.called);
+            assert(!org_service.get.called);
+            assert(CLA.findOne.calledWith(expArgs.claFindOne));
+            assert.ifError(err);
+            assert(result);
+            it_done();
+        });
+    });
+
+    it('should check for linked org when the repo is NOT linked', function (it_done) {
+        expArgs.claFindOne = {
+            ownerId: 123,
+            user: 'login',
+            gist_url: 'url/gistId',
+            gist_version: 'xyz',
+            org_cla: true
+        };
+        testRes.orgServiceGet = {
+            orgId: 123,
+            gist: 'url/gistId',
+            token: 'abc'
+        };
+        testRes.claFindOne = {
+            id: 456,
+            gist_url: 'url/gistId',
+            created_at: '2012-06-20T11:34:15Z',
+            gist_version: 'xyz'
+        };
+        testRes.repoServiceGet = null;
+
+        var args = {
+            orgId: 1,
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'login'
+        };
+
+        cla.check(args, function (err, result) {
+            assert(repo_service.get.called);
             assert(org_service.get.called);
             assert(CLA.findOne.calledWith(expArgs.claFindOne));
             sinon.assert.calledOnce(github.call);
@@ -351,19 +411,16 @@ describe('cla:check', function () {
         });
     });
 
-    it('should negative check if repo has no gist', function (it_done) {
+    it('should positive check if an repo has a null CLA', function (it_done) {
         testRes.repoServiceGet.gist = undefined;
-
         var args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
         };
-
-        cla.check(args, function (err, result) {
-            assert(err);
-            assert(!result);
-
+        cla.check(args, function (err, signed) {
+            assert(!err);
+            assert(signed);
             it_done();
         });
     });
@@ -714,15 +771,15 @@ describe('cla:sign', function () {
     });
 
     it('should store signed cla data for repo if not signed yet', function (it_done) {
-        testRes.orgServiceGet = null;
-
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
+            assert(!org_service.get.called);
             it_done();
         });
     });
 
     it('should store signed cla data for org', function (it_done) {
+        testRes.repoServiceGet = null;
         cla.sign(testArgs.claSign, function () {
             assert(CLA.create.called);
             assert(CLA.create.calledWithMatch({
@@ -1120,12 +1177,18 @@ describe('cla:getAll', function () {
 });
 
 describe('cla:getGist', function () {
-    it('should extract valid gist ID', function (it_done) {
+    beforeEach(function () {
         sinon.stub(github, 'call').callsFake(function (args, done) {
             assert.equal(args.arg.id, 'gistId');
             done(null, {});
         });
+    });
 
+    afterEach(function () {
+        github.call.restore();
+    });
+
+    it('should extract valid gist ID', function (it_done) {
         var repo = {
             gist: {
                 gist_url: 'url/gists/gistId',
@@ -1134,7 +1197,6 @@ describe('cla:getGist', function () {
         };
 
         cla.getGist(repo, function () {
-            github.call.restore();
             it_done();
         });
     });
@@ -1150,19 +1212,29 @@ describe('cla:getGist', function () {
 });
 
 describe('cla:getLinkedItem', function () {
-    it('should find linked item using reponame and owner parameters', function (it_done) {
-        config.server.github.token = 'test_token';
-
+    beforeEach(function () {
+        testErr.repoServiceGetGHRepo = null;
+        config.server.github.token = 'token';
+        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
+            assert(args.token);
+            done(testErr.repoServiceGetGHRepo, testData.repo);
+        });
         sinon.stub(repo_service, 'get').callsFake(function (args, done) {
             done(null, testRes.repoServiceGet);
         });
         sinon.stub(org_service, 'get').callsFake(function (args, done) {
             done(null, testRes.orgServiceGet);
         });
-        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
-            assert(args.token);
-            done(null, testData.repo);
-        });
+    });
+
+    afterEach(function () {
+        repo_service.getGHRepo.restore();
+        repo_service.get.restore();
+        org_service.get.restore();
+    });
+
+    it('should find linked item using reponame and owner parameters', function (it_done) {
+        config.server.github.token = 'test_token';
 
         var args = {
             repo: 'Hello-World',
@@ -1173,9 +1245,6 @@ describe('cla:getLinkedItem', function () {
             assert(repo_service.getGHRepo.called);
 
             it_done();
-            org_service.get.restore();
-            repo_service.get.restore();
-            repo_service.getGHRepo.restore();
         });
     });
     it('should return an error, if the GH Repo does not exist', function (it_done) {
@@ -1183,15 +1252,52 @@ describe('cla:getLinkedItem', function () {
             repo: 'DoesNotExist',
             owner: 'NoOne'
         };
-        sinon.stub(repo_service, 'getGHRepo').callsFake(function (args, done) {
-            assert(testArgs.repo === args.repo);
-            assert(testArgs.owner === args.owner);
-            done('GH Repo not found', null);
-        });
+        testErr.repoServiceGetGHRepo = 'GH Repo not found';
 
         cla.getLinkedItem(testArgs, function (err) {
             assert(err == 'GH Repo not found');
-            repo_service.getGHRepo.restore();
+            it_done();
+        });
+    });
+
+    it('should return linked repo even corresponding org is also linked', function (it_done) {
+        var args = {
+            repo: 'Hello-World',
+            owner: 'octocat',
+            token: 'test_token'
+        };
+        cla.getLinkedItem(args, function () {
+            assert(repo_service.getGHRepo.called);
+            assert(repo_service.get.called);
+            assert(!org_service.get.called);
+            it_done();
+        });
+    });
+
+    it('should return linked org when repo is not linked', function (it_done) {
+        var args = {
+            repo: 'Hello-World',
+            owner: 'octocat',
+            token: 'test_token'
+        };
+        testRes.repoServiceGet = null;
+        cla.getLinkedItem(args, function () {
+            assert(repo_service.getGHRepo.called);
+            assert(repo_service.get.called);
+            assert(org_service.get.called);
+            it_done();
+        });
+    });
+
+    it('should only check linked org if repo name is not provided', function (it_done) {
+        var args = {
+            owner: 'octocat'
+        };
+
+        cla.getLinkedItem(args, function () {
+            assert(org_service.get.called);
+            assert(!repo_service.get.called);
+            assert(!repo_service.getGHRepo.called);
             it_done();
         });
     });

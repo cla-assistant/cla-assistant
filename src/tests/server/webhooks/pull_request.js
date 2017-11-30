@@ -242,32 +242,40 @@ var testData = {
 };
 
 describe('webhook pull request', function () {
-    config.server.github.enforceDelay = 1;
-    var res = {
-        status: function (res_status) {
-            assert.equal(res_status, 200);
-            return {
-                send: function () { }
-            };
-        }
-    };
+	config.server.github.enforceDelay = 1;
+	var res = {
+		status: function (res_status) {
+			assert.equal(res_status, 200);
+			return {
+				send: function () { }
+			};
+		}
+	};
 
-    var test_req, testRes, testUser, testUserSaved;
+	var test_req, testRes, testUser, testUserSaved;
 
-    beforeEach(function () {
-        test_req = {
-            args: {
-                pull_request: testData,
-                repository: testData.base.repo,
-                number: testData.number,
-                action: 'opened'
-            }
-        };
-        testRes = {
-            getPRCommitters: [{
-                id: 1,
-                name: 'login'
-            }]
+	beforeEach(function () {
+		test_req = {
+			args: {
+				pull_request: testData,
+				repository: testData.base.repo,
+				number: testData.number,
+				action: 'opened'
+			}
+		};
+		testRes = {
+			getPRCommitters: [{
+				id: 1,
+				name: 'login'
+			}],
+			repoService: {
+				get: {
+					repo: 'requestedRepo',
+					token: 'abc',
+					gist: 'https://api.github.com/users/octocat/gists{/gist_id}'
+				},
+				getGHRepo: { }
+			}
         };
         testUser = {
             save: function () {
@@ -282,107 +290,104 @@ describe('webhook pull request', function () {
         };
         testUserSaved = false;
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            assert(args.number);
-            assert(!args.user);
-            done(null, false);
-        });
+		sinon.stub(cla, 'check').callsFake(function (args, done) {
+			assert(args.number);
+			assert(!args.user);
+			done(null, false);
+		});
 
-        sinon.stub(repoService, 'get').callsFake(function (args, done) {
-            assert(args.repoId);
-            // assert(args.ownerId);
-            done(null, {
-                repo: 'requestedRepo',
-                token: 'abc'
-            });
-        });
+		sinon.stub(repoService, 'get').callsFake(function (args, done) {
+			assert(args.repoId);
+			// assert(args.ownerId);
+			done(null, testRes.repoService.get);
+		});
 
-        sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {
-            done(null, {});
-        });
+		sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {
+			done(null, testRes.repoService.getGHRepo);
+		});
 
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            assert(args.repo);
-            assert(args.owner);
-            assert(args.number);
-            done(null, testRes.getPRCommitters);
-        });
+		sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
+			assert(args.repo);
+			assert(args.owner);
+			assert(args.number);
+			done(null, testRes.getPRCommitters);
+		});
 
-        sinon.stub(pullRequest, 'badgeComment').callsFake(function () { });
-        sinon.stub(status, 'update').callsFake(function (args) {
-            assert(args.owner);
-            assert(args.repo);
-            assert(args.number);
-            assert(args.signed !== undefined);
-            assert(args.token);
-        });
+		sinon.stub(pullRequest, 'badgeComment').callsFake(function () { });
+		sinon.stub(status, 'update').callsFake(function (args) {
+			assert(args.owner);
+			assert(args.repo);
+			assert(args.number);
+			assert(args.signed !== undefined);
+			assert(args.token);
+		});
 
-        sinon.stub(orgService, 'get').callsFake(function (args, done) {
-            assert(args.orgId);
-            done(null, {
-                org: 'orgOfRequestedRepo',
-                token: 'abc',
-                isRepoExcluded: function () {
-                    return false;
-                }
-            });
-        });
-        sinon.stub(logger, 'error').callsFake(function (msg) {
-            assert(msg);
-        });
-        sinon.stub(logger, 'warn').callsFake(function (msg) {
-            assert(msg);
-        });
-        sinon.stub(logger, 'info').callsFake(function (msg) {
-            assert(msg);
+		sinon.stub(orgService, 'get').callsFake(function (args, done) {
+			assert(args.orgId);
+			done(null, {
+				org: 'orgOfRequestedRepo',
+				token: 'abc',
+				isRepoExcluded: function () {
+					return false;
+				}
+			});
+		});
+		sinon.stub(logger, 'error').callsFake(function (msg) {
+			assert(msg);
+		});
+		sinon.stub(logger, 'warn').callsFake(function (msg) {
+			assert(msg);
+		});
+		sinon.stub(logger, 'info').callsFake(function (msg) {
+			assert(msg);
         });
         sinon.stub(User, 'findOne').callsFake((selector, cb) => {
             cb(null, testUser);
         });
-    });
+	});
 
-    afterEach(function () {
-        cla.check.restore();
-        orgService.get.restore();
-        pullRequest.badgeComment.restore();
-        repoService.get.restore();
-        repoService.getGHRepo.restore();
-        repoService.getPRCommitters.restore();
-        status.update.restore();
-        logger.error.restore();
-        logger.warn.restore();
+	afterEach(function () {
+		cla.check.restore();
+		orgService.get.restore();
+		pullRequest.badgeComment.restore();
+		repoService.get.restore();
+		repoService.getGHRepo.restore();
+		repoService.getPRCommitters.restore();
+		status.update.restore();
+		logger.error.restore();
+		logger.warn.restore();
         logger.info.restore();
         User.findOne.restore();
-    });
+	});
 
-    it('should update status of pull request if not signed', function (it_done) {
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert(pullRequest.badgeComment.called);
-            it_done();
-        }, 8);
-    });
+	it('should update status of pull request if not signed', function (it_done) {
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert(pullRequest.badgeComment.called);
+			it_done();
+		}, 8);
+	});
 
-    it('should provide user_map to badgeComment', function (it_done) {
-        cla.check.restore();
-        pullRequest.badgeComment.restore();
+	it('should provide user_map to badgeComment', function (it_done) {
+		cla.check.restore();
+		pullRequest.badgeComment.restore();
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
-        sinon.stub(pullRequest, 'badgeComment').callsFake(function (owner, repo, prNumber, signed, user_map) {
-            assert(user_map.not_signed);
-        });
+		sinon.stub(cla, 'check').callsFake(function (args, done) {
+			done(null, false, {
+				not_signed: ['test_user']
+			});
+		});
+		sinon.stub(pullRequest, 'badgeComment').callsFake(function (owner, repo, prNumber, signed, user_map) {
+			assert(user_map.not_signed);
+		});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert(pullRequest.badgeComment.called);
-            it_done();
-        }, 8);
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert(pullRequest.badgeComment.called);
+			it_done();
+		}, 8);
     });
 
     it('should store PR number if not signed', function (it_done) {
@@ -473,151 +478,166 @@ describe('webhook pull request', function () {
         }, 8);
     });
 
-    it('should update status of pull request if signed', function (it_done) {
-        cla.check.restore();
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, true);
-        });
+	it('should update status of pull request if signed', function (it_done) {
+		cla.check.restore();
+		sinon.stub(cla, 'check').callsFake(function (args, done) {
+			done(null, true);
+		});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            // assert(!pullRequest.badgeComment.called);
-            assert(pullRequest.badgeComment.called);
-            assert(status.update.called);
-            it_done();
-        }, 8);
-    });
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			// assert(!pullRequest.badgeComment.called);
+			assert(pullRequest.badgeComment.called);
+			assert(status.update.called);
+			it_done();
+		}, 8);
+	});
 
-    it('should update status of pull request if not signed and new user', function (it_done) {
-        pull_request(test_req, res);
+	it('should update status of pull request if not signed and new user', function (it_done) {
+		pull_request(test_req, res);
 
-        this.timeout(100);
-        setTimeout(function () {
-            assert(cla.check.called);
-            it_done();
-        }, 8);
-    });
+		this.timeout(100);
+		setTimeout(function () {
+			assert(cla.check.called);
+			it_done();
+		}, 8);
+	});
 
 
-    it('should do nothing if the pull request has no committers', function (it_done) {
-        repoService.getPRCommitters.restore();
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            done(null, []);
-        });
-        this.timeout(150);
-        test_req.args.handleDelay = 0;
+	it('should do nothing if the pull request has no committers', function (it_done) {
+		repoService.getPRCommitters.restore();
+		sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
+			done(null, []);
+		});
+		this.timeout(150);
+		test_req.args.handleDelay = 0;
 
-        pull_request(test_req, res);
+		pull_request(test_req, res);
 
-        setTimeout(function () {
-            assert(!cla.check.called);
-            assert(logger.warn.called);
+		setTimeout(function () {
+			assert(!cla.check.called);
+			assert(logger.warn.called);
 
-            it_done();
-        }, 40);
+			it_done();
+		}, 40);
 
-    });
+	});
 
-    // it('should update status of PR even if repo is unknown but from known org', function() {
-    // 	repoService.get.restore();
-    // 	sinon.stub(repoService, 'get').callsFake(function (args, done) {
-    // 		done(null, null);
-    // 	});
+	// it('should update status of PR even if repo is unknown but from known org', function() {
+	// 	repoService.get.restore();
+	// 	sinon.stub(repoService, 'get').callsFake(function (args, done) {
+	// 		done(null, null);
+	// 	});
 
-    // 	pull_request(test_req, res);
+	// 	pull_request(test_req, res);
 
-    // 	assert.equal(repoService.get.called, false);
-    // 	assert.equal(orgService.get.called, true);
-    // 	assert.equal(repoService.getPRCommitters.called, true);
-    // 	assert.equal(cla.check.called, true);
-    // });
+	// 	assert.equal(repoService.get.called, false);
+	// 	assert.equal(orgService.get.called, true);
+	// 	assert.equal(repoService.getPRCommitters.called, true);
+	// 	assert.equal(cla.check.called, true);
+	// });
 
-    it('should try to access GH repo if org is known', function (it_done) {
-        orgService.get.restore();
-        sinon.stub(orgService, 'get').callsFake(function (args, done) {
-            done(null, null);
-        });
+	it('should NOT try to access org cla if repo cla is exist', function (it_done) {
+		pull_request(test_req, res);
+		this.timeout(20);
+		setTimeout(function () {
+			assert(repoService.get.called);
+			assert(!orgService.get.called);
+			assert(repoService.getPRCommitters.called);
+			assert(cla.check.called);
+			it_done();
+		}, 8);
+	});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(repoService.get.called, true);
-            assert.equal(orgService.get.called, true);
-            assert.equal(repoService.getPRCommitters.called, true);
-            assert.equal(cla.check.called, true);
-            it_done();
-        }, 8);
-    });
+	it('should try to access org cla if repo cla is NOT exist', function (it_done) {
+		testRes.repoService.get = null;
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert.equal(repoService.get.called, true);
+			assert.equal(orgService.get.called, true);
+			assert.equal(repoService.getPRCommitters.called, true);
+			assert.equal(cla.check.called, true);
+			it_done();
+		}, 8);
+	});
 
-    it('should update status of PR even if org is unknown but from known repo', function (it_done) {
-        repoService.getGHRepo.restore();
-        sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {
-            done(null, null);
-        });
+	it('should update status of PR even if org is unknown but from known repo', function (it_done) {
+		testRes.repoService.getGHRepo = null;
+		testRes.repoService.get = null;
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert.equal(repoService.getGHRepo.called, true);
+			assert.equal(orgService.get.called, true);
+			assert.equal(repoService.get.called, true);
+			assert.equal(repoService.getPRCommitters.called, false);
+			assert.equal(cla.check.called, false);
+			it_done();
+		}, 8);
+	});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(repoService.getGHRepo.called, true);
-            assert.equal(orgService.get.called, true);
-            assert.equal(repoService.get.called, false);
-            assert.equal(repoService.getPRCommitters.called, false);
-            assert.equal(cla.check.called, false);
-            it_done();
-        }, 8);
-    });
+	it('should do nothing if the pull request hook comes from unknown repository and unknown org', function (it_done) {
+		repoService.get.restore();
+		sinon.stub(repoService, 'get').callsFake(function (args, done) {
+			done(null, null);
+		});
+		orgService.get.restore();
+		sinon.stub(orgService, 'get').callsFake(function (args, done) {
+			done(null, null);
+		});
 
-    it('should do nothing if the pull request hook comes from unknown repository and unknown org', function (it_done) {
-        repoService.get.restore();
-        sinon.stub(repoService, 'get').callsFake(function (args, done) {
-            done(null, null);
-        });
-        orgService.get.restore();
-        sinon.stub(orgService, 'get').callsFake(function (args, done) {
-            done(null, null);
-        });
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert.equal(repoService.get.called, true);
+			assert.equal(repoService.getPRCommitters.called, false);
+			assert.equal(cla.check.called, false);
+			it_done();
+		}, 8);
+	});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(repoService.get.called, true);
-            assert.equal(repoService.getPRCommitters.called, false);
-            assert.equal(cla.check.called, false);
-            it_done();
-        }, 8);
-    });
+	it('should do nothing if the pull request hook comes from private repository of an org', function (it_done) {
+		test_req.args.repository.private = true;
 
-    it('should do nothing if the pull request hook comes from private repository of an org', function (it_done) {
-        test_req.args.repository.private = true;
+		pull_request(test_req, res);
+		this.timeout(100);
+		setTimeout(function () {
+			assert.equal(orgService.get.called, false);
+			assert.equal(repoService.get.called, false);
+			assert.equal(repoService.getPRCommitters.called, false);
+			assert.equal(cla.check.called, false);
+			it_done();
+			test_req.args.repository.private = false;
+		}, 8);
+	});
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(orgService.get.called, false);
-            assert.equal(repoService.get.called, false);
-            assert.equal(repoService.getPRCommitters.called, false);
-            assert.equal(cla.check.called, false);
-            it_done();
-            test_req.args.repository.private = false;
-        }, 8);
-    });
+	it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {
+		repoService.getPRCommitters.restore();
+		sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
+			done('Could not get committers', null);
+		});
+		this.timeout(1000);
 
-    it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {
-        repoService.getPRCommitters.restore();
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            done('Could not get committers', null);
-        });
-        this.timeout(1000);
+		test_req.args.handleDelay = 0.01;
+		pull_request(test_req, res);
 
-        test_req.args.handleDelay = 0.01;
-        pull_request(test_req, res);
+		setTimeout(function () {
+			assert.equal(repoService.getPRCommitters.calledThrice, true);
+			assert.equal(cla.check.called, false);
+			it_done();
+		}, 800);
 
-        setTimeout(function () {
-            assert.equal(repoService.getPRCommitters.calledThrice, true);
-            assert.equal(cla.check.called, false);
-            it_done();
-        }, 800);
+	});
 
-    });
+	it('should NOT try to update a repo that has a null CLA linked even the corresponding org has linked', function (it_done) {
+		testRes.repoService.get.gist = null;
+		test_req.args.handleDelay = 0;
+		pull_request(test_req, res);
+		setTimeout(function () {
+			assert(!status.update.called);
+			it_done();
+		}, 8);
+	});
 });

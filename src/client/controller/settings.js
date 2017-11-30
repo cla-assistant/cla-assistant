@@ -142,6 +142,9 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.getGistName = function() {
+            if (!$scope.item.gist) {
+                return '';
+            }
             $scope.gist.fileName = $scope.gist.fileName ? $scope.gist.fileName : utils.getGistAttribute($scope.gist, 'filename');
             return $scope.gist.fileName;
         };
@@ -172,7 +175,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         $scope.isLinkActive = function() {
-            return !$scope.loading && $scope.valid.gist && $scope.valid.webhook;
+            return (!$scope.loading && $scope.valid.gist && $scope.valid.webhook) || !$scope.item.gist;
         };
 
         $scope.renderHtml = function(html_code) {

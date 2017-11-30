@@ -158,5 +158,40 @@ module.exports = {
         if (typeof done === 'function') {
             done();
         }
+    },
+
+    deleteComment: function (args, done) {
+        this.getComment({
+            repo: args.repo,
+            owner: args.owner,
+            number: args.number
+        }, function (error, comment) {
+            if (error) {
+                return log.warn(error, 'with args:', args.repo, args.owner, args.number);
+            }
+            if (!comment) {
+                return;
+            }
+            github.call({
+                obj: 'issues',
+                fun: 'deleteComment',
+                arg: {
+                    owner: args.owner,
+                    repo: args.repo,
+                    id: comment.id
+                },
+                basicAuth: {
+                    user: config.server.github.user,
+                    pass: config.server.github.pass
+                }
+            }, function (error) {
+                if (error) {
+                    log.warn(error, 'with args:', args, 'and commentId: ', comment.id);
+                }
+            });
+        });
+        if (typeof done === 'function') {
+            done();
+        }
     }
 };

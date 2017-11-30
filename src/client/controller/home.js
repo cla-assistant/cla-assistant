@@ -8,9 +8,11 @@
 var isInArray = function (item, items) {
     function check(linkedItem) {
         if (!item.full_name) {
+            // The item is an org
             return linkedItem.org === item.login;
         } else {
-            return (linkedItem.repo === item.name && linkedItem.owner === item.owner.login) || linkedItem.org === item.owner.login;
+            // The item is a repo
+            return linkedItem.repo === item.name && linkedItem.owner === item.owner.login;
         }
     }
     return items.some(check);
@@ -327,7 +329,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.isRepo = function (item) {
-            return item.full_name ? true : false;
+            return item && item.full_name ? true : false;
         };
 
         $scope.addWebhook = function (item) {
@@ -441,6 +443,41 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             return item.full_name ? 'Repositories' : 'Organisations';
         };
 
+        var handleNullCla = function (item) {
+            var nullCla = {
+                name: 'No CLA',
+                url: null
+            };
+            var clearDropdown = function (item) {
+                if (item && $scope.isRepo(item)) {
+                    if (!$scope.gists.some(function (cla) {
+                        return cla.name === nullCla.name && cla.url === nullCla.url;
+                    })) {
+                        $scope.gists.push(nullCla);
+                    }
+                } else {
+                    $scope.gists = $scope.gists.filter(function (cla) {
+                        return cla.name !== nullCla.name && cla.url !== nullCla.url;
+                    });
+                }
+            };
+            var clearGistSelection = function (item) {
+                if (!$scope.isRepo(item) && $scope.selected.gist && $scope.selected.gist.name === nullCla.name && $scope.selected.gist.url === nullCla.url) {
+                    $scope.selected.gist = undefined;
+                }
+            };
+
+            clearDropdown(item);
+            clearGistSelection(item);
+        };
+
+        $scope.$watch('selected.item', function (newValue, oldValue) {
+            handleNullCla(newValue);
+        });
+
+        $scope.isComplete = function () {
+            return $scope.selected.item && $scope.selected.gist && (($scope.isRepo($scope.selected.item) && (!$scope.selected.gist.url || $scope.isValid($scope.selected.gist.url))) || (!$scope.isRepo($scope.selected.item) && $scope.isValid($scope.selected.gist.url)));
+        };
     }
 ])
     .directive('feature', ['$window', function () {

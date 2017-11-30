@@ -277,7 +277,7 @@ var testStatusesFailure = [
     }
 ];
 
-describe('status:update', function () {
+describe('status', function () {
     var githubCallPRGet, githubCallStatusGet, assertFunction;
     beforeEach(function () {
         githubCallPRGet = {
@@ -310,165 +310,225 @@ describe('status:update', function () {
         github.call.restore();
     });
 
-    it('should create comment with admin token', function (it_done) {
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: true,
-            token: 'abc'
-        };
+    describe('update', function () {
+        it('should create comment with admin token', function (it_done) {
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc'
+            };
 
-        status.update(args, function () {
-            assert.equal(github.call.callCount, 4);
-            it_done();
-        });
-    });
-
-    it('should create status pending if not signed', function (it_done) {
-        assertFunction = function (args) {
-            assert.equal(args.arg.state, 'pending');
-            assert.equal(args.arg.context, 'license/cla');
-
-        };
-        githubCallStatusGet.data = testStatusesSuccess;
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: false,
-            token: 'abc'
-        };
-
-        status.update(args, function () {
-            assert(github.call.calledThrice);
-            it_done();
-        });
-    });
-
-    it('should not update status if no pull request found', function (it_done) {
-        githubCallPRGet.err = 'error';
-        githubCallPRGet.data = null;
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: false,
-            token: 'abc'
-        };
-
-        status.update(args);
-
-        assert(github.call.calledOnce);
-        it_done();
-    });
-
-    it('should not update status if no pull request found', function (it_done) {
-        githubCallPRGet.data = {
-            message: 'Not found'
-        };
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: false,
-            token: 'abc'
-        };
-
-        status.update(args);
-
-        assert(github.call.calledOnce);
-        it_done();
-    });
-
-    it('should not load PR if sha is provided', function (it_done) {
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: true,
-            token: 'abc',
-            sha: 'sha1'
-        };
-
-        status.update(args, function () {
-            assert(github.call.calledThrice);
-            it_done();
-        });
-    });
-
-    it('should use old and new context if there is already a status with this context', function (it_done) {
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: true,
-            token: 'abc',
-            sha: 'sha1'
-        };
-        // assertFunction = function (args) {
-        //     assert.equal(args.arg.context, 'licence/cla');
-        // };
-
-        status.update(args, function () {
-            assert(github.call.calledThrice);
-            it_done();
+            status.update(args, function () {
+                assert.equal(github.call.callCount, 4);
+                it_done();
+            });
         });
 
-    });
+        it('should create status pending if not signed', function (it_done) {
+            assertFunction = function (args) {
+                assert.equal(args.arg.state, 'pending');
+                assert.equal(args.arg.context, 'license/cla');
 
-    it('should not update status if it has not changed', function (it_done) {
-        githubCallStatusGet.data = testStatusesSuccess;
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: true,
-            token: 'abc',
-            sha: 'sha1'
-        };
+            };
+            githubCallStatusGet.data = testStatusesSuccess;
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: false,
+                token: 'abc'
+            };
 
-        status.update(args, function () {
+            status.update(args, function () {
+                assert(github.call.calledThrice);
+                it_done();
+            });
+        });
+
+        it('should not update status if no pull request found', function (it_done) {
+            githubCallPRGet.err = 'error';
+            githubCallPRGet.data = null;
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: false,
+                token: 'abc'
+            };
+
+            status.update(args);
+
             assert(github.call.calledOnce);
-            assert(github.call.calledWithMatch({ obj: 'repos', fun: 'getStatuses' }));
             it_done();
         });
 
+        it('should not update status if no pull request found', function (it_done) {
+            githubCallPRGet.data = {
+                message: 'Not found'
+            };
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: false,
+                token: 'abc'
+            };
+
+            status.update(args);
+
+            assert(github.call.calledOnce);
+            it_done();
+        });
+
+        it('should not load PR if sha is provided', function (it_done) {
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc',
+                sha: 'sha1'
+            };
+
+            status.update(args, function () {
+                assert(github.call.calledThrice);
+                it_done();
+            });
+        });
+
+        it('should use old and new context if there is already a status with this context', function (it_done) {
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc',
+                sha: 'sha1'
+            };
+            // assertFunction = function (args) {
+            //     assert.equal(args.arg.context, 'licence/cla');
+            // };
+
+            status.update(args, function () {
+                assert(github.call.calledThrice);
+                it_done();
+            });
+
+        });
+
+        it('should not update status if it has not changed', function (it_done) {
+            githubCallStatusGet.data = testStatusesSuccess;
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc',
+                sha: 'sha1'
+            };
+
+            status.update(args, function () {
+                assert(github.call.calledOnce);
+                assert(github.call.calledWithMatch({ obj: 'repos', fun: 'getStatuses' }));
+                it_done();
+            });
+
+        });
+
+        it('should update status if there are no old ones', function (it_done) {
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: false,
+                token: 'abc',
+                sha: 'sha1'
+            };
+            githubCallStatusGet.data = null;
+
+            status.update(args, function () {
+                assert(github.call.calledTwice);
+                it_done();
+            });
+
+        });
+
+        it('should update statuses of all contexts if there are both (licenCe and licenSe)', function (it_done) {
+            var args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                signed: true,
+                token: 'abc',
+                sha: 'sha1'
+            };
+            githubCallStatusGet.data = testStatusesFailure;
+
+            status.update(args, function () {
+                assert(github.call.calledThrice);
+                it_done();
+            });
+
+        });
     });
 
-    it('should update status if there are no old ones', function (it_done) {
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: false,
-            token: 'abc',
-            sha: 'sha1'
-        };
-        githubCallStatusGet.data = null;
+    describe('delete', function () {
+        var args, expArgsGithubPullRequests;
+        beforeEach(function () {
+            args = {
+                owner: 'octocat',
+                repo: 'Hello-World',
+                number: 1,
+                token: 'abc'
+            };
 
-        status.update(args, function () {
-            assert(github.call.calledTwice);
-            it_done();
+            expArgsGithubPullRequests = {
+                createStatus: {
+                    obj: 'repos',
+                    fun: 'createStatus',
+                    arg: {
+                        owner: args.owner,
+                        repo: args.repo,
+                        sha: githubCallPRGet.data.head.sha,
+                        state: 'success',
+                        description: 'No need to sign Contributor License Agreement.',
+                        target_url: undefined,
+                        context: 'license/cla',
+                        noCache: true
+                    },
+                    token: args.token
+                },
+                get: {
+                    obj: 'pullRequests',
+                    fun: 'get',
+                    arg: {
+                        owner: args.owner,
+                        repo: args.repo,
+                        number: args.number,
+                        noCache: true
+                    },
+                    token: args.token
+                }
+            };
         });
 
-    });
-
-    it('should update statuses of all contexts if there are both (licenCe and licenSe)', function (it_done) {
-        var args = {
-            owner: 'octocat',
-            repo: 'Hello-World',
-            number: 1,
-            signed: true,
-            token: 'abc',
-            sha: 'sha1'
-        };
-        githubCallStatusGet.data = testStatusesFailure;
-
-        status.update(args, function () {
-            assert(github.call.calledThrice);
-            it_done();
+        it('should delete status when sha is not provided', function (it_done) {
+            status.delete(args, function (error, done) {
+                assert(github.call.calledWith(expArgsGithubPullRequests.get));
+                assert(github.call.calledWith(expArgsGithubPullRequests.createStatus));
+                it_done();
+            });
         });
 
+        it('should delete status when sha is provided', function (it_done) {
+            args.sha = githubCallPRGet.data.head.sha;
+            status.delete(args, function (error, done) {
+                assert(!github.call.calledWith(expArgsGithubPullRequests.get));
+                assert(github.call.calledWith(expArgsGithubPullRequests.createStatus));
+                it_done();
+            });
+        });
     });
 });
