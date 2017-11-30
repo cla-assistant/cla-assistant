@@ -87,6 +87,7 @@ describe('', function () {
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
+                getByOwner: [JSON.parse(JSON.stringify(testData.repo_from_db))]
             },
             orgService: {
                 get: JSON.parse(JSON.stringify(testData.org_from_db)), //clone object
@@ -102,7 +103,8 @@ describe('', function () {
                 user: null
             },
             repoService: {
-                get: null
+                get: null,
+                getByOwner: null
             },
             orgService: {
                 get: null
@@ -412,6 +414,7 @@ describe('', function () {
                 cb(null, 'done');
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                args.gist = req.args.gist;
                 cb(null, true);
             });
             sinon.stub(prService, 'editComment').callsFake(function () { });
@@ -504,6 +507,7 @@ describe('', function () {
             prService.editComment.restore();
 
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                args.gist = req.args.gist;
                 cb(null, true, {
                     signed: [],
                     not_signed: []
@@ -945,7 +949,8 @@ describe('', function () {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat',
-                    token: 'testToken'
+                    token: 'testToken',
+                    gist: testData.repo_from_db.gist
                 }
             };
             sinon.stub(statusService, 'update').callsFake(function (args) {
@@ -954,15 +959,24 @@ describe('', function () {
                 assert(args.sha);
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                args.gist = req.args.gist;
                 cb(null, true);
             });
             sinon.stub(prService, 'editComment').callsFake(function () { });
+            sinon.stub(prService, 'deleteComment').callsFake(function () { });
+            sinon.stub(statusService, 'delete').returns(null);
+            sinon.stub(repo_service, 'getByOwner').callsFake(function (owner, cb) {
+                cb(error.repoService.getByOwner, resp.repoService.getByOwner);
+            });
         });
 
         afterEach(function () {
             cla.check.restore();
             statusService.update.restore();
             prService.editComment.restore();
+            statusService.delete.restore();
+            prService.deleteComment.restore();
+            repo_service.getByOwner.restore();
         });
         it('should update all open pull requests', function (it_done) {
 
@@ -1003,6 +1017,7 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
             global.config.server.github.timeToWait = 10;
+            resp.repoService.getByOwner = [];
 
             this.timeout(100);
             cla_api.validateOrgPullRequests(req, function (err, res) {
@@ -1022,6 +1037,7 @@ describe('', function () {
             req.args.org = 'octocat';
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
+            resp.repoService.getByOwner = [];
             console.log(resp.github.callRepos.length);
             for (var index = 0; index < 28; index++) {
                 resp.github.callRepos.push({
@@ -1049,6 +1065,96 @@ describe('', function () {
                     global.config.server.github.timeToWait = 0;
                     it_done();
                 }, 550);
+            });
+        });
+
+        it('should delete comments when rechecking PRs of a repo with a null CLA', function (it_done) {
+            cla.check.restore();
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                args.gist = null;
+                cb(null, true);
+            });
+            cla_api.validatePullRequests(req, function (err) {
+                assert(prService.deleteComment.called);
+                assert(statusService.delete.called);
+                it_done();
+            });
+        });
+    });
+
+    describe('cla: validateOrgPullRequests', function () {
+        var req;
+        beforeEach(function () {
+            req = {
+                args: {
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    gist: 'https://gist.github.com/aa5a315d61ae9438b18d',
+                    token: 'testToken',
+                    org: 'octocat'
+                }
+            };
+            global.config.server.github.timeToWait = 0;
+            resp.github.callRepos = testData.orgRepos;
+            sinon.stub(repo_service, 'getByOwner').callsFake(function (owner, cb) {
+                cb(error.repoService.getByOwner, resp.repoService.getByOwner);
+            });
+            sinon.stub(cla_api, 'validatePullRequests').callsFake(function (args, callback) {
+                if (typeof callback === 'function') {
+                    callback(null, null);
+                }
+            });
+        });
+
+        afterEach(function () {
+            repo_service.getByOwner.restore();
+            cla_api.validatePullRequests.restore();
+        });
+
+        it('should NOT validate repos in the excluded list', function (it_done) {
+            resp.orgService.get.isRepoExcluded = function () {
+                return true;
+            };
+            resp.repoService.getByOwner = [];
+            cla_api.validateOrgPullRequests(req, function () {
+                setTimeout(function () {
+                    assert(!cla_api.validatePullRequests.called);
+                    it_done();
+                });
+            });
+        });
+
+        it('should NOT validate repos with overridden cla', function (it_done) {
+            resp.orgService.get.isRepoExcluded = function () {
+                return false;
+            };
+            cla_api.validateOrgPullRequests(req, function () {
+                setTimeout(function () {
+                    assert(!cla_api.validatePullRequests.called);
+                    it_done();
+                });
+            });
+        });
+
+        it('should validate repos that is not in the excluded list and don\'t have overridden cla', function (it_done) {
+            resp.repoService.getByOwner = [];
+            resp.orgService.get.isRepoExcluded = function () {
+                return false;
+            };
+            cla_api.validateOrgPullRequests(req, function () {
+                setTimeout(function () {
+                    assert(cla_api.validatePullRequests.called);
+                    it_done();
+                });
+            });
+        });
+
+        it('should NOT validate when querying repo collection throw error', function (it_done) {
+            error.repoService.getByOwner = 'any error of querying repo collection';
+            cla_api.validateOrgPullRequests(req, function (err) {
+                assert(!!err);
+                assert(!cla_api.validatePullRequests.called);
+                it_done();
             });
         });
     });

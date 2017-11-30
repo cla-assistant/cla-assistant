@@ -503,7 +503,7 @@ describe('repo:getPRCommitters', function () {
             assert.equal(orgService.get.calledWith({
                 orgId: 1
             }), true);
-            assert.equal(Repo.findOne.called, false);
+            assert(Repo.findOne.called);
             sinon.assert.called(github.callGraphql);
 
             it_done();

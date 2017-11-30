@@ -112,14 +112,23 @@ function validatePullRequest(args, done) {
             log.error(cla_err);
         }
         args.signed = all_signed;
-        status.update(args, done);
-        prService.editComment({
-            repo: args.repo,
-            owner: args.owner,
-            number: args.number,
-            signed: args.signed,
-            user_map: user_map
-        });
+        if (args.gist) {
+            status.update(args);
+            prService.editComment({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number,
+                signed: args.signed,
+                user_map: user_map
+            });
+        } else {
+            status.delete(args);
+            prService.deleteComment({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number
+            });
+        }
     });
 }
 
@@ -147,30 +156,30 @@ function updateUsersPullRequests(args) {
             ClaApi.validatePullRequests(req, () => { });
             return;
         }
-        if (args.item.sharedGist) {
-            getLinkedItemsWithSharedGist(args.item.gist, function (error, sharedItems) {
-                if (error || !sharedItems || !(sharedItems.repos && sharedItems.orgs)) {
-                    return;
-                }
-                let linkedItems = (sharedItems.repos || []).concat(sharedItems.orgs || []);
-                linkedItems.forEach((item) => {
-                    prepareForValidation(item, user);
-                });
-            });
-        } else {
-            prepareForValidation(args.item, user);
-        }
+        prepareForValidation(args.item, user);
     });
-    function prepareForValidation(linkedItem, user) {
-        for (let index = user.requests.length - 1; index >= 0; index--) {
-            let contributedRepo = user.requests[index];
-            if ((linkedItem.repo === contributedRepo.repo && linkedItem.owner === contributedRepo.owner) || linkedItem.org === contributedRepo.owner) {
-                user.requests.splice(index, 1);
-                validateUserPRs(contributedRepo.repo, contributedRepo.owner, linkedItem.gist, linkedItem.sharedGist, contributedRepo.numbers, linkedItem.token);
+
+    function prepareForValidation(item, user) {
+        const needRemove = [];
+        async.series(user.requests.map((pullRequests, index) => {
+            return function (callback) {
+                return cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner }, (err, linkedItem) => {
+                    if (linkedItem && (linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                        needRemove.push(index);
+                        validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
+                    }
+                    callback();
+                });
+            };
+        }), () => {
+            needRemove.sort();
+            for (let i = needRemove.length - 1; i >= 0; --i) {
+                user.requests.splice(needRemove[i], 1);
             }
-        }
-        user.save();
+            user.save();
+        });
     }
+
     function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
         numbers.forEach((prNumber) => {
             validatePullRequest({
@@ -183,6 +192,48 @@ function updateUsersPullRequests(args) {
             }, function () { });
         });
     }
+}
+
+function getReposNeedToValidate(req, done) {
+    let repos = [];
+    github.call({
+        obj: 'repos',
+        fun: 'getForOrg',
+        arg: {
+            org: req.args.org,
+            per_page: 100
+        },
+        token: req.args.token || req.user.token
+    }, function (error, allRepos) {
+        if ((allRepos && allRepos.message) || error || (allRepos && allRepos.length === 0)) {
+            return done((allRepos && allRepos.message) || error, repos);
+        }
+        orgService.get(req.args, function (err, linkedOrg) {
+            if (err) {
+                return done(err, repos);
+            }
+            repoService.getByOwner(req.args.org, function (er, linkedRepos) {
+                if (er) {
+                    return done(er, repos);
+                }
+                let linkedRepoSet = new Set(linkedRepos.map(function (linkedRepo) {
+                    return linkedRepo.repoId.toString();
+                }));
+                repos = allRepos.filter(function (repo) {
+                    if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
+                        // The repo has been excluded.
+                        return false;
+                    }
+                    if (linkedRepoSet.has(repo.id.toString())) {
+                        // The repo has a separate CLA.
+                        return false;
+                    }
+                    return true;
+                });
+                done(null, repos);
+            });
+        });
+    });
 }
 
 let ClaApi = {
@@ -325,45 +376,27 @@ let ClaApi = {
 
     validateOrgPullRequests: function (req, done) {
         let self = this;
-        github.call({
-            obj: 'repos',
-            fun: 'getForOrg',
-            arg: {
-                org: req.args.org,
-                per_page: 100
-            },
-            token: req.args.token || req.user.token
-        }, function (err, repos) {
-            orgService.get(req.args, function (err, linkedOrg) {
-                if (repos && !repos.message && repos.length > 0) {
-                    let time = config.server.github.timeToWait;
-                    repos
-                        .filter(function (repo) {
-                            return (linkedOrg.isRepoExcluded === undefined) || !linkedOrg.isRepoExcluded(repo.name);
-                        })
-                        .forEach(function (repo, index) {
-                            let validateRequest = {
-                                args: {
-                                    owner: repo.owner.login,
-                                    repo: repo.name,
-                                    token: req.args.token || req.user.token,
-                                    gist: req.args.gist,
-                                    sharedGist: req.args.sharedGist
-                                },
-                                user: req.user
-                            };
-                            //try to avoid rasing githubs abuse rate limit:
-                            //take 1 second per repo and wait 10 seconds after each 10th repo
-                            setTimeout(function () {
-                                log.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo);
-                                self.validatePullRequests(validateRequest);
-                            }, time * (index + (Math.floor(index / 10) * 10)));
-                        });
-                }
-                if (typeof done === 'function') {
-                    done(repos.message || err, true);
-                }
+        getReposNeedToValidate(req, function (error, repos) {
+            let time = config.server.github.timeToWait;
+            repos.forEach(function (repo, index) {
+                let validateRequest = {
+                    args: {
+                        owner: repo.owner.login,
+                        repo: repo.name,
+                        token: req.args.token || req.user.token
+                    },
+                    user: req.user
+                };
+                //try to avoid rasing githubs abuse rate limit:
+                //take 1 second per repo and wait 10 seconds after each 10th repo
+                setTimeout(function () {
+                    log.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo);
+                    self.validatePullRequests(validateRequest);
+                }, time * (index + (Math.floor(index / 10) * 10)));
             });
+            if (typeof done === 'function') {
+                done(error, true);
+            }
         });
     },
 
@@ -460,7 +493,7 @@ let ClaApi = {
                     self.validatePullRequests(tmpReq, callback);
                 };
             }), function (err) {
-                done(error);
+                done(err);
             });
         });
     },

@@ -466,3 +466,66 @@ describe('pullRequest:editComment', function () {
         pullRequest.editComment(args);
     });
 });
+
+describe('pullRequest:deleteComment', function () {
+    var args = null,
+        error = null,
+        res = null;
+
+    beforeEach(function () {
+        args = {
+            repo: 'Hello-World',
+            owner: 'owner',
+            number: 1
+        };
+        error = {};
+        res = {};
+        sinon.stub(github, 'call').callsFake(function (args, cb) {
+            if (args.obj === 'issues' && args.fun === 'getComments') {
+                cb(error.getComments, res.getComments);
+            }
+            if (args.obj === 'issues' && args.fun === 'deleteComment') {
+                cb(error.deleteComment, null);
+            }
+        });
+    });
+
+    afterEach(function () {
+        github.call.restore();
+    });
+
+    it('should NOT delete comment if cannot find the comment', function (it_done) {
+        res.getComments = {
+            message: 'Cannot find the comment'
+        };
+        pullRequest.deleteComment(args, function () {
+            assert(!github.call.calledWithMatch({
+                obj: 'issues',
+                fun: 'deleteComment'
+            }));
+            it_done();
+        });
+    });
+
+    it('should NOT delete comment if get commit failed', function (it_done) {
+        error.getComments = 'Get commit failed';
+        pullRequest.deleteComment(args, function () {
+            assert(!github.call.calledWithMatch({
+                obj: 'issues',
+                fun: 'deleteComment'
+            }));
+            it_done();
+        });
+    });
+
+    it('should delete comment', function (it_done) {
+        res.getComments = testDataComments_withCLAComment;
+        pullRequest.deleteComment(args, function () {
+            assert(github.call.calledWithMatch({
+                obj: 'issues',
+                fun: 'deleteComment'
+            }));
+            it_done();
+        });
+    });
+});

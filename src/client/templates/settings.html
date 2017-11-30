@@ -12,30 +12,36 @@
     </div>
 
     <div class="col-xs-12 col-sm-3 col-lg-2">
-        <div ng-if="!loading && gist.id.length > 0" class="text">
-            <a ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+        <div>
+            <a ng-if="!loading && gist.id.length > 0" ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+            <span ng-if="!item.gist">Disabled</span>
         </div>
     </div>
 
     <div class="col-xs-12 col-lg-2 hidden-xs hidden-sm hidden-md text">
-        <a ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
+        <a ng-if="item.gist" ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
     </div>
 
     <div class="col-xs-12 col-sm-2 col-lg-2 text">
-        {{gist.updated_at | date:'longDate'}}
+        <span ng-if="item.gist">{{gist.updated_at | date:'longDate'}}</span>
     </div>
 
     <div class="col-xs-12 col-sm-1 col-lg-1 text">
-        {{ item.sharedGist ? 'Yes' : 'No' }}
+        <span ng-if="item.gist">{{ item.sharedGist ? 'Yes' : 'No' }}</span>
     </div>
 
-    <div class="col-xs-4 col-sm-1 col-lg-1" style="text-align:center; text-decoration: underline;">
-        <a ng-click="getReport(item);" class="clickable">{{signatures.value.length}}</a>
+    <div class="col-xs-4 col-sm-1 col-lg-1" style="text-align:center">
+        <a ng-if="item.gist" ng-click="getReport(item);" class="clickable" style="text-decoration: underline;">{{signatures.value.length}}</a>
     </div>
 
     <script type="text/ng-template" id="validateLink.html">
-        <i class="fa" ng-class="valid.gist ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> gist</i>
-        <i class="fa" ng-class="valid.webhook ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> webhook</i>
+        <div ng-if="item.gist">
+            <i class="fa" ng-class="valid.gist ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> gist</i>
+            <i class="fa" ng-class="valid.webhook ? 'fa-check' : 'fa-times'" style="white-space: nowrap;"> webhook</i>
+        </div>
+        <div ng-if="!item.gist">
+            <i class="fa fa-check" style="white-space: nowrap;"> disabled</i>
+        </div>
     </script>
     <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
         <img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateLink.html'"
@@ -43,9 +49,9 @@
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
-        <button class="btn btn-info" ng-click="upload(item)">Import</button>
+        <button class="btn btn-info" ng-click="upload(item)" ng-if='item.gist'>Import</button>
         <button class="btn btn-info" ng-click="recheck(item)">Recheck PRs</button>
-        <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo">Get Badge</button>
+        <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo && item.gist">Get Badge</button>
     </script>
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..." popover-placement="right" popover-template="'moreActions.html'"
