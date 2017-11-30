@@ -76,7 +76,7 @@ let githubService = {
         let github = newGithubApi();
 
         function collectData(err, res) {
-            data = res && res.data ? concatData(data, res).data : data;
+            data = res && res.data ? concatData(data, res.data) : data;
 
             let meta = {};
             try {
