@@ -1,7 +1,7 @@
 // modules
 let async = require('async');
 let q = require('q');
-require('../documents/user');
+let Joi = require('joi');
 
 // services
 let github = require('../services/github');
@@ -238,30 +238,43 @@ function getReposNeedToValidate(req, done) {
 
 let ClaApi = {
     getGist: function (req, done) {
-        if (req.user && req.user.token && req.args.gist) {
-            cla.getGist({
-                token: req.user.token,
-                gist: req.args.gist
-            }, done);
-        } else {
-            let service = req.args.orgId ? orgService : repoService;
-            service.get(req.args, function (err, item) {
-                if (err || !item) {
-                    log.warn(new Error(err).stack, 'with args: ', req.args);
-                    done(err);
-                    return;
-                }
-                let gist_args = {
-                    gist_url: item.gist
-                };
-                gist_args = req.args.gist ? req.args.gist : gist_args;
-                token = item.token;
+        let schema = Joi.object().keys({
+            gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({ gist_url: Joi.string().uri(), gist_version: Joi.strict() })]),
+            repoId: Joi.number(),
+            orgId: Joi.number(),
+            repo: Joi.string(),
+            owner: Joi.string()
+        });
+        Joi.validate(req.args, schema, { abortEarly: false }, function (joiErr) {
+            if (joiErr) {
+                joiErr.code = 400;
+                return done(joiErr);
+            }
+            if (req.user && req.user.token && req.args.gist) {
                 cla.getGist({
-                    token: token,
-                    gist: gist_args
+                    token: req.user.token,
+                    gist: req.args.gist
                 }, done);
-            });
-        }
+            } else {
+                let service = req.args.orgId ? orgService : repoService;
+                service.get(req.args, function (err, item) {
+                    if (err || !item) {
+                        log.warn(new Error(err).stack, 'with args: ', req.args);
+                        done(err);
+                        return;
+                    }
+                    let gist_args = {
+                        gist_url: item.gist
+                    };
+                    gist_args = req.args.gist ? req.args.gist : gist_args;
+                    token = item.token;
+                    cla.getGist({
+                        token: token,
+                        gist: gist_args
+                    }, done);
+                });
+            }
+        });
     },
 
     get: function (req, done) {
@@ -492,9 +505,7 @@ let ClaApi = {
                     tmpReq.args.owner = item.owner;
                     self.validatePullRequests(tmpReq, callback);
                 };
-            }), function (err) {
-                done(err);
-            });
+            }), done);
         });
     },
 
@@ -518,15 +529,17 @@ let ClaApi = {
         }, function (e, item) {
             if (e) {
                 log.error(e);
+                return done(e);
             }
             args.item = item;
             args.token = item.token;
             cla.sign(args, function (err, signed) {
                 if (err) {
                     log.error(err);
+                    return done(err);
                 }
                 updateUsersPullRequests(args);
-                done(err, signed);
+                done(null, signed);
             });
         });
     },
@@ -566,6 +579,95 @@ let ClaApi = {
                 }, callback);
             });
         }, done);
+    },
+
+    addSignature: function (req, done) {
+        let self = this;
+        let schema = Joi.object().keys({
+            user: Joi.string().required(),
+            userId: Joi.number().required(),
+            org: Joi.string(),
+            owner: Joi.string(),
+            repo: Joi.string(),
+            custom_fields: Joi.string(),
+        }).and('repo', 'owner').xor('repo', 'org');
+        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
+            if (joiErr) {
+                joiErr.code = 400;
+                return done(joiErr);
+            }
+            req.args.owner = req.args.owner || req.args.org;
+            delete req.args.org;
+            self.getLinkedItem({
+                args: {
+                    repo: req.args.repo,
+                    owner: req.args.owner
+                }
+            }, function (e, item) {
+                if (e) {
+                    log.error(e);
+                    return done(e);
+                }
+                req.args.item = item;
+                req.args.token = item.token;
+                cla.sign(req.args, function (err, signed) {
+                    if (err) {
+                        log.error(err);
+                        return done(err);
+                    }
+                    updateUsersPullRequests(req.args);
+                    // Add signature API will get a timeout error if waiting for validating pull requests.
+                    done(null, signed);
+                });
+            });
+        });
+    },
+
+    hasSignature: function (req, done) {
+        let argsScheme = Joi.object().keys({
+            user: Joi.string().required(),
+            userId: Joi.number().required(),
+            org: Joi.string(),
+            owner: Joi.string(),
+            repo: Joi.string(),
+            number: Joi.string()
+        }).and('repo', 'owner').xor('repo', 'org');
+        Joi.validate(req.args, argsScheme, { abortEarly: false, convert: false }, function (joiErr) {
+            if (joiErr) {
+                joiErr.code = 400;
+                return done(joiErr);
+            }
+            req.args.owner = req.args.owner || req.args.org;
+            delete req.args.org;
+            cla.check(req.args, done);
+        });
+    },
+
+    terminateSignature: function (req, done) {
+        let self = this;
+        let schema = Joi.object().keys({
+            user: Joi.string().required(),
+            userId: Joi.number().required(),
+            endDate: Joi.string().isoDate().required(),
+            org: Joi.string(),
+            owner: Joi.string(),
+            repo: Joi.string(),
+        }).and('repo', 'owner').xor('repo', 'org');
+        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
+            if (joiErr) {
+                joiErr.code = 400;
+                return done(joiErr);
+            }
+            req.args.owner = req.args.owner || req.args.org;
+            delete req.args.org;
+            cla.terminate(req.args, function (err, dbCla) {
+                if (err) {
+                    log.error(err);
+                    return done(err);
+                }
+                return done(null, dbCla);
+            });
+        });
     }
 
     // updateDBData: function (req, done) {

@@ -1,5 +1,6 @@
 var passport = require('passport');
-var githubService = require('../services/github');
+var q = require('q');
+var utils = require('./utils');
 
 function authenticateForExternalApi(req, res, next) {
     passport.authenticate('token', { session: false }, function (err, user) {
@@ -11,7 +12,7 @@ function authenticateForExternalApi(req, res, next) {
             res.status(401).json({ message: 'Incorrect token credentials' });
             return;
         }
-        checkPermission(req.args.repoId, user.token, function (err, hasPermission) {
+        utils.checkRepoPushPermissionById(req.args.repoId, user.token, function (err, hasPermission) {
             if (hasPermission) {
                 req.user = user;
                 next();
@@ -22,22 +23,32 @@ function authenticateForExternalApi(req, res, next) {
     })(req, res);
 }
 
-function checkPermission(repoId, token, cb) {
-    githubService.call({
-        obj: 'repos',
-        fun: 'getById',
-        arg: {
-            id: repoId
-        },
-        token: token
-    }, function (err, data) {
-        if (err || !data) {
-            cb(err, data);
-            return;
+function authenticateForAdminOnlyApi(req, res, next) {
+    passport.authenticate('token', { session: false }, function (err, user) {
+        if (err) {
+            return next(err);
         }
-        var hasPermission = data.permissions['push'];
-        cb(err, hasPermission);
-    });
+        if (!user) {
+            return res.status(401).json({ message: 'Incorrect token credentials' });
+        }
+        if (!utils.couldBeAdmin(user.login) || (req.args.org && user.scope.indexOf('admin:org_hook') < 0)) {
+            return res.status(403).json({ message: 'Must have admin:org_hook permission scope' });
+        }
+        var promises = [];
+        if (req.args.owner && req.args.repo) {
+            promises.push(utils.checkRepoPushPermissionByName(req.args.repo, req.args.owner, user.token));
+        }
+        if (req.args.org) {
+            promises.push(utils.checkOrgAdminPermission(req.args.org, user.login, user.token));
+        }
+        return q.all(promises).then(function () {
+            req.user = user;
+            next();
+        }).catch(function (error) {
+            return res.status(403).json({ message: error.message || error });
+        });
+
+    })(req, res);
 }
 
 module.exports = function(req, res, next) {
@@ -45,6 +56,8 @@ module.exports = function(req, res, next) {
         return next();
     } else if (config.server.api_access.external.indexOf(req.originalUrl) > -1) {
         return authenticateForExternalApi(req, res, next);
+    } else if (config.server.api_access.admin_only.indexOf(req.originalUrl) > -1) {
+        return authenticateForAdminOnlyApi(req, res, next);
     } else {
         res.status(401).send('Authentication required');
     }

@@ -540,7 +540,7 @@ describe('webhook pull request', function () {
 
 	it('should NOT try to access org cla if repo cla is exist', function (it_done) {
 		pull_request(test_req, res);
-		this.timeout(20);
+		this.timeout(100);
 		setTimeout(function () {
 			assert(repoService.get.called);
 			assert(!orgService.get.called);

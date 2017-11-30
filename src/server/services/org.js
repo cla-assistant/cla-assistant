@@ -22,7 +22,12 @@ module.exports = {
     },
 
     get: function (args, done) {
-        Org.findOne(selection(args), done);
+        Org.findOne(selection(args), function (err, org) {
+            if (!err && !org) {
+                err = 'Organization not found in Database';
+            }
+            done(err, org);
+        });
     },
 
     getMultiple: function (args, done) {

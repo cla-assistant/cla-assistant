@@ -1,4 +1,4 @@
-<div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum" title="{{description}}">
+<div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum && type !== 'readonly'" title="{{description}}">
     <label ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
     <div ng-show="description && type !== 'hidden'" class="description">({{description}})</div>
     <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}" type="{{type}}"
@@ -23,4 +23,7 @@
         <input ng-disabled="!logged || signed" ng-model="value[name]" name="{{name}}" title="{{description}}" type="radio" value="{{prop}}"
         /> {{prop}}
     </div>
+</div>
+<div ng-if="type === 'readonly'">
+    <label ng-show="value[name]">{{value[name]}}<label>
 </div>
