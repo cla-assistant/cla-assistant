@@ -72,7 +72,9 @@ module.exports = {
             repoId: args.repoId,
             gist: args.gist,
             token: args.token,
-            sharedGist: !!args.sharedGist
+            sharedGist: !!args.sharedGist,
+            minFileChanges: args.minFileChanges,
+            minCodeChanges: args.minCodeChanges
         }, function (err, repo) {
             done(err, repo);
         });

@@ -15,7 +15,9 @@ module.exports = {
             gist: args.gist,
             token: args.token,
             excludePattern: args.excludePattern,
-            sharedGist: !!args.sharedGist
+            sharedGist: !!args.sharedGist,
+            minFileChanges: args.minFileChanges,
+            minCodeChanges: args.minCodeChanges
         }, function (err, org) {
             done(err, org);
         });

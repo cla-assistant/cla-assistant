@@ -107,28 +107,51 @@ function getLinkedItemsWithSharedGist(gist, done) {
 
 function validatePullRequest(args, done) {
     args.token = args.token ? args.token : token;
-    cla.check(args, function (cla_err, all_signed, user_map) {
-        if (cla_err) {
-            log.error(cla_err);
+    cla.getLinkedItem(args, function (error, item) {
+        if (error) {
+            let logArgs = Object.assign({}, args);
+            logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
+            log.error(error, logArgs);
+            return done();
         }
-        args.signed = all_signed;
-        if (args.gist) {
-            status.update(args);
-            prService.editComment({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number,
-                signed: args.signed,
-                user_map: user_map
-            });
-        } else {
-            status.delete(args);
-            prService.deleteComment({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number
+        if (!item.gist) {
+            return status.updateForNullCla(args, function () {
+                prService.deleteComment({
+                    repo: args.repo,
+                    owner: args.owner,
+                    number: args.number
+                }, done);
             });
         }
+        cla.isClaRequired(args, function (error, isClaRequired) {
+            if (error) {
+                return log.error(error);
+            }
+            if (!isClaRequired) {
+                return status.updateForClaNotRequired(args, function () {
+                    prService.deleteComment({
+                        repo: args.repo,
+                        owner: args.owner,
+                        number: args.number
+                    }, done);
+                });
+            }
+            cla.check(args, function (cla_err, all_signed, user_map) {
+                if (cla_err) {
+                    log.error(cla_err);
+                }
+                args.signed = all_signed;
+                return status.update(args, function () {
+                    prService.editComment({
+                        repo: args.repo,
+                        owner: args.owner,
+                        number: args.number,
+                        signed: args.signed,
+                        user_map: user_map
+                    }, done);
+                });
+            });
+        });
     });
 }
 
@@ -431,6 +454,12 @@ let ClaApi = {
         let pullRequests = [];
         let token = req.args.token ? req.args.token : req.user.token;
 
+        function doneIfNeed(err) {
+            if (typeof done === 'function') {
+                done(err);
+            }
+        }
+
         function collectData(err, res, meta) {
             if (err) {
                 log.error(err);
@@ -449,22 +478,21 @@ let ClaApi = {
 
         function validateData(err) {
             if (pullRequests.length > 0 && !err) {
-                pullRequests.forEach(function (pullRequest) {
-                    let status_args = {
-                        repo: req.args.repo,
-                        owner: req.args.owner,
-                        sha: pullRequest.head.sha,
-                        gist: req.args.gist,
-                        sharedGist: req.args.sharedGist,
-                        token: token
-                    };
-                    status_args.number = pullRequest.number;
+                async.series(pullRequests.map(function (pullRequest) {
+                    return function (callback) {
+                        let status_args = {
+                            repo: req.args.repo,
+                            owner: req.args.owner,
+                            sha: pullRequest.head.sha,
+                            token: token
+                        };
+                        status_args.number = pullRequest.number;
 
-                    self.validatePullRequest(status_args);
-                });
-            }
-            if (typeof done === 'function') {
-                done(err);
+                        self.validatePullRequest(status_args, callback);
+                    };
+                }), doneIfNeed);
+            } else {
+                doneIfNeed(null);
             }
         }
 

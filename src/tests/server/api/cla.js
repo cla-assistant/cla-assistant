@@ -122,9 +122,6 @@ describe('', function () {
         });
 
         sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
-            if (reqArgs.cla.getLinkedItem) {
-                assert.deepEqual(args, reqArgs.cla.getLinkedItem);
-            }
             cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
         });
 
@@ -406,9 +403,12 @@ describe('', function () {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
+            error.cla.isClaRequired = null;
+            resp.cla.isClaRequired = true;
 
-            sinon.stub(statusService, 'update').callsFake(function (args) {
+            sinon.stub(statusService, 'update').callsFake(function (args, cb) {
                 assert(args.signed);
+                cb(null);
             });
             sinon.stub(cla, 'sign').callsFake(function (args, cb) {
                 cb(null, 'done');
@@ -417,10 +417,16 @@ describe('', function () {
                 args.gist = req.args.gist;
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment').callsFake(function () { });
+            sinon.stub(prService, 'editComment').callsFake(function (args, cb) {
+                cb(null);
+            });
 
             sinon.stub(User, 'findOne').callsFake((selector, cb) => {
                 cb(null, testUser);
+            });
+
+            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
+                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
             });
         });
 
@@ -430,6 +436,7 @@ describe('', function () {
             prService.editComment.restore();
             statusService.update.restore();
             User.findOne.restore();
+            cla.isClaRequired.restore();
         });
 
         it('should call cla service on sign', function (it_done) {
@@ -954,30 +961,45 @@ describe('', function () {
                     gist: testData.repo_from_db.gist
                 }
             };
-            sinon.stub(statusService, 'update').callsFake(function (args) {
+            resp.cla.getLinkedItem = Object.assign({}, testData.repo_from_db);
+            error.cla.isClaRequired = null;
+            resp.cla.isClaRequired = true;
+
+            sinon.stub(statusService, 'update').callsFake(function (args, cb) {
                 assert(args.signed);
                 assert(args.token);
                 assert(args.sha);
+                cb();
+            });
+            sinon.stub(statusService, 'updateForNullCla').callsFake(function (args, cb) {
+                cb();
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 args.gist = req.args.gist;
                 cb(null, true);
             });
-            sinon.stub(prService, 'editComment').callsFake(function () { });
-            sinon.stub(prService, 'deleteComment').callsFake(function () { });
-            sinon.stub(statusService, 'delete').returns(null);
+            sinon.stub(prService, 'editComment').callsFake(function (args, cb) {
+                cb();
+            });
+            sinon.stub(prService, 'deleteComment').callsFake(function (args, cb) {
+                cb();
+            });
             sinon.stub(repo_service, 'getByOwner').callsFake(function (owner, cb) {
                 cb(error.repoService.getByOwner, resp.repoService.getByOwner);
+            });
+            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
+                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
             });
         });
 
         afterEach(function () {
             cla.check.restore();
             statusService.update.restore();
+            statusService.updateForNullCla.restore();
             prService.editComment.restore();
-            statusService.delete.restore();
             prService.deleteComment.restore();
             repo_service.getByOwner.restore();
+            cla.isClaRequired.restore();
         });
         it('should update all open pull requests', function (it_done) {
 
@@ -1070,14 +1092,10 @@ describe('', function () {
         });
 
         it('should delete comments when rechecking PRs of a repo with a null CLA', function (it_done) {
-            cla.check.restore();
-            sinon.stub(cla, 'check').callsFake(function (args, cb) {
-                args.gist = null;
-                cb(null, true);
-            });
+            resp.cla.getLinkedItem.gist = undefined;
             cla_api.validatePullRequests(req, function (err) {
                 assert(prService.deleteComment.called);
-                assert(statusService.delete.called);
+                assert(statusService.updateForNullCla.called);
                 it_done();
             });
         });
@@ -1262,6 +1280,104 @@ describe('', function () {
         });
     });
 
+    describe('cla:validatePullRequest', function () {
+        var args;
+        beforeEach(function () {
+            args = {
+                repo: 'Hello-World',
+                owner: 'octocat',
+                sha: 'abcde',
+                number: 1,
+                token: 'token'
+            };
+            resp.cla.check = {
+                gist: 'github/gist',
+                signed: false,
+                user_map: {
+                    signed: ['a'],
+                    not_signed: ['b'],
+                    unknown: ['c']
+                }
+            };
+            resp.cla.getLinkedItem = Object.assign({}, testData.repo_from_db);
+            error.cla.isClaRequired = null;
+            resp.cla.isClaRequired = true;
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                cb(null, resp.cla.check.signed, resp.cla.check.user_map);
+            });
+            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
+                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
+            });
+            sinon.stub(statusService, 'update').callsFake(function (args, cb) {
+                return cb(null, null);
+            });
+            sinon.stub(statusService, 'updateForNullCla').callsFake(function (args, cb) {
+                return cb(null, null);
+            });
+            sinon.stub(statusService, 'updateForClaNotRequired').callsFake(function (args, cb) {
+                return cb(null, null);
+            });
+            sinon.stub(prService, 'editComment').callsFake(function (args, cb) {
+                return cb(null, null);
+            });
+            sinon.stub(prService, 'deleteComment').callsFake(function (args, cb) {
+                return cb(null, null);
+            });
+        });
+
+        afterEach(function () {
+            cla.check.restore();
+            cla.isClaRequired.restore();
+            statusService.update.restore();
+            statusService.updateForNullCla.restore();
+            statusService.updateForClaNotRequired.restore();
+            prService.editComment.restore();
+            prService.deleteComment.restore();
+        });
+
+        it('should update status and edit comment when the repo is NOT linked with a null CLA and the pull request is significant', function (it_done) {
+            cla_api.validatePullRequest(args, function () {
+                assert(statusService.update.calledWithMatch({
+                    signed: resp.cla.check.signed,
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    sha: 'abcde',
+                    number: 1
+                }));
+                assert(prService.editComment.calledWithMatch({
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    number: 1,
+                    signed: resp.cla.check.signed,
+                    user_map: resp.cla.check.user_map
+                }));
+                it_done();
+            });
+        });
+
+        it('should update status and delete comment when the repo linked with a null CLA', function (it_done) {
+            resp.cla.getLinkedItem.gist = undefined;
+            cla_api.validatePullRequest(args, function (err) {
+                assert(statusService.updateForNullCla.called);
+                assert(prService.deleteComment.called);
+                assert(!cla.isClaRequired.called);
+                assert(!cla.check.called);
+                it_done();
+            });
+        });
+
+        it('should update status and delete comment when the repo is NOT linked with a null CLA and the pull request is NOT significant', function (it_done) {
+            resp.cla.isClaRequired = false;
+            cla_api.validatePullRequest(args, function (err) {
+                assert(statusService.updateForClaNotRequired.called);
+                assert(prService.deleteComment.called);
+                assert(!cla.check.called);
+                assert(!statusService.updateForNullCla.called);
+                it_done();
+            });
+        });
+    });
+
     describe('cla:addSignature', function () {
         var req;
         beforeEach(function () {
@@ -1285,10 +1401,7 @@ describe('', function () {
                     numbers: [1]
                 }]
             };
-            resp.cla.getLinkedItem = {
-                repo: 'Hello-World',
-                owner: 'octocat'
-            };
+            resp.cla.getLinkedItem = Object.assign({}, testData.repo_from_db);
             sinon.stub(cla, 'sign').callsFake(function (args, cb) {
                 cb(error.cla.sign, 'done');
             });

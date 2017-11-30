@@ -301,6 +301,46 @@ module.exports = function () {
         return deferred.promise;
     };
 
+    var getPullRequestFiles = function (repo, owner, number, token) {
+        return github.call({
+            obj: 'pullRequests',
+            fun: 'getFiles',
+            arg: {
+                repo: repo,
+                owner: owner,
+                number: number,
+                noCache: true
+            },
+            token: token
+        }).then(function (resp) {
+            return resp.data;
+        });
+    };
+
+    var isSignificantPullRequest = function (repo, owner, number, token) {
+        if (!repo || !owner || !number || !token) {
+            return q.reject(Error('There are NOT enough arguments for isSignificantPullRequest.'));
+        }
+        return getLinkedItem(repo, owner, token).then(function (item) {
+            if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
+                return true;
+            }
+            return getPullRequestFiles(repo, owner, number, token).then(function (files) {
+                if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
+                    return true;
+                }
+                if (typeof item.minCodeChanges === 'number') {
+                    var sum = 0;
+                    return files.some(function (file) {
+                        sum += file.changes;
+                        return sum >= item.minCodeChanges;
+                    });
+                }
+                return false;
+            });
+        });
+    };
+
     claService = {
         getGist: function (args, done) {
             let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined;
@@ -628,6 +668,12 @@ module.exports = function () {
             }).catch(function (error) {
                 done(error);
             });
+        },
+
+        isClaRequired: function (args, done) {
+            return isSignificantPullRequest(args.repo, args.owner, args.number, args.token).then(function (isSignificant) {
+                done(null, isSignificant);
+            }).catch(done);
         }
     };
     return claService;

@@ -7,7 +7,9 @@ var OrgSchema = mongoose.Schema({
     gist: String,
     token: String,
     excludePattern: String,
-    sharedGist: Boolean
+    sharedGist: Boolean,
+    minFileChanges: Number,
+    minCodeChanges: Number
 });
 
 OrgSchema.methods.isRepoExcluded = function(repo) {
