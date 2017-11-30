@@ -1262,5 +1262,172 @@ describe('', function () {
         });
     });
 
+    describe('cla:addSignature', function () {
+        var req;
+        beforeEach(function () {
+            req = {
+                args: {
+                    userId: 1,
+                    user: 'user',
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    custom_fields: 'custom_fields'
+                }
+            };
+            error.cla.sign = null;
+            testUser = {
+                save: function () {
+                },
+                name: 'testUser',
+                requests: [{
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    numbers: [1]
+                }]
+            };
+            resp.cla.getLinkedItem = {
+                repo: 'Hello-World',
+                owner: 'octocat'
+            };
+            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
+                cb(error.cla.sign, 'done');
+            });
+            sinon.stub(User, 'findOne').callsFake((selector, cb) => {
+                cb(null, testUser);
+            });
+        });
 
+        afterEach(function () {
+            cla.sign.restore();
+            User.findOne.restore();
+        });
+
+        it('should call cla service sign and update status of pull request created by user, who signed', function (it_done) {
+            cla_api.addSignature(req, function (err) {
+                assert.ifError(err);
+                assert(cla.sign.called);
+                assert(User.findOne.called);
+                it_done();
+            });
+        });
+
+        it('should send validation error when repo and owner or org is not provided', function (it_done) {
+            var req = {
+                args: {
+                    userId: 1,
+                    user: 'user'
+                }
+            };
+            cla_api.addSignature(req, function (err) {
+                assert(err);
+                it_done();
+            });
+        });
+
+        it('should send error and log error when sign cla failed', function (it_done) {
+            error.cla.sign = 'You\'ve already signed the cla.';
+            cla_api.addSignature(req, function (err) {
+                assert(err === error.cla.sign);
+                assert(log.error.called);
+                it_done();
+            });
+        });
+    });
+
+    describe('cla:hasSignature', function () {
+        var req;
+        beforeEach(function () {
+            req = {
+                args: {
+                    userId: 1,
+                    user: 'user',
+                    repo: 'Hello-World',
+                    owner: 'octocat'
+                }
+            };
+            sinon.stub(cla, 'check').callsFake(function (args, done) {
+                done(null, true);
+            });
+        });
+
+        afterEach(function () {
+            cla.check.restore();
+        });
+
+        it('should call cla service check', function (it_done) {
+            cla_api.hasSignature(req, function (err) {
+                assert.ifError(err);
+                assert(cla.check.called);
+                it_done();
+            });
+        });
+
+        it('should send validation error when repo and owner or org is not provided', function (it_done) {
+            var req = {
+                args: {
+                    userId: 1,
+                    user: 'user'
+                }
+            };
+            cla_api.hasSignature(req, function (err) {
+                assert(err);
+                assert(!cla.check.called);
+                it_done();
+            });
+        });
+    });
+
+    describe('cla:terminateSignature', function () {
+        var req;
+        beforeEach(function () {
+            req = {
+                args: {
+                    userId: 1,
+                    user: 'user',
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    endDate: new Date().toISOString()
+                }
+            };
+            error.cla.terminate = null;
+            sinon.stub(cla, 'terminate').callsFake(function (args, done) {
+                done(error.cla.terminate);
+            });
+        });
+
+        afterEach(function () {
+            cla.terminate.restore();
+        });
+
+        it('should call cla service terminate', function (it_done) {
+            cla_api.terminateSignature(req, function (err) {
+                assert.ifError(err);
+                assert(cla.terminate.called);
+                it_done();
+            });
+        });
+
+        it('should send validation error when repo and owner or org is not provided', function (it_done) {
+            var req = {
+                args: {
+                    userId: 1,
+                    user: 'user'
+                }
+            };
+            cla_api.terminateSignature(req, function (err) {
+                assert(err);
+                assert(!cla.terminate.called);
+                it_done();
+            });
+        });
+
+        it('should send error and log error when terminate cla failed', function (it_done) {
+            error.cla.terminate = 'Cannot find cla record';
+            cla_api.terminateSignature(req, function (err) {
+                assert(err === error.cla.terminate);
+                assert(log.error.called);
+                it_done();
+            });
+        });
+    });
 });
