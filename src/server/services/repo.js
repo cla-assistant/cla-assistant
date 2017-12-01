@@ -180,7 +180,7 @@ module.exports = {
                             let committer = extractUserFromCommit(edge.node.commit);
                             let user = {
                                 name: committer.login || committer.name,
-                                id: committer.id || ''
+                                id: committer.databaseId || ''
                             };
                             if (committers.length === 0 || committers.map(function (c) {
                                 return c.name;
