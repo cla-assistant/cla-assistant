@@ -36,8 +36,12 @@ function storeRequest(committers, repo, owner, number) {
             let repoPullRequests = user.requests.find((request) => {
                 return request.repo === repo && request.owner === owner;
             });
-            if (repoPullRequests.numbers.indexOf(number) < 0) {
+            if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
                 repoPullRequests.numbers.push(number);
+                user.save();
+            }
+            if (!repoPullRequests) {
+                user.requests.push(pullRequest);
                 user.save();
             }
         });
