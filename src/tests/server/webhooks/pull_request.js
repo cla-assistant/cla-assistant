@@ -499,6 +499,30 @@ describe('webhook pull request', function () {
         }, 8);
     });
 
+    it('should store PR if the PR is from an repo that is not stored before', function (it_done) {
+        testUser.requests = [{
+            repo: 'Another Repo',
+            owner: 'octocat',
+            numbers: [1]
+        }];
+        test_req.args.number = 1;
+        cla.check.restore();
+
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, false, {
+                not_signed: ['test_user']
+            });
+        });
+
+        pull_request(test_req, res);
+        this.timeout(100);
+        setTimeout(function () {
+            sinon.assert.called(User.findOne);
+            assert(testUserSaved);
+            it_done();
+        }, 8);
+    });
+
 	it('should update status of pull request if signed', function (it_done) {
 		cla.check.restore();
 		sinon.stub(cla, 'check').callsFake(function (args, done) {
