@@ -23,7 +23,7 @@
     "async": "^2.0.0-rc",
     "body-parser": "^1.18.2",
     "bower": "^1.8.2",
-    "bunyan": "^1.8.1",
+    "bunyan": "^1.8.12",
     "bunyan-sentry-stream": "^1.2.1",
     "bunyan-slack": "0.0.10",
     "colors": "^1.1.2",
