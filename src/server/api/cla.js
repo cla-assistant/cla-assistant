@@ -169,15 +169,20 @@ function updateUsersPullRequests(args) {
         if (err || !user || !user.requests || user.requests.length < 1) {
             let req = {
                 args: {
-                    repo: args.repo,
-                    owner: args.owner,
                     gist: args.item.gist,
-                    sharedGist: args.item.sharedGist,
                     token: args.token
                 }
             };
-            ClaApi.validatePullRequests(req, () => { });
-            return;
+            if (args.item.sharedGist) {
+                return ClaApi.validateSharedGistItems(req, () => { });
+            } else if (args.item.org) {
+                req.args.org = args.item.org;
+                return ClaApi.validateOrgPullRequests(req, () => { });
+            } else {
+                req.args.repo = args.repo;
+                req.args.owner = args.owner;
+                return ClaApi.validatePullRequests(req, () => { });
+            }
         }
         prepareForValidation(args.item, user);
     });
