@@ -405,6 +405,10 @@ describe('cla:checkPullRequestSignatures', function () {
         var prCreateDate = new Date(prCreateDateString);
         testErr.getPR = null;
         testRes.getPR = {
+            user: {
+                login: 'login0',
+                id: '0'
+            },
             created_at: prCreateDate
         };
         sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
@@ -569,6 +573,56 @@ describe('cla:checkPullRequestSignatures', function () {
             assert.ifError(err);
             assert(result.signed);
             assert.equal(result.user_map.signed[0], 'login1');
+            it_done();
+        });
+    });
+
+    it('should only check submitter when using submitter mode', function (it_done) {
+        config.server.feature_flag.required_signees = 'submitter';
+        testRes.claFindOne = null;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }];
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            config.server.feature_flag.required_signees = '';
+            assert.ifError(err);
+            assert.equal(result.user_map.not_signed.length, 1);
+            it_done();
+        });
+    });
+
+    it('should check submitter and committer when using submitter+committer mode', function (it_done) {
+        config.server.feature_flag.required_signees = 'submitter, committer';
+        testRes.claFindOne = null;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }];
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            config.server.feature_flag.required_signees = '';
+            assert.ifError(err);
+            assert.equal(result.user_map.not_signed.length, 3);
             it_done();
         });
     });
