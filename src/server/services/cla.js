@@ -266,10 +266,14 @@ module.exports = function () {
     };
 
     let getLastSignatureOnMultiDates = function (user, userId, repoId, orgId, sharedGist, gist_url, gist_version, date) {
-        if (!user || (!repoId && !orgId) || sharedGist === undefined || !gist_url || (date && !Array.isArray(date))) {
-            throw new Error('Not provide enough arguments for getSignature()');
-        }
         let deferred = q.defer();
+        sharedGist = sharedGist === undefined ? false : sharedGist;
+
+        if (!user || (!repoId && !orgId) || !gist_url || (date && !Array.isArray(date))) {
+            let error = new Error('Not provide enough arguments for getSignature()', user, userId, repoId, orgId, sharedGist, gist_url, gist_version, date);
+            logger.error(error);
+            deffered.reject(error);
+        }
         let query = {
             user: user,
             gist_url: gist_url,
