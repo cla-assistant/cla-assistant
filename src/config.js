@@ -105,6 +105,7 @@ module.exports = {
         },
 
         feature_flag: {
+            pre_populate_user_pull_request: process.env.PRE_POPULATE_USER_PULL_REQUEST === 'true',
             required_signees: process.env.REQUIRED_SIGNEES || '',
             organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
         },
