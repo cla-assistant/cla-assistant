@@ -539,6 +539,39 @@ describe('cla:checkPullRequestSignatures', function () {
             it_done();
         });
     });
+
+    it('should return map of committers also for old linked repos without sharedGist flag', function (it_done) {
+        delete testRes.repoServiceGet.sharedGist;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }];
+        CLA.findOne.restore();
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, selector, options, done) {
+            if (arg.$or[0].user === 'login1') {
+                done(null, {
+                    id: 123,
+                    user: 'login1',
+                    gist_url: 'url/gistId',
+                    created_at: '2012-06-20T11:34:15Z',
+                    gist_version: 'xyz'
+                });
+            }
+        });
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert.ifError(err);
+            assert(result.signed);
+            assert.equal(result.user_map.signed[0], 'login1');
+            it_done();
+        });
+    });
 });
 
 describe('cla.check', function () {
@@ -1321,7 +1354,7 @@ describe('cla:isClaRequired', function () {
     it('should require a CLA when pull request exceed minimum file changes', function (it_done) {
         testRes.repoServiceGet.minFileChanges = 2;
         testRes.pullRequestFiles = {
-            data:[{
+            data: [{
                 filename: 'test1'
             }, {
                 filename: 'test2'
