@@ -44,7 +44,7 @@ var getStatuses = function (args, done) {
 var getCombinedStatus = function (args, done) {
     github.call({
         obj: 'repos',
-        fun: 'getCombinedStatus',
+        fun: 'getCombinedStatusForRef',
         arg: {
             owner: args.owner,
             repo: args.repo,

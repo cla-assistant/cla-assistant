@@ -315,7 +315,7 @@ describe('status', function () {
             } else if (args.obj === 'repos' && args.fun === 'getStatuses') {
                 assert.equal(args.token, 'abc');
                 done(githubCallStatusGet.err, githubCallStatusGet.data);
-            } else if (args.obj === 'repos' && args.fun === 'getCombinedStatus') {
+            } else if (args.obj === 'repos' && args.fun === 'getCombinedStatusForRef') {
                 done(githubCallCombinedStatus.err, githubCallCombinedStatus.data);
             } else {
                 assert.equal(args.token, 'abc');
