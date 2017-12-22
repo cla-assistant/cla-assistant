@@ -930,7 +930,9 @@ describe('cla:sign', function () {
 
     it('should do nothing if user has already signed', function (it_done) {
         testArgs.claSign.user = 'signedUser';
-        testRes.claFindOne = {};
+        testRes.claFindOne = {
+            user: 'signedUser'
+        };
 
         cla.sign(testArgs.claSign, function () {
             assert.equal(CLA.create.called, false);
@@ -944,6 +946,19 @@ describe('cla:sign', function () {
 
         cla.sign(testArgs.claSign, function (err, result) {
             assert(err);
+            assert(!result);
+            it_done();
+        });
+    });
+
+    it('should send error message when a repo linked with an Null CLA', function (it_done) {
+        testErr.claCreate = 'any DB error';
+        testRes.claCreate = null;
+        testRes.repoServiceGet.gist = null;
+
+        cla.sign(testArgs.claSign, function (err, result) {
+            assert(err);
+            assert(err.code === 200);
             assert(!result);
             it_done();
         });
