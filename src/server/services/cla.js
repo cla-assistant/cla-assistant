@@ -464,8 +464,6 @@ module.exports = function () {
                     }).then(signees => {
                         return checkAll(signees, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
                             done(null, result);
-                        }).catch(function (err) {
-                            done(err);
                         });
                     });
                 });
