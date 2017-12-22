@@ -509,6 +509,32 @@ describe('', function () {
             });
         });
 
+        it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', function (it_done) {
+            testUser.requests = undefined;
+            resp.cla.getLinkedItem = Object({
+                sharedGist: true
+            }, resp.cla.getLinkedItem);
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(cla_api.validateSharedGistItems.called);
+                cla_api.validateSharedGistItems.restore();
+                it_done();
+            });
+        });
+
+        it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', function (it_done) {
+            testUser.requests = undefined;
+            resp.cla.getLinkedItem = testData.org_from_db;
+            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(cla_api.validateOrgPullRequests.called);
+                cla_api.validateOrgPullRequests.restore();
+                it_done();
+            });
+        });
+
         it('should comment with user_map if it is given', function (it_done) {
             cla.check.restore();
             prService.editComment.restore();
