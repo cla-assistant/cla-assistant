@@ -607,6 +607,29 @@ describe('', function () {
                 it_done();
             });
         });
+
+        it('should delete stored pull requests from unlinked org or repo', function (it_done) {
+            testUser.requests.push({
+                repo: 'Not linked anymore',
+                owner: 'Test',
+                numbers: [1]
+            });
+            cla.getLinkedItem.restore();
+            sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
+                if (args.owner === 'octocat' && args.repo === 'Hello-World') {
+                    cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
+                } else {
+                    cb(null, null);
+                }
+            });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(!testUser.requests.length);
+                sinon.assert.calledOnce(cla.check);
+
+                it_done();
+            });
+        });
     });
 
     describe('cla api', function () {
