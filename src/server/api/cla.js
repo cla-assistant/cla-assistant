@@ -192,7 +192,11 @@ function updateUsersPullRequests(args) {
         async.series(user.requests.map((pullRequests, index) => {
             return function (callback) {
                 return cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner }, (err, linkedItem) => {
-                    if (linkedItem && (linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                    if (!linkedItem) {
+                        needRemove.push(index);
+                        return callback();
+                    }
+                    if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                         needRemove.push(index);
                         validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
                     }
