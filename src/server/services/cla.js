@@ -11,6 +11,7 @@ let orgService = require('../services/org');
 let repoService = require('../services/repo');
 let github = require('./github');
 let config = require('../../config');
+let _ = require('lodash');
 
 module.exports = function () {
     let claService;
@@ -120,11 +121,10 @@ module.exports = function () {
         if (gist_version) {
             sharedGistCondition.gist_version = gist_version;
         }
-        if (user) {
-            sharedGistCondition.user = user;
-        }
         if (userId) {
             sharedGistCondition.userId = userId;
+        } else if (user) {
+            sharedGistCondition.user = user;
         }
         return sharedGistCondition;
     };
@@ -275,7 +275,6 @@ module.exports = function () {
             deffered.reject(error);
         }
         let query = {
-            user: user,
             gist_url: gist_url,
             org_cla: !!orgId
         };
@@ -285,11 +284,14 @@ module.exports = function () {
         if (orgId) {
             query.ownerId = orgId;
         }
-        if (userId) {
-            query.userId = userId;
-        }
         if (gist_version) {
             query.gist_version = gist_version;
+        }
+        if (userId) {
+            query.userId = userId;
+        } else {
+            logger.info({ name: 'The userId is empty.', user: user, repoId: repoId, orgId: orgId });
+            query.user = user;
         }
         query = updateQuery(query, sharedGist, date);
         CLA.findOne(query, {}, {
@@ -299,6 +301,14 @@ module.exports = function () {
         }, function (error, cla) {
             if (error) {
                 return deferred.reject(error);
+            }
+            if (cla && cla.user !== user) {
+                cla.user = user;
+                return cla.save().then(function (updatedCla) {
+                    deferred.resolve(updatedCla);
+                }).catch(function (err) {
+                    deferred.reject(err);
+                });
             }
             deferred.resolve(cla);
         });
@@ -425,17 +435,35 @@ module.exports = function () {
                 }
                 return getGistObject(args.gist, item.token).then(function (gist) {
                     args.gist_version = gist.data.history[0].version;
-                    return getPR(args.owner, args.repo, args.number, item.token).then(function (pullRequest) {
+                    return getPR(args.owner, args.repo, args.number, item.token).then(pullRequest => {
                         args.onDates.push(new Date(pullRequest.created_at));
-                        repoService.getPRCommitters(args, function (error, committers) {
-                            if (error) {
-                                logger.warn(new Error(error).stack);
-                            }
-                            return checkAll(committers, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
-                                done(null, result);
-                            }).catch(function (err) {
-                                done(err);
+                        const signees = [];
+                        if (config.server.feature_flag.required_signees.indexOf('submitter') > -1) {
+                            signees.push({
+                                name: pullRequest.user.login,
+                                id: pullRequest.user.id
                             });
+                        }
+                        return q(signees);
+                    }).then(signees => {
+                        const deferred = q.defer();
+                        if (!config.server.feature_flag.required_signees || config.server.feature_flag.required_signees.indexOf('committer') > -1) {
+                            repoService.getPRCommitters(args, function (error, committers) {
+                                if (error) {
+                                    logger.warn(new Error(error).stack);
+                                }
+                                signees = _.uniqWith(signees.concat(committers), (object, other) => {
+                                    return object.id == other.id;
+                                });
+                                deferred.resolve(signees);
+                            });
+                        } else {
+                            deferred.resolve(signees);
+                        }
+                        return deferred.promise;
+                    }).then(signees => {
+                        return checkAll(signees, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
+                            done(null, result);
                         });
                     });
                 });

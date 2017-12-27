@@ -149,6 +149,54 @@ describe('cla:getLastSignature', function () {
         clock.restore();
     });
 
+    it('should get cla entry for equal repo, userId and gist url', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            userId: 'userId',
+            user: 'user'
+        };
+        testRes.repoServiceGet.sharedGist = true;
+        cla.getLastSignature(args, function () {
+            assert.equal(CLA.findOne.calledWithMatch({
+                $or: [{
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }, {
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    owner: undefined,
+                    repo: undefined,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    owner: undefined,
+                    repo: undefined,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }]
+            }), true);
+            it_done();
+        });
+    });
+
     it('should get cla entry for equal repo, user and gist url', function (it_done) {
         var args = {
             repo: 'myRepo',
@@ -168,6 +216,104 @@ describe('cla:getLastSignature', function () {
                     end_at: { $gt: now }
                 }, {
                     user: 'user',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }]
+            }), true);
+            it_done();
+        });
+    });
+
+    it('should update user name if github username is changed', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'changedUserName',
+            userId: 'userId'
+        };
+
+        testRes.claFindOne = {
+            user: 'user',
+            userId: 'userId',
+            repoId: 'repoId',
+            gist_url: 'url/gistId',
+            created_at: '2012-06-20T11:34:15Z',
+            gist_version: 'xyz',
+            save: function () {
+                return Promise.resolve({
+                    user: 'changedUserName',
+                    userId: 'userId',
+                    repoId: 'repoId',
+                    gist_url: 'url/gistId',
+                    created_at: '2012-06-20T11:34:15Z',
+                    gist_version: 'xyz',
+                });
+            }
+        };
+
+        cla.getLastSignature(args, function (err, cla) {
+            assert.ifError(err);
+            assert.equal(CLA.findOne.calledWithMatch({
+                $or: [{
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }]
+            }), true);
+            assert(cla.user === args.user);
+            it_done();
+        });
+    });
+
+    it('should send error when update user name failed when github username is changed', function (it_done) {
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            user: 'changedUserName',
+            userId: 'userId'
+        };
+
+        testRes.claFindOne = {
+            user: 'user',
+            userId: 'userId',
+            repoId: 'repoId',
+            gist_url: 'url/gistId',
+            created_at: '2012-06-20T11:34:15Z',
+            gist_version: 'xyz',
+            save: function () {
+                return Promise.reject('Update error.');
+            }
+        };
+
+        cla.getLastSignature(args, function (err, cla) {
+            assert(err === 'Update error.');
+            assert.equal(CLA.findOne.calledWithMatch({
+                $or: [{
+                    userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    userId: 'userId',
                     gist_url: 'url/gistId',
                     gist_version: 'xyz',
                     repoId: 123,
@@ -405,6 +551,10 @@ describe('cla:checkPullRequestSignatures', function () {
         var prCreateDate = new Date(prCreateDateString);
         testErr.getPR = null;
         testRes.getPR = {
+            user: {
+                login: 'login0',
+                id: '0'
+            },
             created_at: prCreateDate
         };
         sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
@@ -510,7 +660,7 @@ describe('cla:checkPullRequestSignatures', function () {
             if (!options && !done) {
                 done = selector;
             }
-            if (arg.$or[0].user === 'login1') {
+            if (arg.$or[0].userId === '123') {
                 done(null, {
                     id: 123,
                     user: 'login1',
@@ -548,7 +698,7 @@ describe('cla:checkPullRequestSignatures', function () {
         }];
         CLA.findOne.restore();
         sinon.stub(CLA, 'findOne').callsFake(function (arg, selector, options, done) {
-            if (arg.$or[0].user === 'login1') {
+            if (arg.$or[0].userId === '123') {
                 done(null, {
                     id: 123,
                     user: 'login1',
@@ -569,6 +719,56 @@ describe('cla:checkPullRequestSignatures', function () {
             assert.ifError(err);
             assert(result.signed);
             assert.equal(result.user_map.signed[0], 'login1');
+            it_done();
+        });
+    });
+
+    it('should only check submitter when using submitter mode', function (it_done) {
+        config.server.feature_flag.required_signees = 'submitter';
+        testRes.claFindOne = null;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }];
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            config.server.feature_flag.required_signees = '';
+            assert.ifError(err);
+            assert.equal(result.user_map.not_signed.length, 1);
+            it_done();
+        });
+    });
+
+    it('should check submitter and committer when using submitter+committer mode', function (it_done) {
+        config.server.feature_flag.required_signees = 'submitter, committer';
+        testRes.claFindOne = null;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }];
+
+        var args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            config.server.feature_flag.required_signees = '';
+            assert.ifError(err);
+            assert.equal(result.user_map.not_signed.length, 3);
             it_done();
         });
     });
@@ -730,7 +930,9 @@ describe('cla:sign', function () {
 
     it('should do nothing if user has already signed', function (it_done) {
         testArgs.claSign.user = 'signedUser';
-        testRes.claFindOne = {};
+        testRes.claFindOne = {
+            user: 'signedUser'
+        };
 
         cla.sign(testArgs.claSign, function () {
             assert.equal(CLA.create.called, false);
@@ -744,6 +946,19 @@ describe('cla:sign', function () {
 
         cla.sign(testArgs.claSign, function (err, result) {
             assert(err);
+            assert(!result);
+            it_done();
+        });
+    });
+
+    it('should send error message when a repo linked with an Null CLA', function (it_done) {
+        testErr.claCreate = 'any DB error';
+        testRes.claCreate = null;
+        testRes.repoServiceGet.gist = null;
+
+        cla.sign(testArgs.claSign, function (err, result) {
+            assert(err);
+            assert(err.code === 200);
             assert(!result);
             it_done();
         });
@@ -1293,6 +1508,7 @@ describe('cla:terminate', function () {
             token: 'test_token'
         };
         testRes.claFindOne = {
+            user: 'user',
             repoId: 'repoId',
             gist_url: 'url/gistId',
             created_at: '2012-06-20T11:34:15Z',
