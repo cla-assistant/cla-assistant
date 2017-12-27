@@ -169,15 +169,20 @@ function updateUsersPullRequests(args) {
         if (err || !user || !user.requests || user.requests.length < 1) {
             let req = {
                 args: {
-                    repo: args.repo,
-                    owner: args.owner,
                     gist: args.item.gist,
-                    sharedGist: args.item.sharedGist,
                     token: args.token
                 }
             };
-            ClaApi.validatePullRequests(req, () => { });
-            return;
+            if (args.item.sharedGist) {
+                return ClaApi.validateSharedGistItems(req, () => { });
+            } else if (args.item.org) {
+                req.args.org = args.item.org;
+                return ClaApi.validateOrgPullRequests(req, () => { });
+            } else {
+                req.args.repo = args.repo;
+                req.args.owner = args.owner;
+                return ClaApi.validatePullRequests(req, () => { });
+            }
         }
         prepareForValidation(args.item, user);
     });
@@ -187,7 +192,11 @@ function updateUsersPullRequests(args) {
         async.series(user.requests.map((pullRequests, index) => {
             return function (callback) {
                 return cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner }, (err, linkedItem) => {
-                    if (linkedItem && (linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                    if (!linkedItem) {
+                        needRemove.push(index);
+                        return callback();
+                    }
+                    if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                         needRemove.push(index);
                         validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
                     }
@@ -339,6 +348,7 @@ let ClaApi = {
     getLastSignature: function (req, done) {
         let args = req.args;
         args.user = req.user.login;
+        args.userId = req.user.id;
         cla.getLastSignature(args, done);
     },
 
@@ -577,7 +587,8 @@ let ClaApi = {
             repo: req.args.repo,
             owner: req.args.owner,
             number: req.args.number,
-            user: req.user.login
+            user: req.user.login,
+            userId: req.user.id
         };
 
         cla.check(args, done);

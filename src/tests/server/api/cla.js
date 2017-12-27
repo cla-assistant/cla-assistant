@@ -509,6 +509,32 @@ describe('', function () {
             });
         });
 
+        it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', function (it_done) {
+            testUser.requests = undefined;
+            resp.cla.getLinkedItem = Object({
+                sharedGist: true
+            }, resp.cla.getLinkedItem);
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(cla_api.validateSharedGistItems.called);
+                cla_api.validateSharedGistItems.restore();
+                it_done();
+            });
+        });
+
+        it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', function (it_done) {
+            testUser.requests = undefined;
+            resp.cla.getLinkedItem = testData.org_from_db;
+            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(cla_api.validateOrgPullRequests.called);
+                cla_api.validateOrgPullRequests.restore();
+                it_done();
+            });
+        });
+
         it('should comment with user_map if it is given', function (it_done) {
             cla.check.restore();
             prService.editComment.restore();
@@ -578,6 +604,29 @@ describe('', function () {
                 cla_api.validateSharedGistItems.restore();
                 repo_service.getRepoWithSharedGist.restore();
                 org_service.getOrgWithSharedGist.restore();
+                it_done();
+            });
+        });
+
+        it('should delete stored pull requests from unlinked org or repo', function (it_done) {
+            testUser.requests.push({
+                repo: 'Not linked anymore',
+                owner: 'Test',
+                numbers: [1]
+            });
+            cla.getLinkedItem.restore();
+            sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
+                if (args.owner === 'octocat' && args.repo === 'Hello-World') {
+                    cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
+                } else {
+                    cb(null, null);
+                }
+            });
+            cla_api.sign(req, function (err, res) {
+                assert.ifError(err);
+                assert(!testUser.requests.length);
+                sinon.assert.calledOnce(cla.check);
+
                 it_done();
             });
         });
@@ -656,6 +705,7 @@ describe('', function () {
                     repo: 'Hello-World',
                     owner: 'octocat',
                     user: 'user',
+                    userId: 3,
                     number: undefined
                 });
                 cb(null, true);
