@@ -149,7 +149,7 @@ describe('cla:getLastSignature', function () {
         clock.restore();
     });
 
-    it('should get cla entry for equal repo, userId and gist url', function (it_done) {
+    it('should get cla entry for equal repo, userId or user and gist url', function (it_done) {
         var args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -169,6 +169,24 @@ describe('cla:getLastSignature', function () {
                     end_at: { $gt: now }
                 }, {
                     userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }, {
+                    user: 'user',
+                    userId: { $exists: false },
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: 'user',
+                    userId: { $exists: false },
                     gist_url: 'url/gistId',
                     gist_version: 'xyz',
                     repoId: 123,
@@ -274,6 +292,24 @@ describe('cla:getLastSignature', function () {
                     org_cla: false,
                     created_at: { $lte: now },
                     end_at: undefined
+                }, {
+                    user: 'changedUserName',
+                    userId: { $exists: false },
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: 'changedUserName',
+                    userId: { $exists: false },
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
                 }]
             }), true);
             assert(cla.user === args.user);
@@ -314,6 +350,24 @@ describe('cla:getLastSignature', function () {
                     end_at: { $gt: now }
                 }, {
                     userId: 'userId',
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: undefined
+                }, {
+                    user: 'changedUserName',
+                    userId: { $exists: false },
+                    gist_url: 'url/gistId',
+                    gist_version: 'xyz',
+                    repoId: 123,
+                    org_cla: false,
+                    created_at: { $lte: now },
+                    end_at: { $gt: now }
+                }, {
+                    user: 'changedUserName',
+                    userId: { $exists: false },
                     gist_url: 'url/gistId',
                     gist_version: 'xyz',
                     repoId: 123,
@@ -1617,10 +1671,27 @@ describe('cla:isClaRequired', function () {
         });
     });
 
-    it('should send error if repo, owner, number or token is not provided', function (it_done) {
+    it('should send error if repo, owner, number is not provided', function (it_done) {
         args = {};
         cla.isClaRequired(args, function (err, isClaRequired) {
             assert(err);
+            it_done();
+        });
+    });
+
+    it('should NOT send error if token is not provided but use linked item\'s token', function (it_done) {
+        delete args.token;
+        testRes.repoServiceGet.minCodeChanges = 15;
+        testRes.pullRequestFiles = {
+            data: [{
+                filename: 'test1',
+                changes: 15
+            }]
+        };
+        cla.isClaRequired(args, function (err, isClaRequired) {
+            assert.ifError(err);
+            sinon.assert.calledWithMatch(github.call, { token: 'abc' });
+            assert(isClaRequired);
             it_done();
         });
     });
