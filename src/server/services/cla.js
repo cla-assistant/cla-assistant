@@ -148,6 +148,12 @@ module.exports = function () {
 
     let updateQuery = function (query, sharedGist, onDates) {
         let queries = [query];
+        if (query.userId) {
+            let queryForOldCLAs = _.clone(query);
+            queryForOldCLAs.userId = { $exists: false };
+            queries.push(queryForOldCLAs);
+            delete query.user;
+        }
         if (sharedGist) {
             let shardGistQuery = generateSharedGistQuery(query.gist_url, query.gist_version, query.user, query.userId);
             queries.push(shardGistQuery);
@@ -291,8 +297,9 @@ module.exports = function () {
             query.userId = userId;
         } else {
             logger.info({ name: 'The userId is empty.', user: user, repoId: repoId, orgId: orgId });
-            query.user = user;
         }
+        query.user = user;
+
         query = updateQuery(query, sharedGist, date);
         CLA.findOne(query, {}, {
             sort: {
@@ -332,13 +339,14 @@ module.exports = function () {
     };
 
     var isSignificantPullRequest = function (repo, owner, number, token) {
-        if (!repo || !owner || !number || !token) {
+        if (!repo || !owner || !number) {
             return q.reject(Error('There are NOT enough arguments for isSignificantPullRequest.'));
         }
         return getLinkedItem(repo, owner, token).then(function (item) {
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
                 return true;
             }
+            token = token || item.token; // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
             return getPullRequestFiles(repo, owner, number, token).then(function (files) {
                 if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
                     return true;
