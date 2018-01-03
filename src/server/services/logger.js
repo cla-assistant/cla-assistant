@@ -27,13 +27,13 @@ try {
         name: 'slack',
         level: 'error',
         stream: new BunyanSlack({
-            webhook_url: config.server.slack_url,
-            channel: '#cla-assistant',
-            username: 'CLA assistant',
+            webhook_url: config.server.slack.url,
+            channel: config.server.slack.channel,
+            username: 'CLA Assistant',
             customFormatter: formatter
         })
     });
-} catch (e) {}
+} catch (e) { }
 
 try {
     log.addStream({
@@ -42,6 +42,6 @@ try {
         type: 'raw', // Mandatory type for SentryStream
         stream: new SentryStream(client)
     });
-} catch (e) {}
+} catch (e) { }
 
 module.exports = log;

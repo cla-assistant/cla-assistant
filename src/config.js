@@ -76,10 +76,9 @@ module.exports = {
         },
 
         slack: {
-            token: process.env.SLACK_TOKEN
+            url: process.env.SLACK_URL,
+            channel: process.env.SLACK_CHANNEL
         },
-
-        slack_url: process.env.SLACK_URL,
 
         sentry_dsn: process.env.SENTRY_DSN,
 
