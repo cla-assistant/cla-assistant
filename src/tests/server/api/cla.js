@@ -908,6 +908,17 @@ describe('', function () {
                 it_done();
             });
         });
+
+        it('it should handle unexisting gist', function (it_done) {
+            resp.cla.getGist = null;
+
+            cla_api.countCLA(req, function (err, number) {
+                assert(err);
+                assert(!cla.getAll.called);
+
+                it_done();
+            });
+        });
     });
 
     describe('cla:upload', function () {
@@ -1316,7 +1327,7 @@ describe('', function () {
         it('should log error when repoService.getRepoWithSharedGist() failed', function (it_done) {
             error.repoService.getRepoWithSharedGist = 'Error: get shared gist repo failed';
             cla_api.validateSharedGistItems(req, function (err) {
-                assert(log.error.calledWith(error.repoService.getRepoWithSharedGist));
+                assert(log.error.calledWithMatch(error.repoService.getRepoWithSharedGist));
                 it_done();
             });
         });
@@ -1324,7 +1335,7 @@ describe('', function () {
         it('should log error when orgService.getOrgWithSharedGist() failed', function (it_done) {
             error.orgService.getOrgWithSharedGist = 'Error: get shared gist org failed';
             cla_api.validateSharedGistItems(req, function (err) {
-                assert(log.error.calledWith(error.orgService.getOrgWithSharedGist));
+                assert(log.error.calledWithMatch(error.orgService.getOrgWithSharedGist));
                 it_done();
             });
         });

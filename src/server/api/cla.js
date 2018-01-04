@@ -91,11 +91,11 @@ function getLinkedItemsWithSharedGist(gist, done) {
     }
     repoService.getRepoWithSharedGist(gist, function (error, repos) {
         if (error) {
-            log.error(error);
+            log.error(new Error(error).stack);
         }
         orgService.getOrgWithSharedGist(gist, function (err, orgs) {
             if (err) {
-                log.error(err);
+                log.error(new Error(err).stack);
             }
             done(null, {
                 repos: repos,
@@ -111,7 +111,7 @@ function validatePullRequest(args, done) {
         if (error) {
             let logArgs = Object.assign({}, args);
             logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
-            log.error(error, logArgs);
+            log.error(new Error(error).stack, logArgs);
             return done();
         }
         if (!item.gist) {
@@ -125,7 +125,7 @@ function validatePullRequest(args, done) {
         }
         cla.isClaRequired(args, function (error, isClaRequired) {
             if (error) {
-                return log.error(error);
+                return log.error(new Error(error).stack);
             }
             if (!isClaRequired) {
                 return status.updateForClaNotRequired(args, function () {
@@ -138,7 +138,7 @@ function validatePullRequest(args, done) {
             }
             cla.check(args, function (cla_err, all_signed, user_map) {
                 if (cla_err) {
-                    log.error(cla_err);
+                    log.error(new Error(cla_err).stack);
                 }
                 args.signed = all_signed;
                 return status.update(args, function () {
@@ -401,8 +401,14 @@ let ClaApi = {
                         gist_url: item.gist
                     };
                     cla.getGist(req.args, function (e, gist) {
-                        params.gist.gist_version = gist.history[0].version;
-                        cb();
+                        if (!gist) {
+                            let error = 'No gist found' + e;
+                            log.warn(new Error(error).stack, req.args);
+                            cb(error);
+                        } else {
+                            params.gist.gist_version = gist.history[0].version;
+                            cb();
+                        }
                     });
                 });
             }
@@ -472,7 +478,7 @@ let ClaApi = {
 
         function collectData(err, res, meta) {
             if (err) {
-                log.error(err);
+                log.error(new Error(err).stack);
             }
 
             if (res && !err) {
@@ -566,14 +572,14 @@ let ClaApi = {
             }
         }, function (e, item) {
             if (e) {
-                log.error(e);
+                log.error(new Error(e).stack);
                 return done(e);
             }
             args.item = item;
             args.token = item.token;
             cla.sign(args, function (err, signed) {
                 if (err) {
-                    log.error(err);
+                    log.error(new Error(err).stack);
                     return done(err);
                 }
                 updateUsersPullRequests(args);
@@ -644,14 +650,14 @@ let ClaApi = {
                 }
             }, function (e, item) {
                 if (e) {
-                    log.error(e);
+                    log.error(new Error(e).stack);
                     return done(e);
                 }
                 req.args.item = item;
                 req.args.token = item.token;
                 cla.sign(req.args, function (err, signed) {
                     if (err) {
-                        log.error(err);
+                        log.error(new Error(err).stack);
                         return done(err);
                     }
                     updateUsersPullRequests(req.args);
@@ -701,7 +707,7 @@ let ClaApi = {
             delete req.args.org;
             cla.terminate(req.args, function (err, dbCla) {
                 if (err) {
-                    log.error(err);
+                    log.error(new Error(err).stack);
                     return done(err);
                 }
                 return done(null, dbCla);
