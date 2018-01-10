@@ -579,7 +579,9 @@ let ClaApi = {
             args.token = item.token;
             cla.sign(args, function (err, signed) {
                 if (err) {
-                    log.error(new Error(err).stack);
+                    if (!err.code || err.code != 200) {
+                        log.error(new Error(err).stack);
+                    }
                     return done(err);
                 }
                 updateUsersPullRequests(args);
