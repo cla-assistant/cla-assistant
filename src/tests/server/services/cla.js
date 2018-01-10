@@ -1382,6 +1382,19 @@ describe('cla:getGist', function () {
         });
     });
 
+    it('should extract valid gist ID considering file names in the url', function (it_done) {
+        var repo = {
+            gist: {
+                gist_url: 'url/gists/gistId#fileName',
+                gist_version: 'versionId'
+            }
+        };
+
+        cla.getGist(repo, function () {
+            it_done();
+        });
+    });
+
     it('should handle repo without gist', function (it_done) {
         var repo = {};
 
