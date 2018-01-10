@@ -11,7 +11,7 @@ spec:
         env: prod
     spec:
       containers:
-      - image: ospok8sprod.azurecr.io/cla-prod:__BUILD_BUILDID__
+      - image: ospok8spub.azurecr.io/cla-prod:__BUILD_BUILDID__
         name: cla-prod
         ports:
         - containerPort: 5000
@@ -69,7 +69,7 @@ spec:
         - name: PRE_POPULATE_USER_PULL_REQUEST
           value: 'true'
       imagePullSecrets:
-        - name: ospok8sprod.azurecr.io
+        - name: ospok8spub.azurecr.io
 ---
 apiVersion: v1
 kind: Service
