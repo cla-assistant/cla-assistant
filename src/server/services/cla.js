@@ -22,6 +22,7 @@ module.exports = function () {
         try {
             let gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
             id = gistArray[gistArray.length - 1];
+            id = id.match(/[\w\d]*/g)[0];
         } catch (ex) {
             done('The gist url "' + gist_url + '" seems to be invalid');
             return;
