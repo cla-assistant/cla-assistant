@@ -341,7 +341,7 @@ module.exports = function () {
 
     var isSignificantPullRequest = function (repo, owner, number, token) {
         if (!repo || !owner || !number) {
-            return q.reject(Error('There are NOT enough arguments for isSignificantPullRequest.'));
+            return q.reject(Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ', repo, ' Owner: ', owner, ' Number: ', number));
         }
         return getLinkedItem(repo, owner, token).then(function (item) {
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
