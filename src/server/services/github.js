@@ -5,6 +5,7 @@ let cache = require('memory-cache');
 let config = require('../../config');
 let GitHubApi = require('github');
 let stringify = require('json-stable-stringify');
+let logger = require('../services/logger');
 
 
 // let githubApi;
@@ -85,7 +86,8 @@ let githubService = {
             let meta = {};
             try {
                 meta.link = res.meta.link;
-                meta.hasMore = !!meta.link && !!github.hasNextPage(res.meta.link);
+                // meta.hasMore = !!meta.link && !!github.hasNextPage(res.meta.link);
+                meta.hasMore = !!meta.link && !!github.hasNextPage(res.meta);
                 meta.scopes = res.meta['x-oauth-scopes'];
                 if (res.meta['x-ratelimit-remaining'] < 100) {
                     setRateLimit(call.token, res.meta['x-ratelimit-reset']);
@@ -96,8 +98,13 @@ let githubService = {
                 meta = null;
             }
 
-            if (meta && meta.link && github.hasNextPage(meta.link)) {
-                github.getNextPage(meta.link, collectData);
+            if (meta && meta.link && github.hasNextPage(meta)) {
+                try {
+                    github.getNextPage(meta, collectData);
+                } catch (error) {
+                    logger.error(new Error('Could not get next page ', error).stack);
+                    done(err, data, meta);
+                }
             } else {
                 if (typeof done === 'function') {
                     done(err, data, meta);
