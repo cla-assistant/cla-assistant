@@ -390,8 +390,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var removeArgs = linkedItem.orgId ? {
                 orgId: linkedItem.orgId
             } : {
-                repoId: linkedItem.repoId
-            };
+                    repoId: linkedItem.repoId
+                };
             $RPCService.call(api, 'remove', removeArgs, function (err) {
                 if (!err) {
                     return api === 'org' ? getLinkedOrgs() : getLinkedRepos();
