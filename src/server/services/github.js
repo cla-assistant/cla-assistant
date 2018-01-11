@@ -102,7 +102,7 @@ let githubService = {
                 try {
                     github.getNextPage(meta, collectData);
                 } catch (error) {
-                    logger.error(new Error('Could not get next page ', error).stack);
+                    logger.error(new Error('Could not get next page ' + error).stack);
                     done(err, data, meta);
                 }
             } else {
