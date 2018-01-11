@@ -277,7 +277,7 @@ module.exports = function () {
         sharedGist = sharedGist === undefined ? false : sharedGist;
 
         if (!user || (!repoId && !orgId) || !gist_url || (date && !Array.isArray(date))) {
-            let error = new Error('Not provide enough arguments for getSignature()', user, userId, repoId, orgId, sharedGist, gist_url, gist_version, date);
+            let error = new Error('Not provide enough arguments for getSignature()' + ' ' + user + ' ' + userId + ' ' + repoId + ' ' + orgId + ' ' + sharedGist + ' ' + gist_url + ' ' + gist_version + ' ' + date);
             logger.error(error);
             deffered.reject(error);
         }
@@ -341,7 +341,7 @@ module.exports = function () {
 
     var isSignificantPullRequest = function (repo, owner, number, token) {
         if (!repo || !owner || !number) {
-            return q.reject(Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ', repo, ' Owner: ', owner, ' Number: ', number));
+            return q.reject(new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number));
         }
         return getLinkedItem(repo, owner, token).then(function (item) {
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
