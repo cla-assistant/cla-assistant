@@ -99,6 +99,9 @@ We're no lawyers, but we can suggest using http://contributoragreements.org/ for
 #### Who can I contact for help?
 In case of problems or any further questions, please open an issue in GitHub. We always appreciate helpful tips and support for the project.
 
+#### How can I contribute?
+You want to contribute to CLA Assistant? Welcome! Please read [here](https://github.com/cla-assistant/cla-assistant/blob/master/CONTRIBUTING.md).
+
 #### Can I whitelist bot users?
 Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a CLA, you may want to whitelist them. You can do so by importing their names (in this case `dependabot[bot]` and `greenkeeper[bot]`) in the CLA assistant dashboard.
 
