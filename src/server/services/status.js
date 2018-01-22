@@ -84,7 +84,7 @@ let createStatus = function (args, context, description, state, target_url, done
 let findStatusToBeChanged = function (args, done) {
     getStatuses(args, function (error, response) {
         let statuses = '';
-        let description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
+        let description = args.signed ? 'All CLA requirements met.' : 'Contributor License Agreement is not signed yet.';
 
         let status = {
             context: 'license/cla',

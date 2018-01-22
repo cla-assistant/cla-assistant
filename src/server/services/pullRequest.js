@@ -1,10 +1,11 @@
 let url = require('./url');
 let github = require('./github');
 let log = require('../services/logger');
+let config = require('../../config');
 
 let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     if (signed) {
-        return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have signed the CLA.';
+        return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All CLA requirements met.';
     }
 
     let committersCount = 1;
@@ -20,7 +21,7 @@ let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
             text += '<br/>:white_check_mark: ' + signee;
         });
         user_map.not_signed.forEach(function (signee) {
-            text += '<br/>:x: ' + signee;
+            text += '<br/>:x: ' + signee + ' [sign now](' + claUrl + ')';
         });
         text += '<br/>';
     }
