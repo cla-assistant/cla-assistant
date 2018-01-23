@@ -56,10 +56,6 @@ spec:
           value: msftgits
         - name: CLOSE_COMMENT
           value: 'true'
-        - name: ALWAYS_SHOW_UNSIGNED_LIST
-          value: 'true'
-        - name: CACHE_PULL_REQUESTS
-          value: 'true'
         - name: REQUIRED_SIGNEES
           value: 'submitter'
         - name: ENABLE_PRIVATE_REPOS

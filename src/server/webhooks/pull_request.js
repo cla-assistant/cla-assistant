@@ -65,7 +65,7 @@ async function updateStatusAndComment(args) {
         } else {
             await promisify(status.updateForClaNotRequired.bind(status))(args);
         }
-        if (!signed || config.server.feature_flag.close_comment !== 'true') {
+        if (!signed || !config.server.feature_flag.close_comment) {
             await promisify(pullRequest.badgeComment.bind(pullRequest))(
                 args.owner,
                 args.repo,
@@ -149,7 +149,7 @@ module.exports = function (req, res) {
 };
 
 function isRepoEnabled(repository) {
-    return repository && (repository.private === false || config.server.feature_flag.enable_private_repos === 'true');
+    return repository && (repository.private === false || config.server.feature_flag.enable_private_repos);
 }
 
 function collectMetrics(pullRequest, startTime, signed, action, isClaRequired) {
