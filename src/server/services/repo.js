@@ -171,7 +171,7 @@ module.exports = {
                     if (body.errors) {
                         logger.info(new Error(body.errors[0].message).stack);
                     }
-                    if (!data) {
+                    if (!data || !data.repository || !data.repository.pullRequest || !data.repository.pullRequest.commits || !data.repository.pullRequest.commits.edges) {
                         done('No committers found');
                         return;
                     }
