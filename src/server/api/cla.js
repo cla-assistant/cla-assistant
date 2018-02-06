@@ -16,6 +16,7 @@ let config = require('../../config');
 let User = require('mongoose').model('User');
 
 let token;
+const promisify = require('../util').promisify;
 
 function markdownRender(content, token) {
     let deferred = q.defer();
@@ -116,47 +117,44 @@ async function validatePR(args) {
         const item = await cla.getLinkedItem(args);
         args.token = item.token;
         if (!item.gist) {
-            return status.updateForNullCla(args, function () {
-                prService.deleteComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number
-                }, () => { /*do nothing*/ });
+            await promisify(status.updateForNullCla.bind(status))(args);
+            await promisify(prService.deleteComment.bind(prService))({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number
             });
+
+            return;
         }
         const isClaRequired = await cla.isClaRequired(args);
         if (!isClaRequired) {
-            return status.updateForClaNotRequired(args, function () {
-                prService.deleteComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number
-                }, () => { /*do nothing*/ });
+            await promisify(status.updateForClaNotRequired.bind(status))(args);
+            await promisify(prService.deleteComment.bind(prService))({
+                repo: args.repo,
+                owner: args.owner,
+                number: args.number
             });
-        }
-        cla.check(args, function (cla_err, all_signed, user_map) {
-            if (cla_err) {
-                log.error(cla_err.stack);
-            }
-            args.signed = all_signed;
-            var update_method = 'updateForClaNotRequired';
-            if (!user_map ||
-                (user_map.signed && user_map.signed.length > 0) ||
-                (user_map.not_signed && user_map.not_signed.length > 0) ||
-                (user_map.unknown && user_map.unknown.length > 0)
-            ) {
-                update_method = 'update';
-            }
 
-            return status[update_method](args, function () {
-                prService.editComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number,
-                    signed: args.signed,
-                    user_map: user_map
-                }, () => { /*do nothing*/ });
-            });
+            return;
+        }
+        const [all_signed, user_map] = await promisify(cla.check.bind(cla))(args);
+        args.signed = all_signed;
+        var update_method = 'updateForClaNotRequired';
+        if (!user_map ||
+            (user_map.signed && user_map.signed.length > 0) ||
+            (user_map.not_signed && user_map.not_signed.length > 0) ||
+            (user_map.unknown && user_map.unknown.length > 0)
+        ) {
+            update_method = 'update';
+        }
+
+        await promisify(status[update_method].bind(status))(args);
+        await promisify(prService.editComment.bind(prService))({
+            repo: args.repo,
+            owner: args.owner,
+            number: args.number,
+            signed: args.signed,
+            user_map: user_map
         });
     } catch (e) {
         let logArgs = Object.assign({}, args);
@@ -175,9 +173,9 @@ async function validatePR(args) {
 //      sharedGist (optional)
 // token (mandatory)
 async function updateUsersPullRequests(args) {
-    function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
-        numbers.forEach((prNumber) => {
-            validatePR({
+    async function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
+        return Promise.all(numbers.map(async (prNumber) => {
+            return validatePR({
                 repo: repo,
                 owner: owner,
                 number: prNumber,
@@ -185,13 +183,13 @@ async function updateUsersPullRequests(args) {
                 sharedGist: sharedGist,
                 token: token
             });
-        });
+        }));
     }
 
-    function prepareForValidation(item, user) {
+    async function prepareForValidation(item, user) {
         const needRemove = [];
 
-        return Promise.all(user.requests.map(async (pullRequests, index) => {
+        await Promise.all(user.requests.map(async (pullRequests, index) => {
             try {
                 const linkedItem = await cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner });
                 if (!linkedItem) {
@@ -201,22 +199,17 @@ async function updateUsersPullRequests(args) {
                 }
                 if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                     needRemove.push(index);
-                    validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
+                    await validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
                 }
-
-                return linkedItem;
             } catch (e) {
                 log.warn(e.stack);
             }
-        }).filter((promise) => {
-            return promise !== undefined;
-        })).then(() => {
-            needRemove.sort();
-            for (let i = needRemove.length - 1; i >= 0; --i) {
-                user.requests.splice(needRemove[i], 1);
-            }
-            user.save();
-        });
+        }));
+        needRemove.sort();
+        for (let i = needRemove.length - 1; i >= 0; --i) {
+            user.requests.splice(needRemove[i], 1);
+        }
+        await user.save();
     }
 
     try {

@@ -567,8 +567,9 @@ describe('', function () {
                     not_signed: []
                 });
             });
-            sinon.stub(prService, 'editComment').callsFake(function (args) {
+            sinon.stub(prService, 'editComment').callsFake(function (args, done) {
                 assert(args.user_map.signed);
+                done();
             });
 
             try {

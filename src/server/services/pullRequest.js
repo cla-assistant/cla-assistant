@@ -20,6 +20,8 @@ let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
         user_map.signed.forEach(function (signee) {
             text += '<br/>:white_check_mark: ' + signee;
         });
+    }
+    if (committersCount > 1 || config.server.feature_flag.always_show_unsigned_list) {
         user_map.not_signed.forEach(function (signee) {
             text += '<br/>:x: ' + signee + ' [sign now](' + claUrl + ')';
         });

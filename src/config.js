@@ -109,7 +109,8 @@ module.exports = {
             required_signees: process.env.REQUIRED_SIGNEES || '',
             organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
             close_comment: process.env.CLOSE_COMMENT === 'true',
-            enable_private_repos: process.env.ENABLE_PRIVATE_REPOS === 'true'
+            enable_private_repos: process.env.ENABLE_PRIVATE_REPOS === 'true',
+            always_show_unsigned_list: process.env.ALWAYS_SHOW_UNSIGNED_LIST === 'true'
         },
 
         static: [

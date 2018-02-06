@@ -19,20 +19,20 @@ let CLASchema = mongoose.Schema({
     updated_at: Date
 });
 
-let index = {
-    repo: 1,
-    repoId: 1,
-    owner: 1,
-    ownerId: 1,
-    user: 1,
-    gist_url: 1,
-    gist_version: 1,
-    org_cla: 1
-};
-let indexOptions = {
-    unique: true,
-    background: true
-};
+// let index = {
+//     repo: 1,
+//     repoId: 1,
+//     owner: 1,
+//     ownerId: 1,
+//     user: 1,
+//     gist_url: 1,
+//     gist_version: 1,
+//     org_cla: 1
+// };
+// let indexOptions = {
+//     unique: true,
+//     background: true
+// };
 
 let CLA = mongoose.model('CLA', CLASchema);
 

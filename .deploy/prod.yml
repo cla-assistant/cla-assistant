@@ -64,6 +64,8 @@ spec:
           value: '7000'
         - name: PRE_POPULATE_USER_PULL_REQUEST
           value: 'true'
+        - name: ALWAYS_SHOW_UNSIGNED_LIST
+          value: 'true'
       imagePullSecrets:
         - name: ospok8spub.azurecr.io
 ---

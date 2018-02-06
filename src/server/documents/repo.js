@@ -17,14 +17,14 @@ let RepoSchema = mongoose.Schema({
     updated_at: Date
 });
 
-let index = {
-    repoId: 1,
-    repo: 1,
-    owner: 1
-};
-let indexOptions = {
-    unique: true
-};
+// let index = {
+//     repoId: 1,
+//     repo: 1,
+//     owner: 1
+// };
+// let indexOptions = {
+//     unique: true
+// };
 
 RepoSchema.methods.isUserWhitelisted = function (user) {
     return utils.checkPatternWildcard(this.whiteListPattern, user);
