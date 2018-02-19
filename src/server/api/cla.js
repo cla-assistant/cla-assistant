@@ -34,7 +34,8 @@ function markdownRender(content, token) {
             callback_error = response && response.message ? response.message : error;
             if (callback_error) {
                 deferred.reject(callback_error);
-                return;
+
+return;
             }
         }
         if (response) {
@@ -46,7 +47,8 @@ function markdownRender(content, token) {
         }
 
     });
-    return deferred.promise;
+
+return deferred.promise;
 }
 
 function renderFiles(files, renderToken) {
@@ -55,13 +57,15 @@ function renderFiles(files, renderToken) {
     try {
         Object.keys(files).some(function (name) {
             content = name != 'metadata' ? files[name].content : content;
-            return name != 'metadata';
+
+return name != 'metadata';
         });
     } catch (e) {
         deferred.reject(e);
-        return deferred.promise;
+
+return deferred.promise;
     }
-    let metadata = files && files['metadata'] ? files['metadata'].content : undefined;
+    let metadata = files && files.metadata ? files.metadata.content : undefined;
 
     let gistContent = {};
     let contentPromise;
@@ -82,7 +86,8 @@ function renderFiles(files, renderToken) {
         function (msg) {
             deferred.reject(msg);
         });
-    return deferred.promise;
+
+return deferred.promise;
 }
 
 function getLinkedItemsWithSharedGist(gist, done) {
@@ -111,8 +116,9 @@ function validatePullRequest(args, done) {
         if (error) {
             let logArgs = Object.assign({}, args);
             logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
-            log.error(new Error(error).stack, logArgs);
-            return done();
+            log.error(error.stack, logArgs);
+
+return done();
         }
         if (!item.gist) {
             return status.updateForNullCla(args, function () {
@@ -125,7 +131,7 @@ function validatePullRequest(args, done) {
         }
         cla.isClaRequired(args, function (error, isClaRequired) {
             if (error) {
-                return log.error(new Error(error).stack);
+                return log.error(error.stack);
             }
             if (!isClaRequired) {
                 return status.updateForClaNotRequired(args, function () {
@@ -138,10 +144,11 @@ function validatePullRequest(args, done) {
             }
             cla.check(args, function (cla_err, all_signed, user_map) {
                 if (cla_err) {
-                    log.error(new Error(cla_err).stack);
+                    log.error(cla_err.stack);
                 }
                 args.signed = all_signed;
-                return status.update(args, function () {
+
+return status.update(args, function () {
                     prService.editComment({
                         repo: args.repo,
                         owner: args.owner,
@@ -165,36 +172,31 @@ function validatePullRequest(args, done) {
 //      sharedGist (optional)
 // token (mandatory)
 function updateUsersPullRequests(args) {
-    User.findOne({ name: args.user }, (err, user) => {
-        if (err || !user || !user.requests || user.requests.length < 1) {
-            let req = {
-                args: {
-                    gist: args.item.gist,
-                    token: args.token
-                }
-            };
-            if (args.item.sharedGist) {
-                return ClaApi.validateSharedGistItems(req, () => { });
-            } else if (args.item.org) {
-                req.args.org = args.item.org;
-                return ClaApi.validateOrgPullRequests(req, () => { });
-            } else {
-                req.args.repo = args.repo;
-                req.args.owner = args.owner;
-                return ClaApi.validatePullRequests(req, () => { });
-            }
-        }
-        prepareForValidation(args.item, user);
-    });
+    function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
+        numbers.forEach((prNumber) => {
+            validatePullRequest({
+                repo: repo,
+                owner: owner,
+                number: prNumber,
+                gist: gist,
+                sharedGist: sharedGist,
+                token: token
+            }, function () { /*do nothing*/ });
+        });
+    }
 
     function prepareForValidation(item, user) {
         const needRemove = [];
         async.series(user.requests.map((pullRequests, index) => {
             return function (callback) {
                 return cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner }, (err, linkedItem) => {
+                    if (err) {
+                        log.warn(err.stack);
+                    }
                     if (!linkedItem) {
                         needRemove.push(index);
-                        return callback();
+
+return callback();
                     }
                     if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                         needRemove.push(index);
@@ -212,18 +214,35 @@ function updateUsersPullRequests(args) {
         });
     }
 
-    function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
-        numbers.forEach((prNumber) => {
-            validatePullRequest({
-                repo: repo,
-                owner: owner,
-                number: prNumber,
-                gist: gist,
-                sharedGist: sharedGist,
-                token: token
-            }, function () { });
-        });
-    }
+    User.findOne({ name: args.user }, (err, user) => {
+        if (err || !user || !user.requests || user.requests.length < 1) {
+            let req = {
+                args: {
+                    gist: args.item.gist,
+                    token: args.token
+                }
+            };
+            if (args.item.sharedGist) {
+                return ClaApi.validateSharedGistItems(req, () => {
+                    // Ignore result
+                });
+            } else if (args.item.org) {
+                req.args.org = args.item.org;
+
+return ClaApi.validateOrgPullRequests(req, () => {
+                    // Ignore result
+                });
+            }
+
+            req.args.repo = args.repo;
+            req.args.owner = args.owner;
+
+return ClaApi.validatePullRequests(req, () => {
+                // Ignore result
+            });
+        }
+        prepareForValidation(args.item, user);
+    });
 }
 
 function getReposNeedToValidate(req, done) {
@@ -260,7 +279,8 @@ function getReposNeedToValidate(req, done) {
                         // The repo has a separate CLA.
                         return false;
                     }
-                    return true;
+
+return true;
                 });
                 done(null, repos);
             });
@@ -280,7 +300,8 @@ let ClaApi = {
         Joi.validate(req.args, schema, { abortEarly: false }, function (joiErr) {
             if (joiErr) {
                 joiErr.code = 400;
-                return done(joiErr);
+
+return done(joiErr);
             }
             if (req.user && req.user.token && req.args.gist) {
                 cla.getGist({
@@ -291,9 +312,10 @@ let ClaApi = {
                 let service = req.args.orgId ? orgService : repoService;
                 service.get(req.args, function (err, item) {
                     if (err || !item) {
-                        log.warn(new Error(err).stack, 'with args: ', req.args);
+                        log.warn(err.stack + 'with args: ' + req.args);
                         done(err);
-                        return;
+
+return;
                     }
                     let gist_args = {
                         gist_url: item.gist
@@ -314,13 +336,15 @@ let ClaApi = {
             log.info('args: ', req.args);
             log.info('request headers: ', req.headers);
             done('Please, provide owner and repo name or orgId');
-            return;
+
+return;
         }
         this.getGist(req, function (err, res) {
             if (err || !res) {
                 log.error(new Error(err).stack, 'with args: ', req.args);
                 done(err);
-                return;
+
+return;
             }
 
             let renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
@@ -388,7 +412,8 @@ let ClaApi = {
                     if (err || !item) {
                         cb(err + ' There is no such item');
                         log.info(err, 'There is no such item for args: ', req.args);
-                        return;
+
+return;
                     }
                     params.token = item.token;
                     params.sharedGist = item.sharedGist;
@@ -417,7 +442,8 @@ let ClaApi = {
         function count(err) {
             if (err) {
                 done(err);
-                return;
+
+return;
             }
             cla.getAll(params, function (err, clas) {
                 done(err, clas.length);
@@ -476,22 +502,6 @@ let ClaApi = {
             }
         }
 
-        function collectData(err, res, meta) {
-            if (err) {
-                log.error(new Error(err).stack);
-            }
-
-            if (res && !err) {
-                pullRequests = pullRequests.concat(res);
-            }
-
-            if (meta && meta.link && github.hasNextPage(meta.link)) {
-                github.getNextPage(meta.link, collectData);
-            } else {
-                validateData(err);
-            }
-        }
-
         function validateData(err) {
             if (pullRequests.length > 0 && !err) {
                 async.series(pullRequests.map(function (pullRequest) {
@@ -509,6 +519,22 @@ let ClaApi = {
                 }), doneIfNeed);
             } else {
                 doneIfNeed(null);
+            }
+        }
+
+        function collectData(err, res, meta) {
+            if (err) {
+                log.error(new Error(err).stack);
+            }
+
+            if (res && !err) {
+                pullRequests = pullRequests.concat(res);
+            }
+
+            if (meta && meta.link && github.hasNextPage(meta.link)) {
+                github.getNextPage(meta.link, collectData);
+            } else {
+                validateData(err);
             }
         }
 
@@ -543,7 +569,8 @@ let ClaApi = {
                     };
                     if (item.org) {
                         tmpReq.args.org = item.org;
-                        return self.validateOrgPullRequests(tmpReq, callback);
+
+return self.validateOrgPullRequests(tmpReq, callback);
                     }
                     tmpReq.args.repo = item.repo;
                     tmpReq.args.owner = item.owner;
@@ -573,7 +600,8 @@ let ClaApi = {
         }, function (e, item) {
             if (e) {
                 log.error(new Error(e).stack);
-                return done(e);
+
+return done(e);
             }
             args.item = item;
             args.token = item.token;
@@ -582,7 +610,8 @@ let ClaApi = {
                     if (!err.code || err.code != 200) {
                         log.error(new Error(err).stack);
                     }
-                    return done(err);
+
+return done(err);
                 }
                 updateUsersPullRequests(args);
                 done(null, signed);
@@ -641,7 +670,8 @@ let ClaApi = {
         Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
             if (joiErr) {
                 joiErr.code = 400;
-                return done(joiErr);
+
+return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
@@ -653,14 +683,16 @@ let ClaApi = {
             }, function (e, item) {
                 if (e) {
                     log.error(new Error(e).stack);
-                    return done(e);
+
+return done(e);
                 }
                 req.args.item = item;
                 req.args.token = item.token;
                 cla.sign(req.args, function (err, signed) {
                     if (err) {
                         log.error(new Error(err).stack);
-                        return done(err);
+
+return done(err);
                     }
                     updateUsersPullRequests(req.args);
                     // Add signature API will get a timeout error if waiting for validating pull requests.
@@ -682,7 +714,8 @@ let ClaApi = {
         Joi.validate(req.args, argsScheme, { abortEarly: false, convert: false }, function (joiErr) {
             if (joiErr) {
                 joiErr.code = 400;
-                return done(joiErr);
+
+return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
@@ -691,7 +724,6 @@ let ClaApi = {
     },
 
     terminateSignature: function (req, done) {
-        let self = this;
         let schema = Joi.object().keys({
             user: Joi.string().required(),
             userId: Joi.number().required(),
@@ -703,16 +735,19 @@ let ClaApi = {
         Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
             if (joiErr) {
                 joiErr.code = 400;
-                return done(joiErr);
+
+return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
             cla.terminate(req.args, function (err, dbCla) {
                 if (err) {
                     log.error(new Error(err).stack);
-                    return done(err);
+
+return done(err);
                 }
-                return done(null, dbCla);
+
+return done(null, dbCla);
             });
         });
     }

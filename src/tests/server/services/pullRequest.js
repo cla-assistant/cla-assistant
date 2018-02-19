@@ -1,17 +1,17 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // services
-var github = require('../../../server/services/github');
-var cla_config = require('../../../config');
+let github = require('../../../server/services/github');
+let cla_config = require('../../../config');
 
 // service under test
-var pullRequest = require('../../../server/services/pullRequest');
+let pullRequest = require('../../../server/services/pullRequest');
 
-var testDataComments_withCLAComment = [{
+let testDataComments_withCLAComment = [{
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/comments/1',
     'id': 1,
     'diff_hunk': '@@ -16,33 +16,40 @@ public class Connection : IConnection...',
@@ -101,7 +101,7 @@ var testDataComments_withCLAComment = [{
     }
 }];
 
-var testDataComments_withoutCLA = [{
+let testDataComments_withoutCLA = [{
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/comments/1',
     'id': 2,
     'diff_hunk': '@@ -16,33 +16,40 @@ public class Connection : IConnection...',
@@ -149,7 +149,7 @@ var testDataComments_withoutCLA = [{
 
 
 describe('pullRequest:badgeComment', function () {
-    var direct_call_data, assertionCallBack;
+    let direct_call_data, assertionCallBack;
     cla_config.server.github.user = 'cla-assistant';
     cla_config.server.github.pass = 'secret_pass';
 
@@ -159,7 +159,8 @@ describe('pullRequest:badgeComment', function () {
         sinon.stub(github, 'call').callsFake(function (args, git_done) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 git_done(null, direct_call_data);
-                return;
+
+return;
             }
             if (assertionCallBack) {
                 assertionCallBack(args, git_done);
@@ -301,7 +302,7 @@ describe('pullRequest:badgeComment', function () {
     });
 });
 
-describe('pullRequest:getComment', function (done) {
+describe('pullRequest:getComment', function () {
     beforeEach(function () {
         cla_config.server.github.token = 'xyz';
 
@@ -319,7 +320,7 @@ describe('pullRequest:getComment', function (done) {
 
     it('should get CLA assistant_s commment', function (it_done) {
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
@@ -337,7 +338,7 @@ describe('pullRequest:getComment', function (done) {
         sinon.stub(github, 'call').callsFake(function (arg, cb) {
             cb(null, testDataComments_withoutCLA);
         });
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
@@ -357,7 +358,7 @@ describe('pullRequest:getComment', function (done) {
                 message: 'Error'
             });
         });
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
@@ -372,7 +373,7 @@ describe('pullRequest:getComment', function (done) {
 });
 
 describe('pullRequest:editComment', function () {
-    var assertionCallBack;
+    let assertionCallBack;
     beforeEach(function () {
         cla_config.server.github.token = 'xyz';
 
@@ -380,7 +381,8 @@ describe('pullRequest:editComment', function () {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
-                return;
+
+return;
             }
             if (assertionCallBack) {
                 assertionCallBack(args, cb);
@@ -398,7 +400,7 @@ describe('pullRequest:editComment', function () {
     });
 
     it('should edit comment if not signed', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
@@ -412,7 +414,7 @@ describe('pullRequest:editComment', function () {
     });
 
     it('should write a list of signed and not signed users on edit if not signed', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
@@ -440,7 +442,7 @@ describe('pullRequest:editComment', function () {
     });
 
     it('should edit comment if signed', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
@@ -456,7 +458,7 @@ describe('pullRequest:editComment', function () {
     });
 
     it('should not fail if no callback provided', function () {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
@@ -468,7 +470,7 @@ describe('pullRequest:editComment', function () {
 });
 
 describe('pullRequest:deleteComment', function () {
-    var args = null,
+    let args = null,
         error = null,
         res = null;
 

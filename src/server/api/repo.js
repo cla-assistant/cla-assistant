@@ -24,7 +24,8 @@ module.exports = {
         Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
             if (joiError) {
                 joiError.code = 400;
-                return done(joiError);
+
+return done(joiError);
             }
             let  repoArgs = {
                 repo: req.args.repo,
@@ -87,7 +88,8 @@ module.exports = {
         Joi.validate(req.args, schema, { abortEarly: false }, function (joiError) {
             if (joiError) {
                 joiError.code = 400;
-                return done(joiError);
+
+return done(joiError);
             }
             repo.remove(req.args, function (removeRepoErr, dbRepo) {
                 if (removeRepoErr) {

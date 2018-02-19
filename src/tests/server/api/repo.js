@@ -1,24 +1,25 @@
+/*eslint no-empty-function: "off"*/
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // module
-var repo = require('../../../server/services/repo');
-var webhook = require('../../../server/api/webhook');
+let repo = require('../../../server/services/repo');
+let webhook = require('../../../server/api/webhook');
 
 //model
-var Repo = require('../../../server/documents/repo').Repo;
+let Repo = require('../../../server/documents/repo').Repo;
 
 
 // api
-var repo_api = require('../../../server/api/repo');
+let repo_api = require('../../../server/api/repo');
 
 
 describe('repo', function () {
     describe('on repo:create', function () {
-        var req, res;
+        let req, res;
         beforeEach(function () {
             req = {
                 args: {
@@ -204,7 +205,7 @@ describe('repo', function () {
     });
 
     it('should check via repo service', function (it_done) {
-        var repoStub = sinon.stub(repo, 'check').callsFake(function (args, done) {
+        let repoStub = sinon.stub(repo, 'check').callsFake(function (args, done) {
             assert.deepEqual(args, {
                 repo: 'myRepo',
                 owner: 'login'
@@ -212,7 +213,7 @@ describe('repo', function () {
             done();
         });
 
-        var req = {
+        let req = {
             args: {
                 repo: 'myRepo',
                 owner: 'login'
@@ -226,8 +227,8 @@ describe('repo', function () {
     });
 
     it('should update via repo service', function (it_done) {
-        var repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
-            var r = {
+        let repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
+            let r = {
                 owner: 'login',
                 gist: 1234,
                 save: function (cb) {
@@ -238,7 +239,7 @@ describe('repo', function () {
             done(null, r);
         });
 
-        var req = {
+        let req = {
             args: {
                 repo: 'myRepo',
                 owner: 'login',
@@ -253,8 +254,8 @@ describe('repo', function () {
     });
 
     describe('remove', function () {
-        var req = null;
-        var res = null;
+        let req = null;
+        let res = null;
         beforeEach(function () {
             req = {
                 args: {
@@ -275,7 +276,7 @@ describe('repo', function () {
                     }
                 }
             };
-            sinon.stub(repo, 'remove').callsFake(function(args, done) {
+            sinon.stub(repo, 'remove').callsFake(function (args, done) {
                 done(res.repoRemove.err, res.repoRemove.data);
             });
             sinon.stub(webhook, 'remove').callsFake(function (args, done) {
@@ -334,19 +335,20 @@ describe('repo', function () {
     it('should get all repos for user', function () {
         sinon.stub(Repo, 'find').callsFake(function (args, cb) {
             if (args.$or && args.$or[0].repoId === 123) {
-                var r = {
+                let r = {
                     owner: 'login',
                     gist: 1234,
                     repoId: 123,
                     save: function () { }
                 };
                 cb(null, [r]);
-                return;
+
+return;
             }
             cb('no repo found');
         });
 
-        var req = {
+        let req = {
             user: {
                 login: 'login'
             },

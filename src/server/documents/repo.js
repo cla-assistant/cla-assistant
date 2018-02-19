@@ -1,7 +1,8 @@
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
+let logger = require('../services/logger');
 mongoose.Promise = require('q').Promise;
 
-var RepoSchema = mongoose.Schema({
+let RepoSchema = mongoose.Schema({
     repoId: String,
     repo: String,
     owner: String,
@@ -12,16 +13,16 @@ var RepoSchema = mongoose.Schema({
     minCodeChanges: Number
 });
 
-var index = {
+let index = {
     repoId: 1,
     repo: 1,
     owner: 1
 };
-var indexOptions = {
+let indexOptions = {
     unique: true
 };
 
-var Repo = mongoose.model('Repo', RepoSchema);
+let Repo = mongoose.model('Repo', RepoSchema);
 
 Repo.collection.dropAllIndexes(function (err, results) {
     if (err) {

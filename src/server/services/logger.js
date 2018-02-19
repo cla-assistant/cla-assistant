@@ -1,12 +1,12 @@
-var raven = require('raven');
-var bunyan = require('bunyan');
-var BunyanSlack = require('bunyan-slack');
-var SentryStream = require('bunyan-sentry-stream').SentryStream;
+let raven = require('raven');
+let bunyan = require('bunyan');
+let BunyanSlack = require('bunyan-slack');
+let SentryStream = require('bunyan-sentry-stream').SentryStream;
 
-var client = new raven.Client(config.server.sentry_dsn);
-var log;
+let client = new raven.Client(config.server.sentry_dsn);
+let log;
 
-var formatter = function (record, levelName) {
+let formatter = function (record, levelName) {
     return {
         text: '[' + levelName + '] ' + record.msg + ' (source: ' + record.src.file + ' line: ' + record.src.line + ')'
     };
@@ -33,7 +33,9 @@ try {
             customFormatter: formatter
         })
     });
-} catch (e) { }
+} catch (e) {
+    log.info(e);
+}
 
 try {
     log.addStream({
@@ -42,6 +44,8 @@ try {
         type: 'raw', // Mandatory type for SentryStream
         stream: new SentryStream(client)
     });
-} catch (e) { }
+} catch (e) {
+    log.info(e);
+}
 
 module.exports = log;

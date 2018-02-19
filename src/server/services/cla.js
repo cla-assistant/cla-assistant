@@ -1,7 +1,5 @@
 // models
 require('../documents/cla');
-// require('../documents/user');
-let https = require('https');
 let q = require('q');
 let CLA = require('mongoose').model('CLA');
 
@@ -20,14 +18,15 @@ module.exports = function () {
         // let deferred = q.defer();
         let id = '';
         try {
-            let gistArray = gist_url.split('/'); // https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
+            let gistArray = gist_url.split('/'); // e.g. https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
             id = gistArray[gistArray.length - 1];
             id = id.match(/[\w\d]*/g)[0];
         } catch (ex) {
             done('The gist url "' + gist_url + '" seems to be invalid');
+
             return;
         }
-        args = {
+        let args = {
             obj: 'gists',
             fun: 'get',
             arg: {
@@ -35,43 +34,8 @@ module.exports = function () {
             },
             token: token
         };
+
         return github.call(args, done);
-        // let path = '/gists/' + id;
-
-        // path += gist_version ? '/' + gist_version : '';
-
-        // let req = {};
-        // let data = '';
-        // let options = {
-        //     hostname: config.server.github.api,
-        //     port: 443,
-        //     path: path,
-        //     method: 'GET',
-        //     headers: {
-        //         'Authorization': 'token ' + token,
-        //         'User-Agent': 'cla-assistant'
-        //     }
-        // };
-
-        // req = https.request(options, function (res) {
-        //     res.on('data', function (chunk) {
-        //         data += chunk;
-        //     });
-        //     res.on('end', function () {
-        //         try {
-        //             data = JSON.parse(data);
-        //         } catch (e) {
-        //             logger.warn(new Error(e).stack);
-        //         }
-        //         deferred.resolve(data);
-        //     });
-        // });
-
-        // req.end();
-        // req.on('error', function (e) {
-        //     deferred.reject(e);
-        // });
-        // return deferred.promise;
     };
 
     let checkAll = function (users, repoId, orgId, sharedGist, gist_url, gist_version, onDates) {
@@ -85,6 +49,7 @@ module.exports = function () {
         };
         if (!users) {
             deferred.reject('There are no users to check :( ', users, repoId, orgId, sharedGist, gist_url, gist_version, onDates);
+
             return deferred.promise;
         }
         users.forEach(function (user) {
@@ -110,6 +75,7 @@ module.exports = function () {
                 user_map: user_map
             });
         });
+
         return deferred.promise;
     };
 
@@ -127,6 +93,7 @@ module.exports = function () {
         } else if (user) {
             sharedGistCondition.user = user;
         }
+
         return sharedGistCondition;
     };
 
@@ -144,6 +111,7 @@ module.exports = function () {
                 end_at: undefined
             }]);
         });
+
         return dateConditions;
     };
 
@@ -165,13 +133,15 @@ module.exports = function () {
         };
         if (dateConditions.length === 0) {
             newQuery.$or = queries;
+
             return newQuery;
-        };
+        }
         queries.forEach(function (query) {
             dateConditions.forEach(function (date) {
                 newQuery.$or.push(Object.assign({}, query, date));
             });
         });
+
         return newQuery;
     };
 
@@ -192,6 +162,7 @@ module.exports = function () {
             }
             deferred.resolve(pullRequest);
         });
+
         return deferred.promise;
     };
 
@@ -210,20 +181,20 @@ module.exports = function () {
     //     return deferred.promise;
     // };
 
-    let getRepo = function (args, done) {
-        let deferred = q.defer();
-        repoService.get(args, function (err, repo) {
-            if (!err && repo) {
-                deferred.resolve(repo);
-            } else {
-                deferred.reject(err);
-            }
-            if (typeof done === 'function') {
-                done(err, repo);
-            }
-        });
-        return deferred.promise;
-    };
+    // let getRepo = function (args, done) {
+    //     let deferred = q.defer();
+    //     repoService.get(args, function (err, repo) {
+    //         if (!err && repo) {
+    //             deferred.resolve(repo);
+    //         } else {
+    //             deferred.reject(err);
+    //         }
+    //         if (typeof done === 'function') {
+    //             done(err, repo);
+    //         }
+    //     });
+    //     return deferred.promise;
+    // };
 
     let getLinkedItem = function (repo, owner, token) {
         let deferred = q.defer();
@@ -269,6 +240,7 @@ module.exports = function () {
                 }
             });
         }
+
         return deferred.promise;
     };
 
@@ -277,9 +249,10 @@ module.exports = function () {
         sharedGist = sharedGist === undefined ? false : sharedGist;
 
         if (!user || (!repoId && !orgId) || !gist_url || (date && !Array.isArray(date))) {
-            let error = new Error('Not provide enough arguments for getSignature()' + ' ' + user + ' ' + userId + ' ' + repoId + ' ' + orgId + ' ' + sharedGist + ' ' + gist_url + ' ' + gist_version + ' ' + date);
+            let msg = `Not provide enough arguments for getSignature() ${user} ${userId} ${repoId} ${orgId} ${sharedGist} ${gist_url} ${gist_version} ${date}`;
+            let error = new Error(msg);
             logger.error(error);
-            deffered.reject(error);
+            deferred.reject(error);
         }
         let query = {
             gist_url: gist_url,
@@ -312,6 +285,7 @@ module.exports = function () {
             }
             if (cla && cla.user !== user) {
                 cla.user = user;
+
                 return cla.save().then(function (updatedCla) {
                     deferred.resolve(updatedCla);
                 }).catch(function (err) {
@@ -320,10 +294,11 @@ module.exports = function () {
             }
             deferred.resolve(cla);
         });
+
         return deferred.promise;
     };
 
-    var getPullRequestFiles = function (repo, owner, number, token) {
+    let getPullRequestFiles = function (repo, owner, number, token) {
         return github.call({
             obj: 'pullRequests',
             fun: 'getFiles',
@@ -339,26 +314,31 @@ module.exports = function () {
         });
     };
 
-    var isSignificantPullRequest = function (repo, owner, number, token) {
+    let isSignificantPullRequest = function (repo, owner, number, token) {
         if (!repo || !owner || !number) {
             return q.reject(new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number));
         }
+
         return getLinkedItem(repo, owner, token).then(function (item) {
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
                 return true;
             }
             token = token || item.token; // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
+
             return getPullRequestFiles(repo, owner, number, token).then(function (files) {
                 if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
                     return true;
                 }
                 if (typeof item.minCodeChanges === 'number') {
-                    var sum = 0;
+                    let sum = 0;
+
                     return files.some(function (file) {
                         sum += file.changes;
+
                         return sum >= item.minCodeChanges;
                     });
                 }
+
                 return false;
             });
         });
@@ -367,7 +347,7 @@ module.exports = function () {
     claService = {
         getGist: function (args, done) {
             let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined;
-            let gist_version = args.gist ? args.gist.gist_version : undefined;
+            // let gist_version = args.gist ? args.gist.gist_version : undefined;
 
             getGistObject(gist_url, args.token, done);
         },
@@ -386,15 +366,18 @@ module.exports = function () {
                 if (!item.gist) {
                     return 'null-cla';
                 }
+
                 return getGistObject(args.gist, item.token).then(function (gist) {
                     args.gist_version = gist.data.history[0].version;
                     args.onDates = [new Date()];
                     if (args.number) {
                         return getPR(args.owner, args.repo, args.number, item.token).then(function (pullRequest) {
                             args.onDates.push(new Date(pullRequest.created_at));
+
                             return args;
                         });
                     }
+
                     return args;
                 }).then(function (args) {
                     return getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (cla) {
@@ -418,6 +401,7 @@ module.exports = function () {
          */
         checkUserSignature: function (args, done) {
             let self = this;
+
             return self.getLastSignature(args, function (error, cla) {
                 done(error, { signed: !!cla });
             });
@@ -442,8 +426,10 @@ module.exports = function () {
                         signed: true
                     });
                 }
+
                 return getGistObject(args.gist, item.token).then(function (gist) {
                     args.gist_version = gist.data.history[0].version;
+
                     return getPR(args.owner, args.repo, args.number, item.token).then(pullRequest => {
                         args.onDates.push(new Date(pullRequest.created_at));
                         const signees = [];
@@ -453,6 +439,7 @@ module.exports = function () {
                                 id: pullRequest.user.id
                             });
                         }
+
                         return q(signees);
                     }).then(signees => {
                         const deferred = q.defer();
@@ -469,6 +456,7 @@ module.exports = function () {
                         } else {
                             deferred.resolve(signees);
                         }
+
                         return deferred.promise;
                     }).then(signees => {
                         return checkAll(signees, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
@@ -491,22 +479,25 @@ module.exports = function () {
                 return self.checkPullRequestSignatures(args, function (error, result) {
                     done(error, result.signed, result.user_map);
                 });
-            } else {
-                return done('A user or a pull request number is required.');
             }
+
+            return done(new Error('A user or a pull request number is required.'));
         },
 
         sign: function (args, done) {
             let self = this;
+
             return getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
                 if (!item.gist) {
                     let nullClaErr = new Error('The repository don\'t need to sign a CLA because it has a null CLA.');
                     nullClaErr.code = 200;
                     throw nullClaErr;
                 }
+
                 return getGistObject(item.gist, item.token).then(function (gist) {
                     let onDates = [new Date()];
                     let currentVersion = gist.data.history[0].version;
+
                     return getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates).then(function (cla) {
                         if (cla) {
                             let signedErr = new Error('You\'ve already signed the cla');
@@ -616,6 +607,7 @@ module.exports = function () {
         getAll: function (args, done) {
             if (!args.gist || !args.gist.gist_url || (!args.repoId && !args.orgId)) {
                 done('Wrong arguments, gist url or repo id are missing');
+
                 return;
             }
             let selection = {
@@ -647,14 +639,17 @@ module.exports = function () {
                 CLA.find(selection, {}, options, function (err, clas) {
                     if (err || !clas) {
                         done(err);
+
                         return;
                     }
                     let foundSigners = [];
                     let distinctClas = clas.filter(function (cla) {
                         if (foundSigners.indexOf(cla.userId) < 0) {
                             foundSigners.push(cla.userId);
+
                             return true;
                         }
+
                         return false;
                     });
                     done(null, distinctClas);
@@ -690,10 +685,12 @@ module.exports = function () {
                     nullClaErr.code = 200;
                     throw nullClaErr;
                 }
+
                 return getGistObject(item.gist, item.token).then(function (gist) {
                     let endDate = new Date(args.endDate);
                     let onDates = [endDate];
                     let currentVersion = gist.data.history[0].version;
+
                     return getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates).then(function (cla) {
                         if (!cla) {
                             let noRecordErr = new Error('No valid cla record');
@@ -701,6 +698,7 @@ module.exports = function () {
                             throw noRecordErr;
                         }
                         cla.end_at = endDate;
+
                         return cla.save().then(function (dbCla) {
                             done(null, dbCla);
                         });
@@ -717,5 +715,6 @@ module.exports = function () {
             }).catch(done);
         }
     };
+
     return claService;
 }();

@@ -53,10 +53,11 @@
         "x-frame-options": "^1.0.0"
     },
     "devDependencies": {
+        "eslint": "^4.17.0",
         "grunt": "^1.0.1",
         "grunt-cli": "^1.2.0",
         "grunt-contrib-jshint": "^1.1.0",
-        "grunt-contrib-uglify": "^3.2.1",
+        "grunt-contrib-uglify": "^3.3.0",
         "grunt-contrib-watch": "^1.0.0",
         "grunt-coveralls": "1.0.1",
         "grunt-eslint": "^20.1.0",

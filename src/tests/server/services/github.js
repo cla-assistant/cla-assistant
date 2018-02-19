@@ -1,20 +1,20 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var rewire = require('rewire');
-var assert = require('assert');
-var sinon = require('sinon');
+let rewire = require('rewire');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // config
 global.config = require('../../../config');
 
 // service
-var github = rewire('../../../server/services/github');
-var cache = require('memory-cache');
+let github = rewire('../../../server/services/github');
+let cache = require('memory-cache');
 
-var callStub = sinon.stub();
-var authenticateStub = sinon.stub();
-var getNextPageStub = sinon.stub();
+let callStub = sinon.stub();
+let authenticateStub = sinon.stub();
+let getNextPageStub = sinon.stub();
 
 describe('github:call', function () {
     function GitHubApiMock(args) {
@@ -186,7 +186,7 @@ describe('github:call', function () {
     });
 
     it('should set and delete RateLimit-Reset timer', function (it_done) {
-        var resetTime = Math.floor((Date.now() + 1000) / 1000);
+        let resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
             data: {},
             meta: {
@@ -210,7 +210,7 @@ describe('github:call', function () {
         });
     });
     it('should set RateLimit-Reset timer only if there are less than 100 calls allowed', function (it_done) {
-        var resetTime = Math.floor((Date.now() + 1000) / 1000);
+        let resetTime = Math.floor((Date.now() + 1000) / 1000);
         callStub.yields(null, {
             data: {},
             meta: {
@@ -233,7 +233,7 @@ describe('github:call', function () {
 
     it('should call github with delay if there is RateLimit-Reset set for the token', function (it_done) {
         github.resetList.abc = Date.now() + 1000;
-        var githubCalledBack = false;
+        let githubCalledBack = false;
 
         callStub.yields(null, { data: {}, meta: {} });
         this.timeout(1050);
@@ -241,7 +241,7 @@ describe('github:call', function () {
             obj: 'obj',
             fun: 'fun',
             token: 'abc'
-        }, function (err, res) {
+        }, function () {
             githubCalledBack = true;
         });
         setTimeout(function () {

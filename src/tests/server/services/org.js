@@ -1,17 +1,17 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 //model
-var Org = require('../../../server/documents/org').Org;
+let Org = require('../../../server/documents/org').Org;
 
 // service under test
-var org = require('../../../server/services/org');
+let org = require('../../../server/services/org');
 
 // test data
-var testData = require('../testData').data;
+let testData = require('../testData').data;
 
 describe('org:create', function () {
     afterEach(function () {
@@ -28,7 +28,7 @@ describe('org:create', function () {
             });
         });
 
-        var arg = {
+        let arg = {
             org: testData.orgs[0].login,
             orgId: testData.orgs[0].id,
             gist: 'url/gistId',
@@ -54,7 +54,7 @@ describe('org:get', function () {
             });
         });
 
-        var args = {
+        let args = {
             orgId: testData.orgs[0].id,
             org: testData.orgs[0].login,
         };
@@ -74,7 +74,7 @@ describe('org:getMultiple', function () {
             done(null, [{}, {}]);
         });
 
-        var args = {
+        let args = {
             orgId: [1, 2]
         };
 
@@ -99,7 +99,7 @@ describe('org:remove', function () {
     });
 
     it('should find org entry ', function(it_done) {
-        var args = {
+        let args = {
             orgId: testData.orgs[0].id,
             org: testData.orgs[0].login,
         };

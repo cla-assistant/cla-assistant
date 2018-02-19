@@ -5,8 +5,7 @@ let pullRequest = require('../services/pullRequest');
 let status = require('../services/status');
 let cla = require('../services/cla');
 let repoService = require('../services/repo');
-let orgService = require('../services/org');
-let log = require('../services/logger');
+let logger = require('../services/logger');
 let config = require('../../config');
 let User = require('mongoose').model('User');
 
@@ -18,20 +17,25 @@ let User = require('mongoose').model('User');
 function storeRequest(committers, repo, owner, number) {
     committers.forEach(function (committer) {
         User.findOne({ name: committer }, (err, user) => {
+            if (err) {
+                logger.warn(err.stack);
+            }
             let pullRequest = { repo: repo, owner: owner, numbers: [number] };
             if (!user) {
-                User.create({ name: committer, requests: [pullRequest] }, (err, user) => {
-                    if (err) {
-                        log.warn(new Error(err).stack);
+                User.create({ name: committer, requests: [pullRequest] }, (error) => {
+                    if (error) {
+                        logger.warn(error.stack);
                     }
                 });
-                return;
+
+return;
             }
             if (!user.requests || user.requests.length < 1) {
                 user.requests = user.requests ? user.requests : [];
                 user.requests.push(pullRequest);
                 user.save();
-                return;
+
+return;
             }
             let repoPullRequests = user.requests.find((request) => {
                 return request.repo === repo && request.owner === owner;
@@ -53,7 +57,7 @@ function updateStatusAndComment(args) {
         if (!err && committers && committers.length > 0) {
             cla.check(args, function (error, signed, user_map) {
                 if (error) {
-                    log.warn(new Error(error).stack);
+                    logger.warn(new Error(error).stack);
                 }
                 args.signed = signed;
                 status.update(args);
@@ -77,16 +81,16 @@ function updateStatusAndComment(args) {
                     updateStatusAndComment(args);
                 }, 10000 * args.handleCount * args.handleDelay);
             } else {
-                log.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
+                logger.warn(new Error(err).stack, 'PR committers: ', committers, 'called with args: ', args);
             }
         }
     });
-};
+}
 
 function handleWebHook(args) {
     cla.isClaRequired(args, function (error, isClaRequired) {
         if (error) {
-            return log.error(error);
+            return logger.error(error);
         }
         if (!isClaRequired) {
             status.updateForClaNotRequired(args);
@@ -95,7 +99,8 @@ function handleWebHook(args) {
                 owner: args.owner,
                 number: args.number
             });
-            return;
+
+return;
         }
         updateStatusAndComment(args);
     });
@@ -104,6 +109,7 @@ function handleWebHook(args) {
 module.exports = function (req, res) {
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
+            // eslint-disable-next-line no-console
             console.log('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
         }
         let args = {
@@ -118,6 +124,9 @@ module.exports = function (req, res) {
 
         setTimeout(function () {
             cla.getLinkedItem(args, function (err, item) {
+                if (err) {
+                    logger.warn(err);
+                }
                 if (!item) {
                     return;
                 }
@@ -131,7 +140,8 @@ module.exports = function (req, res) {
                 if (item.repoId) {
                     args.orgId = undefined;
                 }
-                return handleWebHook(args);
+
+return handleWebHook(args);
             });
         }, config.server.github.enforceDelay);
     }

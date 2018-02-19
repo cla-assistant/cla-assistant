@@ -1,12 +1,13 @@
+/* eslint no-console: "off"*/
 require('colors');
-var async = require('async');
-var express = require('express');
-var glob = require('glob');
-var merge = require('merge');
-var passport = require('passport');
-var path = require('path');
-var sass_middleware = require('node-sass-middleware');
-var cleanup = require('./middleware/cleanup');
+let async = require('async');
+let express = require('express');
+let glob = require('glob');
+let merge = require('merge');
+let passport = require('passport');
+let path = require('path');
+let sass_middleware = require('node-sass-middleware');
+let cleanup = require('./middleware/cleanup');
 // var sass_middleware = require('node-sass-middleware');
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,17 +20,18 @@ global.config = require('./../config');
 // Express application
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-var app = express();
-var api = {};
-var webhooks = {};
+let app = express();
+let api = {};
+let webhooks = {};
 
 // redirect from http to https
 app.use(function (req, res, next) {
     if (!req.headers['x-forwarded-proto'] || req.headers['x-forwarded-proto'] === 'https') {
         next();
-        return;
+
+return;
     }
-    var host = req.headers['x-forwarded-host'] || req.headers.host;
+    let host = req.headers['x-forwarded-host'] || req.headers.host;
 
     res.setHeader('location', 'https://' + host + req.url);
     res.statusCode = 301;
@@ -39,8 +41,8 @@ app.use(function (req, res, next) {
 app.use(require('x-frame-options')());
 app.use(require('body-parser').json({ limit: '5mb' }));
 app.use(require('cookie-parser')());
-var expressSession = require('express-session');
-var MongoStore = require('connect-mongo')(expressSession);
+let expressSession = require('express-session');
+let MongoStore = require('connect-mongo')(expressSession);
 
 // custom mrepodleware
 app.use('/api', require('./middleware/param'));
@@ -53,7 +55,7 @@ app.use('/count', require('./middleware/param'));
 //     log.info('app error: ', err.stack);
 // });
 
-var bootstrap = function (files, callback) {
+let bootstrap = function (files, callback) {
     console.log('bootstrap'.bold, files.bold);
 
     async.eachSeries(config.server[files], function (p, cb) {
@@ -82,7 +84,8 @@ var bootstrap = function (files, callback) {
                     } catch (ex) {
                         console.log('✖ '.bold.red + path.relative(process.cwd(), f));
                         console.log(ex.stack);
-                        return;
+
+return;
                     }
                     console.log('✓ '.bold.green + path.relative(process.cwd(), f));
                 });
@@ -107,7 +110,7 @@ async.series([
 
         console.log('✓ '.bold.green + 'configs seem ok');
 
-        var url = require('./services/url');
+        let url = require('./services/url');
 
         console.log('Host:        ' + url.baseUrl);
         console.log('GitHub:      ' + url.githubBase);
@@ -135,7 +138,7 @@ async.series([
     // ////////////////////////////////////////////////////////////////////////////////////////////
 
     function (callback) {
-        var mongoose = require('mongoose');
+        let mongoose = require('mongoose');
 
         mongoose.connect(config.server.mongodb.uri, {
             useMongoClient: true,
@@ -185,7 +188,7 @@ async.series([
     if (err) {
         console.log('! '.yellow + err);
     }
-    var log = require('./services/logger');
+    let log = require('./services/logger');
 
     console.log('\n✓ '.bold.green + 'bootstrapped, '.bold + 'app listening on ' + config.server.http.host + ':' + config.server.localport);
     log.info('✓ bootstrapped !!! App listening on ' + config.server.http.host + ':' + config.server.http.port);
@@ -218,7 +221,7 @@ app.all('/api/:obj/:fun', function (req, res) {
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.all('/github/webhook/:repo', function (req, res) {
-    var event = req.headers['x-github-event'];
+    let event = req.headers['x-github-event'];
     try {
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event');

@@ -8,13 +8,12 @@
 var isInArray = function (item, items) {
     function check(linkedItem) {
         if (!item.full_name) {
-            // The item is an org
-            return linkedItem.org === item.login;
-        } else {
-            // The item is a repo
-            return linkedItem.repo === item.name && linkedItem.owner === item.owner.login;
+            return linkedItem.org === item.login; // The item is an org
         }
+
+        return linkedItem.repo === item.name && linkedItem.owner === item.owner.login; // The item is a repo
     }
+
     return items.some(check);
 };
 
@@ -56,6 +55,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.orgs.some(function (org) {
                 if (org.id == claOrg.orgId) {
                     claOrg.avatarUrl = org.avatarUrl;
+
                     return true;
                 }
             });
@@ -63,6 +63,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         var getLinkedOrgs = function () {
             $scope.claOrgs = [];
+
             return $RPCService.call('org', 'getForUser', {}).then(function (data) {
                 if (data && data.value) {
                     data.value.forEach(function (org) {
@@ -77,9 +78,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.repos.some(function (repo) {
                 if (claRepo.repo === repo.name && claRepo.owner === repo.owner.login) {
                     claRepo.fork = repo.fork;
+
                     return true;
                 }
             });
+
             return claRepo;
         };
 
@@ -90,6 +93,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     repoId: repo.id
                 });
             });
+
             return $RPCService.call('repo', 'getAll', {
                 set: repoSet
             }).then(function (data) {
@@ -97,6 +101,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     return;
                 }
                 $scope.claRepos = data.value;
+                // eslint-disable-next-line no-unused-vars
                 $scope.claRepos.forEach(function (claRepo) {
                     claRepo = mixRepoData(claRepo);
                 });
@@ -166,8 +171,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var deferred = $q.defer();
             if (!$scope.user.value.org_admin) {
                 deferred.resolve();
+
                 return deferred.promise;
             }
+
             return $RPCService.call('org', 'getGHOrgsForUser').then(function (res) {
                 if (res && res.value) {
                     $scope.orgs = res.value;
@@ -281,6 +288,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             promise.then(function (data) {
                 $scope.defaultClas = data['default-cla'];
             });
+
             return promise;
         };
 
@@ -325,6 +333,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             var valid = false;
             // valid = value ? !!value.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)\/[a-zA-Z0-9]*$/) : false;
             valid = gist ? !!gist.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
+
             return valid;
         };
 
@@ -339,11 +348,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         var linkItem = function (obj, item) {
             var linkedArray = obj === 'org' ? $scope.claOrgs : $scope.claRepos;
             item.active = false;
+
             return $RPCService.call(obj, 'create', item, function (err, data) {
                 if (err && err.errmsg.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 } else if (err || !data.value) {
-                    err && err.errmsg ? showErrorMessage(err.errmsg) : null;
+                    if (err && err.errmsg) {
+                        showErrorMessage(err.errmsg);
+                    }
                     deleteFromArray(item, linkedArray);
                 } else {
                     item.active = true;
@@ -364,6 +376,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 minCodeChanges: $scope.selected.minCodeChanges
             };
             newClaRepo = mixRepoData(newClaRepo);
+
             return linkItem('repo', newClaRepo);
         };
 
@@ -378,6 +391,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 minCodeChanges: $scope.selected.minCodeChanges
             };
             mixOrgData(newClaOrg);
+
             return linkItem('org', newClaOrg);
         };
 
@@ -409,6 +423,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $scope.defaultClas.some(function (defCla) {
                 if (gist.url === defCla.url) {
                     found = true;
+
                     return found;
                 }
             });
@@ -448,7 +463,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             clearGistSelection(item);
         };
 
-        $scope.$watch('selected.item', function (newValue, oldValue) {
+        $scope.$watch('selected.item', function (newValue) {
             handleNullCla(newValue);
         });
 
@@ -476,12 +491,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             },
             link: function (scope, element) {
                 var children = element.children();
-                var start = function () {
+                function start() {
                     $timeout(function () {
                         scope.active = scope.active + 1 === children.length ? 0 : scope.active + 1;
                         start();
                     }, scope.time);
-                };
+                }
 
                 start();
             }
@@ -502,6 +517,7 @@ filters.filter('notIn', function () {
                 notMatched.push(item);
             }
         });
+
         return notMatched;
     };
 });

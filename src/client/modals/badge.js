@@ -26,28 +26,28 @@ module.controller('BadgeCtrl', function ($scope, $modalInstance, $window, repo) 
         $modalInstance.dismiss('cancel');
     };
 })
-// copied from https://github.com/sachinchoolur/ngclipboard/blob/master/src/ngclipboard.js
-.directive('ngClipboard', function(){
-    return {
-        restrict: 'A',
-        scope: {
-            ngClipboardSuccess: '&',
-            ngClipboardError: '&'
-        },
-        link: function(scope, element) {
-            var clipboard = new Clipboard(element[0]);
+    // copied from https://github.com/sachinchoolur/ngclipboard/blob/master/src/ngclipboard.js
+    .directive('ngClipboard', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                ngClipboardSuccess: '&',
+                ngClipboardError: '&'
+            },
+            link: function (scope, element) {
+                var clipboard = new Clipboard(element[0]);
 
-            clipboard.on('success', function(e) {
-                scope.ngClipboardSuccess({
-                    e: e
+                clipboard.on('success', function (e) {
+                    scope.ngClipboardSuccess({
+                        e: e
+                    });
                 });
-            });
 
-            clipboard.on('error', function(e) {
-                scope.ngClipboardError({
-                    e: e
+                clipboard.on('error', function (e) {
+                    scope.ngClipboardError({
+                        e: e
+                    });
                 });
-            });
-        }
-    };
-});
+            }
+        };
+    });

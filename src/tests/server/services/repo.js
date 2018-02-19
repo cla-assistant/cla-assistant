@@ -1,23 +1,24 @@
+/*eslint no-unused-expressions: "off", no-empty-function: "off"*/
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 //model
-var Repo = require('../../../server/documents/repo').Repo;
+let Repo = require('../../../server/documents/repo').Repo;
 
 //services
-var github = require('../../../server/services/github');
-var orgService = require('../../../server/services/org');
-var logger = require('../../../server/services/logger');
+let github = require('../../../server/services/github');
+let orgService = require('../../../server/services/org');
+let logger = require('../../../server/services/logger');
 let queries = require('../../../server/graphQueries/github');
 
 // service under test
-var repo = require('../../../server/services/repo');
+let repo = require('../../../server/services/repo');
 
 // test data
-var testData = require('../testData').data;
+let testData = require('../testData').data;
 
 describe('repo:create', function () {
     afterEach(function () {
@@ -35,7 +36,7 @@ describe('repo:create', function () {
             });
         });
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             user: 'login',
             owner: 'owner',
@@ -63,7 +64,7 @@ describe('repo:check', function () {
             done(null, {});
         });
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner'
         };
@@ -83,7 +84,7 @@ describe('repo:check', function () {
             done(null, {});
         });
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             repoId: 123
@@ -97,7 +98,7 @@ describe('repo:check', function () {
 });
 
 describe('repo:get', function () {
-    var response = {};
+    let response = {};
     afterEach(function () {
         Repo.findOne.restore();
     });
@@ -128,8 +129,8 @@ describe('repo:get', function () {
 });
 
 describe('repo:getAll', function () {
-    var arg;
-    var response;
+    let arg;
+    let response;
     beforeEach(function () {
         sinon.stub(Repo, 'find').callsFake(function (args, done) {
             assert(args.$or[0].repoId);
@@ -178,7 +179,7 @@ describe('repo:getAll', function () {
 });
 
 describe('repo:getPRCommitters', function () {
-    var test_repo, test_org, githubCallGraphqlRes, pagesNumber = 1;
+    let test_repo, test_org, githubCallGraphqlRes, pagesNumber = 1;
 
     beforeEach(function () {
         test_repo = {
@@ -243,7 +244,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should get committer for a pull request', function (it_done) {
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -262,7 +263,7 @@ describe('repo:getPRCommitters', function () {
 
     it('should get all committers of a pull request with more than 250 commits from the forked repo', function (it_done) {
         pagesNumber = 2;
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -306,7 +307,7 @@ describe('repo:getPRCommitters', function () {
     // });
 
     it('should get author of commit if committer is a github bot', function (it_done) {
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -327,7 +328,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should get author of commit if committer is another github bot', function (it_done) {
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -349,7 +350,7 @@ describe('repo:getPRCommitters', function () {
     });
 
     it('should get list of committers for a pull request', function (it_done) {
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -373,7 +374,7 @@ describe('repo:getPRCommitters', function () {
         githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.author.user = null;
         githubCallGraphqlRes.getPRCommitters.body.data.repository.pullRequest.commits.edges[0].node.commit.author.name = 'Unknown User';
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -394,7 +395,7 @@ describe('repo:getPRCommitters', function () {
             message: 'Any Error message'
         };
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -415,12 +416,12 @@ describe('repo:getPRCommitters', function () {
             data: null,
             errors: [
                 {
-                    message: "Field 'names' doesn't exist on type 'Organization'",
+                    message: `Field 'names' doesn't exist on type 'Organization'`, // eslint-disable-line quotes
                 }
             ]
         };
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -440,7 +441,7 @@ describe('repo:getPRCommitters', function () {
     it('should handle call error', function (it_done) {
         githubCallGraphqlRes.getPRCommitters.err = 'Any error';
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -489,7 +490,7 @@ describe('repo:getPRCommitters', function () {
         test_org = {
             token: 'abc'
         };
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1',
@@ -514,7 +515,7 @@ describe('repo:getPRCommitters', function () {
     it('should handle request for not linked repos and orgs', function (it_done) {
         test_repo = null;
 
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -548,7 +549,7 @@ describe('repo:getPRCommitters', function () {
                 id: 1
             });
         });
-        var arg = {
+        let arg = {
             repo: 'myRepo',
             owner: 'owner',
             repoId: 1,
@@ -569,7 +570,7 @@ describe('repo:getPRCommitters', function () {
 });
 
 describe('repo:getUserRepos', function () {
-    var githubCallRes, repoFindRes, assertFunction;
+    let githubCallRes, repoFindRes, assertFunction;
 
     beforeEach(function () {
         githubCallRes = {
@@ -760,7 +761,7 @@ describe('repo:getUserRepos', function () {
 });
 
 describe('repo:getGHRepo', function () {
-    var githubCallRes;
+    let githubCallRes;
 
     beforeEach(function () {
         githubCallRes = {
@@ -778,7 +779,7 @@ describe('repo:getGHRepo', function () {
     });
 
     it('should return gitHub repo data', function (it_done) {
-        var args = {
+        let args = {
             owner: 'octocat',
             repo: 'Hello-World',
             token: '123'

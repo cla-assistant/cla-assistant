@@ -1,14 +1,14 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // api
-var github_api = require('../../../server/api/github');
+let github_api = require('../../../server/api/github');
 
 // module
-var github = require('../../../server/services/github');
+let github = require('../../../server/services/github');
 
 describe('github:call', function () {
     beforeEach(function () {
@@ -25,7 +25,7 @@ describe('github:call', function () {
     it('should call github service with user token', function (it_done) {
 
 
-        var req = { user: { id: 1, login: 'login', token: 'abc' }, args: { obj: 'gists', fun: 'get' } };
+        let req = { user: { id: 1, login: 'login', token: 'abc' }, args: { obj: 'gists', fun: 'get' } };
 
         github_api.call(req, function () {
             it_done();

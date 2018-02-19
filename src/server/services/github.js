@@ -19,7 +19,7 @@ function callGithub(github, obj, fun, arg, stringArgs, done) {
             cachedRes.data.meta = cachedRes.meta;
         }
         done(null, cachedRes.data);
-        // cacheHitCount++;
+
         return;
     }
     github[obj][fun](arg, function (err, res) {
@@ -42,6 +42,7 @@ function concatData(collection, chunk) {
         collection = collection ? collection : chunk instanceof Array ? [] : {};
         collection = chunk instanceof Array ? collection.concat(chunk) : chunk;
     }
+
     return collection;
 }
 
@@ -53,6 +54,7 @@ function newGithubApi() {
         host: config.server.github.api,
         pathPrefix: config.server.github.enterprise ? '/api/v3' : null
     });
+
     return githubApi;
 }
 
@@ -125,11 +127,13 @@ let githubService = {
 
         if (!obj || !github[obj]) {
             reject('obj required/obj not found');
+
             return deferred.promise;
         }
 
         if (!fun || !github[obj][fun]) {
             reject('fun required/fun not found');
+
             return deferred.promise;
         }
 
@@ -157,11 +161,13 @@ let githubService = {
 
     hasNextPage: function (link) {
         let github = newGithubApi();
+
         return github.hasNextPage(link);
     },
 
     getNextPage: function (link, cb) {
         let github = newGithubApi();
+
         return github.getNextPage(link, cb);
     },
 
@@ -187,13 +193,16 @@ let githubService = {
 
 function getRateLimitTime(token) {
     let remainingTime = githubService.resetList[token] ? githubService.resetList[token] - Date.now() : 0;
+
     return Math.max(remainingTime, 0);
 }
 
 function removeRateLimit(token) {
     try {
         delete githubService.resetList[token];
-    } catch (e) { }
+    } catch (e) {
+        logger.debug(e.stack);
+    }
 }
 
 function setRateLimit(token, limit) {

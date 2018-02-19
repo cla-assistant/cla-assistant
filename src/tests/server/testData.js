@@ -1,4 +1,4 @@
-var testData = {
+let testData = {
     ////////////////////////////////////////////
     /////////////////// ORG ////////////////////
     ////////////////////////////////////////////
@@ -86,8 +86,10 @@ var testData = {
         'org': 'octocat',
         'token': 'testToken',
         'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
-        'isRepoExcluded': function () {
+        'isRepoExcluded'() {
+
             return false;
+
         }
     },
     'org_from_db_with_excluded_patterns': {
@@ -774,7 +776,7 @@ var testData = {
                 'raw_url': 'https://gist.githubusercontent.com/KharitonOff/96ef0a16f11c8f11b41c/raw/e226bc4d854a1ffbbb4060138a673ed93ba16f45/meta',
                 'size': 424,
                 'truncated': false,
-                'content': '{\n    \"name\": {\n            \"type\": \"string\",\n            \"githubKey\": \"name\"\n        },\n        \"email\": {\n            \"type\": \"string\",\n            \"githubKey\": \"email\"\n        },\n        \"age\": {\n            \"description\": \"Age in years\",\n            \"type\": \"integer\",\n            \"minimum\": 0\n        }\n}'
+                'content': '{"name": {"type": "string", "githubKey": "name"},"email": { "type": "string", "githubKey": "email"},"age": { "description": "Age in years", "type": "integer", "minimum": 0}}'
             },
             'ring.erl': {
                 'size': 932,
