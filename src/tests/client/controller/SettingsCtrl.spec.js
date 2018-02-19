@@ -1,11 +1,11 @@
-/*jshiint expr:true*/
+/*eslint no-unused-expressions: "off"*/
 /*global angular, sinon, describe, xit, it, beforeEach, afterEach*/
 
 describe('Settings Controller', function () {
 
     var scope, httpBackend, createCtrl, settingsCtrl, stateParams, modal, RPC, HUB, calledApi, $timeout;
-    var testResp = {cla: {}, repo: {}, webhook: {}};
-    var testErr = {cla: {}, repo: {}, webhook: {}};
+    var testResp = { cla: {}, repo: {}, webhook: {} };
+    var testErr = { cla: {}, repo: {}, webhook: {} };
 
     var testGistData = {
         'url': 'https://api.github.com/gists/10a5479e1ab38ec63566',
@@ -92,6 +92,7 @@ describe('Settings Controller', function () {
             var error = testErr[obj] && testErr[obj][fun] ? testErr[obj][fun] : null;
             if (error) {
                 cb(error);
+
                 return response;
             }
 
@@ -100,7 +101,7 @@ describe('Settings Controller', function () {
                 (!args.orgId && !args.repoId).should.be.equal(false);
 
                 (args.gist.gist_url).should.be.equal(scope.item.gist);
-                var resp = args.gist.gist_version ? [{user: 'login' }] : [{
+                var resp = args.gist.gist_version ? [{ user: 'login' }] : [{
                     user: 'login'
                 }, {
                     user: 'user2'
@@ -116,9 +117,9 @@ describe('Settings Controller', function () {
 
                 response.value = testResp.cla.getGist || testGistData;
             } else if (obj === 'webhook' && fun === 'get') {
-                response.value = testResp.webhook.get || {active: true};
+                response.value = testResp.webhook.get || { active: true };
             } else if (obj === 'webhook' && fun === 'create') {
-                response.value = testResp.webhook.create || {active: true};
+                response.value = testResp.webhook.create || { active: true };
             } else {
                 return originalRPCCall(obj, fun, args, cb);
             }
@@ -126,6 +127,7 @@ describe('Settings Controller', function () {
             if (typeof cb === 'function') {
                 cb(error, response);
             }
+
             return response;
         });
 
@@ -136,12 +138,14 @@ describe('Settings Controller', function () {
             var error = testErr[obj] && testErr[obj][fun] ? testErr[obj][fun] : null;
             if (error) {
                 cb(error);
+
                 return response;
             }
 
             if (typeof cb === 'function') {
                 cb(error, response);
             }
+
             return response;
         });
 
@@ -167,8 +171,8 @@ describe('Settings Controller', function () {
     afterEach(function () {
         RPC.call.restore();
         HUB.call.restore();
-        testErr = {cla: {}, repo: {}, webhook: {}};
-        testResp = {cla: {}, repo: {}, webhook: {}};
+        testErr = { cla: {}, repo: {}, webhook: {} };
+        testResp = { cla: {}, repo: {}, webhook: {} };
     });
 
     describe('normaly', function () {
@@ -318,14 +322,15 @@ describe('Settings Controller', function () {
             (settingsCtrl.scope.gist.id).should.be.equal('gistId');
         });
 
-        describe('on getSignatures', function(){
+        describe('on getSignatures', function () {
             it('should get data for linked org', function (it_done) {
                 scope.item.repoId = undefined;
                 scope.item.orgId = 1;
 
                 testResp.cla.getAll = undefined;
 
-                settingsCtrl.scope.getSignatures(scope.item, 1, function(err, signatures){
+                settingsCtrl.scope.getSignatures(scope.item, 1, function (err, signatures) {
+                    (err === null).should.be.true;
                     (calledApi.RPC.cla.getAll).should.be.equal(true);
                     (signatures.value.length).should.be.equal(1);
                     it_done();
@@ -339,7 +344,8 @@ describe('Settings Controller', function () {
                 };
                 testResp.cla.getAll = undefined;
 
-                settingsCtrl.scope.getSignatures(args, 1, function(err, signatures){
+                settingsCtrl.scope.getSignatures(args, 1, function (err, signatures) {
+                    (err === null).should.be.true;
                     (calledApi.RPC.cla.getAll).should.be.equal(true);
                     (signatures.value.length).should.be.equal(1);
                     it_done();
@@ -357,7 +363,7 @@ describe('Settings Controller', function () {
                 };
             });
 
-            it('should provide a gist version calling getSignatures', function(){
+            it('should provide a gist version calling getSignatures', function () {
                 sinon.spy(scope, 'getSignatures');
                 testResp.cla.getGist = testGistData;
 
@@ -388,7 +394,7 @@ describe('Settings Controller', function () {
             });
 
             it('should use active flag of webhook to validate it', function () {
-                testResp.webhook.get = {active: false};
+                testResp.webhook.get = { active: false };
                 settingsCtrl.scope.validateLinkedItem();
 
                 $timeout.flush();
@@ -405,7 +411,7 @@ describe('Settings Controller', function () {
                     owner: 'login'
                 });
 
-                (RPC.call.calledWithMatch('cla', 'validatePullRequests', {repo: 'myRepo', owner: 'login'})).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validatePullRequests', { repo: 'myRepo', owner: 'login' })).should.be.equal(true);
             });
 
             it('should get a repo for linked org which should be checked', function () {
@@ -413,12 +419,12 @@ describe('Settings Controller', function () {
                     org: 'octocat'
                 });
 
-                (RPC.call.calledWithMatch('cla', 'validateOrgPullRequests', {org: 'octocat'})).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validateOrgPullRequests', { org: 'octocat' })).should.be.equal(true);
             });
         });
 
-        describe('on getReport', function(){
-            it('should show list of contributors for the current gist version first', function(){
+        describe('on getReport', function () {
+            it('should show list of contributors for the current gist version first', function () {
                 sinon.spy(scope, 'getSignatures');
                 $timeout.flush();
 
@@ -428,7 +434,7 @@ describe('Settings Controller', function () {
             });
             it('should prepare array of contributors for export', function () {
                 sinon.stub(modal, 'open', function () {
-                    return;
+                    //do nothing
                 });
                 testResp.cla.getAll = [{
                     user: 'login'
@@ -447,7 +453,7 @@ describe('Settings Controller', function () {
                 $timeout.flush();
 
                 sinon.stub(modal, 'open', function () {
-                    return;
+                    //do nothing
                 });
 
                 settingsCtrl.scope.getReport();
@@ -456,13 +462,13 @@ describe('Settings Controller', function () {
             });
         });
 
-        describe('on getBadge', function(){
-            it('should call modal view', function(){
+        describe('on getBadge', function () {
+            it('should call modal view', function () {
                 createCtrl();
                 $timeout.flush();
 
                 sinon.stub(modal, 'open', function () {
-                    return;
+                    //do nothing
                 });
 
                 settingsCtrl.scope.getBadge();

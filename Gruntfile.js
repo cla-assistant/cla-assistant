@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-    var appJsFiles = [
+    let appJsFiles = [
         'src/client/app.js',
         'src/client/api.js',
         'src/client/controller/**/*.js',
@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         'src/client/services/**/*.js'
     ];
 
-    var config = {
+    let config = {
 
         pkg: grunt.file.readJSON('package.json'),
 
@@ -50,7 +50,7 @@ module.exports = function (grunt) {
 
         eslint: {
             options: {
-                configFile: './eslintrc.json'
+                configFile: './.eslintrc.js'
             },
             target: ['*.js', 'src']
         },

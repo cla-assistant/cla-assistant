@@ -11,7 +11,7 @@ var module = angular.module('app', ['cla.filters',
     'angulartics',
     'angulartics.google.analytics'
 ]);
-
+// eslint-disable-next-line no-unused-vars
 var filters = angular.module('cla.filters', []);
 
 angular.module('cla.config', [])
@@ -49,13 +49,13 @@ angular.element(document).ready(function () {
 // *************************************************************
 
 module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
-        function ($stateProvider, $urlRouterProvider, $locationProvider) {
+    function ($stateProvider, $urlRouterProvider, $locationProvider) {
 
-            $stateProvider
+        $stateProvider
             //
             // Home state
             //
-                .state('home', {
+            .state('home', {
                 url: '/',
                 templateUrl: '/templates/home.html',
                 controller: 'HomeCtrl'
@@ -119,14 +119,14 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
                 templateUrl: '/templates/404.html'
             });
 
-            $urlRouterProvider.otherwise('/404');
+        $urlRouterProvider.otherwise('/404');
 
-            $locationProvider.html5Mode({
-                enabled: true,
-                requireBase: false
-            });
-        }
-    ])
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        });
+    }
+])
     .run(['$rootScope', '$state', '$stateParams', '$config',
         function ($rootScope, $state, $stateParams, $config) {
             $rootScope.$state = $state;

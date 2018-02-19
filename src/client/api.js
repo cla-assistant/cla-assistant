@@ -28,6 +28,7 @@ module.factory('$RAW', ['$q', '$http',
         return {
             call: function (m, functn, data, callback) {
                 var now = new Date();
+
                 return $http.post('/api/' + m + '/' + functn, data)
                     .success(function (res) {
                         // parse result (again)
@@ -80,6 +81,7 @@ module.factory('$RPC', ['$RAW', '$log',
                         callback(res.error, res);
                     }
                 });
+
                 return res;
             }
         };
@@ -111,7 +113,7 @@ module.factory('$HUB', ['$RAW', '$log',
             return links;
         }
 
-        var exec = function (type, res, args, call) {
+        function exec(type, res, args, call) {
             $RAW.call('github', type, args, function (error, value) {
 
                 var data = value ? value.data : null;
@@ -151,8 +153,9 @@ module.factory('$HUB', ['$RAW', '$log',
                     call(res.error, res);
                 }
             });
+
             return res;
-        };
+        }
 
         return {
             call: function (o, functn, data, callback) {
@@ -190,24 +193,10 @@ module.factory('$HUBService', ['$q', '$HUB',
                 if (!err) {
                     deferred.resolve(obj);
                 }
+
                 return deferred.reject(err);
             });
-            return deferred.promise;
-        };
 
-        var exec_direct = function (type, url, data) {
-            var deferred = $q.defer();
-            $HUB[type](url, data, function (err, obj) {
-                if (!err) {
-                    if (obj.hasMore) {
-                        obj.getMore();
-                    } else {
-                        return deferred.resolve(obj);
-                    }
-                } else {
-                    return deferred.reject(err);
-                }
-            });
             return deferred.promise;
         };
 
@@ -215,9 +204,6 @@ module.factory('$HUBService', ['$q', '$HUB',
             call: function (o, functn, data, callback) {
                 return exec('call', o, functn, data, callback);
             },
-            // direct_call: function(url, data) {
-            //     return exec_direct('direct_call', url, data);
-            // },
             wrap: function (o, functn, data, callback) {
                 return exec('wrap', o, functn, data, callback);
             }
@@ -245,8 +231,10 @@ module.factory('$RPCService', ['$q', '$RPC',
                     if (!err) {
                         deferred.resolve(obj);
                     }
+
                     return deferred.reject();
                 });
+
                 return deferred.promise;
             }
         };

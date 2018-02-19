@@ -1,19 +1,19 @@
-var url = require('./url');
-var github = require('./github');
-var log = require('../services/logger');
+let url = require('./url');
+let github = require('./github');
+let log = require('../services/logger');
 
-var commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
+let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     if (signed) {
         return '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>All committers have signed the CLA.';
     }
 
-    var committersCount = 1;
+    let committersCount = 1;
     if (user_map && user_map.not_signed && user_map.signed) {
         committersCount = user_map.signed.length + user_map.not_signed.length;
     }
 
-    var youAll = (committersCount > 1 ? 'you all' : 'you');
-    var text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that ' + youAll + ' sign our [Contributor License Agreement](' + claUrl + ') before we can accept your contribution.<br/>';
+    let youAll = (committersCount > 1 ? 'you all' : 'you');
+    let text = '[![CLA assistant check](' + badgeUrl + ')](' + claUrl + ') <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that ' + youAll + ' sign our [Contributor License Agreement](' + claUrl + ') before we can accept your contribution.<br/>';
     if (committersCount > 1) {
         text += '**' + user_map.signed.length + '** out of **' + (user_map.signed.length + user_map.not_signed.length) + '** committers have signed the CLA.<br/>';
         user_map.signed.forEach(function (signee) {
@@ -26,26 +26,27 @@ var commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     }
 
     if (user_map && user_map.unknown && user_map.unknown.length > 0) {
-        var seem = (user_map.unknown.length > 1 ? 'seem' : 'seems');
+        let seem = (user_map.unknown.length > 1 ? 'seem' : 'seems');
         text += '<hr/>**' + user_map.unknown.join(', ') + '** ' + seem + ' not to be a GitHub user.';
         text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).<br/>';
     }
     text += '<sub>You have signed the CLA already but the status is still pending? Let us [recheck](' + recheckUrl + ') it.</sub>';
-    return text;
+
+return text;
 };
 
 module.exports = {
     badgeComment: function (owner, repo, pullNumber, signed, user_map) {
-        var badgeUrl = url.pullRequestBadge(signed);
+        let badgeUrl = url.pullRequestBadge(signed);
 
         this.getComment({
             repo: repo,
             owner: owner,
             number: pullNumber
         }, function (error, comment) {
-            var claUrl = url.claURL(owner, repo, pullNumber);
-            var recheckUrl = url.recheckPrUrl(owner, repo, pullNumber);
-            var body = commentText(signed, badgeUrl, claUrl, user_map, recheckUrl);
+            let claUrl = url.claURL(owner, repo, pullNumber);
+            let recheckUrl = url.recheckPrUrl(owner, repo, pullNumber);
+            let body = commentText(signed, badgeUrl, claUrl, user_map, recheckUrl);
 
             if (!comment && !signed) {
                 github.call({
@@ -104,12 +105,13 @@ module.exports = {
             },
             token: config.server.github.token
         }, function (e, res) {
-            var CLAAssistantComment;
+            let CLAAssistantComment;
             if (!e && res && !res.message) {
                 res.some(function (comment) {
                     if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
                         CLAAssistantComment = comment;
-                        return true;
+
+return true;
                     }
                 });
             }
@@ -118,9 +120,9 @@ module.exports = {
     },
 
     editComment: function (args, done) {
-        var badgeUrl = url.pullRequestBadge(args.signed);
-        var claUrl = url.claURL(args.owner, args.repo, args.number);
-        var recheckUrl = url.recheckPrUrl(args.owner, args.repo, args.number);
+        let badgeUrl = url.pullRequestBadge(args.signed);
+        let claUrl = url.claURL(args.owner, args.repo, args.number);
+        let recheckUrl = url.recheckPrUrl(args.owner, args.repo, args.number);
 
         this.getComment({
             repo: args.repo,
@@ -131,8 +133,8 @@ module.exports = {
                 return;
             }
 
-            var user_map = args.user_map ? args.user_map : null;
-            var body = commentText(args.signed, badgeUrl, claUrl, user_map, recheckUrl);
+            let user_map = args.user_map ? args.user_map : null;
+            let body = commentText(args.signed, badgeUrl, claUrl, user_map, recheckUrl);
 
             github.call({
                 obj: 'issues',

@@ -2,18 +2,18 @@
 // var github_api = require('../api/github');
 
 // services
-var url = require('../services/url');
-var github = require('../services/github');
-var logger = require('../services/logger');
+let url = require('../services/url');
+let github = require('../services/github');
+let logger = require('../services/logger');
 
-var log = function (err, res, args) {
+let log = function (err, res, args) {
     if (err) {
         logger.warn(new Error(err));
     }
     logger.info('Error: ', err, '; result: ', res, '; Args: ', args);
 };
 
-var getPR = function (args, cb) {
+let getPR = function (args, cb) {
     github.call({
         obj: 'pullRequests',
         fun: 'get',
@@ -27,7 +27,7 @@ var getPR = function (args, cb) {
     }, cb);
 };
 
-var getStatuses = function (args, done) {
+let getStatuses = function (args, done) {
     github.call({
         obj: 'repos',
         fun: 'getStatuses',
@@ -41,7 +41,7 @@ var getStatuses = function (args, done) {
     }, done);
 };
 
-var getCombinedStatus = function (args, done) {
+let getCombinedStatus = function (args, done) {
     github.call({
         obj: 'repos',
         fun: 'getCombinedStatusForRef',
@@ -55,7 +55,7 @@ var getCombinedStatus = function (args, done) {
     }, done);
 };
 
-var createStatus = function (args, context, description, state, target_url, done) {
+let createStatus = function (args, context, description, state, target_url, done) {
     github.call({
         obj: 'repos',
         fun: 'createStatus',
@@ -81,12 +81,12 @@ var createStatus = function (args, context, description, state, target_url, done
     });
 };
 
-var findStatusToBeChanged = function (args, done) {
+let findStatusToBeChanged = function (args, done) {
     getStatuses(args, function (error, response) {
-        var statuses = '';
-        var description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
+        let statuses = '';
+        let description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
 
-        var status = {
+        let status = {
             context: 'license/cla',
             description: description,
             state: args.signed ? 'success' : 'pending',
@@ -97,13 +97,14 @@ var findStatusToBeChanged = function (args, done) {
         } catch (error) {
             statuses = response;
         }
-        var statString = JSON.stringify(statuses);
+        let statString = JSON.stringify(statuses);
         if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
-            var shouldBeChanged = false;
+            let shouldBeChanged = false;
             statuses.some(function findClaStatusToChange(s) {
                 if (s.context.match(/licence\/cla/g)) {
                     shouldBeChanged = s.state === 'pending';
-                    return true;
+
+return true;
                 }
             });
             if (shouldBeChanged) {
@@ -114,7 +115,8 @@ var findStatusToBeChanged = function (args, done) {
             statuses.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
                     status = s.state !== status.state ? status : undefined;
-                    return true;
+
+return true;
                 }
             });
         }
@@ -123,35 +125,38 @@ var findStatusToBeChanged = function (args, done) {
     });
 };
 
-var findClaStatus = function (args, done) {
+let findClaStatus = function (args, done) {
     getCombinedStatus(args, function (err, resp) {
         if (err) {
             return done(err);
         }
-        var claStatus = null;
+        let claStatus = null;
         resp.statuses.some(function (status) {
             if (status.context.match(/license\/cla/g)) {
                 claStatus = status;
-                return true;
+
+return true;
             }
         });
-        return done(null, claStatus);
+
+return done(null, claStatus);
     });
 };
 
-var updateStatus = function (args, done) {
+let updateStatus = function (args, done) {
     findStatusToBeChanged(args, function (status) {
         if (!status) {
             if (typeof done === 'function') {
                 done();
             }
-            return;
+
+return;
         }
         createStatus(args, status.context, status.description, status.state, status.target_url, done);
     });
 };
 
-var getPullRequestHeadShaIfNeeded = function (args, done) {
+let getPullRequestHeadShaIfNeeded = function (args, done) {
     if (args.sha) {
         return done(null, args);
     }
@@ -164,20 +169,21 @@ var getPullRequestHeadShaIfNeeded = function (args, done) {
     });
 };
 
-var doneIfNeeded = function (done, err, result) {
+let doneIfNeeded = function (done, err, result) {
     if (typeof done === 'function') {
         return done(err, result);
     }
 };
 
-var updateStatusIfNeeded = function (args, status, allowAbsent, done) {
+let updateStatusIfNeeded = function (args, status, allowAbsent, done) {
     if (!status) {
         return doneIfNeeded(done, new Error('Status is required for updateStatusIfNeeded.'));
     }
     getPullRequestHeadShaIfNeeded(args, function (err, argsWithSha) {
         if (err) {
             log(err, argsWithSha, args);
-            return doneIfNeeded(done, err);
+
+return doneIfNeeded(done, err);
         }
         findClaStatus(args, function (err, claStatus) {
             if (err) {
@@ -213,7 +219,7 @@ module.exports = {
     },
 
     updateForNullCla: function (args, done) {
-        var status = {
+        let status = {
             context: 'license/cla',
             state: 'success',
             description: 'No Contributor License Agreement required.',
@@ -223,7 +229,7 @@ module.exports = {
     },
 
     updateForClaNotRequired: function (args, done) {
-        var status = {
+        let status = {
             context: 'license/cla',
             state: 'success',
             description: 'All CLA requirements met.',

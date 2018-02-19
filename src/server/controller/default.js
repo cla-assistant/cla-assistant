@@ -1,12 +1,12 @@
-var express = require('express');
-var path = require('path');
-var cla = require('./../api/cla');
-var logger = require('./../services/logger');
+let express = require('express');
+let path = require('path');
+let cla = require('./../api/cla');
+let logger = require('./../services/logger');
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Default router
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-var router = express.Router();
+let router = express.Router();
 
 // router.use('/accept', function(req, res) {
 router.use('/accept/:owner/:repo', function (req, res) {
@@ -18,28 +18,29 @@ router.use('/accept/:owner/:repo', function (req, res) {
     if (req.isAuthenticated()) {
         cla.sign(req, function (err) {
             if (err && (!err.code || err.code != 200)) {
-                log.error(err);
+                logger.error(err);
             }
-            var redirectUrl = '/' + req.args.owner + '/' + req.args.repo + '?redirect=true';
+            let redirectUrl = '/' + req.args.owner + '/' + req.args.repo + '?redirect=true';
             redirectUrl = req.query.pullRequest ? redirectUrl + '&pullRequest=' + req.query.pullRequest : redirectUrl;
             res.redirect(redirectUrl);
         });
 
     } else {
         req.session.next = req.originalUrl;
-        return res.redirect('/auth/github?public=true');
+
+return res.redirect('/auth/github?public=true');
     }
 });
 
 router.use('/signin/:owner/:repo', function (req, res) {
-    var redirectUrl = '/' + req.params.owner + '/' + req.params.repo;
+    let redirectUrl = '/' + req.params.owner + '/' + req.params.repo;
     req.session.next = req.query.pullRequest ? redirectUrl + '?pullRequest=' + req.query.pullRequest : redirectUrl;
 
     return res.redirect('/auth/github?public=true');
 });
 
 router.all('/static/*', function (req, res) {
-    var filePath;
+    let filePath;
     if (req.user && req.path === '/static/cla-assistant.json') {
         filePath = path.join(__dirname, '..', '..', '..', 'cla-assistant.json');
     } else {
@@ -50,8 +51,8 @@ router.all('/static/*', function (req, res) {
 });
 
 router.get('/check/:owner/:repo', function (req, res) {
-    var referer = req.header('Referer');
-    var back = referer && referer.includes('github.com') ? referer : 'https://github.com';
+    let referer = req.header('Referer');
+    let back = referer && referer.includes('github.com') ? referer : 'https://github.com';
     logger.info('Recheck PR requested for ', 'https://github.com/' + req.params.owner + '/' + req.params.repo + '/pull/' + req.query.pullRequest, 'referer was ' + referer);
     cla.validatePullRequest({
         owner: req.params.owner,
@@ -62,7 +63,7 @@ router.get('/check/:owner/:repo', function (req, res) {
 });
 
 router.all('/*', function (req, res) {
-    var filePath;
+    let filePath;
     if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
         filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
     } else {

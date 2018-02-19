@@ -1,13 +1,13 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
+let assert = require('assert');
 
 // config
 global.config = require('../../../config');
 
 // service
-var url = require('../../../server/services/url');
+let url = require('../../../server/services/url');
 
 describe('url:baseUrl', function() {
     it('should by default be http://cla-assistant.io', function(done) {

@@ -1,10 +1,11 @@
 require('../documents/org');
-var mongoose = require('mongoose');
-var Org = mongoose.model('Org');
+let mongoose = require('mongoose');
+let Org = mongoose.model('Org');
 
-var selection = function (args) {
-    var selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
-    return selectArguments;
+let selection = function (args) {
+    let selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
+
+return selectArguments;
 };
 
 module.exports = {

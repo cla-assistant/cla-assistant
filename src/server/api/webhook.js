@@ -27,7 +27,7 @@ function getHook(owner, repo, noCache, token, done) {
         let hook = null;
 
         if (!err && hooks && hooks.length > 0) {
-            hooks.forEach(function(webhook) {
+            hooks.forEach(function (webhook) {
                 if (webhook.active && webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
                     hook = webhook;
                 }
@@ -50,7 +50,8 @@ function getRepoHook(owner, repo, noCache, token, done) {
                 // When the owner is not an org, github returns 404.
                 return done(error);
             }
-            return done(null, hook);
+
+return done(null, hook);
         });
     });
 }
@@ -152,7 +153,7 @@ function removeOrgHook(org, token, done) {
         if (error || !hook) {
             return done(error || 'No webhook found with base url ' + url.baseWebhook);
         }
-        removeHook(org, undefined, hook.id, token, function (err, result) {
+        removeHook(org, undefined, hook.id, token, function (err) {
             if (err) {
                 return done(err, null);
             }
@@ -176,7 +177,7 @@ function handleHookForLinkedRepoInOrg(org, token, delegateFun, done) {
                 }
                 delegateFun(repo.owner, repo.repo, token, callback);
             };
-        }), function (err, results) {
+        }), function (err) {
             done(err);
         });
     });
@@ -197,7 +198,7 @@ module.exports = {
         // }
     },
 
-    create: function(req, done) {
+    create: function (req, done) {
         return req.args && req.args.orgId ? createOrgHook(req.args.org, req.user.token, done) : createRepoHook(req.args.owner, req.args.repo, req.user.token, done);
     },
 

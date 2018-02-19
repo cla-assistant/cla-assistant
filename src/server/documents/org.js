@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 mongoose.Promise = require('q').Promise;
 
-var OrgSchema = mongoose.Schema({
+let OrgSchema = mongoose.Schema({
     orgId: String,
     org: String,
     gist: String,
@@ -16,8 +16,9 @@ OrgSchema.methods.isRepoExcluded = function(repo) {
     if (!this.excludePattern || !repo || !repo.includes) {
         return false;
     }
-    var patterns = this.excludePattern.split(',');
-    return patterns.filter(function(pattern) { return repo.includes(pattern); }).length > 0;
+    let patterns = this.excludePattern.split(',');
+
+return patterns.filter(function(pattern) { return repo.includes(pattern); }).length > 0;
 };
 
 OrgSchema.index({
@@ -26,7 +27,7 @@ OrgSchema.index({
     unique: true
 });
 
-var Org = mongoose.model('Org', OrgSchema);
+let Org = mongoose.model('Org', OrgSchema);
 
 module.exports = {
     Org: Org

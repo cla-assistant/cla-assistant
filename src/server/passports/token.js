@@ -1,12 +1,10 @@
-// var orgApi = require('../api/org');
-var github = require('../services/github');
-var logger = require('../services/logger');
-var passport = require('passport');
-var Strategy = require('passport-accesstoken').Strategy;
-var merge = require('merge');
+let github = require('../services/github');
+let passport = require('passport');
+let Strategy = require('passport-accesstoken').Strategy;
+let merge = require('merge');
 
 function getGHUser(accessToken, cb) {
-    var args = {
+    let args = {
         obj: 'users',
         fun: 'get',
         token: accessToken
@@ -18,7 +16,7 @@ function getGHUser(accessToken, cb) {
 }
 
 function checkToken(accessToken, cb) {
-    var args = {
+    let args = {
         obj: 'authorization',
         fun: 'check',
         arg: {
@@ -44,7 +42,8 @@ passport.use(new Strategy(
         getGHUser(token, function (err, data) {
             if (err || !data) {
                 done(err || 'Could not find GitHub user for given token');
-                return;
+
+return;
             }
             models.User.findOne({
                 uuid: data.id,
@@ -52,12 +51,14 @@ passport.use(new Strategy(
             }, function (err, dbUser) {
                 if (err || !dbUser) {
                     done(err || 'Could not find ' + data.login);
-                    return;
+
+return;
                 }
                 checkToken(dbUser.token, function (err, authorization) {
                     if (err || !dbUser) {
                         done(err || 'Could not find ' + data.login);
-                        return;
+
+return;
                     }
                     done(err, merge(data, {
                         token: dbUser.token,

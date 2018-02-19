@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
+let mongoose = require('mongoose');
 mongoose.Promise = require('q').Promise;
 
-var UserSchema = mongoose.Schema({
+let UserSchema = mongoose.Schema({
     uuid: Number,
     name: String,
     requests: [{
@@ -19,7 +19,7 @@ UserSchema.index({
         unique: true
     });
 
-var User = mongoose.model('User', UserSchema);
+let User = mongoose.model('User', UserSchema);
 
 module.exports = {
     User: User

@@ -1,13 +1,13 @@
-var passport = require('passport');
-var express = require('express');
-var utils = require('../middleware/utils');
+let passport = require('passport');
+let express = require('express');
+let utils = require('../middleware/utils');
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // User controller
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-var router = express.Router();
-var scope;
+let router = express.Router();
+let scope;
 
 function checkReturnTo(req, res, next) {
     scope = null;

@@ -1,11 +1,11 @@
-var url = require('../services/url');
-var repoService = require('../services/repo');
-var orgApi = require('../api/org');
-var github = require('../services/github');
-var logger = require('../services/logger');
-var passport = require('passport');
-var Strategy = require('passport-github').Strategy;
-var merge = require('merge');
+let url = require('../services/url');
+let repoService = require('../services/repo');
+let orgApi = require('../api/org');
+let github = require('../services/github');
+let logger = require('../services/logger');
+let passport = require('passport');
+let Strategy = require('passport-github').Strategy;
+let merge = require('merge');
 
 function updateToken(item, newToken) {
     item.token = newToken;
@@ -14,9 +14,9 @@ function updateToken(item, newToken) {
 }
 
 function checkToken(item, accessToken) {
-    var newToken = accessToken;
-    var oldToken = item.token;
-    var args = {
+    let newToken = accessToken;
+    let oldToken = item.token;
+    let args = {
         obj: 'authorization',
         fun: 'check',
         arg: {
@@ -54,6 +54,9 @@ passport.use(new Strategy({
 },
     function (accessToken, refreshToken, params, profile, done) {
         models.User.findOne({ name: profile.username }, (err, user) => {
+            if (err) {
+                logger.warn(err.stack);
+            }
             if (!user) {
                 user = { uuid: profile.id, name: profile.username, token: accessToken };
                 models.User.create(user, (err) => {
@@ -61,7 +64,8 @@ passport.use(new Strategy({
                         logger.warn(new Error('Could not create new user ' + err));
                     }
                 });
-                return;
+
+return;
             }
 
             if (user && !user.uuid) {

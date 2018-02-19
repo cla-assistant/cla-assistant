@@ -1,27 +1,27 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // service
-var org = require('../../../server/services/org');
-var github = require('../../../server/services/github');
-var logger = require('../../../server/services/logger');
-var webhook = require('../../../server/api/webhook');
-var q = require('q');
+let org = require('../../../server/services/org');
+let github = require('../../../server/services/github');
+let logger = require('../../../server/services/logger');
+let webhook = require('../../../server/api/webhook');
+let q = require('q');
 
 // test data
-var testData = require('../testData').data;
+let testData = require('../testData').data;
 
 // api
-var org_api = require('../../../server/api/org');
+let org_api = require('../../../server/api/org');
 
 
 describe('org api', function () {
-    var testErr = {};
-    var testRes = {};
-    var req = null;
+    let testErr = {};
+    let testRes = {};
+    let req = null;
     beforeEach(function () {
         req = {
             args: {
@@ -53,9 +53,10 @@ describe('org api', function () {
                 done(testErr.githubCall, testRes.githubCall);
             }
             if (args.fun === 'getOrgMembership') {
-                var deferred = q.defer();
+                let deferred = q.defer();
                 deferred.resolve(testRes.githubGetMembership);
-                return deferred.promise;
+
+return deferred.promise;
             }
         });
         sinon.stub(org, 'getMultiple').callsFake(function (args, done) {
@@ -85,7 +86,7 @@ describe('org api', function () {
     });
 
     describe('create', function () {
-        it('should create new org via org service and create org webhook', function(it_done) {
+        it('should create new org via org service and create org webhook', function (it_done) {
             org_api.create(req, function () {
                 assert(org.get.calledWith({
                     orgId: 1,
@@ -146,7 +147,7 @@ describe('org api', function () {
 
     describe('orgApi:getForUser', function () {
         it('should collect github orgs and search for linked orgs', function (it_done) {
-            var req = {
+            let req = {
                 args: {},
                 user: {
                     token: 'abc',
@@ -155,6 +156,7 @@ describe('org api', function () {
             };
 
             org_api.getForUser(req, function (err, orgs) {
+                assert.ifError(err);
                 sinon.assert.calledOnce(github.callGraphql);
                 sinon.assert.calledWithMatch(org.getMultiple, { orgId: ['2', '3'] });
                 assert.equal(orgs.length, 2);
@@ -164,7 +166,7 @@ describe('org api', function () {
 
         it('should handle github error', function (it_done) {
             testErr.githubCall = 'any github error';
-            var req = {
+            let req = {
                 args: {},
                 user: {
                     token: 'abc',
@@ -191,7 +193,7 @@ describe('org api', function () {
                 orgId: 1,
                 org: 'myOrg',
             };
-            sinon.stub(org, 'remove').callsFake(function(args, done) {
+            sinon.stub(org, 'remove').callsFake(function (args, done) {
                 done(testErr.org.remove, testRes.org.remove);
             });
             sinon.stub(webhook, 'remove').callsFake(function (args, done) {

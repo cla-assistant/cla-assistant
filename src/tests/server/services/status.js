@@ -1,16 +1,16 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // services
-var github = require('../../../server/services/github');
+let github = require('../../../server/services/github');
 
 // service under test
-var status = require('../../../server/services/status');
+let status = require('../../../server/services/status');
 
-var testData = {
+let testData = {
     'id': 1,
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/1347',
     'html_url': 'https://github.com/octocat/Hello-World/pull/1347',
@@ -234,7 +234,7 @@ var testData = {
     'changed_files': 5
 };
 
-var testStatusesSuccess = [
+let testStatusesSuccess = [
     {
         'state': 'success',
         'description': 'Build has completed successfully',
@@ -248,7 +248,7 @@ var testStatusesSuccess = [
         'context': 'license/cla'
     }
 ];
-var testStatusesPending = [
+let testStatusesPending = [
     {
         'state': 'success',
         'description': 'Build has completed successfully',
@@ -262,7 +262,7 @@ var testStatusesPending = [
         'context': 'licence/cla'
     }
 ];
-var testStatusesFailure = [
+let testStatusesFailure = [
     {
         'state': 'pending',
         'description': 'Check failed',
@@ -277,7 +277,7 @@ var testStatusesFailure = [
     }
 ];
 
-var statusForElse = {
+let statusForElse = {
     id: 2,
     state: 'success',
     description: 'Build has completed successfully',
@@ -285,7 +285,7 @@ var statusForElse = {
     context: 'anything/else'
 };
 
-var statusForClaNotSigned = {
+let statusForClaNotSigned = {
     id: 1,
     state: 'pending',
     description: 'Contributor License Agreement is not signed yet.',
@@ -294,7 +294,7 @@ var statusForClaNotSigned = {
 };
 
 describe('status', function () {
-    var githubCallPRGet, githubCallStatusGet, assertFunction;
+    let githubCallPRGet, githubCallStatusGet, assertFunction, githubCallCombinedStatus;
     beforeEach(function () {
         githubCallPRGet = {
             data: testData,
@@ -319,7 +319,9 @@ describe('status', function () {
                 done(githubCallCombinedStatus.err, githubCallCombinedStatus.data);
             } else {
                 assert.equal(args.token, 'abc');
-                assertFunction ? assertFunction(args) : 'do nothing';
+                if (assertFunction) {
+                    assertFunction(args);
+                }
                 if (typeof done === 'function') {
                     done();
                 }
@@ -334,7 +336,7 @@ describe('status', function () {
 
     describe('update', function () {
         it('should create comment with admin token', function (it_done) {
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -355,7 +357,7 @@ describe('status', function () {
 
             };
             githubCallStatusGet.data = testStatusesSuccess;
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -372,7 +374,7 @@ describe('status', function () {
         it('should not update status if no pull request found', function (it_done) {
             githubCallPRGet.err = 'error';
             githubCallPRGet.data = null;
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -390,7 +392,7 @@ describe('status', function () {
             githubCallPRGet.data = {
                 message: 'Not found'
             };
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -405,7 +407,7 @@ describe('status', function () {
         });
 
         it('should not load PR if sha is provided', function (it_done) {
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -421,7 +423,7 @@ describe('status', function () {
         });
 
         it('should use old and new context if there is already a status with this context', function (it_done) {
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -442,7 +444,7 @@ describe('status', function () {
 
         it('should not update status if it has not changed', function (it_done) {
             githubCallStatusGet.data = testStatusesSuccess;
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -460,7 +462,7 @@ describe('status', function () {
         });
 
         it('should update status if there are no old ones', function (it_done) {
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -478,7 +480,7 @@ describe('status', function () {
         });
 
         it('should update statuses of all contexts if there are both (licenCe and licenSe)', function (it_done) {
-            var args = {
+            let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
@@ -497,27 +499,27 @@ describe('status', function () {
     });
 
     describe('updateForNullCla', function () {
-        var args = null;
+        let args = null;
 
-        var statusForNullCla = {
+        let statusForNullCla = {
             id: 1,
             state: 'success',
             description: 'No Contributor License Agreement required.',
             target_url: null,
-            context: "license/cla"
+            context: 'license/cla'
         };
 
-        var testCombinedStatus = {
+        let testCombinedStatus = {
             state: 'pending',
-            statuses: [ statusForClaNotSigned, statusForElse]
+            statuses: [statusForClaNotSigned, statusForElse]
         };
 
-        var testNoClaCombinedStatus = {
+        let testNoClaCombinedStatus = {
             state: 'success',
             statuses: [statusForElse]
         };
 
-        var testNullClaCombinedStatus = {
+        let testNullClaCombinedStatus = {
             state: 'success',
             statuses: [statusForNullCla, statusForElse]
         };
@@ -575,9 +577,9 @@ describe('status', function () {
     });
 
     describe('updateForClaNotRequired', function () {
-        var args = null;
+        let args = null;
 
-        var statusForClaNotRequired = {
+        let statusForClaNotRequired = {
             id: 1,
             context: 'license/cla',
             state: 'success',
@@ -585,17 +587,17 @@ describe('status', function () {
             target_url: null
         };
 
-        var testNoClaCombinedStatus = {
+        let testNoClaCombinedStatus = {
             state: 'success',
             statuses: [statusForElse]
         };
 
-        var testCombinedStatus = {
+        let testCombinedStatus = {
             state: 'pending',
             statuses: [statusForClaNotSigned, statusForElse]
         };
 
-        var testCombinedStatusForClaNotRequired = {
+        let testCombinedStatusForClaNotRequired = {
             state: 'success',
             statuses: [statusForClaNotRequired, statusForElse]
         };

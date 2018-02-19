@@ -1,4 +1,4 @@
-var merge = require('merge');
+let merge = require('merge');
 
 module.exports = function(req, res, next) {
 

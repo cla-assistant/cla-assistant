@@ -1,4 +1,4 @@
-var url = require('url');
+let url = require('url');
 
 module.exports = function () {
 
@@ -8,18 +8,18 @@ module.exports = function () {
     //     port: config.server.localport
     // });
 
-    var baseUrl = url.format({
+    let baseUrl = url.format({
         protocol: config.server.http.protocol,
         hostname: config.server.http.host,
         port: config.server.http.port
     });
 
-    var githubBase = url.format({
+    let githubBase = url.format({
         protocol: config.server.github.protocol,
         host: config.server.github.host
     });
 
-    var githubApiBase = url.format({
+    let githubApiBase = url.format({
         protocol: config.server.github.protocol,
         host: config.server.github.api
     });
@@ -29,9 +29,10 @@ module.exports = function () {
         baseUrl: baseUrl,
         baseWebhook: url.resolve(baseUrl, '/github/webhook/'),
         claURL: function (user, repo, number) {
-            var claUrl = url.resolve(baseUrl, '/' + user + '/' + repo);
+            let claUrl = url.resolve(baseUrl, '/' + user + '/' + repo);
             claUrl = number ? claUrl + '?pullRequest=' + number : claUrl;
-            return claUrl;
+
+return claUrl;
         },
         githubBase: githubBase,
         githubApiBase: githubApiBase,
@@ -42,11 +43,12 @@ module.exports = function () {
             return url.resolve(githubApiBase, config.server.github.enterprise ? '/api/v3/user' : '/user');
         },
         githubCommits: function (owner, repo, sha, since) {
-            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/commits');
+            let _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/commits');
             _url = sha ? _url + '?sha=' + sha : _url;
             _url += sha && since ? '&' : since ? '?' : '';
             _url = since ? _url + 'since=' + since : _url;
-            return _url;
+
+return _url;
         },
         githubFileReference: function (user, repo, fileReference) {
             return url.resolve(githubBase, '/' + user + '/' + repo + '/blob/' + fileReference);
@@ -55,9 +57,10 @@ module.exports = function () {
             return url.resolve(githubApiBase, '/orgs/' + org + '/hooks');
         },
         githubPullRequests: function (owner, repo, state) {
-            var _url = this.githubRepository(owner, repo) + '/pulls';
+            let _url = this.githubRepository(owner, repo) + '/pulls';
             _url = state ? _url + '?state=' + state : _url;
-            return _url;
+
+return _url;
         },
         githubPullRequest: function (owner, repo, number) {
             return url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls/' + number);
@@ -69,17 +72,20 @@ module.exports = function () {
             return url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/issues/' + number + '/comments');
         },
         githubRepository: function (owner, repo) {
-            var _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo);
-            return _url;
+            let _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo);
+
+return _url;
         },
         pullRequestBadge: function (signed) {
-            var signed_str = signed ? 'signed' : 'not_signed';
-            return url.resolve(baseUrl, '/pull/badge/' + signed_str);
+            let signed_str = signed ? 'signed' : 'not_signed';
+
+return url.resolve(baseUrl, '/pull/badge/' + signed_str);
         },
         recheckPrUrl: function (owner, repo, number) {
-            var checkUrl = url.resolve(baseUrl, '/check/' + owner + '/' + repo);
+            let checkUrl = url.resolve(baseUrl, '/check/' + owner + '/' + repo);
             checkUrl = number ? checkUrl + '?pullRequest=' + number : checkUrl;
-            return checkUrl;
+
+return checkUrl;
         },
         webhook: function (repo) {
             return url.resolve(baseUrl, '/github/webhook/' + repo);

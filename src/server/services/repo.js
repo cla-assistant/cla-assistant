@@ -24,10 +24,11 @@ let compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
         dbRepo.owner = ghRepo.owner;
         dbRepo.repo = ghRepo.repo;
         dbRepo.save();
+
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 };
 
 let compareAllRepos = function (ghRepos, dbRepos, done) {
@@ -96,7 +97,7 @@ module.exports = {
                 repoId: repo.repoId
             });
         });
-        var idChunk = _.chunk(repoIds, 100);
+        let idChunk = _.chunk(repoIds, 100);
         async.parallelLimit(idChunk.map(function (chunk) {
             return function (callback) {
                 Repo.find({
@@ -107,7 +108,7 @@ module.exports = {
             if (err) {
                 return done(err);
             }
-            repos = _.concat.apply(null, repoChunk);
+            let repos = _.concat.apply(null, repoChunk);
             done(null, repos);
         });
     },
@@ -130,6 +131,7 @@ module.exports = {
         Repo.findOne(repoArgs, function (err, repo) {
             if (err) {
                 done(err);
+
                 return;
             }
             repo.repoId = args.repoId;
@@ -162,6 +164,7 @@ module.exports = {
                 if (err || res.statusCode > 200) {
                     let msg = 'No result on GH call, getting PR committers!' + err;
                     handleError(new Error(msg).stack, msg, arg);
+
                     return;
                 }
                 if (res && !res.message) {
@@ -173,6 +176,7 @@ module.exports = {
                     }
                     if (!data || !data.repository || !data.repository.pullRequest || !data.repository.pullRequest.commits || !data.repository.pullRequest.commits.edges) {
                         done('No committers found');
+
                         return;
                     }
                     data.repository.pullRequest.commits.edges.forEach((edge) => {
@@ -190,7 +194,6 @@ module.exports = {
                         } catch (error) {
                             let msg = 'Problem on PR ' + url.githubPullRequest(arg.owner, arg.repo, arg.number) + 'commit info seems to be wrong; ' + error;
                             handleError(new Error(msg).stack, msg, arg);
-                            return;
                         }
                     });
 
@@ -257,6 +260,9 @@ module.exports = {
                     if (!org) {
                         return handleError(new Error(error).stack, error, args);
                     }
+                    if (err) {
+                        logger.warn(err);
+                    }
                     collectTokenAndCallGithub(args, org);
                 });
             } else {
@@ -280,6 +286,7 @@ module.exports = {
             if (!res || res.length < 1 || res.message) {
                 err = res && res.message ? res.message : err;
                 done(err, null);
+
                 return;
             }
 

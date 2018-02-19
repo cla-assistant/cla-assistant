@@ -1,16 +1,16 @@
 // modules
-var express = require('express');
+let express = require('express');
 
 // models
-var Repo = require('mongoose').model('Repo');
-var Org = require('mongoose').model('Org');
-var CLA = require('mongoose').model('CLA');
+let Repo = require('mongoose').model('Repo');
+let Org = require('mongoose').model('Org');
+let CLA = require('mongoose').model('CLA');
 
-var router = express.Router();
+let router = express.Router();
 
 //services
-var logger = require('./../services/logger');
-var github = require('./../services/github');
+let logger = require('./../services/logger');
+let github = require('./../services/github');
 
 router.post('/count/*', function (req, res, next) {
     //No token is sent by slack :(
@@ -26,9 +26,9 @@ router.all('/count/repos', function (req, res) {
             logger.info(err);
         }
         res.set('Content-Type', 'application/json');
-        var list = '';
+        let list = '';
         if (req.query.last && repos.length > 0) {
-            var fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
+            let fullName = repos[repos.length - 1].owner + '/' + repos[repos.length - 1].repo;
             list = '\n Newest repo is https://github.com/' + fullName;
         } else if (repos.length > 0) {
             repos.forEach(function (repo, i) {
@@ -49,9 +49,9 @@ router.all('/count/orgs', function (req, res) {
             logger.info(err);
         }
         res.set('Content-Type', 'application/json');
-        var list = '';
+        let list = '';
         if (req.query.last && orgs.length > 0) {
-            var orgName = orgs[orgs.length - 1].org;
+            let orgName = orgs[orgs.length - 1].org;
             list = '\n Newest org is https://github.com/' + orgName;
         } else if (orgs.length > 0) {
             orgs.forEach(function (org, i) {
@@ -75,7 +75,7 @@ router.all('/count/clas', function (req, res) {
                 return;
             }
             res.set('Content-Type', 'application/json');
-            var fullName = cla[0].owner + '/' + cla[0].repo;
+            let fullName = cla[0].owner + '/' + cla[0].repo;
 
             res.send(JSON.stringify({
                 text: cla[0].user + ' signed a CLA for https://github.com/' + fullName
@@ -98,19 +98,19 @@ router.all('/count/clas', function (req, res) {
                 data = [];
             }
             res.set('Content-Type', 'application/json');
-            var text = {
+            let text = {
                 text: 'There are ' + data.length + ' signed CLAs!'
             };
             text.attachments = [];
-            var list = {};
+            let list = {};
             if (req.query.detailed) {
                 data.forEach(function (cla) {
                     list[cla._id.owner + '/' + cla._id.repo] = list[cla._id.owner + '/' + cla._id.repo] ? list[cla._id.owner + '/' + cla._id.repo] : [];
                     list[cla._id.owner + '/' + cla._id.repo].push(cla._id.user);
                     // list += '\n ' + cla._id.user + ' is contributing to ' + cla._id.owner + '/' + cla._id.repo;
                 });
-                for (var repository in list) {
-                    var users = list[repository];
+                for (let repository in list) {
+                    let users = list[repository];
                     text.attachments.push({
                         title: repository,
                         // pretext: Pretext _supports_ mrkdwn,
@@ -142,6 +142,9 @@ router.all('/count/stars', function (req, res) {
             pass: config.server.github.pass
         }
     }, function (err, resp) {
+        if (err) {
+            logger.info(err);
+        }
         res.send(JSON.stringify({
             count: resp.stargazers_count
         }));

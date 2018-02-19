@@ -1,4 +1,4 @@
-/*jshiint expr:true*/
+/*eslint no-unused-expressions: "off", no-empty-function: "off"*/
 /*global angular, describe, xit, it, beforeEach, afterEach*/
 
 describe('Home Controller', function () {
@@ -170,6 +170,7 @@ describe('Home Controller', function () {
             var error = null;
             if (error) {
                 cb(error);
+
                 return response;
             }
 
@@ -202,6 +203,7 @@ describe('Home Controller', function () {
             if (typeof cb === 'function') {
                 cb(error, response);
             }
+
             return response;
         });
 
@@ -211,8 +213,8 @@ describe('Home Controller', function () {
             calledApi.RPC[o][f] = true;
             var response;
             var error;
+            var deferred = $q.defer();
             if (o === 'repo' && f === 'getAll') {
-                var deferred = $q.defer();
                 args.set[0].repoId.should.be.ok;
                 response = rpcRepoGetAllData || {
                     value: [{
@@ -227,6 +229,7 @@ describe('Home Controller', function () {
                 } else {
                     deferred.resolve(response);
                 }
+
                 return deferred.promise;
             } else if (o === 'repo' && f === 'create') {
                 args.repoId.should.be.equal(123);
@@ -245,14 +248,13 @@ describe('Home Controller', function () {
                     value: true
                 };
             } else if (o === 'org' && f === 'getForUser') {
-                var deferred = $q.defer();
                 response = expRes.RPC.org && expRes.RPC.org.getForUser ? expRes.RPC.org.getForUser : {
                     value: []
                 };
                 deferred.resolve(response);
+
                 return deferred.promise;
             } else if (o === 'org' && f === 'getGHOrgsForUser') {
-                var deferred = $q.defer();
                 response = expRes.RPC.org && expRes.RPC.org.getGHOrgForUser ? expRes.RPC.org.getGHOrgForUser : {
                     value: testDataOrgs
                 };
@@ -261,6 +263,7 @@ describe('Home Controller', function () {
                 } else {
                     deferred.resolve(response);
                 }
+
                 return deferred.promise;
             } else if (o === 'org' && f === 'remove') {
                 response = expRes.RPC.org && expRes.RPC.org.remove ? expRes.RPC.org.remove : {
@@ -289,9 +292,9 @@ describe('Home Controller', function () {
                         });
                     }
                 };
-            } else {
-                return rawGet(url, token);
             }
+
+            return rawGet(url, token);
         });
 
         createCtrl = function () {
@@ -299,6 +302,7 @@ describe('Home Controller', function () {
                 $scope: scope
             });
             ctrl.scope = scope;
+
             return ctrl;
         };
 
@@ -695,7 +699,6 @@ describe('Home Controller', function () {
         httpBackend.flush();
 
         (homeCtrl.scope.gists.length).should.be.equal(3);
-        console.log(homeCtrl.scope.gists);
         (homeCtrl.scope.gists[0].name).should.be.equal('first default cla');
         (homeCtrl.scope.gists[1].name).should.be.equal('ring.erl');
         (homeCtrl.scope.gists[2].name).should.be.equal('file1');

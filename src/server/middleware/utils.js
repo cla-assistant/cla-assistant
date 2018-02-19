@@ -27,12 +27,13 @@ module.exports = {
             if (err) {
                 return deferred.reject(err);
             }
-            if (!data.permissions['push']) {
+            if (!data.permissions.push) {
                 return deferred.reject('You do not have push permission for this repo');
             }
             deferred.resolve(data);
         });
-        return deferred.promise;
+
+return deferred.promise;
     },
 
     checkRepoPushPermissionById: function (repoId, token, cb) {
@@ -46,9 +47,10 @@ module.exports = {
         }, function (err, data) {
             if (err || !data) {
                 cb(err, data);
-                return;
+
+return;
             }
-            let hasPermission = data.permissions['push'];
+            let hasPermission = data.permissions.push;
             cb(err, hasPermission);
         });
     },
@@ -76,8 +78,10 @@ module.exports = {
             if (data.role !== 'admin') {
                 return deferred.reject('You are not an admin of this org');
             }
-            return deferred.resolve(data);
+
+return deferred.resolve(data);
         });
-        return deferred.promise;
+
+return deferred.promise;
     },
 };

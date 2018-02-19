@@ -1,35 +1,36 @@
+/*eslint no-empty-function: "off"*/
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 // config
 global.config = require('../../../config');
 
 // models
-var Repo = require('../../../server/documents/repo').Repo;
-var User = require('../../../server/documents/user').User;
+let Repo = require('../../../server/documents/repo').Repo;
+let User = require('../../../server/documents/user').User;
 
 //services
-var github = require('../../../server/services/github');
-var cla = require('../../../server/services/cla');
-var repo_service = require('../../../server/services/repo');
-var org_service = require('../../../server/services/org');
-var statusService = require('../../../server/services/status');
-var prService = require('../../../server/services/pullRequest');
-var log = require('../../../server/services/logger');
+let github = require('../../../server/services/github');
+let cla = require('../../../server/services/cla');
+let repo_service = require('../../../server/services/repo');
+let org_service = require('../../../server/services/org');
+let statusService = require('../../../server/services/status');
+let prService = require('../../../server/services/pullRequest');
+let log = require('../../../server/services/logger');
 
 // Test data
-var testData = require('../testData').data;
+let testData = require('../testData').data;
 
 // api
-var cla_api = require('../../../server/api/cla');
+let cla_api = require('../../../server/api/cla');
 
 describe('', function () {
-    var reqArgs;
-    var resp;
-    var error;
+    let reqArgs;
+    let resp;
+    let error;
 
     beforeEach(function () {
         reqArgs = {
@@ -173,7 +174,7 @@ describe('', function () {
 
     describe('cla:get', function () {
         it('should get gist and render it with repo token', function (it_done) {
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -195,7 +196,7 @@ describe('', function () {
         it('should get gist and render it without user and repo token', function (it_done) {
             resp.repoService.get.token = undefined;
 
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -220,7 +221,7 @@ describe('', function () {
             };
             resp.repoService.get.token = undefined;
 
-            var req = {
+            let req = {
                 args: {
                     repoId: 1
                 },
@@ -242,8 +243,8 @@ describe('', function () {
 
         it('should handle wrong gist url', function (it_done) {
 
-            var repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, cb) {
-                var repo = {
+            let repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, cb) {
+                let repo = {
                     repo: 'Hello-World',
                     owner: 'octocat',
                     gist: '123',
@@ -255,7 +256,7 @@ describe('', function () {
             resp.cla.getGist = undefined;
             error.cla.getGist = 'error';
 
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -275,7 +276,7 @@ describe('', function () {
         it('should handle result with no files', function (it_done) {
             resp.cla.getGist.files = undefined;
 
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -291,7 +292,7 @@ describe('', function () {
         });
 
         it('should render metadata-file with custom fields if provided', function (it_done) {
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -310,7 +311,7 @@ describe('', function () {
         });
 
         describe('in case of failing github api', function () {
-            var req = {
+            let req = {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat'
@@ -366,7 +367,7 @@ describe('', function () {
     });
 
     describe('cla:sign', function () {
-        var req, expArgs, testUser;
+        let req, expArgs, testUser;
         beforeEach(function () {
             req = {
                 user: {
@@ -515,7 +516,7 @@ describe('', function () {
                 sharedGist: true
             }, resp.cla.getLinkedItem);
             sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { });
-            cla_api.sign(req, function (err, res) {
+            cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(cla_api.validateSharedGistItems.called);
                 cla_api.validateSharedGistItems.restore();
@@ -527,7 +528,7 @@ describe('', function () {
             testUser.requests = undefined;
             resp.cla.getLinkedItem = testData.org_from_db;
             sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { });
-            cla_api.sign(req, function (err, res) {
+            cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(cla_api.validateOrgPullRequests.called);
                 cla_api.validateOrgPullRequests.restore();
@@ -597,7 +598,7 @@ describe('', function () {
             sinon.stub(cla_api, 'validateSharedGistItems').callsFake(function (args, done) {
                 done();
             });
-            cla_api.sign(req, function (error) {
+            cla_api.sign(req, function () {
                 sinon.assert.notCalled(cla_api.validateSharedGistItems);
                 sinon.assert.calledTwice(cla.check);
 
@@ -622,7 +623,7 @@ describe('', function () {
                     cb(null, null);
                 }
             });
-            cla_api.sign(req, function (err, res) {
+            cla_api.sign(req, function (err) {
                 assert.ifError(err);
                 assert(!testUser.requests.length);
                 sinon.assert.calledOnce(cla.check);
@@ -633,7 +634,7 @@ describe('', function () {
     });
 
     describe('cla api', function () {
-        var req, getGistReq;
+        let req, getGistReq;
         beforeEach(function () {
             req = {
                 user: {
@@ -819,7 +820,7 @@ describe('', function () {
     });
 
     describe('cla:countCLA', function () {
-        var req = {};
+        let req = {};
         beforeEach(function () {
             resp.cla.getLinkedItem = testData.repo_from_db;
             req.args = {
@@ -912,7 +913,7 @@ describe('', function () {
         it('it should handle unexisting gist', function (it_done) {
             resp.cla.getGist = null;
 
-            cla_api.countCLA(req, function (err, number) {
+            cla_api.countCLA(req, function (err) {
                 assert(err);
                 assert(!cla.getAll.called);
 
@@ -922,7 +923,7 @@ describe('', function () {
     });
 
     describe('cla:upload', function () {
-        var req;
+        let req;
 
         beforeEach(function () {
             reqArgs.cla.sign = {};
@@ -1006,7 +1007,7 @@ describe('', function () {
     });
 
     describe('cla: validatePullRequests', function () {
-        var req;
+        let req;
         beforeEach(function () {
             reqArgs.orgService.get = {
                 repo: 'Hello-World',
@@ -1122,8 +1123,7 @@ describe('', function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
             resp.repoService.getByOwner = [];
-            console.log(resp.github.callRepos.length);
-            for (var index = 0; index < 28; index++) {
+            for (let index = 0; index < 28; index++) {
                 resp.github.callRepos.push({
                     id: 'test_' + index,
                     owner: {
@@ -1154,7 +1154,7 @@ describe('', function () {
 
         it('should delete comments when rechecking PRs of a repo with a null CLA', function (it_done) {
             resp.cla.getLinkedItem.gist = undefined;
-            cla_api.validatePullRequests(req, function (err) {
+            cla_api.validatePullRequests(req, function () {
                 assert(prService.deleteComment.called);
                 assert(statusService.updateForNullCla.called);
                 it_done();
@@ -1163,7 +1163,7 @@ describe('', function () {
     });
 
     describe('cla: validateOrgPullRequests', function () {
-        var req;
+        let req;
         beforeEach(function () {
             req = {
                 args: {
@@ -1241,7 +1241,7 @@ describe('', function () {
 
     describe('cla:getLinkedItem', function () {
         it('should return linked repo or org using repo_name and owner', function (it_done) {
-            var args = {
+            let args = {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
@@ -1257,7 +1257,7 @@ describe('', function () {
     });
 
     describe('cla: validateSharedGistItems', function () {
-        var req;
+        let req;
 
         beforeEach(function () {
             req = {
@@ -1268,7 +1268,7 @@ describe('', function () {
                     sharedGist: true
                 }
             };
-            var repoWithSharedGist = {
+            let repoWithSharedGist = {
                 repoId: 1296269,
                 owner: 'octocat1',
                 repo: 'Hello-World',
@@ -1276,7 +1276,7 @@ describe('', function () {
                 token: 'token1',
                 sharedGist: true
             };
-            var orgWithSharedGist = {
+            let orgWithSharedGist = {
                 orgId: 1,
                 org: 'octocat2',
                 token: 'token',
@@ -1309,7 +1309,7 @@ describe('', function () {
         });
 
         it('should call validateOrgPullRequests and validatePullRequests to update status of all repos and orgs with the same shared gist', function (it_done) {
-            cla_api.validateSharedGistItems(req, function (error) {
+            cla_api.validateSharedGistItems(req, function () {
                 assert.equal(cla_api.validateOrgPullRequests.callCount, 1);
                 assert.equal(cla_api.validatePullRequests.callCount, 1);
                 it_done();
@@ -1326,7 +1326,7 @@ describe('', function () {
 
         it('should log error when repoService.getRepoWithSharedGist() failed', function (it_done) {
             error.repoService.getRepoWithSharedGist = 'Error: get shared gist repo failed';
-            cla_api.validateSharedGistItems(req, function (err) {
+            cla_api.validateSharedGistItems(req, function () {
                 assert(log.error.calledWithMatch(error.repoService.getRepoWithSharedGist));
                 it_done();
             });
@@ -1334,7 +1334,7 @@ describe('', function () {
 
         it('should log error when orgService.getOrgWithSharedGist() failed', function (it_done) {
             error.orgService.getOrgWithSharedGist = 'Error: get shared gist org failed';
-            cla_api.validateSharedGistItems(req, function (err) {
+            cla_api.validateSharedGistItems(req, function () {
                 assert(log.error.calledWithMatch(error.orgService.getOrgWithSharedGist));
                 it_done();
             });
@@ -1342,7 +1342,7 @@ describe('', function () {
     });
 
     describe('cla:validatePullRequest', function () {
-        var args;
+        let args;
         beforeEach(function () {
             args = {
                 repo: 'Hello-World',
@@ -1418,7 +1418,7 @@ describe('', function () {
 
         it('should update status and delete comment when the repo linked with a null CLA', function (it_done) {
             resp.cla.getLinkedItem.gist = undefined;
-            cla_api.validatePullRequest(args, function (err) {
+            cla_api.validatePullRequest(args, function () {
                 assert(statusService.updateForNullCla.called);
                 assert(prService.deleteComment.called);
                 assert(!cla.isClaRequired.called);
@@ -1429,7 +1429,7 @@ describe('', function () {
 
         it('should update status and delete comment when the repo is NOT linked with a null CLA and the pull request is NOT significant', function (it_done) {
             resp.cla.isClaRequired = false;
-            cla_api.validatePullRequest(args, function (err) {
+            cla_api.validatePullRequest(args, function () {
                 assert(statusService.updateForClaNotRequired.called);
                 assert(prService.deleteComment.called);
                 assert(!cla.check.called);
@@ -1440,7 +1440,7 @@ describe('', function () {
     });
 
     describe('cla:addSignature', function () {
-        var req;
+        let req, testUser;
         beforeEach(function () {
             req = {
                 args: {
@@ -1486,7 +1486,7 @@ describe('', function () {
         });
 
         it('should send validation error when repo and owner or org is not provided', function (it_done) {
-            var req = {
+            let req = {
                 args: {
                     userId: 1,
                     user: 'user'
@@ -1509,7 +1509,7 @@ describe('', function () {
     });
 
     describe('cla:hasSignature', function () {
-        var req;
+        let req;
         beforeEach(function () {
             req = {
                 args: {
@@ -1537,7 +1537,7 @@ describe('', function () {
         });
 
         it('should send validation error when repo and owner or org is not provided', function (it_done) {
-            var req = {
+            let req = {
                 args: {
                     userId: 1,
                     user: 'user'
@@ -1552,7 +1552,7 @@ describe('', function () {
     });
 
     describe('cla:terminateSignature', function () {
-        var req;
+        let req;
         beforeEach(function () {
             req = {
                 args: {
@@ -1582,7 +1582,7 @@ describe('', function () {
         });
 
         it('should send validation error when repo and owner or org is not provided', function (it_done) {
-            var req = {
+            let req = {
                 args: {
                     userId: 1,
                     user: 'user'

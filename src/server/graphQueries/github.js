@@ -75,7 +75,7 @@ module.exports = {
         }`;
         let variables = { owner };
         if (cursor) {
-            variables.cursor;
+            variables.cursor = cursor;
         }
 
         return JSON.stringify({ query, variables }).replace(/ /g, '');

@@ -1,11 +1,9 @@
-var http = require('http');
+let http = require('http');
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Initialize server
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-var app = require('./src/server/app.js');
+let app = require('./src/server/app.js');
 
-http.createServer(app).listen(config.server.localport).on('listening', function() {
-
-});
+http.createServer(app).listen(config.server.localport);

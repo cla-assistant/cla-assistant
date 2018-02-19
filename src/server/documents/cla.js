@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
-var logger = require('../services/logger');
+let mongoose = require('mongoose');
+let logger = require('../services/logger');
 mongoose.Promise = require('q').Promise;
 
-var CLASchema = mongoose.Schema({
+let CLASchema = mongoose.Schema({
     created_at: Date,
     end_at: Date,
     custom_fields: String,
@@ -17,7 +17,7 @@ var CLASchema = mongoose.Schema({
     userId: String,
 });
 
-var index = {
+let index = {
     repo: 1,
     repoId: 1,
     owner: 1,
@@ -27,12 +27,12 @@ var index = {
     gist_version: 1,
     org_cla: 1
 };
-var indexOptions = {
+let indexOptions = {
     unique: true,
     background: true
 };
 
-var CLA = mongoose.model('CLA', CLASchema);
+let CLA = mongoose.model('CLA', CLASchema);
 
 CLA.collection.dropAllIndexes(function (err, results) {
     if (err) {

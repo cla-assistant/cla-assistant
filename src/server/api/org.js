@@ -1,10 +1,9 @@
 let org = require('../services/org');
 let github = require('../services/github');
 let log = require('../services/logger');
-let q = require('q');
 let Joi = require('joi');
 let webhook = require('./webhook');
-
+let logger = require('../services/logger');
 //queries
 let queries = require('../graphQueries/github');
 
@@ -28,6 +27,7 @@ module.exports = {
         Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
             if (joiError) {
                 joiError.code = 400;
+
                 return done(joiError);
             }
             let query = {
@@ -35,6 +35,9 @@ module.exports = {
                 org: req.args.org,
             };
             org.get(query, function (err, dbOrg) {
+                if (err) {
+                    logger.info(err.stack);
+                }
                 if (dbOrg) {
                     return done('This org is already linked.');
                 }
@@ -54,6 +57,7 @@ module.exports = {
             if (err) {
                 log.warn(new Error(err).stack);
                 done(err);
+
                 return;
             }
             let argsForOrg = {
@@ -74,7 +78,8 @@ module.exports = {
                 if (err || res.statusCode > 200) {
                     log.info(new Error(err).stack);
                     if (!res) {
-                        handleError('No result on GH call, getting user orgs! For user: ', req.user);
+                        log.warn('No result on GH call, getting user orgs! For user: ' + req.user);
+
                         return;
                     }
                 }
@@ -89,6 +94,7 @@ module.exports = {
                                 edge.node.id = edge.node.databaseId;
                                 orgs.push(edge.node);
                             }
+
                             return orgs;
                         }, organizations);
 
@@ -101,7 +107,6 @@ module.exports = {
                     } catch (error) {
                         log.warn(new Error('Could not find and filter user organizations; ' + error).stack);
                         done(error);
-                        return;
                     }
 
                 } else if (res.message || body.errors || res.statusCode > 200) {
@@ -113,7 +118,7 @@ module.exports = {
                 }
 
             });
-        };
+        }
         if (req.user && req.user.login) {
             callGithub({});
         } else {
@@ -131,6 +136,7 @@ module.exports = {
         Joi.validate(req.args, schema, { abortEarly: false }, function (joiError) {
             if (joiError) {
                 joiError.code = 400;
+
                 return done(joiError);
             }
             org.remove(req.args, function (removeOrgErr, dbOrg) {

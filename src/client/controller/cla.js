@@ -4,225 +4,235 @@
 // tmpl: cla.html
 // *****************************************************
 
-module.controller('ClaController', ['$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
-		function ($window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
+module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
+    function ($log, $window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
 
-			$scope.cla = null;
-			$scope.customFields = {};
-			$scope.customValues = {};
-			$scope.hasCustomFields = false;
-			$scope.linkedItem = null;
-			$scope.noLinkedItemError = false;
-			$scope.params = $stateParams;
-			$scope.user = {};
-			$scope.signed = false;
-			$scope.isSharedSignature = false;
+        $scope.cla = null;
+        $scope.customFields = {};
+        $scope.customValues = {};
+        $scope.hasCustomFields = false;
+        $scope.linkedItem = null;
+        $scope.noLinkedItemError = false;
+        $scope.params = $stateParams;
+        $scope.user = {};
+        $scope.signed = false;
+        $scope.isSharedSignature = false;
 
-			function getUserEmail(key) {
-				$HUBService.call('users', 'getEmails', {}, function (err, data) {
-					if (data && data.value) {
-						data.value.some(function (email) {
-							$scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];
-							return email.primary;
-						});
-					}
-				});
-			}
+        function getUserEmail(key) {
+            // eslint-disable-next-line handle-callback-err
+            $HUBService.call('users', 'getEmails', {}, function (err, data) {
+                if (data && data.value) {
+                    data.value.some(function (email) {
+                        $scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];
 
-			function getGithubValues() {
-				if ($scope.hasCustomFields && $scope.user.value && !$scope.signed) {
-					$scope.customKeys.forEach(function (key) {
-						var githubKey = $scope.customFields[key].githubKey;
-						if (githubKey) {
-							$scope.customValues[key] = $scope.user.value[githubKey];
-							if (githubKey === 'email' && !$scope.user.value.email) {
-								getUserEmail(key);
-							}
-						}
-					});
-				}
-			}
+                        return email.primary;
+                    });
+                }
+            });
+        }
 
-			function getSignedValues() {
-				$RPCService.call('cla', 'getLastSignature', {
-					repo: $stateParams.repo,
-					owner: $stateParams.user,
-					number: $stateParams.pullRequest
-				}, function (err, res) {
-					if ($scope.hasCustomFields && res && res.value && res.value.custom_fields) {
-						var customFields = JSON.parse(res.value.custom_fields);
-						$scope.customKeys.forEach(function (key) {
-							$scope.customValues[key] = customFields[key];
-						});
-					}
-					$scope.isSharedSignature = isSharedSignature(res.value);
-				});
-			}
+        function getGithubValues() {
+            if ($scope.hasCustomFields && $scope.user.value && !$scope.signed) {
+                $scope.customKeys.forEach(function (key) {
+                    var githubKey = $scope.customFields[key].githubKey;
+                    if (githubKey) {
+                        $scope.customValues[key] = $scope.user.value[githubKey];
+                        if (githubKey === 'email' && !$scope.user.value.email) {
+                            getUserEmail(key);
+                        }
+                    }
+                });
+            }
+        }
 
-			function isSharedSignature(cla) {
-				return cla && !cla.owner;
-			}
+        function isSharedSignature(cla) {
+            return cla && !cla.owner;
+        }
 
-			function getCLA() {
-				return utils.getGistContent($scope.linkedItem.repoId, $scope.linkedItem.orgId).then(
-					function success(gistContent) {
-						$scope.cla = $sce.trustAsHtml(gistContent.claText);
-						$scope.cla.text = gistContent.claText;
-						$scope.claText = gistContent.claText;
+        function getSignedValues() {
+            $RPCService.call('cla', 'getLastSignature', {
+                repo: $stateParams.repo,
+                owner: $stateParams.user,
+                number: $stateParams.pullRequest
+            }, function (err, res) {
+                if (err) {
+                    $log.info(err);
+                }
+                if ($scope.hasCustomFields && res && res.value && res.value.custom_fields) {
+                    var customFields = JSON.parse(res.value.custom_fields);
+                    $scope.customKeys.forEach(function (key) {
+                        $scope.customValues[key] = customFields[key];
+                    });
+                }
+                $scope.isSharedSignature = isSharedSignature(res.value);
+            });
+        }
 
-						$scope.customFields = gistContent.customFields;
-						$scope.customKeys = gistContent.customKeys;
-						$scope.hasCustomFields = gistContent.hasCustomFields;
-					},
-					function error(err) {
-						$scope.noLinkedItemError = err.message || err;
-					}
-				);
-			}
+        function getCLA() {
+            return utils.getGistContent($scope.linkedItem.repoId, $scope.linkedItem.orgId).then(
+                function success(gistContent) {
+                    $scope.cla = $sce.trustAsHtml(gistContent.claText);
+                    $scope.cla.text = gistContent.claText;
+                    $scope.claText = gistContent.claText;
 
-			function checkCLA() {
-				return $RPCService.call('cla', 'check', {
-					repo: $stateParams.repo,
-					owner: $stateParams.user,
-					number: $stateParams.pullRequest
-				}, function (err, signed) {
-					if (!err && signed.value) {
-						$scope.signed = true;
-					} else {
-						$scope.signed = false;
-					}
-				});
-			}
+                    $scope.customFields = gistContent.customFields;
+                    $scope.customKeys = gistContent.customKeys;
+                    $scope.hasCustomFields = gistContent.hasCustomFields;
+                },
+                function error(err) {
+                    $scope.noLinkedItemError = err.message || err;
+                }
+            );
+        }
 
-			function getLinkedItem(callback) {
-				return $RPCService.call('cla', 'getLinkedItem', {
-					repo: $stateParams.repo,
-					owner: $stateParams.user
-				}, function (err, linkedItem) {
-					if (err) {
-						$scope.noLinkedItemError = err.message || err;
-					}
-					callback(linkedItem.value);
-				});
-			}
+        function checkCLA() {
+            return $RPCService.call('cla', 'check', {
+                repo: $stateParams.repo,
+                owner: $stateParams.user,
+                number: $stateParams.pullRequest
+            }, function (err, signed) {
+                if (!err && signed.value) {
+                    $scope.signed = true;
+                } else {
+                    $scope.signed = false;
+                }
+            });
+        }
 
-			var getUser = function () {
-				return $HUBService.call('users', 'get', {}, function (err, res) {
-					if (err) {
-						return;
-					}
+        function getLinkedItem(callback) {
+            return $RPCService.call('cla', 'getLinkedItem', {
+                repo: $stateParams.repo,
+                owner: $stateParams.user
+            }, function (err, linkedItem) {
+                if (err) {
+                    $scope.noLinkedItemError = err.message || err;
+                }
+                callback(linkedItem.value);
+            });
+        }
 
-					$scope.user = res;
-					$scope.user.value.admin = false;
-					if (res.meta && res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1) {
-						$scope.user.value.admin = true;
-					}
-				});
-			};
+        var getUser = function () {
+            return $HUBService.call('users', 'get', {}, function (err, res) {
+                if (err) {
+                    return;
+                }
 
-			var redirect = function () {
-				$scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
-				if ($stateParams.pullRequest) {
-					$scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
-				}
-				// $http.get('/logout?noredirect=true');
-				$timeout(function () {
-					$window.location.href = $scope.redirect;
-				}, 5000);
-			};
+                $scope.user = res;
+                $scope.user.value.admin = false;
+                if (res.meta && res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                    $scope.user.value.admin = true;
+                }
+            });
+        };
 
-			$scope.agree = function () {
-				if (!$scope.hasCustomFields) {
-					var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
-					acceptUrl = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
-					$window.location.href = acceptUrl;
-				} else if ($scope.user.value && $scope.hasCustomFields) {
-					$RPCService.call('cla', 'sign', {
-						repo: $stateParams.repo,
-						owner: $stateParams.user,
-						custom_fields: JSON.stringify($scope.customValues)
-					}, function (err, signed) {
-						$scope.signed = signed.value;
-						if ($scope.signed) {
-							redirect();
-						}
-					});
-				}
-			};
+        var redirect = function () {
+            $scope.redirect = 'https://github.com/' + $stateParams.user + '/' + $stateParams.repo;
+            if ($stateParams.pullRequest) {
+                $scope.redirect = $scope.redirect + '/pull/' + $stateParams.pullRequest;
+            }
+            // $http.get('/logout?noredirect=true');
+            $timeout(function () {
+                $window.location.href = $scope.redirect;
+            }, 5000);
+        };
 
-			$scope.signIn = function () {
-				var acceptUrl = '/signin/' + $stateParams.user + '/' + $stateParams.repo;
-				$window.location.href = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
-			};
+        $scope.agree = function () {
+            if (!$scope.hasCustomFields) {
+                var acceptUrl = '/accept/' + $stateParams.user + '/' + $stateParams.repo;
+                acceptUrl = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
+                $window.location.href = acceptUrl;
+            } else if ($scope.user.value && $scope.hasCustomFields) {
+                $RPCService.call('cla', 'sign', {
+                    repo: $stateParams.repo,
+                    owner: $stateParams.user,
+                    custom_fields: JSON.stringify($scope.customValues)
+                }, function (err, signed) {
+                    if (err) {
+                        $log.info(err);
+                    }
+                    $scope.signed = signed ? signed.value : false;
+                    if ($scope.signed) {
+                        redirect();
+                    }
+                });
+            }
+        };
 
-			var userPromise = getUser();
-			var claPromise;
-			var repoPromise = getLinkedItem(function (linkedItem) {
-				$scope.linkedItem = linkedItem;
-				if ($scope.linkedItem) {
-					claPromise = getCLA();
-				}
-			});
+        $scope.signIn = function () {
+            var acceptUrl = '/signin/' + $stateParams.user + '/' + $stateParams.repo;
+            $window.location.href = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
+        };
 
-			$scope.isValid = function () {
-				var valid = true;
+        var userPromise = getUser();
+        var claPromise;
+        var repoPromise = getLinkedItem(function (linkedItem) {
+            $scope.linkedItem = linkedItem;
+            if ($scope.linkedItem) {
+                claPromise = getCLA();
+            }
+        });
 
-				function isNotEmpty(value) {
-					return !!value || value === 0;
-				}
+        $scope.isValid = function () {
+            var valid = true;
 
-				function typeIsValid(value, field) {
-					return typeof value == field.type || field.type.enum || field.type == 'textarea';
-				}
+            function isNotEmpty(value) {
+                return !!value || value === 0;
+            }
 
-				$scope.customKeys.some(function (key) {
-					var value = $scope.customValues[key];
-					var field = $scope.customFields[key];
-					valid = !field.required || (isNotEmpty(value) && typeIsValid(value, field));
-					return !valid;
-				});
-				return valid;
-			};
+            function typeIsValid(value, field) {
+                return typeof value == field.type || field.type.enum || field.type == 'textarea';
+            }
 
-			$scope.showSharedGistMsg = function () {
-				return $scope.linkedItem && $scope.linkedItem.sharedGist && (!$scope.signed || ($scope.signed && $scope.isSharedSignature));
-			};
+            $scope.customKeys.some(function (key) {
+                var value = $scope.customValues[key];
+                var field = $scope.customFields[key];
+                valid = !field.required || (isNotEmpty(value) && typeIsValid(value, field));
 
-			$q.all([userPromise, repoPromise]).then(function () {
-				if ($scope.user && $scope.user.value && $scope.linkedItem) {
-					// var claPromise = getCLA();
-					var signedPromise = checkCLA().then(function (signed) {
-						// $scope.customValues = signed.value ? {} : $scope.customValues;
-						if (signed.value && $stateParams.redirect) {
-							redirect();
-						}
-					});
-					$q.all([claPromise, signedPromise]).then(function () {
-						if ($scope.signed) {
-							getSignedValues();
-						} else {
-							getGithubValues();
-						}
-					});
-				}
-			});
-		}
-	])
-	.directive('customfield', [function () {
-		return {
-			templateUrl: '/templates/customField.html',
-			scope: {
-				description: '=',
-				key: '=',
-				logged: '=',
-				min: '=',
-				max: '=',
-				name: '=',
-				required: '=',
-				signed: '=',
-				title: '=',
-				type: '=',
-				value: '=',
-			}
-		};
-	}]);
+                return !valid;
+            });
+
+            return valid;
+        };
+
+        $scope.showSharedGistMsg = function () {
+            return $scope.linkedItem && $scope.linkedItem.sharedGist && (!$scope.signed || ($scope.signed && $scope.isSharedSignature));
+        };
+
+        $q.all([userPromise, repoPromise]).then(function () {
+            if ($scope.user && $scope.user.value && $scope.linkedItem) {
+                // var claPromise = getCLA();
+                var signedPromise = checkCLA().then(function (signed) {
+                    // $scope.customValues = signed.value ? {} : $scope.customValues;
+                    if (signed.value && $stateParams.redirect) {
+                        redirect();
+                    }
+                });
+                $q.all([claPromise, signedPromise]).then(function () {
+                    if ($scope.signed) {
+                        getSignedValues();
+                    } else {
+                        getGithubValues();
+                    }
+                });
+            }
+        });
+    }
+])
+    .directive('customfield', [function () {
+        return {
+            templateUrl: '/templates/customField.html',
+            scope: {
+                description: '=',
+                key: '=',
+                logged: '=',
+                min: '=',
+                max: '=',
+                name: '=',
+                required: '=',
+                signed: '=',
+                title: '=',
+                type: '=',
+                value: '=',
+            }
+        };
+    }]);

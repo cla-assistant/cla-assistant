@@ -1,47 +1,27 @@
 /*global describe, it, beforeEach, afterEach*/
 // unit test
-var assert = require('assert');
-var sinon = require('sinon');
+let assert = require('assert');
+let sinon = require('sinon');
 
 //model
-var CLA = require('../../../server/documents/cla').CLA;
-// var User = require('../../../server/documents/user').User;
-
-var https = require('https');
+let CLA = require('../../../server/documents/cla').CLA;
 
 //services
-var org_service = require('../../../server/services/org');
-var repo_service = require('../../../server/services/repo');
-var github = require('../../../server/services/github');
-var statusService = require('../../../server/services/status');
-var logger = require('../../../server/services/logger');
+let org_service = require('../../../server/services/org');
+let repo_service = require('../../../server/services/repo');
+let github = require('../../../server/services/github');
+let logger = require('../../../server/services/logger');
 
-var config = require('../../../config');
+let config = require('../../../config');
 // test data
-var testData = require('../testData').data;
+let testData = require('../testData').data;
 
 // service under test
-var cla = require('../../../server/services/cla');
+let cla = require('../../../server/services/cla');
 
-// var callbacks = {};
-// var req = {
-//     end: function () { },
-//     error: function (err) {
-//         callbacks.error(err);
-//     },
-//     on: function (fun, cb) {
-//         callbacks[fun] = cb;
-//     }
-// };
-// var res = {
-//     on: function (fun, callback) {
-//         callbacks[fun] = callback;
-//     }
-// };
-
-var expArgs = {};
-var testRes = {};
-var testErr = {};
+let expArgs = {};
+let testRes = {};
+let testErr = {};
 
 function stub() {
     expArgs.claFindOne = {
@@ -104,12 +84,13 @@ function stub() {
         } else if (args.obj === 'gists' && args.fun === 'get') {
             if (testErr.gistData) {
                 return Promise.reject(testErr.gistData);
-            } else {
-                return Promise.resolve(testRes.gistData);
             }
+
+return Promise.resolve(testRes.gistData);
         } else if (args.obj === 'pullRequests' && args.fun === 'getFiles') {
             assert(args.arg.noCache);
-            return Promise.resolve(testRes.pullRequestFiles);
+
+return Promise.resolve(testRes.pullRequestFiles);
         }
     });
 }
@@ -129,15 +110,15 @@ function restore() {
 }
 
 describe('cla:getLastSignature', function () {
-    var now = new Date();
-    var clock = null;
+    let now = new Date();
+    let clock = null;
 
     beforeEach(function () {
         stub();
         testRes.gistData = {
             data: {
                 history: [{
-                    version: "xyz"
+                    version: 'xyz'
                 }]
             }
         };
@@ -150,7 +131,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should get cla entry for equal repo, userId or user and gist url', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             userId: 'userId',
@@ -216,7 +197,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should get cla entry for equal repo, user and gist url', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'user'
@@ -247,7 +228,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should update user name if github username is changed', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'changedUserName',
@@ -318,7 +299,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should send error when update user name failed when github username is changed', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'changedUserName',
@@ -337,7 +318,7 @@ describe('cla:getLastSignature', function () {
             }
         };
 
-        cla.getLastSignature(args, function (err, cla) {
+        cla.getLastSignature(args, function (err) {
             assert(err === 'Update error.');
             assert.equal(CLA.findOne.calledWithMatch({
                 $or: [{
@@ -381,7 +362,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should get cla for repos or orgs with shared gist', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
@@ -428,14 +409,14 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should search a cla on current date and a pull request date when PR number is provided', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1',
             user: 'login'
         };
-        var prCreateDateString = '1970-01-01T00:00:00.000Z';
-        var prCreateDate = new Date(prCreateDateString);
+        let prCreateDateString = '1970-01-01T00:00:00.000Z';
+        let prCreateDate = new Date(prCreateDateString);
         testErr.getPR = null;
         testRes.getPR = {
             created_at: prCreateDate
@@ -482,7 +463,7 @@ describe('cla:getLastSignature', function () {
 
     it('should positive check if an repo has a null CLA', function (it_done) {
         testRes.repoServiceGet.gist = undefined;
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
@@ -499,7 +480,7 @@ describe('cla:getLastSignature', function () {
         testErr.orgServiceGet = 'Organization not found in Database';
         testRes.repoServiceGet = null;
         testRes.orgServiceGet = null;
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
@@ -513,7 +494,7 @@ describe('cla:getLastSignature', function () {
 
     it('should send error if getGist has an error', function (it_done) {
         testErr.gistData = 'Error';
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login'
@@ -527,7 +508,7 @@ describe('cla:getLastSignature', function () {
 
     it('should send error if get pull request failed when pull request number is given', function (it_done) {
         testErr.getPR = 'Error';
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login',
@@ -541,7 +522,7 @@ describe('cla:getLastSignature', function () {
     });
 
     it('should send error if user is not given', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner'
         };
@@ -565,7 +546,7 @@ describe('cla:checkUserSignature', function () {
     });
 
     it('should call get last signature for the user', function (it_done) {
-        var args = {
+        let args = {
             repo: 'repo',
             owner: 'owner',
             user: 'user'
@@ -580,8 +561,8 @@ describe('cla:checkUserSignature', function () {
 });
 
 describe('cla:checkPullRequestSignatures', function () {
-    var now = new Date();
-    var clock = null;
+    let now = new Date();
+    let clock = null;
     beforeEach(function () {
         stub();
         testRes.gistData = {
@@ -601,8 +582,8 @@ describe('cla:checkPullRequestSignatures', function () {
             token: 'abc'
         };
         clock = sinon.useFakeTimers(now.getTime());
-        var prCreateDateString = '1970-01-01T00:00:00.000Z';
-        var prCreateDate = new Date(prCreateDateString);
+        let prCreateDateString = '1970-01-01T00:00:00.000Z';
+        let prCreateDate = new Date(prCreateDateString);
         testErr.getPR = null;
         testRes.getPR = {
             user: {
@@ -627,7 +608,7 @@ describe('cla:checkPullRequestSignatures', function () {
         testErr.orgServiceGet = 'Organization not found in Database';
         testRes.repoServiceGet = null;
         testRes.orgServiceGet = null;
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -641,7 +622,7 @@ describe('cla:checkPullRequestSignatures', function () {
 
     it('should send error if getGist has an error', function (it_done) {
         testErr.gistData = 'Error';
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -656,7 +637,7 @@ describe('cla:checkPullRequestSignatures', function () {
 
     it('should send error if get pull request failed', function (it_done) {
         testErr.getPR = 'Error';
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -672,7 +653,7 @@ describe('cla:checkPullRequestSignatures', function () {
         testErr.repoServiceGetCommitters = 'err';
         testRes.repoServiceGetCommitters = undefined;
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -686,7 +667,7 @@ describe('cla:checkPullRequestSignatures', function () {
 
     it('should positive check if an repo has a null CLA', function (it_done) {
         testRes.repoServiceGet.gist = undefined;
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -727,7 +708,7 @@ describe('cla:checkPullRequestSignatures', function () {
             }
         });
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -763,7 +744,7 @@ describe('cla:checkPullRequestSignatures', function () {
             }
         });
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -788,7 +769,7 @@ describe('cla:checkPullRequestSignatures', function () {
             id: '321'
         }];
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -813,7 +794,7 @@ describe('cla:checkPullRequestSignatures', function () {
             id: '321'
         }];
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
@@ -844,12 +825,12 @@ describe('cla.check', function () {
     });
 
     it('Should call checkUser when user is given', function (it_done) {
-        var args = {
+        let args = {
             repo: 'repo',
             owner: 'owner',
             user: 'user'
         };
-        cla.check(args, function (error, done) {
+        cla.check(args, function () {
             assert(cla.checkUserSignature.called);
             assert(!cla.checkPullRequestSignatures.called);
             it_done();
@@ -857,12 +838,12 @@ describe('cla.check', function () {
     });
 
     it('Should call checkPullRequest when user is NOT given and pull request number is given', function (it_done) {
-        var args = {
+        let args = {
             repo: 'repo',
             owner: 'owner',
             number: '1'
         };
-        cla.check(args, function (error, done) {
+        cla.check(args, function () {
             assert(cla.checkPullRequestSignatures.called);
             assert(!cla.checkUserSignature.called);
             it_done();
@@ -870,11 +851,11 @@ describe('cla.check', function () {
     });
 
     it('Should send error if user or pull request number is NOT given', function (it_done) {
-        var args = {
+        let args = {
             repo: 'repo',
             owner: 'owner'
         };
-        cla.check(args, function (error, done) {
+        cla.check(args, function (error) {
             assert(error);
             assert(!cla.checkPullRequestSignatures.called);
             assert(!cla.checkUserSignature.called);
@@ -884,7 +865,7 @@ describe('cla.check', function () {
 });
 
 describe('cla:sign', function () {
-    var testArgs = {};
+    let testArgs = {};
 
     beforeEach(function () {
         stub();
@@ -1039,7 +1020,7 @@ describe('cla:create', function () {
             });
         });
 
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             repoId: '123',
@@ -1067,7 +1048,7 @@ describe('cla:getSignedCLA', function () {
         });
 
         sinon.stub(CLA, 'find').callsFake(function (arg, selectionCriteria, sortCriteria, done) {
-            var listOfAllCla = [{
+            let listOfAllCla = [{
                 repo: 'repo1',
                 user: 'login',
                 gist_url: 'gist_url',
@@ -1091,7 +1072,7 @@ describe('cla:getSignedCLA', function () {
             done(null, listOfAllCla);
         });
 
-        var args = {
+        let args = {
             user: 'login'
         };
         cla.getSignedCLA(args, function (err, clas) {
@@ -1118,7 +1099,7 @@ describe('cla:getSignedCLA', function () {
             }]);
         });
         sinon.stub(CLA, 'find').callsFake(function (arg, selectionCriteria, sortCriteria, done) {
-            var listOfAllCla = [{
+            let listOfAllCla = [{
                 repo: 'repo1',
                 user: 'login',
                 gist_url: 'gist_url1',
@@ -1151,7 +1132,7 @@ describe('cla:getSignedCLA', function () {
             }
         });
 
-        var args = {
+        let args = {
             user: 'login'
         };
         cla.getSignedCLA(args, function (err, clas) {
@@ -1169,7 +1150,7 @@ describe('cla:getAll', function () {
     beforeEach(function () {
         sinon.stub(CLA, 'find').callsFake(function (arg, prop, options, done) {
             assert(arg);
-            var resp = [{
+            let resp = [{
                 id: 2,
                 created_at: '2011-06-20T11:34:15Z',
                 gist_version: 'xyz'
@@ -1191,7 +1172,7 @@ describe('cla:getAll', function () {
     });
 
     it('should get all signed cla with same orgId', function (it_done) {
-        var args = {
+        let args = {
             orgId: 1,
             gist: {
                 gist_url: 'gistUrl'
@@ -1214,7 +1195,7 @@ describe('cla:getAll', function () {
     });
 
     it('should get all signed cla with same repoId', function (it_done) {
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: {
                 gist_url: 'gistUrl'
@@ -1238,7 +1219,7 @@ describe('cla:getAll', function () {
     });
 
     it('should get all cla for a specific gist version', function (it_done) {
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: {
                 gist_url: 'gistUrl',
@@ -1262,7 +1243,7 @@ describe('cla:getAll', function () {
             done('Error!', undefined);
         });
 
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: {
                 gist_url: 'gistUrl'
@@ -1277,7 +1258,7 @@ describe('cla:getAll', function () {
     });
 
     it('should handle wrong args', function (it_done) {
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: undefined
         };
@@ -1295,7 +1276,7 @@ describe('cla:getAll', function () {
             assert(arg);
             done();
         });
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: {
                 gist_url: 'gistUrl',
@@ -1304,7 +1285,7 @@ describe('cla:getAll', function () {
             sharedGist: true
         };
 
-        cla.getAll(args, function (err) {
+        cla.getAll(args, function () {
             assert(CLA.find.calledWith({
                 $or: [{
                     gist_url: args.gist.gist_url,
@@ -1340,7 +1321,7 @@ describe('cla:getAll', function () {
                 gist_version: 'xyz'
             }]);
         });
-        var args = {
+        let args = {
             repoId: testData.repo.id,
             gist: {
                 gist_url: 'gistUrl',
@@ -1350,6 +1331,7 @@ describe('cla:getAll', function () {
         };
 
         cla.getAll(args, function (err, arr) {
+            assert.ifError(err);
             assert.equal(arr.length, 1);
 
             it_done();
@@ -1370,7 +1352,7 @@ describe('cla:getGist', function () {
     });
 
     it('should extract valid gist ID', function (it_done) {
-        var repo = {
+        let repo = {
             gist: {
                 gist_url: 'url/gists/gistId',
                 gist_version: 'versionId'
@@ -1383,7 +1365,7 @@ describe('cla:getGist', function () {
     });
 
     it('should extract valid gist ID considering file names in the url', function (it_done) {
-        var repo = {
+        let repo = {
             gist: {
                 gist_url: 'url/gists/gistId#fileName',
                 gist_version: 'versionId'
@@ -1396,7 +1378,7 @@ describe('cla:getGist', function () {
     });
 
     it('should handle repo without gist', function (it_done) {
-        var repo = {};
+        let repo = {};
 
         cla.getGist(repo, function (err) {
             assert.equal(err, 'The gist url "undefined" seems to be invalid');
@@ -1443,7 +1425,7 @@ describe('cla:getLinkedItem', function () {
     it('should find linked item using reponame and owner parameters', function (it_done) {
         config.server.github.token = 'test_token';
 
-        var args = {
+        let args = {
             repo: 'Hello-World',
             owner: 'octocat'
         };
@@ -1455,7 +1437,7 @@ describe('cla:getLinkedItem', function () {
         });
     });
     it('should return an error, if the GH Repo does not exist', function (it_done) {
-        var testArgs = {
+        let testArgs = {
             repo: 'DoesNotExist',
             owner: 'NoOne'
         };
@@ -1468,7 +1450,7 @@ describe('cla:getLinkedItem', function () {
     });
 
     it('should return linked repo even corresponding org is also linked', function (it_done) {
-        var args = {
+        let args = {
             repo: 'Hello-World',
             owner: 'octocat',
             token: 'test_token'
@@ -1482,7 +1464,7 @@ describe('cla:getLinkedItem', function () {
     });
 
     it('should return linked org when repo is not linked', function (it_done) {
-        var args = {
+        let args = {
             repo: 'Hello-World',
             owner: 'octocat',
             token: 'test_token'
@@ -1497,7 +1479,7 @@ describe('cla:getLinkedItem', function () {
     });
 
     it('should only check linked org if repo name is not provided', function (it_done) {
-        var args = {
+        let args = {
             owner: 'octocat'
         };
 
@@ -1511,8 +1493,6 @@ describe('cla:getLinkedItem', function () {
 });
 
 describe('cla:terminate', function () {
-    var testArgs = {};
-
     beforeEach(function () {
         stub();
         testRes.repoServiceGet = {
@@ -1529,7 +1509,7 @@ describe('cla:terminate', function () {
         testRes.gistData = {
             data: {
                 history: [{
-                    version: "xyz"
+                    version: 'xyz'
                 }]
             }
         };
@@ -1540,7 +1520,7 @@ describe('cla:terminate', function () {
     });
 
     it('should send error when terminate a null cla', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             token: 'test_token'
@@ -1554,7 +1534,7 @@ describe('cla:terminate', function () {
     });
 
     it('should send error when cannot find a signed cla to terminate', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             token: 'test_token'
@@ -1568,7 +1548,7 @@ describe('cla:terminate', function () {
     });
 
     it('should successfully update the end_at when terminate a cla', function (it_done) {
-        var args = {
+        let args = {
             repo: 'myRepo',
             owner: 'owner',
             user: 'user',
@@ -1593,7 +1573,7 @@ describe('cla:terminate', function () {
 });
 
 describe('cla:isClaRequired', function () {
-    var args = null;
+    let args = null;
     beforeEach(function () {
         stub();
         args = {
@@ -1686,7 +1666,7 @@ describe('cla:isClaRequired', function () {
 
     it('should send error if repo, owner, number is not provided', function (it_done) {
         args = {};
-        cla.isClaRequired(args, function (err, isClaRequired) {
+        cla.isClaRequired(args, function (err) {
             assert(err);
             it_done();
         });

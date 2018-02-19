@@ -2,19 +2,21 @@
 var reservedGistFileNames = ['metadata'];
 
 module.factory('utils', ['$q', '$RPCService',
-    function($q, $RPCService) {
+    function ($q, $RPCService) {
         return {
-            getGistAttribute: function(gist, attribute) {
+            getGistAttribute: function (gist, attribute) {
                 var attr;
                 if (gist && gist.files) {
                     Object.keys(gist.files).some(function (file) {
                         if (reservedGistFileNames.indexOf(file) < 0) {
                             attr = file;
+
                             return true;
                         }
                     });
                     attr = gist.files[attr][attribute] ? gist.files[attr][attribute] : attr;
                 }
+
                 return attr;
             },
             getGistContent: function (repoId, orgId, gist_url, gist_version) {
@@ -51,6 +53,7 @@ module.factory('utils', ['$q', '$RPCService',
                         deferred.reject(err);
                     }
                 });
+
                 return deferred.promise;
             }
         };

@@ -1,6 +1,6 @@
 // module
-var github = require('../services/github');
-var merge = require('merge');
+let github = require('../services/github');
+let merge = require('merge');
 
 module.exports = {
     call: function(req, done) {
