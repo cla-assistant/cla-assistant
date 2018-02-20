@@ -43,7 +43,7 @@ passport.use(new Strategy(
             if (err || !data) {
                 done(err || 'Could not find GitHub user for given token');
 
-return;
+                return;
             }
             models.User.findOne({
                 uuid: data.id,
@@ -52,13 +52,13 @@ return;
                 if (err || !dbUser) {
                     done(err || 'Could not find ' + data.login);
 
-return;
+                    return;
                 }
                 checkToken(dbUser.token, function (err, authorization) {
                     if (err || !dbUser) {
                         done(err || 'Could not find ' + data.login);
 
-return;
+                        return;
                     }
                     done(err, merge(data, {
                         token: dbUser.token,

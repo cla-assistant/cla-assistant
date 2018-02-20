@@ -11,7 +11,7 @@ function authenticateForExternalApi(req, res, next) {
         if (!user) {
             res.status(401).json({ message: 'Incorrect token credentials' });
 
-return;
+            return;
         }
         utils.checkRepoPushPermissionById(req.args.repoId, user.token, function (err, hasPermission) {
             if (hasPermission) {
@@ -43,7 +43,7 @@ function authenticateForAdminOnlyApi(req, res, next) {
             promises.push(utils.checkOrgAdminPermission(req.args.org, user.login, user.token));
         }
 
-return q.all(promises).then(function () {
+        return q.all(promises).then(function () {
             req.user = user;
             next();
         }).catch(function (error) {

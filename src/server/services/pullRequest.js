@@ -32,7 +32,7 @@ let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     }
     text += '<sub>You have signed the CLA already but the status is still pending? Let us [recheck](' + recheckUrl + ') it.</sub>';
 
-return text;
+    return text;
 };
 
 module.exports = {
@@ -111,7 +111,7 @@ module.exports = {
                     if (comment.body.match(/.*!\[CLA assistant check\].*/)) {
                         CLAAssistantComment = comment;
 
-return true;
+                        return true;
                     }
                 });
             }

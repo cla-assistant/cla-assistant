@@ -29,7 +29,7 @@ app.use(function (req, res, next) {
     if (!req.headers['x-forwarded-proto'] || req.headers['x-forwarded-proto'] === 'https') {
         next();
 
-return;
+        return;
     }
     let host = req.headers['x-forwarded-host'] || req.headers.host;
 
@@ -85,7 +85,7 @@ let bootstrap = function (files, callback) {
                         console.log('✖ '.bold.red + path.relative(process.cwd(), f));
                         console.log(ex.stack);
 
-return;
+                        return;
                     }
                     console.log('✓ '.bold.green + path.relative(process.cwd(), f));
                 });

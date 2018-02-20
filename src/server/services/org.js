@@ -5,7 +5,7 @@ let Org = mongoose.model('Org');
 let selection = function (args) {
     let selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
 
-return selectArguments;
+    return selectArguments;
 };
 
 module.exports = {

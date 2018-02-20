@@ -65,7 +65,7 @@ passport.use(new Strategy({
                     }
                 });
 
-return;
+                return;
             }
 
             if (user && !user.uuid) {

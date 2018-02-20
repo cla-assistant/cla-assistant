@@ -32,7 +32,7 @@ module.exports = function () {
             let claUrl = url.resolve(baseUrl, '/' + user + '/' + repo);
             claUrl = number ? claUrl + '?pullRequest=' + number : claUrl;
 
-return claUrl;
+            return claUrl;
         },
         githubBase: githubBase,
         githubApiBase: githubApiBase,
@@ -48,7 +48,7 @@ return claUrl;
             _url += sha && since ? '&' : since ? '?' : '';
             _url = since ? _url + 'since=' + since : _url;
 
-return _url;
+            return _url;
         },
         githubFileReference: function (user, repo, fileReference) {
             return url.resolve(githubBase, '/' + user + '/' + repo + '/blob/' + fileReference);
@@ -60,7 +60,7 @@ return _url;
             let _url = this.githubRepository(owner, repo) + '/pulls';
             _url = state ? _url + '?state=' + state : _url;
 
-return _url;
+            return _url;
         },
         githubPullRequest: function (owner, repo, number) {
             return url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls/' + number);
@@ -74,18 +74,18 @@ return _url;
         githubRepository: function (owner, repo) {
             let _url = url.resolve(githubApiBase, '/repos/' + owner + '/' + repo);
 
-return _url;
+            return _url;
         },
         pullRequestBadge: function (signed) {
             let signed_str = signed ? 'signed' : 'not_signed';
 
-return url.resolve(baseUrl, '/pull/badge/' + signed_str);
+            return url.resolve(baseUrl, '/pull/badge/' + signed_str);
         },
         recheckPrUrl: function (owner, repo, number) {
             let checkUrl = url.resolve(baseUrl, '/check/' + owner + '/' + repo);
             checkUrl = number ? checkUrl + '?pullRequest=' + number : checkUrl;
 
-return checkUrl;
+            return checkUrl;
         },
         webhook: function (repo) {
             return url.resolve(baseUrl, '/github/webhook/' + repo);
