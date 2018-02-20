@@ -33,7 +33,7 @@ module.exports = {
             deferred.resolve(data);
         });
 
-return deferred.promise;
+        return deferred.promise;
     },
 
     checkRepoPushPermissionById: function (repoId, token, cb) {
@@ -48,7 +48,7 @@ return deferred.promise;
             if (err || !data) {
                 cb(err, data);
 
-return;
+                return;
             }
             let hasPermission = data.permissions.push;
             cb(err, hasPermission);
@@ -79,9 +79,9 @@ return;
                 return deferred.reject('You are not an admin of this org');
             }
 
-return deferred.resolve(data);
+            return deferred.resolve(data);
         });
 
-return deferred.promise;
+        return deferred.promise;
     },
 };

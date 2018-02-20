@@ -1,17 +1,17 @@
 // module
-let  repo = require('../services/repo');
-let  log = require('../services/logger');
-let  Joi = require('joi');
-let  webhook = require('./webhook');
+let repo = require('../services/repo');
+let log = require('../services/logger');
+let Joi = require('joi');
+let webhook = require('./webhook');
 
 module.exports = {
 
-    check: function(req, done) {
+    check: function (req, done) {
         repo.check(req.args, done);
     },
     create: function (req, done) {
         req.args.token = req.args.token || req.user.token;
-        let  schema = Joi.object().keys({
+        let schema = Joi.object().keys({
             owner: Joi.string().required(),
             repo: Joi.string().required(),
             repoId: Joi.number().required(),
@@ -25,9 +25,9 @@ module.exports = {
             if (joiError) {
                 joiError.code = 400;
 
-return done(joiError);
+                return done(joiError);
             }
-            let  repoArgs = {
+            let repoArgs = {
                 repo: req.args.repo,
                 owner: req.args.owner,
                 token: req.args.token
@@ -67,19 +67,19 @@ return done(joiError);
     // 		done(err, found_repo);
     // 	});
     // },
-    getAll: function(req, done){
-        repo.getAll(req.args, function(err, repos){
+    getAll: function (req, done) {
+        repo.getAll(req.args, function (err, repos) {
             if (err) {
                 log.error(err);
             }
             done(err, repos);
         });
     },
-    update: function(req, done){
+    update: function (req, done) {
         repo.update(req.args, done);
     },
     remove: function (req, done) {
-        let  schema = Joi.alternatives().try(Joi.object().keys({
+        let schema = Joi.alternatives().try(Joi.object().keys({
             owner: Joi.string().required(),
             repo: Joi.string().required(),
         }), Joi.object().keys({
@@ -89,7 +89,7 @@ return done(joiError);
             if (joiError) {
                 joiError.code = 400;
 
-return done(joiError);
+                return done(joiError);
             }
             repo.remove(req.args, function (removeRepoErr, dbRepo) {
                 if (removeRepoErr) {

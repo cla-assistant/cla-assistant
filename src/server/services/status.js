@@ -104,7 +104,7 @@ let findStatusToBeChanged = function (args, done) {
                 if (s.context.match(/licence\/cla/g)) {
                     shouldBeChanged = s.state === 'pending';
 
-return true;
+                    return true;
                 }
             });
             if (shouldBeChanged) {
@@ -116,7 +116,7 @@ return true;
                 if (s.context.match(/license\/cla/g)) {
                     status = s.state !== status.state ? status : undefined;
 
-return true;
+                    return true;
                 }
             });
         }
@@ -135,11 +135,11 @@ let findClaStatus = function (args, done) {
             if (status.context.match(/license\/cla/g)) {
                 claStatus = status;
 
-return true;
+                return true;
             }
         });
 
-return done(null, claStatus);
+        return done(null, claStatus);
     });
 };
 
@@ -150,7 +150,7 @@ let updateStatus = function (args, done) {
                 done();
             }
 
-return;
+            return;
         }
         createStatus(args, status.context, status.description, status.state, status.target_url, done);
     });
@@ -183,7 +183,7 @@ let updateStatusIfNeeded = function (args, status, allowAbsent, done) {
         if (err) {
             log(err, argsWithSha, args);
 
-return doneIfNeeded(done, err);
+            return doneIfNeeded(done, err);
         }
         findClaStatus(args, function (err, claStatus) {
             if (err) {

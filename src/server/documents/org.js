@@ -12,20 +12,20 @@ let OrgSchema = mongoose.Schema({
     minCodeChanges: Number
 });
 
-OrgSchema.methods.isRepoExcluded = function(repo) {
+OrgSchema.methods.isRepoExcluded = function (repo) {
     if (!this.excludePattern || !repo || !repo.includes) {
         return false;
     }
     let patterns = this.excludePattern.split(',');
 
-return patterns.filter(function(pattern) { return repo.includes(pattern); }).length > 0;
+    return patterns.filter(function (pattern) { return repo.includes(pattern); }).length > 0;
 };
 
 OrgSchema.index({
     orgId: 1,
 }, {
-    unique: true
-});
+        unique: true
+    });
 
 let Org = mongoose.model('Org', OrgSchema);
 

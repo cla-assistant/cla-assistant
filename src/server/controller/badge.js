@@ -56,11 +56,11 @@ router.all('/readme/badge/:owner/:repo', function (req, res) {
         res.redirect(url);
     };
     req.args = args;
-    cla.countCLA(req, function(err, count){
+    cla.countCLA(req, function (err, count) {
         if (err || !count) {
             redirect(0);
 
-return;
+            return;
         }
         redirect(count);
     });

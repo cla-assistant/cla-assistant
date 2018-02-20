@@ -51,7 +51,7 @@ function getRepoHook(owner, repo, noCache, token, done) {
                 return done(error);
             }
 
-return done(null, hook);
+            return done(null, hook);
         });
     });
 }

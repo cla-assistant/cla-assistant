@@ -35,7 +35,7 @@ function markdownRender(content, token) {
             if (callback_error) {
                 deferred.reject(callback_error);
 
-return;
+                return;
             }
         }
         if (response) {
@@ -48,7 +48,7 @@ return;
 
     });
 
-return deferred.promise;
+    return deferred.promise;
 }
 
 function renderFiles(files, renderToken) {
@@ -58,12 +58,12 @@ function renderFiles(files, renderToken) {
         Object.keys(files).some(function (name) {
             content = name != 'metadata' ? files[name].content : content;
 
-return name != 'metadata';
+            return name != 'metadata';
         });
     } catch (e) {
         deferred.reject(e);
 
-return deferred.promise;
+        return deferred.promise;
     }
     let metadata = files && files.metadata ? files.metadata.content : undefined;
 
@@ -87,7 +87,7 @@ return deferred.promise;
             deferred.reject(msg);
         });
 
-return deferred.promise;
+    return deferred.promise;
 }
 
 function getLinkedItemsWithSharedGist(gist, done) {
@@ -118,7 +118,7 @@ function validatePullRequest(args, done) {
             logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
             log.error(error.stack, logArgs);
 
-return done();
+            return done();
         }
         if (!item.gist) {
             return status.updateForNullCla(args, function () {
@@ -148,7 +148,7 @@ return done();
                 }
                 args.signed = all_signed;
 
-return status.update(args, function () {
+                return status.update(args, function () {
                     prService.editComment({
                         repo: args.repo,
                         owner: args.owner,
@@ -196,7 +196,7 @@ function updateUsersPullRequests(args) {
                     if (!linkedItem) {
                         needRemove.push(index);
 
-return callback();
+                        return callback();
                     }
                     if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                         needRemove.push(index);
@@ -229,7 +229,7 @@ return callback();
             } else if (args.item.org) {
                 req.args.org = args.item.org;
 
-return ClaApi.validateOrgPullRequests(req, () => {
+                return ClaApi.validateOrgPullRequests(req, () => {
                     // Ignore result
                 });
             }
@@ -237,7 +237,7 @@ return ClaApi.validateOrgPullRequests(req, () => {
             req.args.repo = args.repo;
             req.args.owner = args.owner;
 
-return ClaApi.validatePullRequests(req, () => {
+            return ClaApi.validatePullRequests(req, () => {
                 // Ignore result
             });
         }
@@ -280,7 +280,7 @@ function getReposNeedToValidate(req, done) {
                         return false;
                     }
 
-return true;
+                    return true;
                 });
                 done(null, repos);
             });
@@ -301,7 +301,7 @@ let ClaApi = {
             if (joiErr) {
                 joiErr.code = 400;
 
-return done(joiErr);
+                return done(joiErr);
             }
             if (req.user && req.user.token && req.args.gist) {
                 cla.getGist({
@@ -315,7 +315,7 @@ return done(joiErr);
                         log.warn(err.stack + 'with args: ' + req.args);
                         done(err);
 
-return;
+                        return;
                     }
                     let gist_args = {
                         gist_url: item.gist
@@ -337,14 +337,14 @@ return;
             log.info('request headers: ', req.headers);
             done('Please, provide owner and repo name or orgId');
 
-return;
+            return;
         }
         this.getGist(req, function (err, res) {
             if (err || !res) {
                 log.error(new Error(err).stack, 'with args: ', req.args);
                 done(err);
 
-return;
+                return;
             }
 
             let renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
@@ -413,7 +413,7 @@ return;
                         cb(err + ' There is no such item');
                         log.info(err, 'There is no such item for args: ', req.args);
 
-return;
+                        return;
                     }
                     params.token = item.token;
                     params.sharedGist = item.sharedGist;
@@ -443,7 +443,7 @@ return;
             if (err) {
                 done(err);
 
-return;
+                return;
             }
             cla.getAll(params, function (err, clas) {
                 done(err, clas.length);
@@ -570,7 +570,7 @@ return;
                     if (item.org) {
                         tmpReq.args.org = item.org;
 
-return self.validateOrgPullRequests(tmpReq, callback);
+                        return self.validateOrgPullRequests(tmpReq, callback);
                     }
                     tmpReq.args.repo = item.repo;
                     tmpReq.args.owner = item.owner;
@@ -601,7 +601,7 @@ return self.validateOrgPullRequests(tmpReq, callback);
             if (e) {
                 log.error(new Error(e).stack);
 
-return done(e);
+                return done(e);
             }
             args.item = item;
             args.token = item.token;
@@ -611,7 +611,7 @@ return done(e);
                         log.error(new Error(err).stack);
                     }
 
-return done(err);
+                    return done(err);
                 }
                 updateUsersPullRequests(args);
                 done(null, signed);
@@ -671,7 +671,7 @@ return done(err);
             if (joiErr) {
                 joiErr.code = 400;
 
-return done(joiErr);
+                return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
@@ -684,7 +684,7 @@ return done(joiErr);
                 if (e) {
                     log.error(new Error(e).stack);
 
-return done(e);
+                    return done(e);
                 }
                 req.args.item = item;
                 req.args.token = item.token;
@@ -692,7 +692,7 @@ return done(e);
                     if (err) {
                         log.error(new Error(err).stack);
 
-return done(err);
+                        return done(err);
                     }
                     updateUsersPullRequests(req.args);
                     // Add signature API will get a timeout error if waiting for validating pull requests.
@@ -715,7 +715,7 @@ return done(err);
             if (joiErr) {
                 joiErr.code = 400;
 
-return done(joiErr);
+                return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
@@ -736,7 +736,7 @@ return done(joiErr);
             if (joiErr) {
                 joiErr.code = 400;
 
-return done(joiErr);
+                return done(joiErr);
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
@@ -744,10 +744,10 @@ return done(joiErr);
                 if (err) {
                     log.error(new Error(err).stack);
 
-return done(err);
+                    return done(err);
                 }
 
-return done(null, dbCla);
+                return done(null, dbCla);
             });
         });
     }

@@ -8,7 +8,7 @@ let removeToken = function (obj) {
         //do nothing
     }
 
-return obj;
+    return obj;
 };
 
 module.exports = {
@@ -19,9 +19,9 @@ module.exports = {
                 cleanedObj.push(removeToken(el));
             });
 
-return cleanedObj;
+            return cleanedObj;
         }
 
-return removeToken(obj);
+        return removeToken(obj);
     }
 };

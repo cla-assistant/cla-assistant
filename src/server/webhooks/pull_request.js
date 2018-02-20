@@ -28,14 +28,14 @@ function storeRequest(committers, repo, owner, number) {
                     }
                 });
 
-return;
+                return;
             }
             if (!user.requests || user.requests.length < 1) {
                 user.requests = user.requests ? user.requests : [];
                 user.requests.push(pullRequest);
                 user.save();
 
-return;
+                return;
             }
             let repoPullRequests = user.requests.find((request) => {
                 return request.repo === repo && request.owner === owner;
@@ -100,7 +100,7 @@ function handleWebHook(args) {
                 number: args.number
             });
 
-return;
+            return;
         }
         updateStatusAndComment(args);
     });
@@ -141,7 +141,7 @@ module.exports = function (req, res) {
                     args.orgId = undefined;
                 }
 
-return handleWebHook(args);
+                return handleWebHook(args);
             });
         }, config.server.github.enforceDelay);
     }
