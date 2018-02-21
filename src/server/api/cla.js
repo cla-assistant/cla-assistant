@@ -531,11 +531,7 @@ let ClaApi = {
                 pullRequests = pullRequests.concat(res);
             }
 
-            if (meta && meta.link && github.hasNextPage(meta.link)) {
-                github.getNextPage(meta.link, collectData);
-            } else {
-                validateData(err);
-            }
+            validateData(err);
         }
 
         github.call({
@@ -545,7 +541,7 @@ let ClaApi = {
                 owner: req.args.owner,
                 repo: req.args.repo,
                 state: 'open',
-                per_page: 100
+                per_page: 3
             },
             token: token
         }, collectData);

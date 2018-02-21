@@ -159,16 +159,16 @@ let githubService = {
         return deferred.promise;
     },
 
-    hasNextPage: function (link) {
+    hasNextPage: function (meta) {
         let github = newGithubApi();
 
-        return github.hasNextPage(link);
+        return github.hasNextPage(meta);
     },
 
-    getNextPage: function (link, cb) {
+    getNextPage: function (meta, cb) {
         let github = newGithubApi();
 
-        return github.getNextPage(link, cb);
+        return github.getNextPage(meta, cb);
     },
 
     // getCacheData: function () {
