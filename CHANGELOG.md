@@ -1,5 +1,12 @@
 # Change Log
 
+## [v1.4.1](https://github.com/cla-assistant/cla-assistant/tree/v1.4.1) (2018-02-21)
+
+**Fixed bugs:**
+
+- don't use pagination in api/cla, github servise loads all pages per default
+- add null check on commits returned by graphAPI
+
 ## [v1.4.0](https://github.com/cla-assistant/cla-assistant/tree/v1.4.0) (2018-01-10)
 **Fixed bugs:**
 
