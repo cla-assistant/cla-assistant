@@ -120,6 +120,7 @@ function validatePullRequest(args, done) {
 
             return done();
         }
+        args.token = item.token;
         if (!item.gist) {
             return status.updateForNullCla(args, function () {
                 prService.deleteComment({
