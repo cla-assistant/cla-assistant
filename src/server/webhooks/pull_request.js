@@ -126,6 +126,9 @@ module.exports = function (req, res) {
         setTimeout(async function () {
             try {
                 const item = await cla.getLinkedItem(args);
+                if (!item) {
+                    return logger.info(`Unlinked item ${JSON.stringify(args)}`);
+                }
                 let nullCla = !item.gist;
                 let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo);
                 if (nullCla || isExcluded) {
