@@ -267,10 +267,12 @@ function getReposNeedToValidate(req, done) {
                 if (er) {
                     return done(er, repos);
                 }
-                let linkedRepoSet = new Set(linkedRepos.map(function (linkedRepo) {
-                    return linkedRepo.repoId.toString();
-                }));
-                repos = allRepos.filter(function (repo) {
+                let linkedRepoSet = new Set(
+                    linkedRepos
+                        .filter(repo => repo.repoId)
+                        .map(linkedRepo => linkedRepo.repoId.toString())
+                );
+                repos = allRepos.filter(repo => {
                     if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
                         // The repo has been excluded.
                         return false;
