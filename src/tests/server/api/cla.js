@@ -1216,6 +1216,20 @@ describe('', function () {
             });
         });
 
+        it('should validate repos with overridden cla if linked repo doesn\'t have valid repoId', function (it_done) {
+            resp.orgService.get.isRepoExcluded = function () {
+                return false;
+            };
+            resp.repoService.getByOwner[0].repoId = undefined;
+
+            cla_api.validateOrgPullRequests(req, function () {
+                setTimeout(function () {
+                    assert(cla_api.validatePullRequests.called);
+                    it_done();
+                });
+            });
+        });
+
         it('should validate repos that is not in the excluded list and don\'t have overridden cla', function (it_done) {
             resp.repoService.getByOwner = [];
             resp.orgService.get.isRepoExcluded = function () {
