@@ -10,7 +10,6 @@ Table of Contents
 - [Supported environment variables](#supported-environment-variables)
 - [Run the CLA assistant instance with Docker](#run-the-cla-assistant-instance-with-docker)
 - [License](#license)
-- [Stickers](#stickers)
 - [Credits](#credits)
 
 Contributor License Agreement assistant
@@ -194,13 +193,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-Stickers
-=======
-<p align="center">
-<a href="https://www.stickermule.com/marketplace/11612-cla-assistant"><img src="https://www.stickermule.com/marketplace/embed_img/11612" width="100"></a>
-<a href="https://www.stickermule.com/marketplace/11850-cla-assistant"><img src="https://www.stickermule.com/marketplace/embed_img/11850" width="100"></a>
-<p align="center">
 
 Credits
 =======
