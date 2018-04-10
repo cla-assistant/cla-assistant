@@ -1,5 +1,15 @@
 # Change Log
 
+## [v1.5.0](https://github.com/cla-assistant/cla-assistant/tree/v1.5.0) (2018-04-10)
+
+**Fixed bugs:**
+- add null check on commits returned by graphAPI - Anton Kharitonov
+- don't use pagination in api/cla, github servise loads all pages per default - Anton Kharitonov
+- fix validation org repos - don't break the app if linked repo doesn't have a repoId - Anton Kharitonov
+
+**New features:**
+- Add no-sniff MIME type protection - Michael Tseng
+
 ## [v1.4.1](https://github.com/cla-assistant/cla-assistant/tree/v1.4.1) (2018-02-21)
 
 **Fixed bugs:**
