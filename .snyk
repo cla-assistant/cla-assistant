@@ -26,6 +26,88 @@ ignore:
     - karma > socket.io > socket.io-client > engine.io-client > parsejson:
         reason: None given
         expires: '2017-12-02T12:37:04.467Z'
+  'npm:hoek:20180212':
+    - node-sass-middleware > node-sass > request > hawk > hoek:
+        reason: no patch available
+        expires: '2018-05-10T12:43:31.486Z'
+      bunyan-slack > request > hawk > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > request > hawk > boom > hoek:
+        reason: no patch available
+        expires: '2018-05-10T12:43:31.486Z'
+      bunyan-slack > request > hawk > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > request > hawk > sntp > hoek:
+        reason: no patch available
+        expires: '2018-05-10T12:43:31.486Z'
+      bunyan-slack > request > hawk > sntp > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > request > hawk > cryptiles > boom > hoek:
+        reason: no patch available
+        expires: '2018-05-10T12:43:31.486Z'
+      bunyan-slack > request > hawk > cryptiles > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > node-gyp > request > hawk > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > node-gyp > request > hawk > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > node-gyp > request > hawk > sntp > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - node-sass-middleware > node-sass > node-gyp > request > hawk > cryptiles > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - request > hawk > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - request > hawk > cryptiles > boom > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - request > hawk > sntp > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - request > hawk > hoek:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+    - node-sass-middleware > node-sass > request > hawk > hoek:
+        reason: no patch available
+        expires: '2018-05-10T13:19:17.101Z'
+    - node-sass-middleware > node-sass > request > hawk > boom > hoek:
+        reason: no patch available
+        expires: '2018-05-10T13:19:17.101Z'
+    - node-sass-middleware > node-sass > request > hawk > sntp > hoek:
+        reason: no patch available
+        expires: '2018-05-10T13:19:17.101Z'
+    - node-sass-middleware > node-sass > request > hawk > cryptiles > boom > hoek:
+        reason: no patch available
+        expires: '2018-05-10T13:19:17.101Z'
+  'npm:tunnel-agent:20170305':
+    - node-sass-middleware > node-sass > request > tunnel-agent:
+        reason: no patch available
+        expires: '2018-05-10T13:19:17.101Z'
+  'npm:sshpk:20180409':
+    - bunyan-slack > request > http-signature > sshpk:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > request > http-signature > sshpk:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - node-sass-middleware > node-sass > node-gyp > request > http-signature > sshpk:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
+    - request > http-signature > sshpk:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.101Z'
+  'npm:is-my-json-valid:20180214':
+    - node-sass-middleware > node-sass > request > har-validator > is-my-json-valid:
+        reason: reinstall doesn't solve the issue
+        expires: '2018-05-10T13:19:17.100Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:minimatch:20160620':
