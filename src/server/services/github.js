@@ -100,7 +100,7 @@ let githubService = {
                 meta = null;
             }
 
-            if (meta && meta.link && github.hasNextPage(meta)) {
+            if (meta && meta.hasMore) {
                 try {
                     github.getNextPage(meta, collectData);
                 } catch (error) {
