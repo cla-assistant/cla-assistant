@@ -344,7 +344,22 @@ module.exports = function () {
         });
     };
 
-    claService = {
+    let triggerClaNotificationWebhook = function(argsToCreate) {
+        // TODO: fill in logic for async call to webhook, with sth like:
+        // var request = require('request');
+        //
+        // request.post(
+        //     'http://www.yoursite.com/formpage',
+        //     { json: { key: 'value' } },
+        //     function (error, response, body) {
+        //         if (!error && response.statusCode == 200) {
+        //             console.log(body)
+        //         }
+        //     }
+        // );
+    };
+
+  claService = {
         getGist: function (args, done) {
             let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined;
             // let gist_version = args.gist ? args.gist.gist_version : undefined;
@@ -519,6 +534,7 @@ module.exports = function () {
                             argsToCreate.repo = item.repo;
                         }
                         self.create(argsToCreate, function (error) {
+                            triggerClaNotificationWebhook(argsToCreate);
                             done(error, 'done');
                         });
                     });
