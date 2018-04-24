@@ -347,9 +347,10 @@ module.exports = function () {
     let triggerClaNotificationWebhook = function(argsToCreate) {
         // TODO: fill in logic for async call to webhook, with sth like:
         // var request = require('request');
+        // if (config.notification.http_method === "POST"){
         //
         // request.post(
-        //     'http://www.yoursite.com/formpage',
+        //     config.notification.webhook_url,
         //     { json: { key: 'value' } },
         //     function (error, response, body) {
         //         if (!error && response.statusCode == 200) {
@@ -357,6 +358,11 @@ module.exports = function () {
         //         }
         //     }
         // );
+        // } else if {config.notification.http_method === "GET"}
+        //     // TODO: get request impl here
+        // } else {
+        //   logger.error("invalid `notification.http_method` provided: "+ config.notification.http_method);
+        // }
     };
 
   claService = {

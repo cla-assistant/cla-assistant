@@ -98,6 +98,11 @@ module.exports = {
             ]
         },
 
+        notification: {
+            webhook_url: process.env.NOTIFICATION_WEBHOOK_URL,
+            http_method: process.env.NOTIFICATION_HTTP_METHOD
+        },
+
         feature_flag: {
             required_signees: process.env.REQUIRED_SIGNEES || '',
         },
