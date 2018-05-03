@@ -36,7 +36,7 @@ function callGithub(github, obj, fun, arg, token, done) {
             }, 60000 * config.server.cache_time);
         }
 
-        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: JSON.stringify(arg), token: token ? token.slice(0, 4) + '***' : '', remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
+        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: createLogObj(arg), remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
 
         if (typeof done === 'function') {
             done(err, res);
@@ -92,7 +92,7 @@ let githubService = {
                 meta.scopes = res.meta['x-oauth-scopes'];
                 if (res.meta['x-ratelimit-remaining'] < 100) {
                     setRateLimit(call.token, res.meta['x-ratelimit-reset']);
-                    logger.info('rate limit exceeds for ', call);
+                    logger.info('rate limit exceeds for ', { obj: call.obj, fun: call.fun, arg: createLogObj(call.arg) });
                 }
                 delete res.meta;
             } catch (ex) {
@@ -216,6 +216,16 @@ function setRateLimit(token, limit) {
     setTimeout(function () {
         removeRateLimit(token);
     }, remainingTime);
+}
+
+function createLogObj(obj) {
+    const copyObj = Object.assign({}, obj);
+    Object.keys(copyObj).forEach(key => {
+        if (key.includes('token') || key === 'user' || key === 'userId') {
+            delete copyObj[key];
+        }
+    });
+    return copyObj;
 }
 
 module.exports = githubService;

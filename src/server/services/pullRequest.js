@@ -173,7 +173,7 @@ module.exports = {
             }, function (e) {
                 if (e) {
                     log.warn(new Error(e).stack);
-                    log.warn(e, 'with args: ', args, 'and commentId: ', comment.id);
+                    log.warn(e, 'with args: ', { owner: args.owner, repo: args.repo, number: args.number, id: comment.id }, 'and commentId: ', comment.id);
                 }
             });
         });
@@ -208,7 +208,7 @@ module.exports = {
                 }
             }, function (error) {
                 if (error) {
-                    log.warn(error, 'with args:', args, 'and commentId: ', comment.id);
+                    log.warn(error, 'with args:', { owner: args.owner, repo: args.repo, number: args.number, id: comment.id }, 'and commentId: ', comment.id);
                 }
             });
         });

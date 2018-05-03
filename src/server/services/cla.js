@@ -269,7 +269,7 @@ module.exports = function () {
         if (userId) {
             query.userId = userId;
         } else {
-            logger.info({ name: 'The userId is empty.', user: user, repoId: repoId, orgId: orgId });
+            logger.info({ name: 'The userId is empty.', repoId: repoId, orgId: orgId });
         }
         query.user = user;
 

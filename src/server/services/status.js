@@ -73,7 +73,7 @@ let createStatus = function (args, context, description, state, target_url, done
     }, function (error, response) {
         if (error) {
             logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
-            log(error, response, args);
+            log(error, response, { owner: args.owner, repo: args.repo, number: args.number, sha: args.sha, state });
         }
         if (typeof done === 'function') {
             done(error, response);
@@ -182,7 +182,7 @@ let updateStatusIfNeeded = function (args, status, allowAbsent, done) {
     }
     getPullRequestHeadShaIfNeeded(args, function (err, argsWithSha) {
         if (err) {
-            log(err, argsWithSha, args);
+            log(err, argsWithSha.sha, { repo: args.repo, owner: args.owner, number: args.number });
 
             return doneIfNeeded(done, err);
         }

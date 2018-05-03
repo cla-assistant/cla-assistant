@@ -93,7 +93,7 @@ module.exports = {
                 if (err || res.statusCode > 200) {
                     log.info(new Error(err).stack);
                     if (!res) {
-                        log.warn('No result on GH call, getting user orgs! For user: ' + req.user);
+                        log.warn('No result on GH call, getting user orgs!');
 
                         return;
                     }

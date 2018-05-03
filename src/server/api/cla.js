@@ -157,8 +157,7 @@ async function validatePR(args) {
             user_map: user_map
         });
     } catch (e) {
-        let logArgs = Object.assign({}, args);
-        logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
+        let logArgs = Object.assign({}, args, { user: undefined, userId: undefined, token: args.token && `${args.token.slice(0, 4)}***` });
         log.error(e.stack, logArgs);
     }
 }
@@ -345,7 +344,7 @@ let ClaApi = {
 
     get: function (req, done) {
         if (!req.args || (!req.args.repo && !req.args.repoId && !req.args.orgId)) {
-            log.info('args: ', req.args);
+            log.info('args: ', { repo: req.args.repo, owner: req.args.owner, orgId: req.args.orgId });
             log.info('request headers: ', req.headers);
             done('Please, provide owner and repo name or orgId');
 
@@ -353,7 +352,7 @@ let ClaApi = {
         }
         this.getGist(req, function (err, res) {
             if (err || !res) {
-                log.error(new Error(err).stack, 'with args: ', req.args);
+                log.error(new Error(err).stack, 'with args: ', req.args, { repo: req.args.repo, owner: req.args.owner, orgId: req.args.orgId, gist: req.args.gist });
                 done(err);
 
                 return;
