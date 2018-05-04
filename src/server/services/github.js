@@ -221,7 +221,7 @@ function setRateLimit(token, limit) {
 function createLogObj(obj) {
     const copyObj = Object.assign({}, obj);
     Object.keys(copyObj).forEach(key => {
-        if (key.includes('token') || key === 'user' || key === 'userId') {
+        if (key.includes('token') || key.includes('user')) {
             delete copyObj[key];
         }
     });
