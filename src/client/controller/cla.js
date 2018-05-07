@@ -75,7 +75,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                     $scope.cla = $sce.trustAsHtml(gistContent.claText);
                     $scope.cla.text = gistContent.claText;
                     $scope.claText = gistContent.claText;
-
+                    $scope.updatedAt = new Date(gistContent.updatedAt).toISOString().slice(0, 10);
                     $scope.customFields = gistContent.customFields;
                     $scope.customKeys = gistContent.customKeys;
                     $scope.hasCustomFields = gistContent.hasCustomFields;
@@ -200,8 +200,14 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
             return valid;
         };
 
-        $scope.showSharedGistMsg = function () {
+        var showSharedGistMsg = function () {
             return $scope.linkedItem && $scope.linkedItem.sharedGist && (!$scope.signed || ($scope.signed && $scope.isSharedSignature));
+        };
+
+        $scope.titleMsg = function () {
+            var msg = $scope.signed ? 'You have signed the CLA for ' : 'Please sign the CLA for ';
+            msg += showSharedGistMsg() ? 'multiple repositories or organizations' : $scope.params.user + '/' + $scope.params.repo;
+            return msg;
         };
 
         $q.all([userPromise, repoPromise]).then(function () {

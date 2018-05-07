@@ -361,6 +361,7 @@ let ClaApi = {
             let renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
             renderFiles(res.files, renderToken).then(
                 function success(gistContent) {
+                    gistContent.updatedAt = res.updated_at;
                     done(null, gistContent);
                 },
                 function error(msg) {
