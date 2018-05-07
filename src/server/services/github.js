@@ -37,7 +37,7 @@ function callGithub(github, obj, fun, arg, token, done) {
             }, 60000 * config.server.cache_time);
         }
 
-        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: createLogObj(arg), remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
+        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: createLogObj(arg), token: hashToken(token), remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
 
         if (typeof done === 'function') {
             done(err, res);
@@ -223,13 +223,20 @@ function createLogObj(obj) {
     const copyObj = Object.assign({}, obj);
     Object.keys(copyObj).forEach(key => {
         if (key.includes('token')) {
-            copyObj[key] = `${sha256(copyObj[key]).slice(0, 4)}***`;
+            copyObj[key] = hashToken(copyObj[key]);
         }
         if (key.includes('user')) {
             delete copyObj[key];
         }
     });
     return copyObj;
+}
+
+function hashToken(token) {
+    if (!token) {
+        return;
+    }
+    return `${sha256(token).slice(0, 4)}***`;
 }
 
 module.exports = githubService;
