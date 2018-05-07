@@ -6,6 +6,7 @@ let config = require('../../config');
 let GitHubApi = require('github');
 let stringify = require('json-stable-stringify');
 let logger = require('./logger');
+let sha256 = require('sha256');
 
 
 // let githubApi;
@@ -221,7 +222,10 @@ function setRateLimit(token, limit) {
 function createLogObj(obj) {
     const copyObj = Object.assign({}, obj);
     Object.keys(copyObj).forEach(key => {
-        if (key.includes('token') || key.includes('user')) {
+        if (key.includes('token')) {
+            copyObj[key] = `${sha256(copyObj[key]).slice(0, 4)}***`;
+        }
+        if (key.includes('user')) {
             delete copyObj[key];
         }
     });
