@@ -4,8 +4,8 @@
 // tmpl: cla.html
 // *****************************************************
 
-module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams', '$RAW', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
-    function ($log, $window, $scope, $stateParams, $RAW, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
+module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
+    function ($log, $window, $scope, $stateParams, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
 
         $scope.cla = null;
         $scope.customFields = {};
@@ -163,6 +163,7 @@ module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams',
             $window.location.href = $stateParams.pullRequest ? acceptUrl + '?pullRequest=' + $stateParams.pullRequest : acceptUrl;
         };
 
+
         var userPromise = getUser();
         var claPromise;
         var repoPromise = getLinkedItem(function (linkedItem) {
@@ -215,6 +216,8 @@ module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams',
                     }
                 });
             }
+        }, function errorCallback() {
+            // empty
         });
     }
 ])

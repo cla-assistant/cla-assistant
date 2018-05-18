@@ -29,8 +29,8 @@ module.factory('$RAW', ['$q', '$http',
             call: function (m, functn, data, callback) {
                 var now = new Date();
 
-                return $http.post('/api/' + m + '/' + functn, data)
-                    .success(function (res) {
+                return $http.post('/api/' + m + '/' + functn, data).then(
+                    function successCallback(res) {
                         // parse result (again)
                         try {
                             res = JSON.parse(res);
@@ -38,30 +38,21 @@ module.factory('$RAW', ['$q', '$http',
                             // doNothing
                         }
                         // yield result
-                        callback(null, res, new Date() - now);
-                    })
-                    .error(function (res) {
-                        callback(res, null, new Date() - now);
-                    });
+                        callback(null, res.data, new Date() - now);
+                    },
+                    function errorCallback(res) {
+                        callback(res.data, null, new Date() - now);
+                    }
+                );
             },
             get: function (url, user_token) {
-                var deferred = $q.defer();
                 var header = {};
                 header.Accept = 'application/vnd.github.moondragon+json';
                 if (user_token) {
                     header.Authorization = 'token ' + user_token;
                 }
-                $http.get(url, { 'headers': header }).
-                    success(function (data) {
-                        deferred.resolve(data);
-                        // callback(null, data, status);
-                    })
-                    .error(function (err) {
-                        deferred.reject(err);
-                        // callback(err, null, status);
-                    });
 
-                return deferred.promise;
+                return $http.get(url, { 'headers': header });
             }
         };
     }
@@ -194,7 +185,7 @@ module.factory('$HUBService', ['$q', '$HUB',
                     deferred.resolve(obj);
                 }
 
-                return deferred.reject(err);
+                return deferred.reject(new Error(err));
             });
 
             return deferred.promise;

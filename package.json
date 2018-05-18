@@ -19,6 +19,7 @@
   "bugs": "https://github.com/cla-assistant/cla-assistant/issues",
   "contributors": [],
   "dependencies": {
+    "angular": "^1.7.0",
     "array-sugar": "^1.2.2",
     "async": "^2.6.0",
     "body-parser": "^1.18.2",

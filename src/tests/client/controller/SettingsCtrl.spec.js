@@ -3,7 +3,7 @@
 
 describe('Settings Controller', function () {
 
-    var scope, httpBackend, createCtrl, settingsCtrl, stateParams, modal, RPC, HUB, calledApi, $timeout;
+    var scope, createCtrl, settingsCtrl, stateParams, modal, RPC, HUB, calledApi, $timeout;
     var testResp = { cla: {}, repo: {}, webhook: {} };
     var testErr = { cla: {}, repo: {}, webhook: {} };
 
@@ -50,6 +50,8 @@ describe('Settings Controller', function () {
         }]
     };
 
+    beforeEach(angular.mock.module('ngAnimateMock'));
+
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
@@ -58,8 +60,6 @@ describe('Settings Controller', function () {
         RPC = $RPC;
         HUB = $HUB;
         $timeout = _$timeout_;
-
-        httpBackend = $injector.get('$httpBackend');
 
         scope = $rootScope.$new();
         modal = $modal;
@@ -164,8 +164,6 @@ describe('Settings Controller', function () {
             login: 'octocat',
             admin: false
         };
-        httpBackend.when('GET', '/config').respond({});
-
     }));
 
     afterEach(function () {

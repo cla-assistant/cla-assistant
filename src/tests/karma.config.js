@@ -1,6 +1,6 @@
 // Karma configuration
 
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
 
         basePath: '../../',
@@ -12,15 +12,15 @@ module.exports = function(config) {
             // Testing libs
             // CDN
             'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.17/angular-ui-router.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.11.2/select.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angular-scroll/0.6.5/angular-scroll.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-animate.min.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js',
-            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-sanitize.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-animate.min.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-route.js',
+            'http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.0/angular-sanitize.min.js',
             'http://cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.min.js',
             'http://www.google-analytics.com/analytics.js',
             'http://cdnjs.cloudflare.com/ajax/libs/angulartics/0.17.2/angulartics.min.js',

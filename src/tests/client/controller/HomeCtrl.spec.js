@@ -127,6 +127,7 @@ describe('Home Controller', function () {
     var rpcRepoGetAllError;
     var rpcRepoCreate;
 
+    beforeEach(angular.mock.module('ngAnimateMock'));
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
@@ -285,10 +286,12 @@ describe('Home Controller', function () {
                 return {
                     then: function (cb) {
                         cb({
-                            'default-cla': [{
-                                'name': 'first default cla',
-                                'url': 'https://gist.github.com/gistId'
-                            }]
+                            data: {
+                                'default-cla': [{
+                                    name: 'first default cla',
+                                    url: 'https://gist.github.com/gistId'
+                                }]
+                            }
                         });
                     }
                 };
@@ -307,9 +310,6 @@ describe('Home Controller', function () {
         };
 
         // homeCtrl = createCtrl();
-
-        httpBackend.when('GET', '/config').respond({});
-
         // httpBackend.when('POST', '/api/github/direct_call', {
         //     url: 'https://api.github.com/gists?per_page=100'
         // }).respond(testDataGists.data.concat(
@@ -321,12 +321,14 @@ describe('Home Controller', function () {
         //             }
         //         }
         //     }]));
-        httpBackend.when('GET', '/static/cla-assistant.json').respond({
-            'default-cla': [{
-                'name': 'first default cla',
-                'url': 'https://gist.github.com/gistId'
-            }]
-        });
+        // httpBackend.when('GET', '/static/cla-assistant.json').respond({
+        //     data: {
+        //         'default-cla': [{
+        //             name: 'first default cla',
+        //             url: 'https://gist.github.com/gistId'
+        //         }]
+        //     }
+        // });
 
     }));
 
@@ -346,7 +348,7 @@ describe('Home Controller', function () {
 
     it('should get user repos and mix claRepos data with repos data if user has admin rights', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(2);
         (homeCtrl.scope.claRepos.length).should.be.equal(1);
@@ -366,7 +368,6 @@ describe('Home Controller', function () {
         };
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
         _timeout.flush();
 
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
@@ -384,7 +385,6 @@ describe('Home Controller', function () {
         };
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
         _timeout.flush();
 
         ($RPCService.call.calledWithMatch('org', 'getForUser')).should.be.equal(true);
@@ -405,7 +405,7 @@ describe('Home Controller', function () {
         };
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         ($RPCService.call.calledWithMatch('org', 'getForUser')).should.be.equal(false);
         ($RPCService.call.calledWithMatch('org', 'getGHOrgsForUser')).should.be.equal(true);
@@ -422,7 +422,7 @@ describe('Home Controller', function () {
         };
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(2);
     });
@@ -431,7 +431,7 @@ describe('Home Controller', function () {
         expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.user.value.org_admin).should.be.equal(true);
         (homeCtrl.scope.reposAndOrgs.length).should.be.equal(4);
@@ -439,7 +439,7 @@ describe('Home Controller', function () {
 
     it('should not get user orgs if the user has no admin:org_hook right', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.user.value.org_admin).should.be.equal(false);
         (homeCtrl.scope.orgs).should.not.be.equal(testDataOrgs);
@@ -450,7 +450,7 @@ describe('Home Controller', function () {
         expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.orgs.length).should.be.equal(testDataOrgs.length);
         (homeCtrl.scope.repos.length).should.be.equal(2);
@@ -459,7 +459,7 @@ describe('Home Controller', function () {
 
     it('should group orgs and repos', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.groupOrgs(testDataOrgs[0])).should.be.equal('Organisations');
         (homeCtrl.scope.groupOrgs(testDataRepos[0])).should.not.be.equal('Organisations');
@@ -513,7 +513,7 @@ describe('Home Controller', function () {
         getAllReposError = 'Github call failed';
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
         ($RPCService.call.calledWithMatch('repo', 'getAll')).should.be.equal(false);
@@ -523,7 +523,7 @@ describe('Home Controller', function () {
         rpcRepoGetAllError = 'Could not find entries on DB';
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.claRepos.length).should.be.equal(0);
     });
@@ -533,7 +533,7 @@ describe('Home Controller', function () {
         httpBackend.resetExpectations();
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
         (homeCtrl.scope.user.value.admin).should.be.equal(false);
@@ -545,14 +545,14 @@ describe('Home Controller', function () {
         };
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.repos.length).should.be.equal(0);
     });
 
     it('should create repo entry on link action', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         homeCtrl.scope.repos = [{
             name: 'myRepo',
@@ -583,7 +583,7 @@ describe('Home Controller', function () {
 
     it('should link organisation', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         homeCtrl.scope.orgs = testDataOrgs;
         homeCtrl.scope.selected.item = testDataOrgs[0];
@@ -601,7 +601,7 @@ describe('Home Controller', function () {
 
     it('should remove repo from claRepos list from github if create failed on backend', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         homeCtrl.scope.repos = [{
             name: 'myRepo',
@@ -634,7 +634,7 @@ describe('Home Controller', function () {
 
     it('should cleanup if create failed', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         homeCtrl.scope.selected.gist = {
             url: 'https://gist.github.com/gistId'
@@ -661,7 +661,7 @@ describe('Home Controller', function () {
 
     it('should delete db entry on remove for linked org', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         var org = {
             org: 'octocat',
@@ -677,7 +677,7 @@ describe('Home Controller', function () {
 
     it('should delete db entry on remove for linked repo', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         var repo = {
             repo: 'myRepo',
@@ -696,7 +696,7 @@ describe('Home Controller', function () {
 
     it('should load gist files of the user', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         (homeCtrl.scope.gists.length).should.be.equal(3);
         (homeCtrl.scope.gists[0].name).should.be.equal('first default cla');
@@ -706,7 +706,7 @@ describe('Home Controller', function () {
 
     it('should validate gist url', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         var invalidUrls = ['https://google.com', '', undefined];
 
@@ -717,7 +717,7 @@ describe('Home Controller', function () {
 
     it('should identify default gist url from all gists', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         var sapClaGist = {
             name: 'first default cla',
@@ -734,7 +734,7 @@ describe('Home Controller', function () {
 
     it('should load default cla files', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         homeCtrl.scope.defaultClas.length.should.be.equal(1);
         homeCtrl.scope.defaultClas[0].name.should.be.equal('first default cla');
@@ -742,7 +742,7 @@ describe('Home Controller', function () {
 
     it('should clear selected repo on clear function', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
         var ev = {
             stopPropagation: function () { }
         };
@@ -756,7 +756,7 @@ describe('Home Controller', function () {
 
     it('should clear selected cla on clear function', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
         var ev = {
             stopPropagation: function () { }
         };
@@ -770,7 +770,7 @@ describe('Home Controller', function () {
 
     it('should NOT load counts if user is logged', function () {
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
         ($RAW.get.calledWith('/count/clas')).should.be.equal(false);
     });
 
@@ -779,7 +779,7 @@ describe('Home Controller', function () {
         expErr.HUB.getUser = 'Authentication required';
 
         homeCtrl = createCtrl();
-        httpBackend.flush();
+        _timeout.flush();
 
         ($RAW.get.calledWith('/count/clas')).should.be.equal(true);
     });
