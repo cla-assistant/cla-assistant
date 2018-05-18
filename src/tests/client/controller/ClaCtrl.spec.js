@@ -5,6 +5,7 @@ angular.module('app');
 describe('CLA Controller', function () {
     var scope, _timeout, stateParams, httpBackend, createCtrl, claController, _window, _q, user, claSigned, claText, claTextWithMeta, _HUBService, _RPCService;
     var linkedItem;
+    beforeEach(angular.mock.module('ngAnimateMock'));
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
     beforeEach(angular.mock.module(function ($provide) {
@@ -64,7 +65,6 @@ describe('CLA Controller', function () {
         });
 
         httpBackend = $injector.get('$httpBackend');
-        httpBackend.when('GET', '/config').respond({});
 
         scope = $rootScope.$new();
         stateParams = { user: 'login', repo: 'myRepo', pullRequest: '1' };
@@ -293,22 +293,24 @@ describe('CLA Controller', function () {
         _HUBService.call.restore();
         sinon.stub(_HUBService, 'call', function (o, functn, data, cb) {
             var deferred = _q.defer();
-            cb('Authentication required', null);
-            deferred.reject('Authentication required');
+            cb({ data: 'Authentication required' }, null);
+            deferred.reject(new Error('Authentication required'));
 
             return deferred.promise;
         });
+        try {
+            claController = createCtrl();
 
-        claController = createCtrl();
+            httpBackend.when('POST', '/api/cla/check', { repo: stateParams.repo, owner: stateParams.user }).respond(function () {
+                claCheckWasCalled = true;
 
-        // httpBackend.expect('POST', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(500, 'Authentication required');
-        httpBackend.when('POST', '/api/cla/check', { repo: stateParams.repo, owner: stateParams.user }).respond(function () {
-            claCheckWasCalled = true;
+                return false;
+            });
 
-            return false;
-        });
-
-        httpBackend.flush();
+            httpBackend.flush();
+        } catch (error) {
+            //empty
+        }
 
         (claCheckWasCalled).should.not.be.ok;
     });

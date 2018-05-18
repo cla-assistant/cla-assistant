@@ -285,22 +285,22 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         $scope.getDefaultClaFiles = function () {
             var promise = $RAW.get('/static/cla-assistant.json');
-            promise.then(function (data) {
-                $scope.defaultClas = data['default-cla'];
+            promise.then(function (res) {
+                $scope.defaultClas = res.data['default-cla'];
             });
 
             return promise;
         };
 
         $scope.count = function () {
-            $RAW.get('/count/clas').then(function (data) {
-                $scope.numberClas = data.count;
+            $RAW.get('/count/clas').then(function (res) {
+                $scope.numberClas = res.data.count;
             });
-            $RAW.get('/count/repos').then(function (data) {
-                $scope.numberRepos = data.count;
+            $RAW.get('/count/repos').then(function (res) {
+                $scope.numberRepos = res.data.count;
             });
-            $RAW.get('/count/stars').then(function (data) {
-                $scope.numberStars = data.count;
+            $RAW.get('/count/stars').then(function (res) {
+                $scope.numberStars = res.data.count;
             });
         };
 

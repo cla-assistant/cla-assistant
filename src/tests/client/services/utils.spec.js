@@ -4,6 +4,8 @@ var utils, testData;
 
 describe('Utils service', function () {
     beforeEach(angular.mock.module('app'));
+    beforeEach(angular.mock.module('ngAnimateMock'));
+
 
     beforeEach(angular.mock.inject(function ($injector, _utils_) {
         utils = _utils_;

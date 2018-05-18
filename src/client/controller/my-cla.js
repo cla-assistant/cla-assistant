@@ -78,8 +78,8 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         };
 
         $scope.getDefaultClaFiles = function () {
-            return $RAW.get('/static/cla-assistant.json').then(function (data) {
-                $scope.defaultClas = data['default-cla'];
+            return $RAW.get('/static/cla-assistant.json').then(function (res) {
+                $scope.defaultClas = res.data['default-cla'];
             });
         };
 
