@@ -12,7 +12,6 @@ module.exports = function (config) {
             // Testing libs
             // CDN
             'http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.3.min.js',
-            'http://www.google-analytics.com/analytics.js',
 
             // Bower
             'src/bower/should/should.js',
