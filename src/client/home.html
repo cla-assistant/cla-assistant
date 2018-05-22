@@ -34,6 +34,27 @@
 
     <!-- APP STYLESHEET -->
     <link href="/assets/styles/app.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"
+    />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+        window.addEventListener("load", function () {
+            window.cookieconsent.initialise({
+                "palette": {
+                    "popup": {
+                        "background": "#878787",
+                        "text": "#ffffff"
+                    },
+                    "button": {
+                        "background": "#0594c6",
+                        "text": "#ffffff"
+                    }
+                },
+                "position": "top"
+            })
+        });
+    </script>
 </head>
 
 <body>
