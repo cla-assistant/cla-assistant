@@ -4,8 +4,8 @@
 // tmpl: cla.html
 // *****************************************************
 
-module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
-    function ($log, $window, $scope, $stateParams, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
+module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '$stateParams', '$RPCService', '$HUBService', '$sce', '$timeout', '$http', '$q', 'utils',
+    function ($rootScope, $log, $window, $scope, $stateParams, $RPCService, $HUBService, $sce, $timeout, $http, $q, utils) {
 
         $scope.cla = null;
         $scope.customFields = {};
@@ -122,6 +122,8 @@ module.controller('ClaController', ['$log', '$window', '$scope', '$stateParams',
                 if (res.meta && res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
+                $rootScope.user = $scope.user;
+                $rootScope.$broadcast('user');
             });
         };
 

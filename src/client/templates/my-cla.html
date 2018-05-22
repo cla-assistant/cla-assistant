@@ -1,5 +1,5 @@
 <!-- the navbar -->
-<div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]"
+<!-- <div id="navbar" class="navbar navbar-default navbar-fixed-top" ng-class="{false:'hidden-xs hidden-sm', true:''}[!!user.value.login]"
     role="navigation">
     <div class="container-fluid" style="height: 60px; margin: 0px;">
         <div class="navbar-header navbar-home-left navbar-home-text" style="margin-left: 0px">
@@ -26,7 +26,7 @@
             </a>
         </div>
     </div>
-</div>
+</div> -->
 <div class="row main" style="margin-top: 70px;">
     <div class="row">
         <h4 class="col-xs-12" style="margin-bottom: 25px; padding-left: 0;">Signed CLA's</h4>
@@ -53,8 +53,7 @@
                                 <div class="col-sm-3">
                                     <span class="clickable" ng-click="reverse=!reverse; order('created_at', reverse); show_created_at=true; show_repo=false">Date of Signature</span>
                                     &nbsp;
-                                    <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]"
-                                        ng-if="show_created_at==true"></span>
+                                    <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-if="show_created_at==true"></span>
                                 </div>
                             </div>
                         </div>
