@@ -5,7 +5,7 @@
 // path: /
 // *****************************************************
 
-module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService', '$modal', 'utlis',
+module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCService', '$HUBService', '$modal', 'utils',
     function ($scope, $filter, $HUB, $RAW, $RPCService, $HUBService, $modal, utils) {
         $scope.repos = [];
         $scope.gists = [];
@@ -20,7 +20,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         var getUser = function () {
             $scope.user = { value: { admin: false } };
 
-            return $HUBService.call('user', 'get', {}, function (err, res) {
+            return $HUBService.call('users', 'get', {}, function (err, res) {
                 if (err) {
                     return;
                 }
@@ -31,8 +31,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
                 if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
-                //$rootScope.user = $scope.user;
-                //$rootScope.$broadcast('user');
             });
         };
 

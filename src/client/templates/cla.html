@@ -1,54 +1,44 @@
 <div class="row main content-block">
-	<div class="container-fluid">
+    <div class="container-fluid">
 
-		<div class="row center-block" ng-show="noLinkedItemError">
-			<h1>Error</h1>
-			<p>There is no CLA to sign for {{params.user}}/{{params.repo}}</p>
-			<p>({{noLinkedItemError}})</p>
-		</div>
+        <div class="row center-block" ng-show="noLinkedItemError">
+            <h1>Error</h1>
+            <p>There is no CLA to sign for {{params.user}}/{{params.repo}}</p>
+            <p>({{noLinkedItemError}})</p>
+        </div>
 
-		<form class="row" ng-hide="!!redirect || noLinkedItemError">
-				<h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
-				<h4 ng-show="signed">You have signed the CLA for {{params.user}}/{{params.repo}}</h4>
-				<div class="cla-box well">
-					<div ng-bind-html="cla"></div>
-				</div>
-				<div class="h4" ng-if="showSharedGistMsg()">
-					<em>This CLA applies to multiple repos or orgs.</em>
-				</div>
-				<form class="row" ng-if="hasCustomFields">
-					<p>
-						<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
-					</p>
-					<customfield
-						class="form-group"
-						description="customFields[key].description"
-						logged="user.value"
-						min="customFields[key].minimum"
-						max="customFields[key].maximum"
-						name="key"
-						ng-repeat="key in customKeys"
-						ng-show="user.value"
-						required="customFields[key].required"
-						signed="signed"
-						title="customFields[key].title"
-						type="customFields[key].type == 'boolean' ? 'checkbox' : customFields[key].type"
-						value="customValues"
-						>
-					</customfield>
-				</form>
-				<p class="row" ng-hide="signed">
-					<button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()" ng-click="agree()">I agree</button>
-					<button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
-				</p>
-		</form>
+        <form class="row" ng-hide="!!redirect || noLinkedItemError">
+            <h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
+            <h4 ng-show="signed">You have signed the CLA for {{params.user}}/{{params.repo}}</h4>
+            <div class="cla-box well">
+                <div ng-bind-html="cla"></div>
+            </div>
+            <div class="h4" ng-if="showSharedGistMsg()">
+                <em>This CLA applies to multiple repos or orgs.</em>
+            </div>
+            <form class="row" ng-if="hasCustomFields">
+                <p>
+                    <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
+                </p>
+                <customfield class="form-group" description="customFields[key].description" logged="user.value" min="customFields[key].minimum"
+                    max="customFields[key].maximum" name="key" ng-repeat="key in customKeys" ng-show="user.value" required="customFields[key].required"
+                    signed="signed" title="customFields[key].title" type="customFields[key].type == 'boolean' ? 'checkbox' : customFields[key].type"
+                    value="customValues">
+                </customfield>
+            </form>
+            <p class="row" ng-hide="signed">
+                <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()"
+                    ng-click="agree()">I agree</button>
+                <button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
+            </p>
+        </form>
 
-		<div class="row center-block" ng-show="signed && !!redirect">
-			<h3>Thank you {{user.login}}</h3>
-			<h4>for signing the CLA!</h4>
-			</br>
-			<h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
-			<p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
-		</div>
-	</div>
+        <div class="row center-block" ng-show="signed && !!redirect">
+            <h3>Thank you {{user.value.login}}</h3>
+            <h4>for signing the CLA!</h4>
+            </br>
+            <h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
+            <p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
+        </div>
+    </div>
 </div>
