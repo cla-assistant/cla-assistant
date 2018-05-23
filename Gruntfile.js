@@ -22,12 +22,6 @@ module.exports = function (grunt) {
             }
         },
 
-        coveralls: {
-            mocha: {
-                src: 'output/coverage/lcov.info'
-            }
-        },
-
         // server tests
         mochaTest: {
             server: {
