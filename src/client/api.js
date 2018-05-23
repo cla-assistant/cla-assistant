@@ -220,10 +220,15 @@ module.factory('$RPCService', ['$q', '$RPC',
                     }
 
                     if (!err) {
-                        deferred.resolve(obj);
+                        return deferred.resolve(obj);
+                    }
+                    try {
+                        err = JSON.parse(err);
+                    } catch (e) {
+                        // empty
                     }
 
-                    return deferred.reject();
+                    return deferred.reject(err);
                 });
 
                 return deferred.promise;

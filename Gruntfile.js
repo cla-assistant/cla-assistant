@@ -76,11 +76,11 @@ module.exports = function (grunt) {
             },
             mocha: {
                 tasks: ['mochaTest:server'],
-                files: ['src/**/*.js', '!src/client/app.min.js']
+                files: ['src/server/**/*.js', 'src/tests/server/**/*.js', '!src/client/app.min.js']
             },
             karma: {
                 tasks: ['karma'],
-                files: ['src/client/**/*.js', '!src/client/app.min.js']
+                files: ['src/client/**/*.js', 'src/tests/client/**/*.js', '!src/client/app.min.js']
             }
         },
 

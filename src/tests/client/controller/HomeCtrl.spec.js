@@ -650,7 +650,7 @@ describe('Home Controller', function () {
 
         rpcRepoCreate = {
             error: {
-                errmsg: 'any other error'
+                message: 'any other error'
             }
         };
 

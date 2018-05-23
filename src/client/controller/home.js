@@ -350,11 +350,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             item.active = false;
 
             return $RPCService.call(obj, 'create', item, function (err, data) {
-                if (err && err.errmsg.match(/.*duplicate key error.*/)) {
+                if (err && err.message.match(/.*duplicate key error.*/)) {
                     showErrorMessage('This repository is already set up.');
                 } else if (err || !data.value) {
-                    if (err && err.errmsg) {
-                        showErrorMessage(err.errmsg);
+                    if (err && err.message) {
+                        showErrorMessage(err.message);
                     }
                     deleteFromArray(item, linkedArray);
                 } else {
