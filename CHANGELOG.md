@@ -1,5 +1,17 @@
 # Change Log
 
+## [v1.6.0](https://github.com/cla-assistant/cla-assistant/tree/v1.6.0) (2018-05-25)
+
+**New features:**
+- show username and logout button on the cla page
+- update to angular 1.7.0
+
+**Closed issues:**
+- CLA signed but assistant still says not signed [\#241](https://github.com/cla-assistant/cla-assistant/issues/241)
+
+**Fixed bugs:**
+- update vulnerable dependencies
+
 ## [v1.5.0](https://github.com/cla-assistant/cla-assistant/tree/v1.5.0) (2018-04-10)
 
 **Fixed bugs:**
