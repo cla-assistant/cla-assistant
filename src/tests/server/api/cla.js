@@ -962,8 +962,8 @@ describe('', function () {
                 owner: 'octocat',
                 origin: 'upload|projectOwner',
             };
-            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
-                cb(error.cla.sign, reqArgs.cla.sign);
+            sinon.stub(cla, 'sign').callsFake(function () {
+                return error.cla.sign ? Promise.reject(error.cla.sign) : Promise.resolve(reqArgs.cla.sign);
             });
         });
 

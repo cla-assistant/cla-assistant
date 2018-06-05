@@ -105,7 +105,13 @@ let githubService = {
                     github.getNextPage(meta, collectData);
                 } catch (error) {
                     logger.error(new Error('Could not get next page ' + error).stack);
-                    done(err, data, meta);
+                    if (typeof done === 'function') {
+                        done(err, data, meta);
+                    }
+                    deferred.resolve({
+                        data: data,
+                        meta: meta
+                    });
                 }
             } else {
                 if (typeof done === 'function') {
