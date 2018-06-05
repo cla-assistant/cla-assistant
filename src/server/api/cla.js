@@ -621,9 +621,8 @@ let ClaApi = {
     },
 
     upload: function (req, done) {
-
-        let users = req.args.users || [];
-        let uploadInitiator = req.user.login;
+        const users = req.args.users || [];
+        const uploadInitiator = req.user.login;
 
         async.each(users, function (user, callback) {
             github.call({
@@ -633,18 +632,25 @@ let ClaApi = {
                     username: user
                 },
                 token: req.user.token
-            }, function (err, gh_user) {
+            }, async function (err, gh_user) {
                 if (err || !gh_user) {
                     return callback();
                 }
 
-                cla.sign({
+                const args = {
                     repo: req.args.repo,
                     owner: req.args.owner,
                     user: gh_user.login,
                     userId: gh_user.id,
                     origin: `upload|${uploadInitiator}`
-                }, callback);
+                };
+                try {
+                    const signed = await cla.sign(args);
+                    callback(null, signed);
+                } catch (e) {
+                    log.info(new Error(e).stack);
+                    callback(e);
+                }
             });
         }, done);
     },
