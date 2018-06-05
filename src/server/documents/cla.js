@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let logger = require('../services/logger');
+// let logger = require('../services/logger');
 mongoose.Promise = require('q').Promise;
 
 let CLASchema = mongoose.Schema({
@@ -15,6 +15,8 @@ let CLASchema = mongoose.Schema({
     org_cla: Boolean,
     user: String,
     userId: String,
+    origin: String,
+    updated_at: Date
 });
 
 let index = {
@@ -34,12 +36,12 @@ let indexOptions = {
 
 let CLA = mongoose.model('CLA', CLASchema);
 
-CLA.collection.dropAllIndexes(function (err, results) {
-    if (err) {
-        logger.warn('CLA collection dropAllIndexes error: ', err);
-        logger.warn('dropAllIndexes results: ', results);
-    }
-});
+// CLA.collection.dropAllIndexes(function (err, results) {
+//     if (err) {
+//         logger.warn('CLA collection dropAllIndexes error: ', err);
+//         logger.warn('dropAllIndexes results: ', results);
+//     }
+// });
 CLA.collection.createIndex(index, indexOptions);
 
 module.exports = {

@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let logger = require('../services/logger');
+// let logger = require('../services/logger');
 mongoose.Promise = require('q').Promise;
 
 let RepoSchema = mongoose.Schema({
@@ -24,12 +24,12 @@ let indexOptions = {
 
 let Repo = mongoose.model('Repo', RepoSchema);
 
-Repo.collection.dropAllIndexes(function (err, results) {
-    if (err) {
-        logger.warn('Repo collection dropAllIndexes error: ', err);
-        logger.warn('dropAllIndexes results: ', results);
-    }
-});
+// Repo.collection.dropAllIndexes(function (err, results) {
+//     if (err) {
+//         logger.warn('Repo collection dropAllIndexes error: ', err);
+//         logger.warn('dropAllIndexes results: ', results);
+//     }
+// });
 
 Repo.collection.createIndex(index, indexOptions);
 

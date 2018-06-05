@@ -76,8 +76,14 @@ describe('', function () {
                     data: {}
                 },
                 callUser: {
-                    id: 1,
-                    login: 'one'
+                    one: {
+                        id: 1,
+                        login: 'one'
+                    },
+                    two: {
+                        id: 2,
+                        login: 'two'
+                    }
                 },
                 callRepos: testData.orgRepos.concat({
                     id: 2,
@@ -122,8 +128,8 @@ describe('', function () {
             cb(error.cla.getGist, resp.cla.getGist);
         });
 
-        sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
-            cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
+        sinon.stub(cla, 'getLinkedItem').callsFake(function () {
+            return error.cla.getLinkedItem ? Promise.reject(error.cla.getLinkedItem) : Promise.resolve(resp.cla.getLinkedItem);
         });
 
         sinon.stub(github, 'call').callsFake(function (args, cb) {
@@ -134,7 +140,11 @@ describe('', function () {
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
             } else if (args.obj === 'users') {
-                cb(error.github.user, resp.github.callUser);
+                if (args.arg.username === 'one') {
+                    cb(error.github.user, resp.github.callUser.one);
+                } else if (args.arg.username === 'two') {
+                    cb(error.github.user, resp.github.callUser.two);
+                }
             } else if (args.obj === 'repos' && args.fun === 'getForOrg') {
                 cb(error.github.repos, resp.github.callRepos);
             }
@@ -385,6 +395,7 @@ describe('', function () {
                     repo: 'Hello-World',
                     owner: 'octocat',
                     user: 'user',
+                    origin: 'sign|user',
                     userId: 3
                 }
             };
@@ -411,8 +422,8 @@ describe('', function () {
                 assert(args.signed);
                 cb(null);
             });
-            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
-                cb(null, 'done');
+            sinon.stub(cla, 'sign').callsFake(function () {
+                return Promise.resolve('done');
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 args.gist = req.args.gist;
@@ -423,11 +434,15 @@ describe('', function () {
             });
 
             sinon.stub(User, 'findOne').callsFake((selector, cb) => {
-                cb(null, testUser);
+                if (cb) {
+                    cb(null, testUser);
+                }
+
+                return Promise.resolve(testUser);
             });
 
-            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
-                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
+            sinon.stub(cla, 'isClaRequired').callsFake(function () {
+                return error.cla.isClaRequired ? Promise.reject(error.cla.isClaRequired) : Promise.resolve(resp.cla.isClaRequired);
             });
         });
 
@@ -440,103 +455,105 @@ describe('', function () {
             cla.isClaRequired.restore();
         });
 
-        it('should call cla service on sign', function (it_done) {
-            cla_api.sign(req, function (err) {
-                assert.ifError(err);
+        it('should call cla service on sign', async function () {
+            try {
+                await cla_api.sign(req);
+
                 assert(cla.sign.called);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+            } catch (e) {
 
-                it_done();
-            });
+                assert.ifError(e);
+            }
         });
 
-        it('should call cla service on sign with custom fields', function (it_done) {
+        it('should call cla service on sign with custom fields', async function () {
             expArgs.claSign.custom_fields = '{"json":"as", "a":"string"}';
-
             req.args.custom_fields = '{"json":"as", "a":"string"}';
-            cla_api.sign(req, function (err) {
-                assert.ifError(err);
+
+            try {
+                await cla_api.sign(req);
                 assert(cla.sign.called);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should update status of pull request created by user, who signed', function (it_done) {
-            cla_api.sign(req, function (err, res) {
-                assert.ifError(err);
-                assert.ok(res);
-                assert(statusService.update.called);
-                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+        it('should update status of pull request created by user, who signed', async function () {
+            const signed = await cla_api.sign(req);
 
-                it_done();
-            });
+            assert.ok(signed);
+            assert(statusService.update.called);
+            sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
         });
 
-        it('should update status of pull request using token of linked org', function (it_done) {
+        it('should update status of pull request using token of linked org', async function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
 
-            this.timeout(100);
-            cla_api.sign(req, function (err, res) {
-                assert.ifError(err);
-                assert.ok(res);
-                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+            // this.timeout(100);
+            const res = await cla_api.sign(req);
+            assert.ok(res);
+            sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
 
-                setTimeout(function () {
-                    assert(statusService.update.called);
-                    it_done();
-                }, 50);
-            });
+            // setTimeout(function () {
+            //     assert(statusService.update.called);
+            //     it_done();
+            // }, 50);
         });
 
-        it('should update status of all open pull requests for the repo if user model has no requests stored', function (it_done) {
+        it('should update status of all open pull requests for the repo if user model has no requests stored', async function () {
             testUser.requests = undefined;
-
-            cla_api.sign(req, function (err, res) {
-                assert.ifError(err);
+            try {
+                const res = await cla_api.sign(req);
                 assert.ok(res);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-
                 assert.equal(statusService.update.callCount, 2);
                 assert(github.call.calledWithMatch({
                     obj: 'pullRequests',
                     fun: 'getAll'
                 }));
                 assert(prService.editComment.called);
-
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', function (it_done) {
+        it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', async function () {
             testUser.requests = undefined;
             resp.cla.getLinkedItem = Object({
                 sharedGist: true
             }, resp.cla.getLinkedItem);
             sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { });
-            cla_api.sign(req, function (err) {
-                assert.ifError(err);
+
+            try {
+                await cla_api.sign(req);
+
                 assert(cla_api.validateSharedGistItems.called);
                 cla_api.validateSharedGistItems.restore();
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', function (it_done) {
+        it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', async function () {
             testUser.requests = undefined;
             resp.cla.getLinkedItem = testData.org_from_db;
             sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { });
-            cla_api.sign(req, function (err) {
-                assert.ifError(err);
+
+            try {
+                await cla_api.sign(req);
+
                 assert(cla_api.validateOrgPullRequests.called);
                 cla_api.validateOrgPullRequests.restore();
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should comment with user_map if it is given', function (it_done) {
+        it('should comment with user_map if it is given', async function () {
             cla.check.restore();
             prService.editComment.restore();
 
@@ -551,8 +568,9 @@ describe('', function () {
                 assert(args.user_map.signed);
             });
 
-            cla_api.sign(req, function (err, res) {
-                assert.ifError(err);
+            try {
+                const res = await cla_api.sign(req);
+
                 assert.ok(res);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
 
@@ -562,26 +580,25 @@ describe('', function () {
                 }));
                 assert(statusService.update.called);
                 assert(prService.editComment.called);
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should update users stored pull requests', function (it_done) {
+        it('should update users stored pull requests', async function () {
             testUser.requests[0].numbers = [1, 2];
-
-            cla_api.sign(req, function (err, res) {
-                assert.ifError(err);
+            try {
+                const res = await cla_api.sign(req);
                 assert.ok(res);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-
                 sinon.assert.called(User.findOne);
                 sinon.assert.calledTwice(cla.check);
-
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
-        it('should call update status of all PRs of the user in repos and orgs with the same shared gist', function (it_done) {
+        it('should call update status of all PRs of the user in repos and orgs with the same shared gist', async function () {
             resp.orgService.get.org = 'testOrg';
             testUser.requests.push({
                 repo: 'testRepo',
@@ -598,38 +615,39 @@ describe('', function () {
             sinon.stub(cla_api, 'validateSharedGistItems').callsFake(function (args, done) {
                 done();
             });
-            cla_api.sign(req, function () {
-                sinon.assert.notCalled(cla_api.validateSharedGistItems);
-                sinon.assert.calledTwice(cla.check);
+            await cla_api.sign(req);
+            sinon.assert.notCalled(cla_api.validateSharedGistItems);
+            sinon.assert.calledTwice(cla.check);
 
-                cla_api.validateSharedGistItems.restore();
-                repo_service.getRepoWithSharedGist.restore();
-                org_service.getOrgWithSharedGist.restore();
-                it_done();
-            });
+            cla_api.validateSharedGistItems.restore();
+            repo_service.getRepoWithSharedGist.restore();
+            org_service.getOrgWithSharedGist.restore();
+
         });
 
-        it('should delete stored pull requests from unlinked org or repo', function (it_done) {
+        it('should delete stored pull requests from unlinked org or repo', async function () {
             testUser.requests.push({
                 repo: 'Not linked anymore',
                 owner: 'Test',
                 numbers: [1]
             });
             cla.getLinkedItem.restore();
-            sinon.stub(cla, 'getLinkedItem').callsFake(function (args, cb) {
+            sinon.stub(cla, 'getLinkedItem').callsFake(function (args) {
+                let linkedItem = null;
                 if (args.owner === 'octocat' && args.repo === 'Hello-World') {
-                    cb(error.cla.getLinkedItem, resp.cla.getLinkedItem);
-                } else {
-                    cb(null, null);
+                    linkedItem = resp.cla.getLinkedItem;
                 }
+
+                return Promise.resolve(linkedItem);
             });
-            cla_api.sign(req, function (err) {
-                assert.ifError(err);
+
+            try {
+                await cla_api.sign(req);
                 assert(!testUser.requests.length);
                 sinon.assert.calledOnce(cla.check);
-
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
     });
 
@@ -924,6 +942,7 @@ describe('', function () {
 
     describe('cla:upload', function () {
         let req;
+        let expArgs;
 
         beforeEach(function () {
             reqArgs.cla.sign = {};
@@ -934,8 +953,14 @@ describe('', function () {
                     users: ['one']
                 },
                 user: {
+                    login: 'projectOwner',
                     token: 'user_token'
                 }
+            };
+            expArgs = {
+                repo: 'Hello-World',
+                owner: 'octocat',
+                origin: 'upload|projectOwner',
             };
             sinon.stub(cla, 'sign').callsFake(function (args, cb) {
                 cb(error.cla.sign, reqArgs.cla.sign);
@@ -958,7 +983,7 @@ describe('', function () {
 
         it('should not "sign" cla when github user not found', function (it_done) {
             error.github.callUser = 'not found';
-            resp.github.callUser = undefined;
+            resp.github.callUser.one = undefined;
 
             cla_api.upload(req, function () {
                 assert(github.call.calledWith({
@@ -978,11 +1003,17 @@ describe('', function () {
             req.args.users = ['one', 'two'];
             cla_api.upload(req, function () {
                 assert(github.call.called);
-                assert(cla.sign.calledWith({
+                assert(cla.sign.calledWithMatch({
                     repo: 'Hello-World',
                     owner: 'octocat',
                     user: 'one',
                     userId: 1
+                }));
+                assert(cla.sign.calledWithMatch({
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                    user: 'two',
+                    userId: 2
                 }));
                 assert(cla.sign.calledTwice);
                 it_done();
@@ -994,13 +1025,23 @@ describe('', function () {
             req.args.repo = undefined;
             cla_api.upload(req, function () {
                 assert(github.call.called);
-                assert(cla.sign.calledWith({
+                assert(cla.sign.calledWithMatch({
                     repo: undefined,
                     owner: 'octocat',
                     user: 'one',
                     userId: 1
                 }));
                 assert(cla.sign.calledTwice);
+                it_done();
+            });
+        });
+
+        it('should "sign" cla with origin attribute', function (it_done) {
+            req.args.users = ['one', 'two'];
+            cla_api.upload(req, function () {
+                assert(github.call.called);
+                assert(cla.sign.calledTwice);
+                sinon.assert.calledWithMatch(cla.sign, expArgs);
                 it_done();
             });
         });
@@ -1049,8 +1090,8 @@ describe('', function () {
             sinon.stub(repo_service, 'getByOwner').callsFake(function (owner, cb) {
                 cb(error.repoService.getByOwner, resp.repoService.getByOwner);
             });
-            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
-                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
+            sinon.stub(cla, 'isClaRequired').callsFake(function () {
+                return error.cla.isClaRequired ? Promise.reject(error.cla.isClaRequired) : Promise.resolve(resp.cla.isClaRequired);
             });
         });
 
@@ -1254,19 +1295,19 @@ describe('', function () {
     });
 
     describe('cla:getLinkedItem', function () {
-        it('should return linked repo or org using repo_name and owner', function (it_done) {
+        it('should return linked repo or org using repo_name and owner', async function () {
             let args = {
                 repo: 'Hello-World',
                 owner: 'octocat'
             };
             reqArgs.cla.getLinkedItem = args;
 
-            cla_api.getLinkedItem({
-                args: args
-            }, function () {
+            try {
+                await cla_api.getLinkedItem({ args: args });
                 assert(cla.getLinkedItem.called);
-                it_done();
-            });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
     });
 
@@ -1380,8 +1421,8 @@ describe('', function () {
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 cb(null, resp.cla.check.signed, resp.cla.check.user_map);
             });
-            sinon.stub(cla, 'isClaRequired').callsFake(function (args, cb) {
-                cb(error.cla.isClaRequired, resp.cla.isClaRequired);
+            sinon.stub(cla, 'isClaRequired').callsFake(function () {
+                return error.cla.isClaRequired ? Promise.reject(error.cla.isClaRequired) : Promise.resolve(resp.cla.isClaRequired);
             });
             sinon.stub(statusService, 'update').callsFake(function (args, cb) {
                 return cb(null, null);
@@ -1454,9 +1495,13 @@ describe('', function () {
     });
 
     describe('cla:addSignature', function () {
-        let req, testUser;
+        let req, expArgs, testUser;
         beforeEach(function () {
             req = {
+                user: {
+                    id: 3,
+                    login: 'apiCaller'
+                },
                 args: {
                     userId: 1,
                     user: 'user',
@@ -1464,6 +1509,13 @@ describe('', function () {
                     owner: 'octocat',
                     custom_fields: 'custom_fields'
                 }
+            };
+            expArgs = {
+                repo: 'Hello-World',
+                owner: 'octocat',
+                user: 'user',
+                origin: 'addSignature|apiCaller',
+                userId: 1
             };
             error.cla.sign = null;
             testUser = {
@@ -1477,8 +1529,8 @@ describe('', function () {
                 }]
             };
             resp.cla.getLinkedItem = Object.assign({}, testData.repo_from_db);
-            sinon.stub(cla, 'sign').callsFake(function (args, cb) {
-                cb(error.cla.sign, 'done');
+            sinon.stub(cla, 'sign').callsFake(function () {
+                return error.cla.sign ? Promise.reject(error.cla.sign) : Promise.resolve('done');
             });
             sinon.stub(User, 'findOne').callsFake((selector, cb) => {
                 cb(null, testUser);
@@ -1488,6 +1540,26 @@ describe('', function () {
         afterEach(function () {
             cla.sign.restore();
             User.findOne.restore();
+        });
+
+        it('should call cla service sign with expected Arguments', function (it_done) {
+            cla_api.addSignature(req, function (err) {
+                assert.ifError(err);
+                assert(cla.sign.called);
+                sinon.assert.calledWithMatch(cla.sign, expArgs);
+                it_done();
+            });
+        });
+
+        it('should construct origin attribute using provided origin|addSignature|username_of_the_caller', function (it_done) {
+            req.args.origin = 'myOrigin';
+            expArgs.origin = 'myOrigin|addSignature|apiCaller';
+            cla_api.addSignature(req, function (err) {
+                assert.ifError(err);
+                assert(cla.sign.called);
+                sinon.assert.calledWithMatch(cla.sign, expArgs);
+                it_done();
+            });
         });
 
         it('should call cla service sign and update status of pull request created by user, who signed', function (it_done) {

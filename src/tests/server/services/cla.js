@@ -86,11 +86,11 @@ function stub() {
                 return Promise.reject(testErr.gistData);
             }
 
-return Promise.resolve(testRes.gistData);
+            return Promise.resolve(testRes.gistData);
         } else if (args.obj === 'pullRequests' && args.fun === 'getFiles') {
             assert(args.arg.noCache);
 
-return Promise.resolve(testRes.pullRequestFiles);
+            return Promise.resolve(testRes.pullRequestFiles);
         }
     });
 }
@@ -873,7 +873,9 @@ describe('cla:sign', function () {
             repo: 'myRepo',
             owner: 'owner',
             user: 'login',
-            userId: 3
+            userId: 3,
+            origin: 'sign|login',
+            updated_at: '2018-06-28T11:34:15Z'
         };
 
         testRes.repoServiceGet = {
@@ -906,7 +908,7 @@ describe('cla:sign', function () {
         testErr.repoServiceGet = null;
         testErr.repoServiceGet = null;
 
-        sinon.stub(CLA, 'create').callsFake(function (args, done) {
+        sinon.stub(CLA, 'create').callsFake(function (args) {
             assert(args);
 
             assert(args.repoId ? args.repoId : args.ownerId);
@@ -915,7 +917,11 @@ describe('cla:sign', function () {
             assert(args.userId);
             assert(args.gist_url);
             assert(args.gist_version);
-            done(testErr.claCreate, testRes.claCreate);
+            assert(args.created_at);
+            assert(args.updated_at);
+            assert(args.origin);
+
+            return testErr.claCreate ? Promise.reject(testErr.claCreate) : Promise.resolve(testRes.claCreate);
         });
     });
 
@@ -924,79 +930,86 @@ describe('cla:sign', function () {
         CLA.create.restore();
     });
 
-    it('should store signed cla data for repo if not signed yet', function (it_done) {
-        cla.sign(testArgs.claSign, function () {
-            assert(CLA.create.called);
-            assert(CLA.findOne.called);
-            assert(!org_service.get.called);
-            it_done();
-        });
+    it('should store signed cla data for repo if not signed yet', async function () {
+        await cla.sign(testArgs.claSign);
+
+        assert(CLA.create.called);
+        assert(CLA.findOne.called);
+        assert(!org_service.get.called);
     });
 
-    it('should store signed cla data for org', function (it_done) {
+    it('should store signed cla data for org', async function () {
         testRes.repoServiceGet = null;
-        cla.sign(testArgs.claSign, function () {
-            assert(CLA.create.called);
 
-            assert(CLA.create.calledWithMatch({
-                gist_url: 'url/gistId'
-            }));
-            assert(org_service.get.called);
+        await cla.sign(testArgs.claSign);
 
-            it_done();
-        });
+        assert(CLA.create.called);
+        assert(CLA.create.calledWithMatch({
+            gist_url: 'url/gistId'
+        }));
+        assert(org_service.get.called);
     });
 
-    it('should store signed cla data for org even without repo name', function (it_done) {
+    it('should store signed cla data for org even without repo name', async function () {
         testArgs.claSign.repo = undefined;
 
-        cla.sign(testArgs.claSign, function () {
-            assert(CLA.create.called);
+        await cla.sign(testArgs.claSign);
 
-            assert(!repo_service.getGHRepo.called);
-            assert(CLA.create.calledWithMatch({
-                gist_url: 'url/gistId'
-            }));
-            assert(org_service.get.called);
-
-            it_done();
-        });
+        assert(CLA.create.called);
+        assert(!repo_service.getGHRepo.called);
+        assert(CLA.create.calledWithMatch({
+            gist_url: 'url/gistId'
+        }));
+        assert(org_service.get.called);
     });
 
-    it('should do nothing if user has already signed', function (it_done) {
+    it('should do nothing if user has already signed', async function () {
         testArgs.claSign.user = 'signedUser';
         testRes.claFindOne = {
             user: 'signedUser'
         };
 
-        cla.sign(testArgs.claSign, function () {
-            assert.equal(CLA.create.called, false);
-            it_done();
-        });
+        try {
+            await cla.sign(testArgs.claSign);
+        } catch (error) {
+            assert(error);
+        }
+
+        assert.equal(CLA.create.called, false);
     });
 
-    it('should report error if error occours on DB', function (it_done) {
+    it('should report error if error occours on DB', async function () {
         testErr.claCreate = 'any DB error';
         testRes.claCreate = null;
 
-        cla.sign(testArgs.claSign, function (err, result) {
-            assert(err);
-            assert(!result);
-            it_done();
-        });
+        try {
+            await cla.sign(testArgs.claSign);
+            assert(false); //this line shouldn't be reached
+        } catch (error) {
+            assert(error);
+        }
     });
 
-    it('should send error message when a repo linked with an Null CLA', function (it_done) {
+    it('should send error message when a repo linked with an Null CLA', async function () {
         testErr.claCreate = 'any DB error';
         testRes.claCreate = null;
         testRes.repoServiceGet.gist = null;
 
-        cla.sign(testArgs.claSign, function (err, result) {
-            assert(err);
-            assert(err.code === 200);
-            assert(!result);
-            it_done();
-        });
+        try {
+            await cla.sign(testArgs.claSign);
+            assert(false); //this line shouldn't be reached
+        } catch (error) {
+            assert(error);
+            assert(error.code === 200);
+        }
+    });
+
+    it('should log an error if no signature origin provided', async function () {
+        delete testArgs.claSign.origin;
+
+        await cla.sign(testArgs.claSign);
+
+        assert(logger.error.called);
     });
 });
 
@@ -1014,6 +1027,8 @@ describe('cla:create', function () {
             assert(arg.repoId);
             assert(arg.owner);
             assert(arg.created_at);
+            assert(arg.updated_at);
+            assert(arg.origin);
             done(null, {
                 repo: arg.repo,
                 owner: arg.owner
@@ -1026,7 +1041,9 @@ describe('cla:create', function () {
             repoId: '123',
             user: 'login',
             gist: 'url/gistId',
-            gist_version: 'xyz'
+            gist_version: 'xyz',
+            created_at: new Date(),
+            origin: 'sign|login'
         };
         cla.create(args, function (err) {
             assert.ifError(err);
@@ -1422,7 +1439,7 @@ describe('cla:getLinkedItem', function () {
         org_service.get.restore();
     });
 
-    it('should find linked item using reponame and owner parameters', function (it_done) {
+    it('should find linked item using reponame and owner parameters', async function () {
         config.server.github.token = 'test_token';
 
         let args = {
@@ -1430,65 +1447,64 @@ describe('cla:getLinkedItem', function () {
             owner: 'octocat'
         };
 
-        cla.getLinkedItem(args, function () {
-            assert(repo_service.getGHRepo.called);
+        await cla.getLinkedItem(args);
+        assert(repo_service.getGHRepo.called);
 
-            it_done();
-        });
     });
-    it('should return an error, if the GH Repo does not exist', function (it_done) {
+    it('should return an error, if the GH Repo does not exist', async function () {
         let testArgs = {
             repo: 'DoesNotExist',
             owner: 'NoOne'
         };
         testErr.repoServiceGetGHRepo = 'GH Repo not found';
 
-        cla.getLinkedItem(testArgs, function (err) {
-            assert(err == 'GH Repo not found');
-            it_done();
-        });
+        try {
+            await cla.getLinkedItem(testArgs);
+            assert();
+        } catch (e) {
+            assert(e == 'GH Repo not found');
+        }
     });
 
-    it('should return linked repo even corresponding org is also linked', function (it_done) {
+    it('should return linked repo even corresponding org is also linked', async function () {
         let args = {
             repo: 'Hello-World',
             owner: 'octocat',
             token: 'test_token'
         };
-        cla.getLinkedItem(args, function () {
-            assert(repo_service.getGHRepo.called);
-            assert(repo_service.get.called);
-            assert(!org_service.get.called);
-            it_done();
-        });
+
+        await cla.getLinkedItem(args);
+
+        assert(repo_service.getGHRepo.called);
+        assert(repo_service.get.called);
+        assert(!org_service.get.called);
     });
 
-    it('should return linked org when repo is not linked', function (it_done) {
+    it('should return linked org when repo is not linked', async function () {
         let args = {
             repo: 'Hello-World',
             owner: 'octocat',
             token: 'test_token'
         };
         testRes.repoServiceGet = null;
-        cla.getLinkedItem(args, function () {
-            assert(repo_service.getGHRepo.called);
-            assert(repo_service.get.called);
-            assert(org_service.get.called);
-            it_done();
-        });
+
+        await cla.getLinkedItem(args);
+
+        assert(repo_service.getGHRepo.called);
+        assert(repo_service.get.called);
+        assert(org_service.get.called);
     });
 
-    it('should only check linked org if repo name is not provided', function (it_done) {
+    it('should only check linked org if repo name is not provided', async function () {
         let args = {
             owner: 'octocat'
         };
 
-        cla.getLinkedItem(args, function () {
-            assert(org_service.get.called);
-            assert(!repo_service.get.called);
-            assert(!repo_service.getGHRepo.called);
-            it_done();
-        });
+        await cla.getLinkedItem(args);
+
+        assert(org_service.get.called);
+        assert(!repo_service.get.called);
+        assert(!repo_service.getGHRepo.called);
     });
 });
 
