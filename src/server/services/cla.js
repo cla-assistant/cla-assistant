@@ -484,48 +484,50 @@ module.exports = function () {
             return done(new Error('A user or a pull request number is required.'));
         },
 
-        sign: function (args, done) {
-            let self = this;
-
-            return getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
+        sign: async function (args) {
+            try {
+                const item = await getLinkedItem(args.repo, args.owner, args.token);
                 if (!item.gist) {
-                    let nullClaErr = new Error('The repository don\'t need to sign a CLA because it has a null CLA.');
+                    let nullClaErr = new Error('The repository doesn\'t need to sign a CLA because it has a null CLA.');
                     nullClaErr.code = 200;
                     throw nullClaErr;
                 }
 
-                return getGistObject(item.gist, item.token).then(function (gist) {
-                    let onDates = [new Date()];
-                    let currentVersion = gist.data.history[0].version;
+                const gist = await getGistObject(item.gist, item.token);
+                let onDates = [new Date()];
+                let currentVersion = gist.data.history[0].version;
 
-                    return getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates).then(function (cla) {
-                        if (cla) {
-                            let signedErr = new Error('You\'ve already signed the cla');
-                            signedErr.code = 200;
-                            throw signedErr;
-                        }
-                        let argsToCreate = {
-                            user: args.user,
-                            userId: args.userId,
-                            gist: item.gist,
-                            gist_version: currentVersion,
-                            custom_fields: args.custom_fields
-                        };
-                        if (!item.sharedGist) {
-                            argsToCreate.ownerId = item.orgId;
-                            argsToCreate.repoId = item.repoId;
-                            argsToCreate.org_cla = !!item.orgId;
-                            argsToCreate.owner = item.owner || item.org;
-                            argsToCreate.repo = item.repo;
-                        }
-                        self.create(argsToCreate, function (error) {
-                            done(error, 'done');
-                        });
-                    });
-                });
-            }).catch(function (error) {
-                done(error);
-            });
+                const cla = await getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates);
+                if (cla) {
+                    let signedErr = new Error('You\'ve already signed the cla');
+                    signedErr.code = 200;
+                    throw signedErr;
+                }
+                let argsToCreate = {
+                    user: args.user,
+                    userId: args.userId,
+                    gist: item.gist,
+                    gist_version: currentVersion,
+                    custom_fields: args.custom_fields,
+                    origin: args.origin,
+                    created_at: args.created_at,
+                };
+                if (!item.sharedGist) {
+                    argsToCreate.ownerId = item.orgId;
+                    argsToCreate.repoId = item.repoId;
+                    argsToCreate.org_cla = !!item.orgId;
+                    argsToCreate.owner = item.owner || item.org;
+                    argsToCreate.repo = item.repo;
+                }
+                if (!argsToCreate.origin) {
+                    logger.error(new Error('uknown origin of the signature'));
+                    argsToCreate.origin = `unknown|${args.user}`;
+                }
+
+                return this.create(argsToCreate);
+            } catch (error) {
+                throw error;
+            }
         },
 
         //Get list of signed CLAs for all repos the user has contributed to
@@ -587,15 +589,8 @@ module.exports = function () {
         // repo (mandatory)
         // owner (mandatory)
         // token (optional)
-        getLinkedItem: function (args, done) {
-            getLinkedItem(args.repo, args.owner, args.token).then(
-                function (item) {
-                    done(null, item);
-                },
-                function (err) {
-                    done(err);
-                }
-            );
+        getLinkedItem: function (args) {
+            return getLinkedItem(args.repo, args.owner, args.token);
         },
 
         //Get all signed CLAs for given repo and gist url and/or a given gist version
@@ -660,7 +655,7 @@ module.exports = function () {
         create: function (args, done) {
             let now = new Date();
 
-            CLA.create({
+            return CLA.create({
                 repo: args.repo,
                 repoId: args.repoId,
                 owner: args.owner,
@@ -669,13 +664,13 @@ module.exports = function () {
                 userId: args.userId,
                 gist_url: args.gist,
                 gist_version: args.gist_version,
-                created_at: now,
+                created_at: args.created_at || now,
                 end_at: undefined,
                 org_cla: args.org_cla,
-                custom_fields: args.custom_fields
-            }, function (err, res) {
-                done(err, res);
-            });
+                custom_fields: args.custom_fields,
+                updated_at: now,
+                origin: args.origin
+            }, done);
         },
 
         terminate: function (args, done) {
@@ -711,7 +706,9 @@ module.exports = function () {
 
         isClaRequired: function (args, done) {
             return isSignificantPullRequest(args.repo, args.owner, args.number, args.token).then(function (isSignificant) {
-                done(null, isSignificant);
+                if (done) {
+                    done(null, isSignificant);
+                }
             }).catch(done);
         }
     };

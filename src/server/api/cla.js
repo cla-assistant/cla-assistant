@@ -110,16 +110,10 @@ function getLinkedItemsWithSharedGist(gist, done) {
     });
 }
 
-function validatePullRequest(args, done) {
+async function validatePullRequest(args, done) {
     args.token = args.token ? args.token : token;
-    cla.getLinkedItem(args, function (error, item) {
-        if (error) {
-            let logArgs = Object.assign({}, args);
-            logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
-            log.error(error.stack, logArgs);
-
-            return done();
-        }
+    try {
+        const item = await cla.getLinkedItem(args);
         args.token = item.token;
         if (!item.gist) {
             return status.updateForNullCla(args, function () {
@@ -130,37 +124,39 @@ function validatePullRequest(args, done) {
                 }, done);
             });
         }
-        cla.isClaRequired(args, function (error, isClaRequired) {
-            if (error) {
-                return log.error(error.stack);
+        const isClaRequired = await cla.isClaRequired(args);
+        if (!isClaRequired) {
+            return status.updateForClaNotRequired(args, function () {
+                prService.deleteComment({
+                    repo: args.repo,
+                    owner: args.owner,
+                    number: args.number
+                }, done);
+            });
+        }
+        cla.check(args, function (cla_err, all_signed, user_map) {
+            if (cla_err) {
+                log.error(cla_err.stack);
             }
-            if (!isClaRequired) {
-                return status.updateForClaNotRequired(args, function () {
-                    prService.deleteComment({
-                        repo: args.repo,
-                        owner: args.owner,
-                        number: args.number
-                    }, done);
-                });
-            }
-            cla.check(args, function (cla_err, all_signed, user_map) {
-                if (cla_err) {
-                    log.error(cla_err.stack);
-                }
-                args.signed = all_signed;
+            args.signed = all_signed;
 
-                return status.update(args, function () {
-                    prService.editComment({
-                        repo: args.repo,
-                        owner: args.owner,
-                        number: args.number,
-                        signed: args.signed,
-                        user_map: user_map
-                    }, done);
-                });
+            return status.update(args, function () {
+                prService.editComment({
+                    repo: args.repo,
+                    owner: args.owner,
+                    number: args.number,
+                    signed: args.signed,
+                    user_map: user_map
+                }, done);
             });
         });
-    });
+    } catch (e) {
+        let logArgs = Object.assign({}, args);
+        logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
+        log.error(e.stack, logArgs);
+        done();
+        throw e;
+    }
 }
 
 // Check/update status and comment of PRs saved for the user and matching linked item
@@ -172,7 +168,7 @@ function validatePullRequest(args, done) {
 //      gist (mandatory)
 //      sharedGist (optional)
 // token (mandatory)
-function updateUsersPullRequests(args) {
+async function updateUsersPullRequests(args) {
     function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
         numbers.forEach((prNumber) => {
             validatePullRequest({
@@ -188,25 +184,25 @@ function updateUsersPullRequests(args) {
 
     function prepareForValidation(item, user) {
         const needRemove = [];
-        async.series(user.requests.map((pullRequests, index) => {
-            return function (callback) {
-                return cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner }, (err, linkedItem) => {
-                    if (err) {
-                        log.warn(err.stack);
-                    }
-                    if (!linkedItem) {
-                        needRemove.push(index);
 
-                        return callback();
-                    }
-                    if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
-                        needRemove.push(index);
-                        validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
-                    }
-                    callback();
-                });
-            };
-        }), () => {
+        return Promise.all(user.requests.map(async (pullRequests, index) => {
+            try {
+                const linkedItem = await cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner });
+                if (!linkedItem) {
+                    needRemove.push(index);
+
+                    return;
+                }
+                if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                    needRemove.push(index);
+                    validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
+                }
+
+                return linkedItem;
+            } catch (e) {
+                log.warn(e.stack);
+            }
+        })).then(() => {
             needRemove.sort();
             for (let i = needRemove.length - 1; i >= 0; --i) {
                 user.requests.splice(needRemove[i], 1);
@@ -215,35 +211,39 @@ function updateUsersPullRequests(args) {
         });
     }
 
-    User.findOne({ name: args.user }, (err, user) => {
-        if (err || !user || !user.requests || user.requests.length < 1) {
-            let req = {
-                args: {
-                    gist: args.item.gist,
-                    token: args.token
-                }
-            };
-            if (args.item.sharedGist) {
-                return ClaApi.validateSharedGistItems(req, () => {
-                    // Ignore result
-                });
-            } else if (args.item.org) {
-                req.args.org = args.item.org;
+    try {
+        const user = await User.findOne({ name: args.user });
+        if (!user || !user.requests || user.requests.length < 1) {
+            throw 'user or PRs not found';
+        }
 
-                return ClaApi.validateOrgPullRequests(req, () => {
-                    // Ignore result
-                });
+        return prepareForValidation(args.item, user);
+    } catch (e) {
+        let req = {
+            args: {
+                gist: args.item.gist,
+                token: args.token
             }
+        };
+        if (args.item.sharedGist) {
+            return ClaApi.validateSharedGistItems(req, () => {
+                // Ignore result
+            });
+        } else if (args.item.org) {
+            req.args.org = args.item.org;
 
-            req.args.repo = args.repo;
-            req.args.owner = args.owner;
-
-            return ClaApi.validatePullRequests(req, () => {
+            return ClaApi.validateOrgPullRequests(req, () => {
                 // Ignore result
             });
         }
-        prepareForValidation(args.item, user);
-    });
+
+        req.args.repo = args.repo;
+        req.args.owner = args.owner;
+
+        return ClaApi.validatePullRequests(req, () => {
+            // Ignore result
+        });
+    }
 }
 
 function getReposNeedToValidate(req, done) {
@@ -383,8 +383,8 @@ let ClaApi = {
     // Params:
     // repo (mandatory)
     // owner (mandatory)
-    getLinkedItem: function (req, done) {
-        cla.getLinkedItem(req.args, done);
+    getLinkedItem: function (req) {
+        return cla.getLinkedItem(req.args);
     },
 
     //Get all signed CLAs for given repo and gist url and/or a given gist version
@@ -407,16 +407,14 @@ let ClaApi = {
         let params = req.args;
         let self = this;
 
-        function getMissingParams(cb) {
+        async function getMissingParams() {
             if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
-                cb();
+                throw 'invalid parameters provided';
             } else {
-                self.getLinkedItem(req, function (err, item) {
-                    if (err || !item) {
-                        cb(err + ' There is no such item');
-                        log.info(err, 'There is no such item for args: ', req.args);
-
-                        return;
+                try {
+                    const item = await self.getLinkedItem(req);
+                    if (!item) {
+                        throw new Error('no item found');
                     }
                     params.token = item.token;
                     params.sharedGist = item.sharedGist;
@@ -428,31 +426,28 @@ let ClaApi = {
                     params.gist = params.gist && params.gist.gist_url ? params.gist : {
                         gist_url: item.gist
                     };
-                    cla.getGist(req.args, function (e, gist) {
+                    cla.getGist(req.args, function (err, gist) {
                         if (!gist) {
-                            let error = 'No gist found' + e;
+                            let error = `No gist found ${err}`;
                             log.warn(new Error(error).stack, req.args);
-                            cb(error);
+                            throw error;
                         } else {
                             params.gist.gist_version = gist.history[0].version;
-                            cb();
                         }
                     });
-                });
+                } catch (e) {
+                    log.info(e, 'There is no such item for args: ', req.args);
+                    throw `${e} There is no such item`;
+                }
             }
         }
 
-        function count(err) {
-            if (err) {
-                done(err);
-
-                return;
-            }
+        function count() {
             cla.getAll(params, function (err, clas) {
                 done(err, clas.length);
             });
         }
-        getMissingParams(count);
+        getMissingParams().then(count, done);
     },
 
     validateOrgPullRequests: function (req, done) {
@@ -579,7 +574,7 @@ let ClaApi = {
         });
     },
 
-    sign: function (req, done) {
+    sign: async function (req) {
         let args = {
             repo: req.args.repo,
             owner: req.args.owner,
@@ -589,33 +584,28 @@ let ClaApi = {
         if (req.args.custom_fields) {
             args.custom_fields = req.args.custom_fields;
         }
-        let self = this;
+        try {
+            const item = await this.getLinkedItem({
+                args: {
+                    repo: args.repo,
+                    owner: args.owner
+                }
+            });
 
-        self.getLinkedItem({
-            args: {
-                repo: args.repo,
-                owner: args.owner
-            }
-        }, function (e, item) {
-            if (e) {
-                log.error(new Error(e).stack);
-
-                return done(e);
-            }
             args.item = item;
             args.token = item.token;
-            cla.sign(args, function (err, signed) {
-                if (err) {
-                    if (!err.code || err.code != 200) {
-                        log.error(new Error(err).stack);
-                    }
+            args.origin = `sign|${req.user.login}`;
 
-                    return done(err);
-                }
-                updateUsersPullRequests(args);
-                done(null, signed);
-            });
-        });
+            const signed = await cla.sign(args);
+            await updateUsersPullRequests(args);
+
+            return signed;
+        } catch (e) {
+            if (!e.code || e.code != 200) {
+                log.error(new Error(e).stack);
+            }
+            throw e;
+        }
     },
 
     check: function (req, done) {
@@ -633,6 +623,7 @@ let ClaApi = {
     upload: function (req, done) {
 
         let users = req.args.users || [];
+        let uploadInitiator = req.user.login;
 
         async.each(users, function (user, callback) {
             github.call({
@@ -646,11 +637,13 @@ let ClaApi = {
                 if (err || !gh_user) {
                     return callback();
                 }
+
                 cla.sign({
                     repo: req.args.repo,
                     owner: req.args.owner,
                     user: gh_user.login,
-                    userId: gh_user.id
+                    userId: gh_user.id,
+                    origin: `upload|${uploadInitiator}`
                 }, callback);
             });
         }, done);
@@ -665,8 +658,9 @@ let ClaApi = {
             owner: Joi.string(),
             repo: Joi.string(),
             custom_fields: Joi.string(),
+            origin: Joi.string(),
         }).and('repo', 'owner').xor('repo', 'org');
-        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
+        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, async function (joiErr) {
             if (joiErr) {
                 joiErr.code = 400;
 
@@ -674,30 +668,26 @@ let ClaApi = {
             }
             req.args.owner = req.args.owner || req.args.org;
             delete req.args.org;
-            self.getLinkedItem({
-                args: {
-                    repo: req.args.repo,
-                    owner: req.args.owner
-                }
-            }, function (e, item) {
-                if (e) {
-                    log.error(new Error(e).stack);
+            try {
 
-                    return done(e);
-                }
+                const item = await self.getLinkedItem({
+                    args: {
+                        repo: req.args.repo,
+                        owner: req.args.owner
+                    }
+                });
                 req.args.item = item;
                 req.args.token = item.token;
-                cla.sign(req.args, function (err, signed) {
-                    if (err) {
-                        log.error(new Error(err).stack);
+                req.args.origin = `${req.args.origin ? req.args.origin + '|' : ''}addSignature|${req.user.login}`;
+                const signed = await cla.sign(req.args);
+                updateUsersPullRequests(req.args);
+                // Add signature API will get a timeout error if waiting for validating pull requests.
+                done(null, signed);
+            } catch (e) {
+                log.error(new Error(e).stack);
 
-                        return done(err);
-                    }
-                    updateUsersPullRequests(req.args);
-                    // Add signature API will get a timeout error if waiting for validating pull requests.
-                    done(null, signed);
-                });
-            });
+                return done(e);
+            }
         });
     },
 
