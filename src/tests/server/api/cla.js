@@ -950,7 +950,7 @@ describe('', function () {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat',
-                    users: ['one']
+                    signatures: [{ user: 'one' }]
                 },
                 user: {
                     login: 'projectOwner',
@@ -1000,7 +1000,7 @@ describe('', function () {
         });
 
         it('should "sign" cla for two users', function (it_done) {
-            req.args.users = ['one', 'two'];
+            req.args.signatures = [{ user: 'one' }, { user: 'two' }];
             cla_api.upload(req, function () {
                 assert(github.call.called);
                 assert(cla.sign.calledWithMatch({
@@ -1021,7 +1021,7 @@ describe('', function () {
         });
 
         it('should "sign" cla for linked org', function (it_done) {
-            req.args.users = ['one', 'two'];
+            req.args.signatures = [{ user: 'one' }, { user: 'two' }];
             req.args.repo = undefined;
             cla_api.upload(req, function () {
                 assert(github.call.called);
@@ -1037,11 +1037,27 @@ describe('', function () {
         });
 
         it('should "sign" cla with origin attribute', function (it_done) {
-            req.args.users = ['one', 'two'];
+            req.args.signatures = [{ user: 'one' }, { user: 'two' }];
             cla_api.upload(req, function () {
                 assert(github.call.called);
                 assert(cla.sign.calledTwice);
                 sinon.assert.calledWithMatch(cla.sign, expArgs);
+                it_done();
+            });
+        });
+
+        it('should "sign" cla with provided attributes', function (it_done) {
+            req.args.signatures = [{ user: 'one', created_at: '2011-01-26T19:01:12Z' }, { user: 'two', custom_fields: { name: 'Username' } }];
+            cla_api.upload(req, function () {
+                assert(github.call.called);
+                assert(cla.sign.calledTwice);
+                sinon.assert.calledWithMatch(cla.sign, expArgs);
+                sinon.assert.calledWithMatch(cla.sign.firstCall, {
+                    created_at: '2011-01-26T19:01:12Z'
+                });
+                sinon.assert.calledWithMatch(cla.sign.secondCall, {
+                    custom_fields: { name: 'Username' }
+                });
                 it_done();
             });
         });

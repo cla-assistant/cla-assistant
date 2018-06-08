@@ -1,7 +1,27 @@
 module.controller('UploadCtrl',
-    function ($scope, $modalInstance) {
+    function ($scope, $modalInstance, customFields) {
 
         $scope.json = {};
+        $scope.availableFieldKeys = ['user', 'created_at'];
+        $scope.selectedKeys = {};
+
+        $scope.availableFieldKeys = $scope.availableFieldKeys.concat(customFields);
+
+        $scope.selectedKeyList = function () {
+            return Object.keys($scope.selectedKeys).map(function (i) { return $scope.selectedKeys[i]; });
+        };
+
+        $scope.canBeUploaded = function () {
+            return $scope.selectedKeyList().indexOf('user') != -1;
+        };
+
+        $scope.validateAttribute = function (data, index) {
+            if ($scope.selectedKeys[index] === 'created_at') {
+                return isNaN(Date.parse(data)) ? 'danger' : 'success';
+            } else if ($scope.selectedKeys[index] === 'user') {
+                return typeof data === 'string' ? 'success' : 'danger';
+            }
+        };
 
         $scope.$watch('file', function () {
             if ($scope.file) {
@@ -13,13 +33,38 @@ module.controller('UploadCtrl',
             }
         });
 
-        $scope.upload = function (index) {
+        $scope.upload = function () {
 
             var data = [];
-
-            for (var i = ($scope.header ? 1 : 0); i < $scope.json.data.length; i++) {
-                data.push($scope.json.data[i][index]);
+            if ($scope.header) {
+                $scope.json.data.splice(0, 1);
             }
+            data = $scope.json.data.map(function (line) {
+                var argsToUpload = {};
+                try {
+                    Object.keys($scope.selectedKeys).forEach(function (index) {
+                        var attributeName = $scope.selectedKeys[index];
+                        if (attributeName === 'user') {
+                            argsToUpload.user = line[index];
+                        } else if (attributeName === 'created_at') {
+                            if (isNaN(Date.parse(line[index]))) {
+                                throw new Error('unsupported date format');
+                            }
+                            argsToUpload.created_at = new Date(line[index]).toUTCString();
+                        } else {
+                            argsToUpload.custom_fields = argsToUpload.custom_fields ? argsToUpload.custom_fields : {};
+                            argsToUpload.custom_fields[attributeName] = line[index];
+                        }
+                    });
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.log(e);
+
+                    return;
+                }
+
+                return argsToUpload;
+            }).filter(function (line) { return line; });
 
             $modalInstance.close(data);
         };
@@ -47,3 +92,22 @@ module.controller('UploadCtrl',
             }
         };
     });
+
+filters.filter('notSelected', function () {
+    return function (items, arr) {
+
+        if (!arr || arr.length === 0) {
+            return items;
+        }
+
+        var notMatched = [];
+
+        items.forEach(function (item) {
+            if (arr.indexOf(item) < 0) {
+                notMatched.push(item);
+            }
+        });
+
+        return notMatched;
+    };
+});

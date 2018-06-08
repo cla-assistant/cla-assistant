@@ -237,17 +237,27 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
         $scope.upload = function (linkedItem) {
             $scope.popoverIsOpen = false;
-            var modal = $modal.open({
-                templateUrl: '/modals/templates/upload.html',
-                controller: 'UploadCtrl',
-                windowClass: 'upload'
-            });
-            modal.result.then(function (users) {
-                $RPCService.call('cla', 'upload', {
-                    repo: linkedItem.repo,
-                    owner: linkedItem.owner || linkedItem.org,
-                    users: users
-                }).then($scope.validateLinkedItem);
+            getCustomFields(linkedItem, undefined, function (err, customFields) {
+                if (err) {
+                    //do nothing
+                }
+                var modal = $modal.open({
+                    templateUrl: '/modals/templates/upload.html',
+                    controller: 'UploadCtrl',
+                    windowClass: 'upload',
+                    resolve: {
+                        customFields: function () {
+                            return customFields;
+                        }
+                    }
+                });
+                modal.result.then(function (signatures) {
+                    $RPCService.call('cla', 'upload', {
+                        repo: linkedItem.repo,
+                        owner: linkedItem.owner || linkedItem.org,
+                        signatures: signatures
+                    }).then($scope.validateLinkedItem);
+                });
             });
         };
 
