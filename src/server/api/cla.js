@@ -621,15 +621,21 @@ let ClaApi = {
     },
 
     upload: function (req, done) {
-        const users = req.args.users || [];
+        const signatures = req.args.signatures || [];
         const uploadInitiator = req.user.login;
 
-        async.each(users, function (user, callback) {
+        async.each(signatures, function (signature, callback) {
+            if (!signature || !signature.user) {
+                // eslint-disable-next-line quotes
+                var error = `Uploaded signature doesn't contain user name`;
+                log.info(new Error(error).stack);
+                callback(error);
+            }
             github.call({
                 obj: 'users',
                 fun: 'getForUser',
                 arg: {
-                    username: user
+                    username: signature.user
                 },
                 token: req.user.token
             }, async function (err, gh_user) {
@@ -644,6 +650,13 @@ let ClaApi = {
                     userId: gh_user.id,
                     origin: `upload|${uploadInitiator}`
                 };
+                if (signature.created_at) {
+                    args.created_at = signature.created_at;
+                }
+                if (signature.custom_fields) {
+                    args.custom_fields = signature.custom_fields;
+                }
+
                 try {
                     const signed = await cla.sign(args);
                     callback(null, signed);
