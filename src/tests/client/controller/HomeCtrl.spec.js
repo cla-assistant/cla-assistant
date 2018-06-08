@@ -779,6 +779,7 @@ describe('Home Controller', function () {
         expErr.HUB.getUser = 'Authentication required';
 
         homeCtrl = createCtrl();
+        homeCtrl.scope.showActivity = true;
         _timeout.flush();
 
         ($RAW.get.calledWith('/count/clas')).should.be.equal(true);

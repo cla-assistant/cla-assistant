@@ -46,6 +46,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.users = [];
         $scope.user = {};
         $scope.isLoading = false;
+        $scope.showActivity = $location.host().indexOf('cla-assistant.io') > -1;
 
         $scope.logAdminIn = function () {
             $window.location.href = '/auth/github';
@@ -317,7 +318,9 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 $scope.isLoading = false;
             });
         }, function () {
-            $scope.count();
+            if ($scope.showActivity) {
+                $scope.count();
+            }
         });
 
         $scope.clear = function ($event, obj) {
