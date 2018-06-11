@@ -1,5 +1,15 @@
 # Change Log
 
+## [v1.7.0](https://github.com/cla-assistant/cla-assistant/tree/v1.7.0) (2018-06-11)
+
+**New features:**
+- allow upload signature date and custom fields [\#328](https://github.com/cla-assistant/cla-assistant/issues/328), [\#195](https://github.com/cla-assistant/cla-assistant/issues/195)
+- set origin flag on sign (UI / API / Upload)
+
+**Fixed bugs:**
+- don't call count api if the host is not cla-assistant.io [\#334](https://github.com/cla-assistant/cla-assistant/issues/334)
+- check users admin rights for orgs [\#331](https://github.com/cla-assistant/cla-assistant/issues/331)
+
 ## [v1.6.0](https://github.com/cla-assistant/cla-assistant/tree/v1.6.0) (2018-05-25)
 
 **New features:**
