@@ -248,7 +248,7 @@ describe('webhook pull request', function () {
         status: function (res_status) {
             assert.equal(res_status, 200);
 
-return {
+            return {
                 send: function () { }
             };
         }
@@ -319,8 +319,8 @@ return {
             done(null, testRes.repoService.getGHRepo);
         });
 
-        sinon.stub(cla, 'getLinkedItem').callsFake(function (args, done) {
-            return done(null, Object.assign(args, testRes.cla.getLinkedItem));
+        sinon.stub(cla, 'getLinkedItem').callsFake(function (args) {
+            return Promise.resolve(Object.assign(args, testRes.cla.getLinkedItem));
         });
 
         sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {

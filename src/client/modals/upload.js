@@ -62,8 +62,8 @@ module.controller('UploadCtrl',
 
                     return;
                 }
-
                 argsToUpload.custom_fields = JSON.stringify(argsToUpload.custom_fields);
+
                 return argsToUpload;
             }).filter(function (line) { return line; });
 
