@@ -122,14 +122,9 @@ module.exports = function (req, res) {
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
 
 
-        setTimeout(function () {
-            cla.getLinkedItem(args, function (err, item) {
-                if (err) {
-                    logger.warn(err);
-                }
-                if (!item) {
-                    return;
-                }
+        setTimeout(async function () {
+            try {
+                const item = await cla.getLinkedItem(args);
                 let nullCla = !item.gist;
                 let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo);
                 if (nullCla || isExcluded) {
@@ -142,7 +137,10 @@ module.exports = function (req, res) {
                 }
 
                 return handleWebHook(args);
-            });
+            } catch (e) {
+                logger.warn(e);
+
+            }
         }, config.server.github.enforceDelay);
     }
 

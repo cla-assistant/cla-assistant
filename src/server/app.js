@@ -200,21 +200,31 @@ async.series([
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 app.use('/api', require('./middleware/authenticated'));
 
+
 app.all('/api/:obj/:fun', function (req, res) {
     res.set('Content-Type', 'application/json');
-    api[req.params.obj][req.params.fun](req, function (err, obj) {
-        if (err && typeof err === 'string') {
-            return res.status(500).send(err);
-        } else if (err) {
-            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err.message || err));
-        }
+    function apiSuccess(obj) {
         if (obj !== undefined && obj !== null) {
             obj = cleanup.cleanObject(obj);
             res.send(JSON.stringify(obj));
         } else {
             res.send();
         }
+    }
+    function apiFailure(err) {
+        if (err && typeof err === 'string') {
+            return res.status(500).send(err);
+        } else if (err) {
+            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err.message || err));
+        }
+    }
+
+    const promise = api[req.params.obj][req.params.fun](req, function (err, obj) {
+        return err ? apiFailure(err) : apiSuccess(obj);
     });
+    if (promise) {
+        promise.then(apiSuccess, apiFailure);
+    }
 });
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
