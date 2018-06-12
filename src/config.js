@@ -15,6 +15,7 @@ module.exports = {
             api: process.env.GITHUB_API_HOST || 'api.github.com',
             enterprise: !!process.env.GITHUB_HOST, // flag enterprise version
             version: process.env.GITHUB_VERSION || '3.0.0',
+            adminToken: process.env.GITHUB_ADMIN_TOKEN,
 
             graphqlEndpoint: process.env.GITHUB_GRAPHQL || 'https://api.github.com/graphql',
 
@@ -56,7 +57,8 @@ module.exports = {
 
         security: {
             sessionSecret: process.env.SESSION_SECRET || 'cla-assistant',
-            cookieMaxAge: 60 * 60 * 1000
+            cookieMaxAge: 60 * 60 * 1000,
+            cookieSecurity: !(process.env.NODE_ENV === 'localhost')
         },
 
         smtp: {

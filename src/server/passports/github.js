@@ -89,6 +89,9 @@ passport.use(new Strategy({
                 token: accessToken
             }, function (err, res) {
                 if (res && res.length > 0) {
+                    if (config.server.github.adminToken) {
+                        return;
+                    }
                     res.forEach(function (repo) {
                         checkToken(repo, accessToken);
                     });
@@ -105,6 +108,9 @@ passport.use(new Strategy({
                 }
             }, function (err, res) {
                 if (res && res.length > 0) {
+                    if (config.server.github.adminToken) {
+                        return;
+                    }
                     res.forEach(function (org) {
                         checkToken(org, accessToken);
                     });
