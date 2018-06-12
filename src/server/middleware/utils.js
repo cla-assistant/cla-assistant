@@ -37,6 +37,8 @@ module.exports = {
     },
 
     checkRepoPushPermissionById: function (repoId, token, cb) {
+        let deferred = q.defer();
+
         githubService.call({
             obj: 'repos',
             fun: 'getById',
@@ -46,13 +48,20 @@ module.exports = {
             token: token
         }, function (err, data) {
             if (err || !data) {
-                cb(err, data);
+                if (cb) {
+                    cb(err, data);
+                }
 
-                return;
+                return deferred.reject(err);
             }
             let hasPermission = data.permissions.push;
-            cb(err, hasPermission);
+            if (cb) {
+                cb(err, hasPermission);
+            }
+            deferred.resolve(hasPermission);
         });
+
+        return deferred.promise;
     },
 
     checkOrgAdminPermission: function (org, username, token) {
