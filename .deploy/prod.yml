@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: cla-prod
 spec:
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
