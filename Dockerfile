@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.7
 MAINTAINER GoCD Contributors <go-cd-dev@googlegroups.com>
 
 EXPOSE 5000
