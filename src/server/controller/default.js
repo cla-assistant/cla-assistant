@@ -9,22 +9,26 @@ let logger = require('./../services/logger');
 let router = express.Router();
 
 // router.use('/accept', function(req, res) {
-router.use('/accept/:owner/:repo', function (req, res) {
+router.use('/accept/:owner/:repo', async function (req, res) {
     req.args = {
         owner: req.params.owner,
         repo: req.params.repo
     };
 
     if (req.isAuthenticated()) {
-        cla.sign(req, function (err) {
-            if (err && (!err.code || err.code != 200)) {
-                logger.error(err);
-            }
-            let redirectUrl = '/' + req.args.owner + '/' + req.args.repo + '?redirect=true';
-            redirectUrl = req.query.pullRequest ? redirectUrl + '&pullRequest=' + req.query.pullRequest : redirectUrl;
-            res.redirect(redirectUrl);
-        });
+        try {
+            await cla.sign(req);
+        } catch (e) {
+            if (e && (!e.code || e.code != 200)) {
+                logger.error(e);
 
+                return;
+            }
+        }
+
+        let redirectUrl = '/' + req.args.owner + '/' + req.args.repo + '?redirect=true';
+        redirectUrl = req.query.pullRequest ? redirectUrl + '&pullRequest=' + req.query.pullRequest : redirectUrl;
+        res.redirect(redirectUrl);
     } else {
         req.session.next = req.originalUrl;
 

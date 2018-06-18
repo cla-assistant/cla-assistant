@@ -202,6 +202,8 @@ async function updateUsersPullRequests(args) {
             } catch (e) {
                 log.warn(e.stack);
             }
+        }).filter((promise) => {
+            return promise !== undefined;
         })).then(() => {
             needRemove.sort();
             for (let i = needRemove.length - 1; i >= 0; --i) {

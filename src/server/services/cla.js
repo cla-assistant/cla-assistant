@@ -314,34 +314,37 @@ module.exports = function () {
         });
     };
 
-    let isSignificantPullRequest = function (repo, owner, number, token) {
+    let isSignificantPullRequest = async function (repo, owner, number, token) {
         if (!repo || !owner || !number) {
-            return q.reject(new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number));
+            return Promise.reject(new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number));
         }
-
-        return getLinkedItem(repo, owner, token).then(function (item) {
+        try {
+            const item = await getLinkedItem(repo, owner, token);
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
                 return true;
             }
             token = token || item.token; // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
 
-            return getPullRequestFiles(repo, owner, number, token).then(function (files) {
-                if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
-                    return true;
-                }
-                if (typeof item.minCodeChanges === 'number') {
-                    let sum = 0;
+            const files = await getPullRequestFiles(repo, owner, number, token);
+            if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
+                return true;
+            }
+            if (typeof item.minCodeChanges === 'number') {
+                let sum = 0;
 
-                    return files.some(function (file) {
-                        sum += file.changes;
+                return files.some(function (file) {
+                    sum += file.changes;
 
-                        return sum >= item.minCodeChanges;
-                    });
-                }
+                    return sum >= item.minCodeChanges;
+                });
+            }
 
-                return false;
-            });
-        });
+            return false;
+        } catch (e) {
+            this.logger.error(new Error(e).stack);
+
+            return true;
+        }
     };
 
     claService = {
@@ -524,7 +527,9 @@ module.exports = function () {
                     argsToCreate.origin = `unknown|${args.user}`;
                 }
 
-                return this.create(argsToCreate);
+                const signature = await this.create(argsToCreate);
+
+                return signature;
             } catch (error) {
                 throw error;
             }
@@ -705,11 +710,14 @@ module.exports = function () {
         },
 
         isClaRequired: function (args, done) {
-            return isSignificantPullRequest(args.repo, args.owner, args.number, args.token).then(function (isSignificant) {
+            const promise = isSignificantPullRequest(args.repo, args.owner, args.number, args.token);
+            promise.then(function (isSignificant) {
                 if (done) {
                     done(null, isSignificant);
                 }
             }).catch(done);
+
+            return promise;
         }
     };
 
