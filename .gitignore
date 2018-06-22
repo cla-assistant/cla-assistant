@@ -19,3 +19,4 @@ log
 log.*
 .vscode/*
 jsconfig.json
+src/tests/acceptance_tests/codecept.conf.js
