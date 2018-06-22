@@ -409,39 +409,42 @@ let ClaApi = {
         let params = req.args;
         let self = this;
 
-        async function getMissingParams() {
-            if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
-                throw 'invalid parameters provided';
-            } else {
-                try {
-                    const item = await self.getLinkedItem(req);
-                    if (!item) {
-                        throw new Error('no item found');
-                    }
-                    params.token = item.token;
-                    params.sharedGist = item.sharedGist;
-                    if (item.orgId) {
-                        params.orgId = item.orgId;
-                    } else if (item.repoId) {
-                        params.repoId = item.repoId;
-                    }
-                    params.gist = params.gist && params.gist.gist_url ? params.gist : {
-                        gist_url: item.gist
-                    };
-                    cla.getGist(req.args, function (err, gist) {
-                        if (!gist) {
-                            let error = `No gist found ${err}`;
-                            log.warn(new Error(error).stack, req.args);
-                            throw error;
-                        } else {
-                            params.gist.gist_version = gist.history[0].version;
+        function getMissingParams() {
+            return new Promise(async function (resolve, reject) {
+                if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
+                    throw 'invalid parameters provided';
+                } else {
+                    try {
+                        const item = await self.getLinkedItem(req);
+                        if (!item) {
+                            throw new Error('no item found');
                         }
-                    });
-                } catch (e) {
-                    log.info(e, 'There is no such item for args: ', req.args);
-                    throw `${e} There is no such item`;
+                        params.token = item.token;
+                        params.sharedGist = item.sharedGist;
+                        if (item.orgId) {
+                            params.orgId = item.orgId;
+                        } else if (item.repoId) {
+                            params.repoId = item.repoId;
+                        }
+                        params.gist = params.gist && params.gist.gist_url ? params.gist : {
+                            gist_url: item.gist
+                        };
+                        cla.getGist(req.args, function (err, gist) {
+                            if (!gist) {
+                                let error = `No gist found ${err}`;
+                                log.warn(new Error(error).stack, req.args);
+                                reject(error);
+                            } else {
+                                params.gist.gist_version = gist.history[0].version;
+                                resolve();
+                            }
+                        });
+                    } catch (e) {
+                        log.info(e, 'There is no such item for args: ', req.args);
+                        throw `${e} There is no such item`;
+                    }
                 }
-            }
+            });
         }
 
         function count() {
