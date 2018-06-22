@@ -1,0 +1,28 @@
+{
+    "tests": "./src/tests/acceptance_tests/*spec.js",
+    "timeout": 10000,
+    "output": "./src/tests/acceptance_tests/output",
+    "helpers": {
+        "WebDriverIO": {
+            "url": "/",
+            "browser": "chrome",
+            "windowSize": "maximize",
+            "smartWait": 5000,
+            "restart": false,
+            "keepCookies": true,
+            "desiredCapabilities": {
+                "chromeOptions": {
+                    "args": [
+                        "--disable-gpu",
+                        "--window-size=800,600"
+                    ]
+                }
+            }
+        }
+    },
+    "include": {},
+    "bootstrap": false,
+    "debug": true,
+    "mocha": {},
+    "name": "cla-assistant"
+}
