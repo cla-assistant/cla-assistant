@@ -1,6 +1,6 @@
 # Change Log
 
-## [v1.7.1](https://github.com/cla-assistant/cla-assistant/tree/v1.7.0) (2018-06-11)
+## [v1.7.1](https://github.com/cla-assistant/cla-assistant/tree/v1.7.0) (2018-06-25)
 
 **New features:**
 - add sourceclear scan to the build pipeline
