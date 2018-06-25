@@ -1,5 +1,15 @@
 # Change Log
 
+## [v1.7.1](https://github.com/cla-assistant/cla-assistant/tree/v1.7.0) (2018-06-11)
+
+**New features:**
+- add sourceclear scan to the build pipeline
+- add acceptance/integration tests
+
+**Fixed bugs:**
+- fix signature process: update comment and status on sign [\#340](https://github.com/cla-assistant/cla-assistant/issues/340)
+- use promise for permission check and getLinkedItem
+
 ## [v1.7.0](https://github.com/cla-assistant/cla-assistant/tree/v1.7.0) (2018-06-11)
 
 **New features:**
