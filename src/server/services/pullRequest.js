@@ -35,9 +35,24 @@ let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
     return text;
 };
 
+// let commentNeeded = function (user_map) {
+//     let shouldComment = false;
+//     Object.keys(user_map).forEach(key => {
+//         if (key !== 'white_list' && user_map[key].length > 0) {
+//             shouldComment = true;
+//         }
+//     });
+
+//     return shouldComment;
+// };
+
 module.exports = {
     badgeComment: function (owner, repo, pullNumber, signed, user_map) {
         let badgeUrl = url.pullRequestBadge(signed);
+
+        // if (user_map && !commentNeeded(user_map)) {
+        //     return;
+        // }
 
         this.getComment({
             repo: repo,

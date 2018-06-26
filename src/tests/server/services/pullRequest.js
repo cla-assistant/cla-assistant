@@ -160,7 +160,7 @@ describe('pullRequest:badgeComment', function () {
             if (args.obj === 'issues' && args.fun === 'getComments') {
                 git_done(null, direct_call_data);
 
-return;
+                return;
             }
             if (assertionCallBack) {
                 assertionCallBack(args, git_done);
@@ -300,6 +300,40 @@ return;
             not_signed: ['user2']
         });
     });
+
+    //     it('should NOT comment if there are only white-listed committers', function (it_done) {
+    //         const getComment = sinon.spy(pullRequest, 'getComment');
+
+    //         pullRequest.badgeComment('login', 'myRepo', 1, false, {
+    //             signed: [],
+    //             not_signed: [],
+    //             white_list: ['committer[bot]']
+    //         });
+
+    //         assert(!getComment.called);
+    //         pullRequest.getComment.restore();
+    //         it_done();
+    //     });
+
+    //     it('should comment if there are NOT only white-listed committers', function (it_done) {
+    //         direct_call_data = testDataComments_withCLAComment;
+    //         assertionCallBack = function (args, git_done) {
+    //             assert.equal(args.fun, 'editComment');
+    //             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
+    //             assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
+    //             assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
+    //             assert(args.arg.body.indexOf(':x: user2') >= 0);
+    //             git_done(null, 'res', 'meta');
+    //             it_done();
+    //         };
+
+    //         pullRequest.badgeComment('login', 'myRepo', 1, false, {
+    //             signed: ['user1'],
+    //             not_signed: ['user2'],
+    //             white_list: ['committer[bot]']
+    //         });
+
+    //     });
 });
 
 describe('pullRequest:getComment', function () {
@@ -382,7 +416,7 @@ describe('pullRequest:editComment', function () {
                 assert.equal(args.token, 'xyz');
                 cb(null, testDataComments_withCLAComment);
 
-return;
+                return;
             }
             if (assertionCallBack) {
                 assertionCallBack(args, cb);
