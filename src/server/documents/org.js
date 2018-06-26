@@ -1,4 +1,5 @@
 let mongoose = require('mongoose');
+let utils = require('./utils');
 mongoose.Promise = require('q').Promise;
 
 let OrgSchema = mongoose.Schema({
@@ -9,16 +10,16 @@ let OrgSchema = mongoose.Schema({
     excludePattern: String,
     sharedGist: Boolean,
     minFileChanges: Number,
-    minCodeChanges: Number
+    minCodeChanges: Number,
+    whiteListPattern: String,
 });
 
 OrgSchema.methods.isRepoExcluded = function (repo) {
-    if (!this.excludePattern || !repo || !repo.includes) {
-        return false;
-    }
-    let patterns = this.excludePattern.split(',');
+    return utils.checkPattern(this.excludePattern, repo);
+};
 
-    return patterns.filter(function (pattern) { return repo.includes(pattern); }).length > 0;
+OrgSchema.methods.isUserWhitelisted = function (user) {
+    return utils.checkPatternWildcard(this.whiteListPattern, user);
 };
 
 OrgSchema.index({

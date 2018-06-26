@@ -41,7 +41,10 @@ function stub() {
         repoId: 123,
         gist: 'url/gistId',
         token: 'abc',
-        sharedGist: false
+        sharedGist: false,
+        isUserWhitelisted: function () {
+            return false;
+        }
     };
     testRes.repoServiceGetCommitters = [{
         name: 'login2'
@@ -779,6 +782,7 @@ describe('cla:checkPullRequestSignatures', function () {
             config.server.feature_flag.required_signees = '';
             assert.ifError(err);
             assert.equal(result.user_map.not_signed.length, 1);
+            assert.equal(result.user_map.not_signed[0], 'login0');
             it_done();
         });
     });
@@ -804,6 +808,75 @@ describe('cla:checkPullRequestSignatures', function () {
             config.server.feature_flag.required_signees = '';
             assert.ifError(err);
             assert.equal(result.user_map.not_signed.length, 3);
+            it_done();
+        });
+    });
+
+    it('should not check submitter if he/she is whitelisted', function (it_done) {
+        testRes.repoServiceGet.isUserWhitelisted = function (user) {
+            return user === 'login0';
+        };
+        config.server.feature_flag.required_signees = 'submitter';
+        testRes.claFindOne = null;
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }];
+
+        let args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            config.server.feature_flag.required_signees = '';
+            assert.ifError(err);
+            assert.equal(result.user_map.not_signed.length, 0);
+            it_done();
+        });
+    });
+
+    it('should exclude whitelisted committers from the map', function (it_done) {
+        testRes.repoServiceGet.isUserWhitelisted = function (user) {
+            return user === 'login1';
+        };
+        testRes.repoServiceGetCommitters = [{
+            name: 'login1',
+            id: '123'
+        }, {
+            name: 'login2',
+            id: '321'
+        }, {
+            name: 'login3',
+            id: ''
+        }];
+        CLA.findOne.restore();
+        sinon.stub(CLA, 'findOne').callsFake(function (arg, selector, options, done) {
+            if (!options && !done) {
+                done = selector;
+            } else {
+                done(null, null);
+            }
+        });
+
+        let args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        cla.checkPullRequestSignatures(args, function (err, result) {
+            assert.ifError(err);
+            assert(!result.signed);
+            assert.equal(result.user_map.signed.length, 0);
+            assert.equal(result.user_map.not_signed.length, 2);
+            assert.equal(result.user_map.not_signed[0], 'login2');
+            assert.equal(result.user_map.not_signed[1], 'login3');
+            assert.equal(result.user_map.unknown[0], 'login3');
             it_done();
         });
     });

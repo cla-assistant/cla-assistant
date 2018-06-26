@@ -436,7 +436,7 @@ module.exports = function () {
                     return getPR(args.owner, args.repo, args.number, item.token).then(pullRequest => {
                         args.onDates.push(new Date(pullRequest.created_at));
                         const signees = [];
-                        if (config.server.feature_flag.required_signees.indexOf('submitter') > -1) {
+                        if (config.server.feature_flag.required_signees.indexOf('submitter') > -1 && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(pullRequest.user.login))) { //TODO: test it
                             signees.push({
                                 name: pullRequest.user.login,
                                 id: pullRequest.user.id
@@ -453,6 +453,8 @@ module.exports = function () {
                                 }
                                 signees = _.uniqWith(signees.concat(committers), (object, other) => {
                                     return object.id == other.id;
+                                }).filter((signee) => {
+                                    return !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name)); //TODO: test it
                                 });
                                 deferred.resolve(signees);
                             });

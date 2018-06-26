@@ -1,4 +1,5 @@
 let mongoose = require('mongoose');
+let utils = require('./utils');
 // let logger = require('../services/logger');
 mongoose.Promise = require('q').Promise;
 
@@ -20,6 +21,10 @@ let index = {
 };
 let indexOptions = {
     unique: true
+};
+
+RepoSchema.methods.isUserWhitelisted = function (user) {
+    return utils.checkPatternWildcard(this.whiteListPattern, user);
 };
 
 let Repo = mongoose.model('Repo', RepoSchema);

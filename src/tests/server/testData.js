@@ -98,6 +98,7 @@ let testData = {
         'token': 'testToken',
         'gist': 'https://gist.github.com/aa5a315d61ae9438b18d',
         'excludePattern': 'foo,bar,baz',
+        'whiteListPattern': '',
     },
     'org_from_db_with_empty_excluded_patterns': {
         'orgId': 1,
