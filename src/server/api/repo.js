@@ -76,6 +76,7 @@ module.exports = {
         });
     },
     update: function (req, done) {
+        req.args.token = req.args.token || req.user.token;
         repo.update(req.args, done);
     },
     remove: function (req, done) {

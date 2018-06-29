@@ -233,6 +233,7 @@ describe('repo', function () {
                 gist: 1234,
                 save: function (cb) {
                     assert.equal(this.gist, 'url');
+                    assert.equal(this.token, 'user_token');
                     cb(null, this);
                 }
             };
@@ -240,6 +241,9 @@ describe('repo', function () {
         });
 
         let req = {
+            user: {
+                token: 'user_token'
+            },
             args: {
                 repo: 'myRepo',
                 owner: 'login',
@@ -343,7 +347,7 @@ describe('repo', function () {
                 };
                 cb(null, [r]);
 
-return;
+                return;
             }
             cb('no repo found');
         });

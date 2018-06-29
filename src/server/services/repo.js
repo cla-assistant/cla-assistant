@@ -77,7 +77,8 @@ module.exports = {
             token: args.token,
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
-            minCodeChanges: args.minCodeChanges
+            minCodeChanges: args.minCodeChanges,
+            whiteListPattern: args.whiteListPattern
         }, function (err, repo) {
             done(err, repo);
         });
@@ -134,8 +135,14 @@ module.exports = {
 
                 return;
             }
-            repo.repoId = args.repoId;
+            repo.repoId = repo.repoId ? repo.repoId : args.repoId;
             repo.gist = args.gist;
+            repo.token = args.token ? args.token : repo.token;
+            repo.sharedGist = !!args.sharedGist;
+            repo.minFileChanges = args.minFileChanges;
+            repo.minCodeChanges = args.minCodeChanges;
+            repo.whiteListPattern = args.whiteListPattern;
+
             repo.save(done);
         });
     },
