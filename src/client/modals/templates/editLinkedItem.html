@@ -1,0 +1,93 @@
+<div class="modal-body modal-primary container">
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div class="modal-title">
+        <span ng-show="linkedItem.org">Edit {{linkedItem.org}}</span>
+        <span ng-show="linkedItem.repo">Edit {{linkedItem.owner}}/{{linkedItem.repo}}</span>
+    </div>
+
+    <h5 class="link-topic">
+        Choose a CLA
+        <br/>
+        <span class="side-note">(please note that changing the CLA results in a new request to sign the CLA from the contributors!)</span>
+    </h5>
+    <div class="row">
+
+        <div class="col-xs-12">
+            <div style="margin-bottom: 5px;">Select from Gist</div>
+            <div class="form-group has-feedback" style="margin-bottom: 10px;">
+                <ui-select ng-model="selected.gist" theme="selectize">
+                    <ui-select-match placeholder="select" allow-clear="true">
+                        <button class="fa fa-times clear-button" ng-click="clear($event, 'gist')" ng-show="$select.selected.name"></button> {{$select.selected.name}}
+
+                    </ui-select-match>
+                    <ui-select-choices group-by="groupDefaultCla" repeat="gist in gists | filter: $select.search" null-option="emptyGist">
+                        <span ng-bind-html="gist.name | highlight: $select.search"></span>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+            <div style="margin-bottom:10px">- or -</div>
+            <div style="margin-bottom: 5px;">Paste a URL from a Gist</div>
+            <input ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url" placeholder="https://gist.github.com/<your cla gist id>"
+                required></input>
+            <div style="margin-bottom: 15px; margin-top: 15px;">
+                <input type="checkbox" ng-model="selected.item.sharedGist" ng-init="selected.sharedGist = false" ng-disabled="selected.gist && !selected.gist.url">&nbsp;Share the Gist &nbsp;</input>
+                <span class="clickable" ng-click="gistShareInfo()" style="font-size:12px; text-decoration:underline">(want to share?)</span>
+            </div>
+        </div>
+    </div>
+    <h4 class="link-topic">
+        Optional Settings
+    </h4>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <span ng-if="!linkedItem.repo">
+                    <div style="margin-bottom: 5px; margin-top: 5px;">Exclude the following repos from the org</div>
+                    <input class="form-control" ng-model="selected.item.excludePattern" placeholder="repo1,repo2,substring1"></input>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-5">
+            <div class="form-group">
+                <div style="margin-bottom:5px">Minimum File Number Changes</div>
+                <input class="form-control" type="number" ng-model="selected.item.minFileChanges" ng-disabled="selected.gist && !selected.gist.url"
+                    placeholder="Number"></input>
+            </div>
+        </div>
+        <div class="col-xs-2">
+            <div class="center-text">- or -</div>
+        </div>
+        <div class="col-xs-5">
+            <div class="form-group">
+                <div style="margin-bottom:5px;">Minimum Line Number Changes</div>
+                <input class="form-control" type="number" ng-model="selected.item.minCodeChanges" ng-disabled="selected.gist && !selected.gist.url"
+                    placeholder="Number"></input>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <div style="margin-bottom: 5px; margin-top: 5px;">Provide user names, who doesn't need to sign the CLA
+                    <br/>
+                    <span class="side-note">(you can also use wildcard
+                        <span class="wildcard">*</span>)</span>
+                </div>
+                <input class="form-control" ng-model="selected.item.whiteListPattern" placeholder="user1,user2,*[bot]"></input>
+            </div>
+        </div>
+    </div>
+
+
+    <div ng-repeat="error in errorMsg" class="alert alert-danger col-xs-12" role="alert" ng-show="errorMsg.length > 0">
+        <span class="fa fa-warning" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span> {{ error }}
+    </div>
+
+    <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
+        <button class="btn btn-cancel" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-danger" ng-disabled="!selected.gist" ng-click="ok()">Save</button>
+    </div>
+</div>

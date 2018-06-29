@@ -1,64 +1,67 @@
 <div class="modal-body modal-primary" ng-show="newContributors.loading" style="min-height: 400px;">
-	<div class="row">
-		<div class="col-sm-12 center-block" >
-			<img src="/assets/images/link_inactive.svg" class="spin-img" style="margin:10px; margin-top:150px">
-		</div>
-	</div>
+    <div class="row">
+        <div class="col-sm-12 center-block">
+            <img src="/assets/images/link_inactive.svg" class="spin-img" style="margin:10px; margin-top:150px">
+        </div>
+    </div>
 </div>
 <div class="modal-body modal-primary" ng-show="!newContributors.loading">
-	<div ng-click="cancel()" class="fa fa-times close-button"></div>
-	<div style="text-align: center; font-size:26px; margin-top: 20px;">
-		Contributors who signed {{getGistName()}}
-	</div>
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div class="modal-title">
+        Contributors who signed {{getGistName()}}
+    </div>
 
-	<div class="export-button row">
-		<div class="form-group has-feedback col-xs-8">
-			<ui-select ng-model="selectedVersion.version"  theme="selectize" on-select="newContributors = getContributors($select.selected.version)">
-				<ui-select-match placeholder="select version from ..." allow-clear="true">
-					<div ng-if="$select.selected.committed_at">Version from {{$select.selected.committed_at | date: 'medium'}}</div>
-					<div ng-if="$select.selected.text">{{$select.selected.text}}</div>
-				</ui-select-match>
-				<ui-select-choices repeat="version in history | filter: $select.search">
-					  <span ng-bind-html="version.committed_at | highlight: $select.search | date: 'medium'" ng-if="version.committed_at"></span>
-					  <span ng-bind-html="version.text | highlight: $select.search" ng-if="!version.committed_at"></span>
-				</ui-select-choices>
-			</ui-select>
-		</div>
-	  <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export list</button>
-	</div>
+    <div class="export-button row">
+        <div class="form-group has-feedback col-xs-8">
+            <ui-select ng-model="selectedVersion.version" theme="selectize" on-select="newContributors = getContributors($select.selected.version)">
+                <ui-select-match placeholder="select version from ..." allow-clear="true">
+                    <div ng-if="$select.selected.committed_at">Version from {{$select.selected.committed_at | date: 'medium'}}</div>
+                    <div ng-if="$select.selected.text">{{$select.selected.text}}</div>
+                </ui-select-match>
+                <ui-select-choices repeat="version in history | filter: $select.search">
+                    <span ng-bind-html="version.committed_at | highlight: $select.search | date: 'medium'" ng-if="version.committed_at"></span>
+                    <span ng-bind-html="version.text | highlight: $select.search" ng-if="!version.committed_at"></span>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export list</button>
+    </div>
 
-	<div class="well report" style="max-height: 500px; overflow-y:scroll">
+    <div class="well report" style="max-height: 500px; overflow-y:scroll">
 
-		<div class="row" style="position: relative; padding-top: 0; padding-bottom: 25px;">
-			<div class="col-sm-6" style="text-align:right">
-				<div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{getGistName()}}</div>
-			</div>
-			<div class="center-block" style="position:absolute; width:100%">
-				&nbsp;<img src="/assets/images/linked.svg" class="icon" style="height:17px">&nbsp;
-			</div>
-			<div class="col-sm-6">
-				<div ng-show="!claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.owner }} / {{ claItem.repo }}</div>
-				<div ng-show="claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.org }}</div>
-			</div>
-		</div>
-		<div class="row" ng-init="reverse=false; column='user_name'" style="margin-top:10px">
-			<div class="col-sm-offset-1 col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'user_name'; reverse = !reverse;">Contributor
-				&nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='user_name'"></span>
-			</div>
-			<div class="col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'signed_at'; reverse = !reverse;">Date
-				&nbsp;<span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='signed_at'"></span>
-			</div>
-		</div>
+        <div class="row" style="position: relative; padding-top: 0; padding-bottom: 25px;">
+            <div class="col-sm-6" style="text-align:right">
+                <div style="display: inline-block; vertical-align:bottom; line-height:1.2">{{getGistName()}}</div>
+            </div>
+            <div class="center-block" style="position:absolute; width:100%">
+                &nbsp;
+                <img src="/assets/images/linked.svg" class="icon" style="height:17px">&nbsp;
+            </div>
+            <div class="col-sm-6">
+                <div ng-show="!claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.owner }} / {{ claItem.repo }}</div>
+                <div ng-show="claItem.org" style="display: inline-block; vertical-align:bottom; line-height:1.2">{{ claItem.org }}</div>
+            </div>
+        </div>
+        <div class="row" ng-init="reverse=false; column='user_name'" style="margin-top:10px">
+            <div class="col-sm-offset-1 col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'user_name'; reverse = !reverse;">Contributor &nbsp;
+                <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='user_name'"></span>
+            </div>
+            <div class="col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'signed_at'; reverse = !reverse;">Date &nbsp;
+                <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='signed_at'"></span>
+            </div>
+        </div>
 
-		<div class="row" ng-repeat="contributor in contributors | orderBy:column:reverse track by $index">
-			<!-- <a class="col-sm-offset-1 col-sm-5" ng-href="{{contributor.html_url}}" target="space" >{{contributor.user_name}}</a> -->
-			<div class="col-sm-offset-1 col-sm-5">{{contributor.user_name}}</div>
-			<div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
-		</div>
-	</div>
+        <div class="row" ng-repeat="contributor in contributors | orderBy:column:reverse track by $index">
+            <!-- <a class="col-sm-offset-1 col-sm-5" ng-href="{{contributor.html_url}}" target="space" >{{contributor.user_name}}</a> -->
+            <div class="col-sm-offset-1 col-sm-5">{{contributor.user_name}}</div>
+            <div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
+        </div>
+    </div>
 </div>
 
 <div class="modal-body modal-primary" ng-show="!newContributors.loading">
-	<span ng-show="contributors.length == 1"><b>{{contributors.length}}</b> contributor signed this CLA</span>
-	<span ng-show="contributors.length != 1"><b>{{contributors.length}}</b> contributors signed this CLA</span>
+    <span ng-show="contributors.length == 1">
+        <b>{{contributors.length}}</b> contributor signed this CLA</span>
+    <span ng-show="contributors.length != 1">
+        <b>{{contributors.length}}</b> contributors signed this CLA</span>
 </div>
