@@ -18,9 +18,29 @@ module.exports = {
             excludePattern: args.excludePattern,
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
-            minCodeChanges: args.minCodeChanges
+            minCodeChanges: args.minCodeChanges,
+            whiteListPattern: args.whiteListPattern
         }, function (err, org) {
             done(err, org);
+        });
+    },
+
+    update: function (args, done) {
+        this.get(args, function (err, org) {
+            if (err) {
+                done(err);
+
+                return;
+            }
+            org.gist = args.gist;
+            org.token = args.token ? args.token : org.token;
+            org.sharedGist = !!args.sharedGist;
+            org.excludePattern = args.excludePattern;
+            org.minFileChanges = args.minFileChanges;
+            org.minCodeChanges = args.minCodeChanges;
+            org.whiteListPattern = args.whiteListPattern;
+
+            org.save(done);
         });
     },
 

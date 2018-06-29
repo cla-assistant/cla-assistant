@@ -571,6 +571,29 @@ describe('webhook pull request', function () {
 
     });
 
+    it('should set ClaNotRequired status if the pull request has only whitelisted committers', function (it_done) {
+        cla.check.restore();
+        sinon.stub(cla, 'check').callsFake(function (args, done) {
+            done(null, true, {
+                signed: [],
+                not_signed: [],
+                unknown: []
+            });
+        });
+        this.timeout(150);
+        test_req.args.handleDelay = 0;
+
+        pull_request(test_req, res);
+
+        setTimeout(function () {
+            assert(!status.update.called);
+            assert(status.updateForClaNotRequired.called);
+
+            it_done();
+        }, 40);
+
+    });
+
     // it('should update status of PR even if repo is unknown but from known org', function() {
     // 	repoService.get.restore();
     // 	sinon.stub(repoService, 'get').callsFake(function (args, done) {

@@ -60,7 +60,15 @@ function updateStatusAndComment(args) {
                     logger.warn(new Error(error).stack);
                 }
                 args.signed = signed;
-                status.update(args);
+                if (!user_map ||
+                    (user_map.signed && user_map.signed.length > 0) ||
+                    (user_map.not_signed && user_map.not_signed.length > 0) ||
+                    (user_map.unknown && user_map.unknown.length > 0)
+                ) {
+                    status.update(args);
+                } else {
+                    status.updateForClaNotRequired(args);
+                }
                 // if (!signed) {
                 pullRequest.badgeComment(
                     args.owner,

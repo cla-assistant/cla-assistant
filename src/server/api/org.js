@@ -6,6 +6,17 @@ let webhook = require('./webhook');
 let logger = require('../services/logger');
 //queries
 let queries = require('../graphQueries/github');
+let schema = Joi.object().keys({
+    orgId: Joi.number().required(),
+    org: Joi.string().required(),
+    gist: Joi.string().required(),
+    token: Joi.string().required(),
+    excludePattern: Joi.string(),
+    sharedGist: Joi.boolean(),
+    minFileChanges: Joi.number(),
+    minCodeChanges: Joi.number(),
+    whiteListPattern: Joi.string()
+});
 
 module.exports = {
 
@@ -14,16 +25,7 @@ module.exports = {
     // },
     create: function (req, done) {
         req.args.token = req.args.token || req.user.token;
-        let schema = Joi.object().keys({
-            orgId: Joi.number().required(),
-            org: Joi.string().required(),
-            gist: Joi.string().required(),
-            token: Joi.string().required(),
-            excludePattern: Joi.string(),
-            sharedGist: Joi.boolean(),
-            minFileChanges: Joi.number(),
-            minCodeChanges: Joi.number()
-        });
+
         Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
             if (joiError) {
                 joiError.code = 400;
@@ -52,6 +54,19 @@ module.exports = {
             });
         });
     },
+
+    update: function (req, done) {
+        req.args.token = req.args.token || req.user.token;
+        Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
+            if (joiError) {
+                joiError.code = 400;
+
+                return done(joiError);
+            }
+            org.update(req.args, done);
+        });
+    },
+
     getForUser: function (req, done) {
         this.getGHOrgsForUser(req, function (err, res) {
             if (err) {

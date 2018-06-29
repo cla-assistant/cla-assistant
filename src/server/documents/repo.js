@@ -11,7 +11,8 @@ let RepoSchema = mongoose.Schema({
     token: String,
     sharedGist: Boolean,
     minFileChanges: Number,
-    minCodeChanges: Number
+    minCodeChanges: Number,
+    whiteListPattern: String
 });
 
 let index = {
