@@ -87,6 +87,7 @@ describe('', function () {
                 },
                 callRepos: testData.orgRepos.concat({
                     id: 2,
+                    name: 'testRepo',
                     owner: {
                         login: 'org'
                     }
@@ -510,12 +511,12 @@ describe('', function () {
                 const res = await cla_api.sign(req);
                 assert.ok(res);
                 sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-                assert.equal(statusService.update.callCount, 2);
                 assert(github.call.calledWithMatch({
                     obj: 'pullRequests',
                     fun: 'getAll'
                 }));
                 assert(prService.editComment.called);
+                assert.equal(statusService.update.callCount, 2);
             } catch (e) {
                 assert.ifError(e);
             }
@@ -560,7 +561,7 @@ describe('', function () {
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 args.gist = req.args.gist;
                 cb(null, true, {
-                    signed: [],
+                    signed: ['any_user'],
                     not_signed: []
                 });
             });
@@ -1093,6 +1094,9 @@ describe('', function () {
             sinon.stub(statusService, 'updateForNullCla').callsFake(function (args, cb) {
                 cb();
             });
+            sinon.stub(statusService, 'updateForClaNotRequired').callsFake(function (args, cb) {
+                cb();
+            });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 args.gist = req.args.gist;
                 cb(null, true);
@@ -1115,6 +1119,7 @@ describe('', function () {
             cla.check.restore();
             statusService.update.restore();
             statusService.updateForNullCla.restore();
+            statusService.updateForClaNotRequired.restore();
             prService.editComment.restore();
             prService.deleteComment.restore();
             repo_service.getByOwner.restore();
@@ -1169,6 +1174,36 @@ describe('', function () {
 
                 setTimeout(function () {
                     assert.equal(statusService.update.callCount, 4);
+                    it_done();
+                }, 50);
+            });
+        });
+
+        it('should update status with differentiation between whitelisted and other committers', function (it_done) {
+            cla.check.restore();
+            sinon.stub(cla, 'check').callsFake(function (args, cb) {
+                if (args.repo == 'testRepo' && args.number == 1) {
+                    cb(null, true, { signed: [], not_signed: [], unknown: [] });
+                } else {
+                    cb(null, true);
+                }
+            });
+            req.args.org = 'octocat';
+
+            resp.repoService.get = null;
+            resp.cla.getLinkedItem = resp.orgService.get;
+            global.config.server.github.timeToWait = 10;
+            resp.repoService.getByOwner = [];
+
+            this.timeout(100);
+            cla_api.validateOrgPullRequests(req, function (err, res) {
+                assert.ifError(err);
+                assert.ok(res);
+                // sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+
+                setTimeout(function () {
+                    assert.equal(statusService.update.callCount, 3);
+                    assert.equal(statusService.updateForClaNotRequired.callCount, 1);
                     it_done();
                 }, 50);
             });

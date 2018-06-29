@@ -139,8 +139,16 @@ async function validatePullRequest(args, done) {
                 log.error(cla_err.stack);
             }
             args.signed = all_signed;
+            var update_method = 'updateForClaNotRequired';
+            if (!user_map ||
+                (user_map.signed && user_map.signed.length > 0) ||
+                (user_map.not_signed && user_map.not_signed.length > 0) ||
+                (user_map.unknown && user_map.unknown.length > 0)
+            ) {
+                update_method = 'update';
+            }
 
-            return status.update(args, function () {
+            return status[update_method](args, function () {
                 prService.editComment({
                     repo: args.repo,
                     owner: args.owner,
