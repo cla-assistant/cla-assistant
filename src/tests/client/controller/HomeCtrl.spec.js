@@ -225,18 +225,11 @@ describe('Home Controller', function () {
                     }]
                 };
                 error = rpcRepoGetAllError ? rpcRepoGetAllError : null;
-                if (error) {
-                    deferred.reject(error);
-                } else {
-                    deferred.resolve(response);
-                }
-
-                return deferred.promise;
             } else if (o === 'repo' && f === 'create') {
                 args.repoId.should.be.equal(123);
                 args.gist.should.be.equal(homeCtrl.scope.selected.gist.url);
 
-                response = rpcRepoCreate && !rpcRepoCreate.error ? rpcRepoCreate.value : {
+                response = rpcRepoCreate && !rpcRepoCreate.error ? rpcRepoCreate : {
                     value: true
                 };
                 error = rpcRepoCreate && rpcRepoCreate.error ? rpcRepoCreate.error : null;
@@ -273,7 +266,18 @@ describe('Home Controller', function () {
             } else {
                 return rpcCall(o, f, args, cb);
             }
-            cb(error, response);
+
+            if (cb) {
+                cb(error, response);
+            } else {
+                if (error) {
+                    deferred.reject(error);
+                } else {
+                    deferred.resolve(response);
+                }
+
+                return deferred.promise;
+            }
         });
 
         var rawGet = $RAW.get;
@@ -574,7 +578,17 @@ describe('Home Controller', function () {
             url: 'https://gist.github.com/gistId'
         };
 
+        rpcRepoCreate = {
+            value: {
+                repo: 'myRepo',
+                owner: 'login',
+                repoId: 123
+            }
+        };
+
         homeCtrl.scope.link();
+        _timeout.flush();
+
         (homeCtrl.scope.claRepos.length).should.be.equal(2);
         (homeCtrl.scope.claRepos[1].repo).should.be.equal('myRepo');
         (homeCtrl.scope.claRepos[1].active).should.be.ok;
@@ -590,8 +604,17 @@ describe('Home Controller', function () {
         homeCtrl.scope.selected.gist = {
             url: 'https://gist.github.com/gistId'
         };
+        expRes.RPC.org = {
+            create: {
+                value: {
+                    orgId: testDataOrgs[0].id,
+                    org: testDataOrgs[0].login
+                }
+            }
+        };
 
         homeCtrl.scope.link();
+        _timeout.flush();
 
         (homeCtrl.scope.claOrgs.length).should.be.equal(1);
         (homeCtrl.scope.claOrgs[0].avatarUrl).should.be.equal(testDataOrgs[0].avatarUrl);
@@ -655,6 +678,7 @@ describe('Home Controller', function () {
         };
 
         homeCtrl.scope.link();
+        _timeout.flush();
 
         (homeCtrl.scope.errorMsg[0]).should.not.be.equal('This repository is already set up.');
     });

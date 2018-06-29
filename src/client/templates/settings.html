@@ -52,6 +52,7 @@
         <button class="btn btn-info" ng-click="upload(item)" ng-if='item.gist'>Import</button>
         <button class="btn btn-info" ng-click="recheck(item)">Recheck PRs</button>
         <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo && item.gist">Get Badge</button>
+        <button id="editLinkedItem" class="btn btn-info" ng-click="editLinkedItem(item, gist, gists)">Edit</button>
     </script>
     <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
         <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..." popover-placement="right" popover-template="'moreActions.html'"

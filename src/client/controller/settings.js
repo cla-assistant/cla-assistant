@@ -32,11 +32,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
 
             return args;
         }
-        // var validateGistUrl = function (gist_url) {
-        //     var valid = false;
-        //     valid = gist_url ? !!gist_url.match(/https:\/\/gist\.github\.com\/([a-zA-Z0-9_-]*)/) : false;
-        //     return valid ? gist_url : undefined;
-        // };
 
         $scope.open_error = function () {
             $modal.open({
@@ -157,18 +152,6 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             return $scope.gist.fileName;
         };
 
-        // var showErrorMessage = function(text) {
-        //     var error = text;
-        //     $timeout(function(){
-        //         var i = $scope.errorMsg.indexOf(error);
-        //         if (i > -1) {
-        //             $scope.errorMsg.splice(i, 1);
-        //         }
-        //     }, 3000);
-
-        //     $scope.errorMsg.push(error);
-        // };
-
         $scope.validateLinkedItem = function () {
             var promises = [];
             if ($scope.item.gist) {
@@ -275,6 +258,35 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             });
         };
 
+        $scope.editLinkedItem = function (linkedItem, gist, gists) {
+            $scope.popoverIsOpen = false;
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/editLinkedItem.html',
+                controller: 'EditLinkedItemCtrl',
+                windowClass: 'edit-linked-item',
+                resolve: {
+                    item: function () {
+                        return linkedItem;
+                    },
+                    gist: function () {
+                        return gist;
+                    },
+                    gists: function () {
+                        return gists;
+                    }
+                }
+            });
+            modal.result.then(function (updatedItem) {
+                updatedItem.fork = $scope.item.fork;
+                updatedItem.avatarUrl = $scope.item.avatarUrl;
+                $scope.item = updatedItem;
+                $scope.linkedItem = updatedItem;
+                $scope.validateLinkedItem();
+            }, function () {
+                // do nothing on cancel
+            });
+        };
+
         $scope.validateLinkedItem();
     }
 ]);
@@ -287,7 +299,8 @@ module.directive('settings', ['$document', function ($document) {
         scope: {
             item: '=',
             user: '=',
-            repos: '='
+            repos: '=',
+            gists: '='
         },
         link: function (scope, element) {
             var documentClickHandler = function (event) {

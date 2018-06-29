@@ -24,8 +24,8 @@ var deleteFromArray = function (item, array) {
     }
 };
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', 'utils',
-    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, utils) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', 'utils', 'linkItemService',
+    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, utils, linkItemService) {
 
         $scope.active = 0;
         $scope.claRepos = [];
@@ -341,65 +341,98 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         $scope.isRepo = function (item) {
-            return item && item.full_name ? true : false;
+            return item && (item.full_name || item.repoId) ? true : false;
         };
 
         $scope.linkCla = function () {
             confirmAdd();
         };
 
-        var linkItem = function (obj, item) {
-            var linkedArray = obj === 'org' ? $scope.claOrgs : $scope.claRepos;
-            item.active = false;
+        // var linkItem = function (obj, item) {
+        //     var linkedArray = obj === 'org' ? $scope.claOrgs : $scope.claRepos;
+        //     item.active = false;
 
-            return $RPCService.call(obj, 'create', item, function (err, data) {
-                if (err && err.message.match(/.*duplicate key error.*/)) {
-                    showErrorMessage('This repository is already set up.');
-                } else if (err || !data.value) {
-                    if (err && err.message) {
-                        showErrorMessage(err.message);
-                    }
-                    deleteFromArray(item, linkedArray);
-                } else {
-                    item.active = true;
-                    linkedArray.push(item);
-                    $scope.query.text = '';
-                }
-            });
-        };
+        //     return $RPCService.call(obj, 'create', item, function (err, data) {
+        //         if (err && err.message.match(/.*duplicate key error.*/)) {
+        //             showErrorMessage('This repository is already set up.');
+        //         } else if (err || !data.value) {
+        //             if (err && err.message) {
+        //                 showErrorMessage(err.message);
+        //             }
+        //             deleteFromArray(item, linkedArray);
+        //         } else {
+        //             item.active = true;
+        //             linkedArray.push(item);
+        //             $scope.query.text = '';
+        //         }
+        //     });
+        // };
 
-        var linkRepo = function () {
-            var newClaRepo = {
-                repo: $scope.selected.item.name,
-                owner: $scope.selected.item.owner.login,
-                repoId: $scope.selected.item.id,
-                gist: $scope.selected.gist.url,
-                sharedGist: $scope.selected.sharedGist,
-                minFileChanges: $scope.selected.minFileChanges,
-                minCodeChanges: $scope.selected.minCodeChanges
-            };
-            newClaRepo = mixRepoData(newClaRepo);
+        // var linkRepo = function () {
+        //     var newClaRepo = {
+        //         repo: $scope.selected.item.name,
+        //         owner: $scope.selected.item.owner.login,
+        //         repoId: $scope.selected.item.id,
+        //         gist: $scope.selected.gist.url,
+        //         sharedGist: $scope.selected.sharedGist,
+        //         minFileChanges: $scope.selected.minFileChanges,
+        //         minCodeChanges: $scope.selected.minCodeChanges
+        //     };
+        //     newClaRepo = mixRepoData(newClaRepo);
 
-            return linkItem('repo', newClaRepo);
-        };
+        //     return linkItem('repo', newClaRepo);
+        // };
 
-        var linkOrg = function () {
-            var newClaOrg = {
-                orgId: $scope.selected.item.id,
-                org: $scope.selected.item.login,
-                gist: $scope.selected.gist.url,
-                excludePattern: $scope.selected.item.excludePattern,
-                sharedGist: $scope.selected.sharedGist,
-                minFileChanges: $scope.selected.minFileChanges,
-                minCodeChanges: $scope.selected.minCodeChanges
-            };
-            mixOrgData(newClaOrg);
+        // var linkOrg = function () {
+        //     var newClaOrg = {
+        //         orgId: $scope.selected.item.id,
+        //         org: $scope.selected.item.login,
+        //         gist: $scope.selected.gist.url,
+        //         excludePattern: $scope.selected.item.excludePattern,
+        //         sharedGist: $scope.selected.sharedGist,
+        //         minFileChanges: $scope.selected.minFileChanges,
+        //         minCodeChanges: $scope.selected.minCodeChanges
+        //     };
+        //     mixOrgData(newClaOrg);
 
-            return linkItem('org', newClaOrg);
-        };
+        //     return linkItem('org', newClaOrg);
+        // };
 
         $scope.link = function () {
-            return $scope.isRepo($scope.selected.item) ? linkRepo() : linkOrg();
+            var options = {
+                gist: $scope.selected.gist,
+                sharedGist: $scope.selected.sharedGist,
+                minFileChanges: $scope.selected.minFileChanges,
+                minCodeChanges: $scope.selected.minCodeChanges,
+                excludePattern: $scope.selected.item.excludePattern,
+                whiteListPattern: $scope.selected.whiteListPattern
+            };
+            var promise = linkItemService.createLink($scope.selected.item, options);
+
+            promise.then(function success(data) {
+                var linkedItem = data.value;
+                var linkedArray = $scope.isRepo($scope.selected.item) ? $scope.claRepos : $scope.claOrgs;
+                if (linkedItem) {
+                    if ($scope.isRepo(linkedItem)) {
+                        mixRepoData(linkedItem);
+                    } else {
+                        mixOrgData(linkedItem);
+                    }
+                    linkedItem.active = true;
+                    linkedArray.push(linkedItem);
+                    $scope.query.text = '';
+                } else {
+                    deleteFromArray($scope.selected.item, linkedArray);
+                }
+            }, function error(err) {
+                if (err && err.message.match(/.*duplicate key error.*/)) {
+                    showErrorMessage('This repository is already set up.');
+                } else if (err && err.message) {
+                    showErrorMessage(err.message);
+                }
+            });
+
+            return promise;
         };
 
         $scope.remove = function (linkedItem) {
