@@ -1,5 +1,5 @@
 module.exports = {
-    loginGithub: function (I, name, password) {
+    login: function (I, name, password) {
         I.amOnPage('https://github.com/login')
         I.fillField('login', name)
         I.fillField('password', password)
@@ -23,8 +23,10 @@ module.exports = {
         I.amOnPage(`https://github.com/${owner}/${repo}`)
         I.seeInCurrentUrl(`/${owner}/${repo}`)
         I.amOnPage(`https://github.com/${owner}/${repo}/settings`)
-        I.click('//*[@id="options_bucket"]/div[10]/ul/li[4]/details/summary')
-        I.fillField('//*[@id="options_bucket"]/div[10]/ul/li[4]/details/details-dialog/div[3]/form/p/input', repo)
+        I.waitForEnabled('//summary[contains(., "Delete this repository")]', 5)
+        I.click('//summary[contains(., "Delete this repository")]')
+        I.waitForVisible('//input[contains(@aria-label, "delete this repository")]', 5)
+        I.fillField('//input[contains(@aria-label, "delete this repository")]', repo)
         I.click('I understand the consequences, delete this repository')
         I.seeInCurrentUrl('https://github.com')
     },
@@ -37,5 +39,22 @@ module.exports = {
         I.wait(1)
         I.refreshPage()
         I.see('No authorized applications')
+    },
+
+    createPR: function (I, owner, repo) {
+        I.amOnPage(`https://github.com/${owner}/${repo}/blob/master/README.md`)
+        I.waitForEnabled('//button[starts-with(@aria-label, "Edit the file") or starts-with(@aria-label, "Fork this project")]', 5)
+        I.click('//button[starts-with(@aria-label, "Edit the file") or starts-with(@aria-label, "Fork this project")]') //click ~Fork this project and edit the file
+
+        I.waitForVisible('.CodeMirror-line', 5)
+        I.wait(1)
+        I.click('.CodeMirror-line')
+        I.wait(1)
+        I.pressKey(['Space', 't', 'e', 's', 't', 'Enter']);
+        I.waitForEnabled('//button[contains(., "Propose file change")]', 5)
+        I.click('Propose file change')
+        I.waitForEnabled('//button[contains(., "Create pull request")]', 5)
+        I.click('Create pull request')
+        I.click('//*[@id="new_pull_request"]/div[1]/div/div/div[3]/button')
     }
 };
