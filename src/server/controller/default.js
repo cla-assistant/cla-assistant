@@ -10,6 +10,8 @@ let router = express.Router();
 
 // router.use('/accept', function(req, res) {
 router.use('/accept/:owner/:repo', async function (req, res) {
+    res.set({ 'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0' });
+
     req.args = {
         owner: req.params.owner,
         repo: req.params.repo
