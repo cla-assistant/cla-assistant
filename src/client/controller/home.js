@@ -24,8 +24,8 @@ var deleteFromArray = function (item, array) {
     }
 };
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', 'utils', 'linkItemService',
-    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, utils, linkItemService) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$state', 'utils', 'linkItemService',
+    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $state, utils, linkItemService) {
 
         $scope.active = 0;
         $scope.claRepos = [];
@@ -33,10 +33,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         $scope.defaultClas = [];
         $scope.errorMsg = [];
         $scope.gists = [];
-        $scope.nextstep = {
-            step1: true
-        };
-        $scope.openSettings = false;
         $scope.orgs = [];
         $scope.query = {};
         $scope.repos = [];
@@ -505,6 +501,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         $scope.isComplete = function () {
             return $scope.selected.item && $scope.selected.gist && (($scope.isRepo($scope.selected.item) && (!$scope.selected.gist.url || $scope.isValid($scope.selected.gist.url))) || (!$scope.isRepo($scope.selected.item) && $scope.isValid($scope.selected.gist.url)));
+        };
+
+        $scope.showTOS = function () {
+            return !$state.current.name.includes('repo');
         };
     }
 ])
