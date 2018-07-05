@@ -50,11 +50,14 @@ function storeRequest(committers, repo, owner, number, done) {
 
 async function updateStatusAndComment(args) {
     try {
+        logger.trackEvent('CLAAssistantPullRequestUpdateStatusAndCommentStart', { deliveryId: args.deliveryId });
         const [committers] = await promisify(repoService.getPRCommitters.bind(repoService))(args);
+        logger.trackEvent('CLAAssistantPullRequestGetPRCommittersSuccess', { deliveryId: args.deliveryId });
         if (!committers || committers.length === 0) {
             throw new Error('Cannot get committers of the pull request');
         }
         const [signed, user_map] = await promisify(cla.check.bind(cla))(args);
+        logger.trackEvent('CLAAssistantPullRequestClaCheckSuccess', { deliveryId: args.deliveryId });
         args.signed = signed;
         if (!user_map ||
             (user_map.signed && user_map.signed.length > 0) ||
@@ -65,6 +68,7 @@ async function updateStatusAndComment(args) {
         } else {
             await promisify(status.updateForClaNotRequired.bind(status))(args);
         }
+        logger.trackEvent('CLAAssistantPullRequestStatusUpdateSuccess', { deliveryId: args.deliveryId });
         if (!signed || !config.server.feature_flag.close_comment) {
             await promisify(pullRequest.badgeComment.bind(pullRequest))(
                 args.owner,
@@ -73,9 +77,11 @@ async function updateStatusAndComment(args) {
                 signed,
                 user_map
             );
+            logger.trackEvent('CLAAssistantPullRequestCommentUpdateSuccess', { deliveryId: args.deliveryId });
         }
         if (user_map && user_map.not_signed) {
             await promisify(storeRequest)(user_map.not_signed, args.repo, args.owner, args.number);
+            logger.trackEvent('CLAAssistantPullRequestStoreUserRequestSuccess', { deliveryId: args.deliveryId });
         }
     } catch (err) {
         if (!args.handleCount || args.handleCount < 2) {
@@ -91,16 +97,20 @@ async function updateStatusAndComment(args) {
 
 async function handleWebHook(args) {
     try {
+        logger.trackEvent('CLAAssistantPullRequestHandleWebHookStart', { deliveryId: args.deliveryId });
         args.isClaRequired = await cla.isClaRequired(args);
+        logger.trackEvent('CLAAssistantPullRequestIsClaRequiredSuccess', { deliveryId: args.deliveryId });
         if (args.isClaRequired) {
             await updateStatusAndComment(args);
         } else {
+            logger.trackEvent('CLAAssistantPullRequestUpdateForClaNotRequiredStart', { deliveryId: args.deliveryId });
             await promisify(status.updateForClaNotRequired.bind(status))(args);
             await promisify(pullRequest.deleteComment.bind(pullRequest))({
                 repo: args.repo,
                 owner: args.owner,
                 number: args.number
             });
+            logger.trackEvent('CLAAssistantPullRequestDeleteCommentStart', { deliveryId: args.deliveryId });
         }
     } catch (error) {
         logger.error(error, { repo: args.repo, owner: args.owner, number:args.number, sha: args.sha, signed: args.signed });
@@ -110,14 +120,16 @@ async function handleWebHook(args) {
 
 module.exports = function (req, res) {
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && isRepoEnabled(req.args.repository)) {
+        const deliveryId = req.headers['x-github-delivery'];
         if (req.args.pull_request && req.args.pull_request.html_url) {
-            logger.info('pull request ' + req.args.action + ' ' + req.args.pull_request.html_url);
+            logger.info(`pull request ${req.args.action} ${req.args.pull_request.html_url} ${deliveryId}`);
         }
         let args = {
             owner: req.args.repository.owner.login,
             repoId: req.args.repository.id,
             repo: req.args.repository.name,
-            number: req.args.number
+            number: req.args.number,
+            deliveryId: deliveryId
         };
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
@@ -126,6 +138,7 @@ module.exports = function (req, res) {
         setTimeout(async function () {
             try {
                 const item = await cla.getLinkedItem(args);
+                logger.trackEvent('CLAAssistantPullRequestGetLinkedItemSuccess', { deliveryId });
                 if (!item) {
                     return logger.info(`Unlinked item ${JSON.stringify(args)}`);
                 }
@@ -155,7 +168,7 @@ function isRepoEnabled(repository) {
     return repository && (repository.private === false || config.server.feature_flag.enable_private_repos);
 }
 
-function collectMetrics(pullRequest, startTime, signed, action, isClaRequired) {
+function collectMetrics(pullRequest, startTime, signed, action, isClaRequired, deliveryId) {
     let diffTime = process.hrtime(startTime);
     const logProperty = {
         owner: pullRequest.base.repo.owner.login,
@@ -163,7 +176,8 @@ function collectMetrics(pullRequest, startTime, signed, action, isClaRequired) {
         number: pullRequest.number,
         signed: signed,
         isClaRequired: isClaRequired,
-        action: action
+        action: action,
+        deliveryId: deliveryId
     };
     logger.trackEvent('CLAAssistantPullRequestDuration', logProperty, { CLAAssistantPullRequestDuration: diffTime[0] * 1000 + Math.round(diffTime[1] / Math.pow(10, 6)) });
     if (action !== 'opened') {

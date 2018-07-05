@@ -79,7 +79,7 @@ describe('github:call', function () {
             token: 'token'
         }, function () {
             assert(authenticateStub.calledWith({
-                type: 'oauth',
+                type: 'token',
                 token: 'token'
             }));
             it_done();

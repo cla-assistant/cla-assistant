@@ -262,6 +262,9 @@ describe('webhook pull request', function () {
 
     beforeEach(function () {
         test_req = {
+            headers: {
+                'x-github-delivery': 'github-delivery-id'
+            },
             args: {
                 pull_request: testData,
                 repository: testData.base.repo,
