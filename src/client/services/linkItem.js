@@ -12,7 +12,8 @@ module.factory('linkItemService', ['$RPCService',
                 sharedGist: options.sharedGist,
                 whiteListPattern: options.whiteListPattern,
                 minFileChanges: options.minFileChanges,
-                minCodeChanges: options.minCodeChanges
+                minCodeChanges: options.minCodeChanges,
+                privacyPolicy: options.privacyPolicy
             };
             if (type === 'repo') {
                 newItem.repoId = item.repoId || item.id;

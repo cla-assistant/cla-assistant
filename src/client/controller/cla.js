@@ -17,6 +17,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
         $scope.user = {};
         $scope.signed = false;
         $scope.isSharedSignature = false;
+        $scope.privacyPolicyAccepted = false;
 
         function getUserEmail(key) {
             // eslint-disable-next-line handle-callback-err
@@ -93,6 +94,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
             }, function (err, signed) {
                 if (!err && signed.value) {
                     $scope.signed = true;
+                    $scope.privacyPolicyAccepted = true;
                 } else {
                     $scope.signed = false;
                 }
@@ -153,6 +155,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                         $log.info(err);
                     }
                     $scope.signed = signed ? signed.value : false;
+                    $scope.privacyPolicyAccepted = $scope.signed ? true : false;
                     if ($scope.signed) {
                         redirect();
                     }

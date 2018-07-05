@@ -12,6 +12,8 @@ let OrgSchema = mongoose.Schema({
     minFileChanges: Number,
     minCodeChanges: Number,
     whiteListPattern: String,
+    privacyPolicy: String,
+    updated_at: Date
 });
 
 OrgSchema.methods.isRepoExcluded = function (repo) {

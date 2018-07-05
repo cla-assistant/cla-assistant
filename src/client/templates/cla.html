@@ -16,6 +16,11 @@
             <div class="h4" ng-if="showSharedGistMsg()">
                 <em>This CLA applies to multiple repos or orgs.</em>
             </div>
+            <label ng-class="required" ng-show="linkedItem.privacyPolicy">
+                <input ng-disabled="signed" ng-model="privacyPolicyAccepted" type="checkbox" /> I accept, that the information I provide to sign this CLA will be maintained in accordance with project
+                owner's
+                <a class="highlighted-link" ng-href="{{linkedItem.privacyPolicy}}" target="space">privacy policy</a> *
+            </label>
             <form class="row" ng-if="hasCustomFields">
                 <p>
                     <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
@@ -27,7 +32,7 @@
                 </customfield>
             </form>
             <p class="row" ng-hide="signed">
-                <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="hasCustomFields && !isValid()"
+                <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="(hasCustomFields && !isValid()) || (linkedItem.privacyPolicy && !privacyPolicyAccepted)"
                     ng-click="agree()">I agree</button>
                 <button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
             </p>

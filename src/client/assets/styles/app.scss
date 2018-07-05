@@ -10,9 +10,7 @@ $gray-dark: #999;
 $gray: #ddd;
 $gray-light: #ececec;
 $gray-lighter: #f5f5f5;
-
 $white: #fff;
-
 $green: #39b54a;
 
 // brand colours
@@ -23,9 +21,6 @@ $brand-primary: #0594c6;
 $brand-primary-darker: #4d8fac;
 $brand-primary-darkest: #2c3e50;
 $brand-accent: #ee524f;
-
-
-
 $brand-primary-2nd: #9fcdc8;
 $brand-primary-muted: #abd5d5;
 $brand-primary-hover: #2c827c;
@@ -43,7 +38,6 @@ $text-color: $brand-primary-darkest;
 $text-gray: $gray-darker;
 $text-primary: $brand-primary;
 $text-invert: #fff;
-
 $link-color: $gray-darker;
 $link-hover-color: #3c3c3d;
 
@@ -148,7 +142,7 @@ $label-color: $brand-primary;
 html {
   position: absolute;
   min-height: 100%;
-  width:100%;
+  width: 100%;
 }
 
 body {
@@ -172,12 +166,13 @@ h4 {
   font-size: 1.6em;
 }
 
-h4{
+h4 {
   margin: 25px 0;
   padding-left: 0;
 }
 
-label, .checkbox label {
+label,
+.checkbox label {
   margin-top: $margin-small;
   font-weight: 100;
 }
@@ -272,6 +267,10 @@ a {
   color: inherit;
 }
 
+a.highlighted-link {
+  text-decoration: underline;
+}
+
 small {
   vertical-align: middle;
 }
@@ -305,14 +304,14 @@ a.anchor .octicon-link {
 }
 
 .dots {
-  font-size:10px;
-  margin-left:10px;
+  font-size: 10px;
+  margin-left: 10px;
   color: $gray;
 }
 
 // _activate cla screen
 
-.selectize-input{
+.selectize-input {
   height: 33px;
 }
 
@@ -341,20 +340,20 @@ a.anchor .octicon-link {
 }
 
 .clear-button {
-  border:0px;
+  border: 0px;
   background-color: transparent;
   position: absolute;
-  right:30px;
-  color:$gray-darker;
+  right: 30px;
+  color: $gray-darker;
 }
 
 .spin-img {
-    /*position: absolute;*/
-    height: 60px;
-    margin:-30px 0 0 -30px;
-    -webkit-animation:spin 4s linear infinite;
-    -moz-animation:spin 4s linear infinite;
-    animation:spin 4s linear infinite;
+  /*position: absolute;*/
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  -webkit-animation: spin 4s linear infinite;
+  -moz-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite;
 }
 
 .loading-indicator {
@@ -376,84 +375,175 @@ a.anchor .octicon-link {
 }
 
 .center-div .spin-img {
-  top: -60px
+  top: -60px;
 }
 
 .spin-img.ng-hide-add-active {
-    display: none !important;
+  display: none !important;
 }
-@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
-@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
-@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
 
 @-moz-keyframes shake {
-  90% { -moz-transform: rotate(-1deg);}
-  100% { -moz-transform: rotate(1deg); }
+  90% {
+    -moz-transform: rotate(-1deg);
+  }
+
+  100% {
+    -moz-transform: rotate(1deg);
+  }
 }
+
 @-webkit-keyframes shake {
-  90% { -webkit-transform: rotate(-1deg);}
-  100% { -webkit-transform: rotate(1deg); }
+  90% {
+    -webkit-transform: rotate(-1deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(1deg);
+  }
 }
+
 @keyframes shake {
-  90% { -webkit-transform: rotate(-1deg); transform:rotate(-1deg);}
-  100% { -webkit-transform: rotate(1deg); transform:rotate(1deg);}
+  90% {
+    -webkit-transform: rotate(-1deg);
+    transform: rotate(-1deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(1deg);
+    transform: rotate(1deg);
+  }
 }
 
 // _remove_cla
 
 @keyframes fall {
-    from {top: 19px;}
-    to {top: 119px;}
+  from {
+    top: 19px;
+  }
+
+  to {
+    top: 119px;
+  }
 }
+
 @-webkit-keyframes fall {
-    from {top: 19px;}
-    to {top: 119px;}
+  from {
+    top: 19px;
+  }
+
+  to {
+    top: 119px;
+  }
 }
 
 @keyframes fall2 {
-    from {top: 19px;}
-    to {top: 100px;}
+  from {
+    top: 19px;
+  }
+
+  to {
+    top: 100px;
+  }
 }
+
 @-webkit-keyframes fall2 {
-    from {top: 19px;}
-    to {top: 100px;}
+  from {
+    top: 19px;
+  }
+
+  to {
+    top: 100px;
+  }
 }
 
 @keyframes eye-move {
-    0% {left: 19px;}
-    80% {left: 24px;}
-    100% {left: 19px;}
+  0% {
+    left: 19px;
+  }
+
+  80% {
+    left: 24px;
+  }
+
+  100% {
+    left: 19px;
+  }
 }
+
 @-webkit-keyframes eye-move {
-    0% {left: 19px;}
-    80% {left: 24px;}
-    100% {left: 19px;}
+  0% {
+    left: 19px;
+  }
+
+  80% {
+    left: 24px;
+  }
+
+  100% {
+    left: 19px;
+  }
 }
 
 @keyframes eye-move2 {
-    0% {left: 17px;}
-    80% {left: 24px;}
-    100% {left: 17px;}
+  0% {
+    left: 17px;
+  }
+
+  80% {
+    left: 24px;
+  }
+
+  100% {
+    left: 17px;
+  }
 }
+
 @-webkit-keyframes eye-move2 {
-    0% {left: 17px;}
-    80% {left: 24px;}
-    100% {left: 17px;}
+  0% {
+    left: 17px;
+  }
+
+  80% {
+    left: 24px;
+  }
+
+  100% {
+    left: 17px;
+  }
 }
 
 /* The element to apply the animation to */
 .nervous {
-  -webkit-animation:shake 0.1s linear infinite;
-  -moz-animation:shake 0.1s linear infinite;
-  animation:shake 0.1s linear infinite;
+  -webkit-animation: shake 0.1s linear infinite;
+  -moz-animation: shake 0.1s linear infinite;
+  animation: shake 0.1s linear infinite;
 }
 
 .nervous-drop {
   position: absolute;
   left: 19px;
   top: 19px;
-  -webkit-animation:fall 0.7s linear 0.2s infinite;
-  animation:fall 0.7s linear 0.2s infinite;
+  -webkit-animation: fall 0.7s linear 0.2s infinite;
+  animation: fall 0.7s linear 0.2s infinite;
 }
 
 .nervous-drop2 {
@@ -461,44 +551,44 @@ a.anchor .octicon-link {
   left: 19px;
   top: 19px;
   margin-top: 40px;
-  -webkit-animation:fall 0.7s linear infinite;
-  animation:fall 0.7s linear infinite;
+  -webkit-animation: fall 0.7s linear infinite;
+  animation: fall 0.7s linear infinite;
 }
 
 .eye-move {
   position: absolute;
   left: 19px;
   top: 19px;
-  -webkit-animation:eye-move 0.7s ease-in infinite;
-  animation:eye-move 0.7s ease-in infinite;
+  -webkit-animation: eye-move 0.7s ease-in infinite;
+  animation: eye-move 0.7s ease-in infinite;
 }
 
 .eye-move2 {
   position: absolute;
   left: 19px;
   top: 19px;
-  -webkit-animation:eye-move2 0.7s ease-in 0.1s infinite;
-  animation:eye-move2 0.7s ease-in 0.1s infinite;
+  -webkit-animation: eye-move2 0.7s ease-in 0.1s infinite;
+  animation: eye-move2 0.7s ease-in 0.1s infinite;
 }
 
 // _report
 
-.report .row{
+.report .row {
   padding-top: 15px;
 }
 
 // _popover
-.popover-inner{
+.popover-inner {
   // display: -moz-grid-line;
   i {
-      width: 100%;
+    width: 100%;
   }
 }
 
 .sign-btn {
   margin-top: $margin-medium;
-  width:100%;
-  height:45px;
+  width: 100%;
+  height: 45px;
 }
 
 // _custom_fields

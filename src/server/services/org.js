@@ -19,7 +19,9 @@ module.exports = {
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
-            whiteListPattern: args.whiteListPattern
+            whiteListPattern: args.whiteListPattern,
+            privacyPolicy: args.privacyPolicy,
+            updatedAt: new Date()
         }, function (err, org) {
             done(err, org);
         });
@@ -39,6 +41,8 @@ module.exports = {
             org.minFileChanges = args.minFileChanges;
             org.minCodeChanges = args.minCodeChanges;
             org.whiteListPattern = args.whiteListPattern;
+            org.privacyPolicy = args.privacyPolicy;
+            org.updatedAt = new Date();
 
             org.save(done);
         });
