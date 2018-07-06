@@ -1,7 +1,8 @@
 <div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum && type !== 'readonly'" title="{{description}}">
     <label ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
     <div ng-show="description && type !== 'hidden'" class="description">({{description}})</div>
-    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}" type="{{type}}"
+    <!-- TODO: Add 'type="{{type}}"' back when CLA gist is able to change -->
+    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}"
         min="{{min}}" max="{{max}}"></input>
 </div>
 <div ng-if="type == 'textarea'" title="{{description}}">
