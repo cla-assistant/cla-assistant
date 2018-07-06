@@ -8,7 +8,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
 
     function initGist() {
         $scope.selected.gist = gists.find(function (g) {
-            return g.url === gist.html_url;
+            return g.url === item.gist;
         }) || gist;
     }
 
