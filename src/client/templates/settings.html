@@ -13,7 +13,10 @@
 
     <div class="col-xs-12 col-sm-3 col-lg-2">
         <div>
-            <a ng-if="!loading && gist.id.length > 0" ng-href="{{gist.html_url}}" target="space">{{getGistName()}}</a>
+            <span ng-if="!loading && gist.id.length > 0">
+                <a ng-if="item.repo" ng-href="{{getSignURL()}}" target="space">{{getGistName()}}</a>
+                <div ng-if="!item.repo" tooltip-placement="bottom" tooltip="URL to the CLA would look like: {{getSignURL()}}/<repo name>">{{getGistName()}}</div>
+            </span>
             <span ng-if="!item.gist">Disabled</span>
         </div>
     </div>
