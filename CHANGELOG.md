@@ -1,5 +1,10 @@
 # Change Log
 
+## [v1.8.1](https://github.com/cla-assistant/cla-assistant/tree/v1.8.1) (2018-07-09)
+
+**New features:**
+- provide a URL to the CLA page of the linked repo (show a tooltip for the linked orgs with the info how to reach the CLA page) [\#156](https://github.com/cla-assistant/cla-assistant/issues/156)
+
 ## [v1.8.0](https://github.com/cla-assistant/cla-assistant/tree/v1.8.0) (2018-07-06)
 
 **New features:**
