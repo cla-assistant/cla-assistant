@@ -17,6 +17,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         $scope.valid = {};
         $scope.signatures = {};
         $scope.contributors = [];
+
         var webhook = {};
 
         var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organization'];
@@ -285,6 +286,10 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
             }, function () {
                 // do nothing on cancel
             });
+        };
+
+        $scope.getSignURL = function () {
+            return $scope.item.repo ? $window.location + $scope.item.owner + '/' + $scope.item.repo : $window.location + ' ' + $scope.item.org;
         };
 
         $scope.validateLinkedItem();
