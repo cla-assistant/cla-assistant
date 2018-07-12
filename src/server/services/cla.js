@@ -450,11 +450,14 @@ module.exports = function () {
                             repoService.getPRCommitters(args, function (error, committers) {
                                 if (error) {
                                     logger.warn(new Error(error).stack);
+                                    if ((!signees || signees.length < 1) && (!committers || committers.length < 1)) {
+                                        done(error);
+                                    }
                                 }
                                 signees = _.uniqWith(signees.concat(committers), (object, other) => {
                                     return object.id == other.id;
                                 }).filter((signee) => {
-                                    return !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name)); //TODO: test it
+                                    return signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name)); //TODO: test it
                                 });
                                 deferred.resolve(signees);
                             });
@@ -467,9 +470,14 @@ module.exports = function () {
                         return checkAll(signees, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
                             done(null, result);
                         });
+                    }, function (er) {
+                        done(er);
                     });
+                }, function (er) {
+                    done(er);
                 });
-            }).catch(function (er) {
+                // }).catch(function (er) {
+            }, function (er) {
                 done(er);
             });
         },

@@ -400,14 +400,14 @@ describe('repo:getPRCommitters', function () {
             owner: 'owner',
             number: '1'
         };
+        this.timeout(4000);
 
         repo.getPRCommitters(arg, function (err) {
             assert(err);
             assert(Repo.findOne.called);
             sinon.assert.called(github.callGraphql);
+            it_done();
         });
-
-        it_done();
     });
 
     it('should handle query error', function (it_done) {
@@ -433,9 +433,8 @@ describe('repo:getPRCommitters', function () {
             assert(Repo.findOne.called);
             sinon.assert.called(logger.info);
             sinon.assert.called(github.callGraphql);
+            it_done();
         });
-
-        it_done();
     });
 
     it('should handle call error', function (it_done) {
@@ -453,36 +452,36 @@ describe('repo:getPRCommitters', function () {
             assert(Repo.findOne.called);
             sinon.assert.called(logger.info);
             sinon.assert.called(github.callGraphql);
+            it_done();
         });
 
-        it_done();
     });
 
-    // it('should retry api call if gitHub returns "Not Found"', function (it_done) {
-    //     github.callGraphql.restore();
-    //     sinon.stub(github, 'callGraphql').callsFake(function (query, token, done) {
-    //         done(
-    //             githubCallGraphqlRes.getPRCommitters.err,
-    //             { message: 'Not Found' },
-    //             "null"
-    //         );
-    //     });
-    //     this.timeout(4000);
-    //     repo.timesToRetryGitHubCall = 2;
-    //     var arg = {
-    //         repo: 'myRepo',
-    //         owner: 'owner',
-    //         number: '1'
-    //     };
+    it('should retry api call if gitHub returns "Not Found"', function (it_done) {
+        github.callGraphql.restore();
+        sinon.stub(github, 'callGraphql').callsFake(function (query, token, done) {
+            done(
+                githubCallGraphqlRes.getPRCommitters.err,
+                { message: 'Not Found' },
+                'null'
+            );
+        });
+        this.timeout(4000);
+        repo.timesToRetryGitHubCall = 2;
+        var arg = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
 
-    //     repo.getPRCommitters(arg, function (err) {
-    //         // assert(err);
-    //         assert(Repo.findOne.called);
-    //         sinon.assert.calledThrice(github.callGraphql);
+        repo.getPRCommitters(arg, function () {
+            // assert(err);
+            assert(Repo.findOne.called);
+            sinon.assert.calledThrice(github.callGraphql);
 
-    //         it_done();
-    //     });
-    // });
+            it_done();
+        });
+    });
 
 
     it('should get list of committers for a pull request using linked org', function (it_done) {
@@ -525,9 +524,9 @@ describe('repo:getPRCommitters', function () {
             assert(err);
             assert(Repo.findOne.called);
             sinon.assert.notCalled(github.callGraphql);
+            it_done();
         });
 
-        it_done();
     });
 
     it('should update db entry if repo was transferred', function (it_done) {

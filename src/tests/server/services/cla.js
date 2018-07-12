@@ -489,7 +489,7 @@ describe('cla:getLastSignature', function () {
             user: 'login'
         };
         cla.getLastSignature(args, function (err, cla) {
-            assert(err);
+            assert(!!err);
             assert(!cla);
             it_done();
         });
@@ -503,7 +503,7 @@ describe('cla:getLastSignature', function () {
             user: 'login'
         };
         cla.getLastSignature(args, function (err, cla) {
-            assert(err);
+            assert(!!err);
             assert(!cla);
             it_done();
         });
@@ -518,7 +518,7 @@ describe('cla:getLastSignature', function () {
             number: '1'
         };
         cla.getLastSignature(args, function (err, cla) {
-            assert(err);
+            assert(!!err);
             assert(!cla);
             it_done();
         });
@@ -530,7 +530,7 @@ describe('cla:getLastSignature', function () {
             owner: 'owner'
         };
         cla.getLastSignature(args, function (err, cla) {
-            assert(err);
+            assert(!!err);
             assert(!cla);
             it_done();
         });
@@ -582,7 +582,10 @@ describe('cla:checkPullRequestSignatures', function () {
             owner: 'owner',
             gist: 'url/gistId',
             sharedGist: false,
-            token: 'abc'
+            token: 'abc',
+            isUserWhitelisted: function () {
+                return false;
+            }
         };
         clock = sinon.useFakeTimers(now.getTime());
         let prCreateDateString = '1970-01-01T00:00:00.000Z';
@@ -617,7 +620,7 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
         cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(err);
+            assert(!!err);
             assert(!result);
             it_done();
         });
@@ -631,7 +634,7 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
         cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(err);
+            assert(!!err);
             assert(!result);
             it_done();
         });
@@ -646,7 +649,7 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
         cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(err);
+            assert(!!err);
             assert(!result);
             it_done();
         });
@@ -663,7 +666,7 @@ describe('cla:checkPullRequestSignatures', function () {
         };
 
         cla.checkPullRequestSignatures(args, function (err) {
-            assert(err);
+            assert(!!err);
             it_done();
         });
     });
@@ -929,7 +932,7 @@ describe('cla.check', function () {
             owner: 'owner'
         };
         cla.check(args, function (error) {
-            assert(error);
+            assert(!!error);
             assert(!cla.checkPullRequestSignatures.called);
             assert(!cla.checkUserSignature.called);
             it_done();
@@ -957,7 +960,10 @@ describe('cla:sign', function () {
             owner: 'owner',
             gist: 'url/gistId',
             sharedGist: false,
-            token: 'abc'
+            token: 'abc',
+            isUserWhitelisted: function () {
+                return false;
+            }
         };
 
         testRes.orgServiceGet = {
@@ -1045,7 +1051,7 @@ describe('cla:sign', function () {
         try {
             await cla.sign(testArgs.claSign);
         } catch (error) {
-            assert(error);
+            assert(!!error);
         }
 
         assert.equal(CLA.create.called, false);
@@ -1059,7 +1065,7 @@ describe('cla:sign', function () {
             await cla.sign(testArgs.claSign);
             assert(false); //this line shouldn't be reached
         } catch (error) {
-            assert(error);
+            assert(!!error);
         }
     });
 
@@ -1072,7 +1078,7 @@ describe('cla:sign', function () {
             await cla.sign(testArgs.claSign);
             assert(false); //this line shouldn't be reached
         } catch (error) {
-            assert(error);
+            assert(!!error);
             assert(error.code === 200);
         }
     });
@@ -1341,7 +1347,7 @@ describe('cla:getAll', function () {
         };
 
         cla.getAll(args, function (err) {
-            assert(err);
+            assert(!!err);
 
             it_done();
         });
@@ -1354,7 +1360,7 @@ describe('cla:getAll', function () {
         };
 
         cla.getAll(args, function (err) {
-            assert(err);
+            assert(!!err);
 
             it_done();
         });
@@ -1484,7 +1490,10 @@ describe('cla:getLinkedItem', function () {
             repo: 'Hello-World',
             owner: 'octocat',
             gist: 'url/gistId',
-            token: 'abc'
+            token: 'abc',
+            isUserWhitelisted: function () {
+                return false;
+            }
         };
         testRes.orgServiceGet = {
             orgId: '1',
@@ -1590,7 +1599,10 @@ describe('cla:terminate', function () {
             owner: 'owner',
             gist: 'url/gistId',
             sharedGist: false,
-            token: 'abc'
+            token: 'abc',
+            isUserWhitelisted: function () {
+                return false;
+            }
         };
         testErr.orgServiceGet = null;
         testErr.repoServiceGet = null;
@@ -1616,7 +1628,7 @@ describe('cla:terminate', function () {
         };
         testRes.repoServiceGet.gist = undefined;
         cla.terminate(args, function (error, dbCla) {
-            assert(error);
+            assert(!!error);
             assert(!dbCla);
             it_done();
         });
@@ -1630,7 +1642,7 @@ describe('cla:terminate', function () {
         };
         testRes.claFindOne = null;
         cla.terminate(args, function (error, dbCla) {
-            assert(error);
+            assert(!!error);
             assert(!dbCla);
             it_done();
         });
@@ -1677,7 +1689,10 @@ describe('cla:isClaRequired', function () {
             repo: 'myRepo',
             owner: 'owner',
             gist: 'url/gistId',
-            token: 'abc'
+            token: 'abc',
+            isUserWhitelisted: function () {
+                return false;
+            }
         };
         testRes.pullRequestFiles = [
             {
@@ -1756,7 +1771,7 @@ describe('cla:isClaRequired', function () {
     it('should send error if repo, owner, number is not provided', function (it_done) {
         args = {};
         cla.isClaRequired(args, function (err) {
-            assert(err);
+            assert(!!err);
             it_done();
         });
     });
