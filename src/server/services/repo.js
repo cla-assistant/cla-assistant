@@ -56,7 +56,7 @@ let selection = function (args) {
 };
 
 module.exports = {
-    timesToRetryGitHubCall: 30,
+    timesToRetryGitHubCall: 3,
     all: function (done) {
         Repo.find({}, function (err, repos) {
             done(err, repos);
@@ -232,16 +232,16 @@ module.exports = {
                             }
                         });
                     } else {
+                        if (!!self.timesToRetryGitHubCall && (!arg.count || self.timesToRetryGitHubCall > arg.count)) {
+                            arg.count = arg.count ? ++arg.count : 1;
+                            setTimeout(function () {
+                                callGithub(arg, linkedItem);
+                            }, 1000);
+
+                            return;
+                        }
                         handleError(new Error(res.message).stack, res.message, arg);
-                        // if (!arg.count && self.timesToRetryGitHubCall && self.timesToRetryGitHubCall > 0) {
-                        //     arg.count = self.timesToRetryGitHubCall;
-                        //     setTimeout(function () {
-                        //         callGithub(arg, linkedItem);
-                        //     }, 1000 * self.timesToRetryGitHubCall);
-                        //     return;
-                        // } else {
-                        //     done(res.message);
-                        // }
+                        // done(res.message);
                     }
                 }
 
