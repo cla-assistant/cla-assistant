@@ -162,8 +162,10 @@ async function validatePullRequest(args, done) {
         let logArgs = Object.assign({}, args);
         logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
         log.error(e.stack, logArgs);
-        done();
-        throw e;
+        if (done) {
+            done();
+        }
+        // throw e;
     }
 }
 
