@@ -490,7 +490,9 @@ module.exports = function () {
                 });
             } else if (args.number) {
                 return self.checkPullRequestSignatures(args, function (error, result) {
-                    done(error, result.signed, result.user_map);
+                    const signed = result ? result.signed : false;
+                    const user_map = result ? result.user_map : undefined;
+                    done(error, signed, user_map);
                 });
             }
 
