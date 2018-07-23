@@ -138,7 +138,7 @@ The following are the environment variables you have to configure to run a priva
 - `GITHUB_SECRET`: From your registered application in GitHub.
 - `GITHUB_USER`: For CLA assistant to comment on pull requests, it requires a GitHub account.
 - `GITHUB_PASS`: Use CLA assistant's user and password for basic authentication (where github_token doesn't work).
-- `GITHUB_TOKEN`: Use GitHub token of CLA assistant's user for API calls of not authenticated users. It can be generated here https://github.com/settings/tokens/new. The Only scope required is `repo_public`.
+- `GITHUB_TOKEN`: Use GitHub token of CLA assistant's user for API calls of not authenticated users. It can be generated here https://github.com/settings/tokens/new. The Only scope required is `public_repo`.
 - `GITHUB_ADMIN_USERS`: (optional, comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.
 - `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
 - `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
