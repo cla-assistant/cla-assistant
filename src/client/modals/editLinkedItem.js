@@ -9,7 +9,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
     function initGist() {
         $scope.selected.gist = gists.find(function (g) {
             return g.url === item.gist;
-        }) || gist;
+        }) || { name: gist.fileName || gist.description, url: gist.html_url };
     }
 
     $scope.clear = function ($event) {
