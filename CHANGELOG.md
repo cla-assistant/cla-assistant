@@ -1,5 +1,10 @@
 # Change Log
 
+## [v1.8.2](https://github.com/cla-assistant/cla-assistant/tree/v1.8.2) (2018-09-11)
+
+**Fixed bugs:**
+- don't change gist url on edit but keep the existing one or use html_url of the gist [\#366](https://github.com/cla-assistant/cla-assistant/issues/366)
+
 ## [v1.8.1](https://github.com/cla-assistant/cla-assistant/tree/v1.8.1) (2018-07-09)
 
 **New features:**
