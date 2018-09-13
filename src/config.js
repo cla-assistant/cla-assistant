@@ -80,6 +80,10 @@ module.exports = {
             channel: process.env.SLACK_CHANNEL
         },
 
+        templates: {
+            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, 'client', 'login.html')
+        },
+
         sentry_dsn: process.env.SENTRY_DSN,
 
         api_access: {

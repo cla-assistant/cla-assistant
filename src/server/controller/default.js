@@ -50,7 +50,7 @@ router.all('/static/*', function (req, res) {
     if (req.user && req.path === '/static/cla-assistant.json') {
         filePath = path.join(__dirname, '..', '..', '..', 'cla-assistant.json');
     } else {
-        filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
+        filePath = config.server.templates.login;
     }
     res.setHeader('Last-Modified', (new Date()).toUTCString());
     res.status(200).sendFile(filePath);
@@ -73,7 +73,7 @@ router.all('/*', function (req, res) {
     if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
         filePath = path.join(__dirname, '..', '..', 'client', 'home.html');
     } else {
-        filePath = path.join(__dirname, '..', '..', 'client', 'login.html');
+        filePath = config.server.templates.login;
     }
     res.setHeader('Last-Modified', (new Date()).toUTCString());
     res.status(200).sendFile(filePath);
