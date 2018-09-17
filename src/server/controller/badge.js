@@ -1,6 +1,7 @@
 let express = require('express'),
     ejs = require('ejs'),
     fs = require('fs'),
+    path = require('path'),
     crypto = require('crypto');
 
 //api
@@ -14,22 +15,16 @@ let router = express.Router();
 
 
 router.all('/pull/badge/:signed', function (req, res) {
-    let tmp = fs.readFileSync('src/server/templates/badge_not_signed.svg', 'utf-8');
-    let hash = crypto.createHash('md5').update('pending', 'utf8').digest('hex');
-    let badgeText = 'Please sign our CLA!';
-
-    if (req.params.signed === 'signed') {
-        tmp = fs.readFileSync('src/server/templates/badge_signed.svg', 'utf-8');
-        hash = crypto.createHash('md5').update('signed', 'utf8').digest('hex');
-    }
+    let fileName = req.params.signed === 'signed' ? 'badge_signed.svg' : 'badge_not_signed.svg';
+    let status = req.params.signed === 'signed' ? 'signed' : 'pending';
+    let tmp = fs.readFileSync(path.join(__dirname, '..', 'templates', fileName), 'utf-8');
+    let hash = crypto.createHash('md5').update(status, 'utf8').digest('hex');
 
     if (req.get('If-None-Match') === hash) {
         return res.status(304).send();
     }
 
-    let svg = ejs.render(tmp, {
-        text: badgeText
-    });
+    let svg = ejs.render(tmp);
 
     res.set('Content-Type', 'image/svg+xml');
     res.set('Cache-Control', 'no-cache');
