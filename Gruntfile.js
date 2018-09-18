@@ -11,6 +11,12 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        coveralls: {
+            target: {
+                src: 'output/coverage/lcov.info'
+            }
+        },
+
         mocha_istanbul: {
             coverage: {
                 src: 'src/tests/server',
