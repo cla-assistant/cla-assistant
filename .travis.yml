@@ -7,8 +7,6 @@ cache:
   - src/bower
 notifications:
   slack: sap-pi-tools:DnnrvTL6F00vEbUR45VJsa2X
-addons:
-  srcclr: true
 before_script:
 - bower install
 after_script:
