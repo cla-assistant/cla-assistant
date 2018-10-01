@@ -1710,15 +1710,13 @@ describe('cla:isClaRequired', function () {
         restore();
     });
 
-    it('should require a CLA when minimum changes don\'t set up', function (it_done) {
-        cla.isClaRequired(args, function (err, isClaRequired) {
-            assert.ifError(err);
-            assert(isClaRequired);
-            it_done();
-        });
+    it('should require a CLA when minimum changes don\'t set up', async function () {
+        var claIsRequired = await cla.isClaRequired(args);
+
+        assert(claIsRequired);
     });
 
-    it('should require a CLA when pull request exceed minimum file changes', function (it_done) {
+    it('should require a CLA when pull request exceed minimum file changes', async function () {
         testRes.repoServiceGet.minFileChanges = 2;
         testRes.pullRequestFiles = {
             data: [{
@@ -1727,14 +1725,13 @@ describe('cla:isClaRequired', function () {
                 filename: 'test2'
             }]
         };
-        cla.isClaRequired(args, function (err, isClaRequired) {
-            assert.ifError(err);
-            assert(isClaRequired);
-            it_done();
-        });
+
+        var claIsRequired = await cla.isClaRequired(args);
+
+        assert(claIsRequired);
     });
 
-    it('should require a CLA when pull request exceed minimum code changes', function (it_done) {
+    it('should require a CLA when pull request exceed minimum code changes', async function () {
         testRes.repoServiceGet.minCodeChanges = 15;
         testRes.pullRequestFiles = {
             data: [{
@@ -1745,14 +1742,13 @@ describe('cla:isClaRequired', function () {
                 changes: 10
             }]
         };
-        cla.isClaRequired(args, function (err, isClaRequired) {
-            assert.ifError(err);
-            assert(isClaRequired);
-            it_done();
-        });
+
+        var claIsRequired = await cla.isClaRequired(args);
+
+        assert(claIsRequired);
     });
 
-    it('should NOT require a CLA when pull request NOT exceed minimum file and code changes', function (it_done) {
+    it('should NOT require a CLA when pull request NOT exceed minimum file and code changes', async function () {
         testRes.repoServiceGet.minFileChanges = 2;
         testRes.repoServiceGet.minCodeChanges = 15;
         testRes.pullRequestFiles = {
@@ -1761,22 +1757,22 @@ describe('cla:isClaRequired', function () {
                 changes: 14,
             }]
         };
-        cla.isClaRequired(args, function (err, isClaRequired) {
-            assert.ifError(err);
-            assert(!isClaRequired);
-            it_done();
-        });
+
+        var claIsRequired = await cla.isClaRequired(args);
+
+        assert(!claIsRequired);
     });
 
-    it('should send error if repo, owner, number is not provided', function (it_done) {
+    it('should send error if repo, owner, number is not provided', async function () {
         args = {};
-        cla.isClaRequired(args, function (err) {
+        try {
+            await cla.isClaRequired(args);
+        } catch (err) {
             assert(!!err);
-            it_done();
-        });
+        }
     });
 
-    it('should NOT send error if token is not provided but use linked item\'s token', function (it_done) {
+    it('should NOT send error if token is not provided but use linked item\'s token', async function () {
         delete args.token;
         testRes.repoServiceGet.minCodeChanges = 15;
         testRes.pullRequestFiles = {
@@ -1785,11 +1781,10 @@ describe('cla:isClaRequired', function () {
                 changes: 15
             }]
         };
-        cla.isClaRequired(args, function (err, isClaRequired) {
-            assert.ifError(err);
-            sinon.assert.calledWithMatch(github.call, { token: 'abc' });
-            assert(isClaRequired);
-            it_done();
-        });
+
+        var claIsRequired = await cla.isClaRequired(args);
+
+        sinon.assert.calledWithMatch(github.call, { token: 'abc' });
+        assert(claIsRequired);
     });
 });

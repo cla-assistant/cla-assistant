@@ -95,23 +95,22 @@ function updateStatusAndComment(args) {
     });
 }
 
-function handleWebHook(args) {
-    cla.isClaRequired(args, function (error, isClaRequired) {
-        if (error) {
-            return logger.error(error);
-        }
-        if (!isClaRequired) {
+async function handleWebHook(args) {
+    try {
+        const claRequired = await cla.isClaRequired(args);
+        if (claRequired) {
+            updateStatusAndComment(args);
+        } else {
             status.updateForClaNotRequired(args);
             pullRequest.deleteComment({
                 repo: args.repo,
                 owner: args.owner,
                 number: args.number
             });
-
-            return;
         }
-        updateStatusAndComment(args);
-    });
+    } catch (error) {
+        return logger.error(error);
+    }
 }
 
 module.exports = function (req, res) {
