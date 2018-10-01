@@ -311,8 +311,8 @@ describe('webhook pull request', function () {
             done(null, testRes.repoService.get);
         });
 
-        sinon.stub(cla, 'isClaRequired').callsFake(function (args, done) {
-            done(null, testRes.cla.isClaRequired);
+        sinon.stub(cla, 'isClaRequired').callsFake(function () {
+            return Promise.resolve(testRes.cla.isClaRequired);
         });
 
         sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {

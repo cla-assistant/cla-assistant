@@ -721,15 +721,8 @@ module.exports = function () {
             });
         },
 
-        isClaRequired: function (args, done) {
-            const promise = isSignificantPullRequest(args.repo, args.owner, args.number, args.token);
-            promise.then(function (isSignificant) {
-                if (done) {
-                    done(null, isSignificant);
-                }
-            }).catch(done);
-
-            return promise;
+        isClaRequired: function (args) {
+            return isSignificantPullRequest(args.repo, args.owner, args.number, args.token);
         }
     };
 
