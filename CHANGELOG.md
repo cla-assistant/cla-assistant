@@ -2,8 +2,12 @@
 
 ## [v1.8.3](https://github.com/cla-assistant/cla-assistant/tree/v1.8.3) (2018-10-01)
 
+**Merged pull requests:**
+- Allow specifying a custom login page template. [\#375](https://github.com/cla-assistant/cla-assistant/pull/375) ([chrisgavin](https://github.com/chrisgavin))
+
 **Fixed bugs:**
 - avoid node deprecation warning: Unhandled promise rejection... Use asyn/await for server/services/cla.isClaRequired
+- remove hardcoded paths to the badges and remove legacy code
 
 ## [v1.8.2](https://github.com/cla-assistant/cla-assistant/tree/v1.8.2) (2018-09-11)
 
