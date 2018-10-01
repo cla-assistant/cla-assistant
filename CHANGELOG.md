@@ -1,5 +1,10 @@
 # Change Log
 
+## [v1.8.3](https://github.com/cla-assistant/cla-assistant/tree/v1.8.3) (2018-10-01)
+
+**Fixed bugs:**
+- avoid node deprecation warning: Unhandled promise rejection... Use asyn/await for server/services/cla.isClaRequired
+
 ## [v1.8.2](https://github.com/cla-assistant/cla-assistant/tree/v1.8.2) (2018-09-11)
 
 **Fixed bugs:**

@@ -1,7 +1,7 @@
 {
     "name": "cla-assistant",
     "author": "https://github.com/cla-assistant",
-    "version": "1.8.1",
+    "version": "1.8.3",
     "homepage": "https://cla-assistant.io",
     "description": "Contributor licencse agreement",
     "keywords": [
