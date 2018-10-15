@@ -423,8 +423,9 @@ describe('', function () {
                 assert(args.signed);
                 cb(null);
             });
-            sinon.stub(cla, 'sign').callsFake(function () {
-                return Promise.resolve('done');
+            sinon.stub(cla, 'sign').callsFake(async function () {
+                return 'done';
+                // return Promise.resolve('done');
             });
             sinon.stub(cla, 'check').callsFake(function (args, cb) {
                 args.gist = req.args.gist;
@@ -487,39 +488,31 @@ describe('', function () {
             assert.ok(signed);
             assert(statusService.update.called);
             sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-
         });
 
         it('should update status of pull request using token of linked org', async function () {
             resp.repoService.get = null;
             resp.cla.getLinkedItem = resp.orgService.get;
 
-            // this.timeout(100);
             const res = await cla_api.sign(req);
+
             assert.ok(res);
             sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-
-            // setTimeout(function () {
-            //     assert(statusService.update.called);
-            //     it_done();
-            // }, 50);
         });
 
         it('should update status of all open pull requests for the repo if user model has no requests stored', async function () {
             testUser.requests = undefined;
-            try {
-                const res = await cla_api.sign(req);
-                assert.ok(res);
-                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-                assert(github.call.calledWithMatch({
-                    obj: 'pullRequests',
-                    fun: 'getAll'
-                }));
-                assert(prService.editComment.called);
-                assert.equal(statusService.update.callCount, 2);
-            } catch (e) {
-                assert.ifError(e);
-            }
+
+            const res = await cla_api.sign(req);
+
+            assert.ok(res);
+            sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+            assert(github.call.calledWithMatch({
+                obj: 'pullRequests',
+                fun: 'getAll'
+            }));
+            assert(prService.editComment.called);
+            assert.equal(statusService.update.callCount, 2);
         });
 
         it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', async function () {
@@ -1502,46 +1495,45 @@ describe('', function () {
             prService.deleteComment.restore();
         });
 
-        it('should update status and edit comment when the repo is NOT linked with a null CLA and the pull request is significant', function (it_done) {
-            cla_api.validatePullRequest(args, function () {
-                assert(statusService.update.calledWithMatch({
-                    signed: resp.cla.check.signed,
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    sha: 'abcde',
-                    number: 1
-                }));
-                assert(prService.editComment.calledWithMatch({
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    number: 1,
-                    signed: resp.cla.check.signed,
-                    user_map: resp.cla.check.user_map
-                }));
-                it_done();
-            });
+        it('should update status and edit comment when the repo is NOT linked with a null CLA and the pull request is significant', async function () {
+            await cla_api.validatePullRequest(args);
+
+            assert(statusService.update.calledWithMatch({
+                signed: resp.cla.check.signed,
+                repo: 'Hello-World',
+                owner: 'octocat',
+                sha: 'abcde',
+                number: 1
+            }));
+            assert(prService.editComment.calledWithMatch({
+                repo: 'Hello-World',
+                owner: 'octocat',
+                number: 1,
+                signed: resp.cla.check.signed,
+                user_map: resp.cla.check.user_map
+            }));
         });
 
-        it('should update status and delete comment when the repo linked with a null CLA', function (it_done) {
+        it('should update status and delete comment when the repo linked with a null CLA', async function () {
             resp.cla.getLinkedItem.gist = undefined;
-            cla_api.validatePullRequest(args, function () {
-                assert(statusService.updateForNullCla.called);
-                assert(prService.deleteComment.called);
-                assert(!cla.isClaRequired.called);
-                assert(!cla.check.called);
-                it_done();
-            });
+
+            await cla_api.validatePullRequest(args);
+
+            assert(statusService.updateForNullCla.called);
+            assert(prService.deleteComment.called);
+            assert(!cla.isClaRequired.called);
+            assert(!cla.check.called);
         });
 
-        it('should update status and delete comment when the repo is NOT linked with a null CLA and the pull request is NOT significant', function (it_done) {
+        it('should update status and delete comment when the repo is NOT linked with a null CLA and the pull request is NOT significant', async function () {
             resp.cla.isClaRequired = false;
-            cla_api.validatePullRequest(args, function () {
-                assert(statusService.updateForClaNotRequired.called);
-                assert(prService.deleteComment.called);
-                assert(!cla.check.called);
-                assert(!statusService.updateForNullCla.called);
-                it_done();
-            });
+
+            await cla_api.validatePullRequest(args);
+
+            assert(statusService.updateForClaNotRequired.called);
+            assert(prService.deleteComment.called);
+            assert(!cla.check.called);
+            assert(!statusService.updateForNullCla.called);
         });
     });
 

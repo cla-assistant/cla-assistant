@@ -110,7 +110,7 @@ function getLinkedItemsWithSharedGist(gist, done) {
     });
 }
 
-async function validatePullRequest(args, done) {
+async function validatePR(args) {
     args.token = args.token ? args.token : token;
     try {
         const item = await cla.getLinkedItem(args);
@@ -121,7 +121,7 @@ async function validatePullRequest(args, done) {
                     repo: args.repo,
                     owner: args.owner,
                     number: args.number
-                }, done);
+                }, () => { /*do nothing*/ });
             });
         }
         const isClaRequired = await cla.isClaRequired(args);
@@ -131,7 +131,7 @@ async function validatePullRequest(args, done) {
                     repo: args.repo,
                     owner: args.owner,
                     number: args.number
-                }, done);
+                }, () => { /*do nothing*/ });
             });
         }
         cla.check(args, function (cla_err, all_signed, user_map) {
@@ -155,17 +155,13 @@ async function validatePullRequest(args, done) {
                     number: args.number,
                     signed: args.signed,
                     user_map: user_map
-                }, done);
+                }, () => { /*do nothing*/ });
             });
         });
     } catch (e) {
         let logArgs = Object.assign({}, args);
         logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
         log.error(e.stack, logArgs);
-        if (done) {
-            done();
-        }
-        // throw e;
     }
 }
 
@@ -181,14 +177,14 @@ async function validatePullRequest(args, done) {
 async function updateUsersPullRequests(args) {
     function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
         numbers.forEach((prNumber) => {
-            validatePullRequest({
+            validatePR({
                 repo: repo,
                 owner: owner,
                 number: prNumber,
                 gist: gist,
                 sharedGist: sharedGist,
                 token: token
-            }, function () { /*do nothing*/ });
+            });
         });
     }
 
@@ -500,8 +496,8 @@ let ClaApi = {
     // sharedGist (optional)
     // token (optional)
     // sha (optional)
-    validatePullRequest: function (args, done) {
-        validatePullRequest(args, done);
+    validatePullRequest: async function (args) {
+        return validatePR(args);
     },
 
     validatePullRequests: function (req, done) {
@@ -509,16 +505,16 @@ let ClaApi = {
         let pullRequests = [];
         let token = req.args.token ? req.args.token : req.user.token;
 
-        function doneIfNeed(err) {
+        function doneIfNeed(err, res) {
             if (typeof done === 'function') {
-                done(err);
+                done(err, res);
             }
         }
 
         function validateData(err) {
             if (pullRequests.length > 0 && !err) {
-                async.series(pullRequests.map(function (pullRequest) {
-                    return function (callback) {
+                try {
+                    const promises = pullRequests.map((pullRequest) => {
                         let status_args = {
                             repo: req.args.repo,
                             owner: req.args.owner,
@@ -527,9 +523,14 @@ let ClaApi = {
                         };
                         status_args.number = pullRequest.number;
 
-                        self.validatePullRequest(status_args, callback);
-                    };
-                }), doneIfNeed);
+                        return self.validatePullRequest(status_args);
+                    });
+                    Promise.all(promises)
+                        .then(res => { doneIfNeed(null, res); })
+                        .catch(error => { doneIfNeed(error); });
+                } catch (error) {
+                    doneIfNeed(error);
+                }
             } else {
                 doneIfNeed(null);
             }
