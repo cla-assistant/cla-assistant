@@ -411,7 +411,7 @@ let ClaApi = {
     //	owner (mandatory)
     //	gist.gist_url (optional)
     //	gist.gist_version (optional)
-    countCLA: function (req, done) {
+    countCLA: async function (req, done) {
         let params = req.args;
         let self = this;
 
@@ -458,7 +458,13 @@ let ClaApi = {
                 done(err, clas.length);
             });
         }
-        getMissingParams().then(count, done);
+
+        try {
+            await getMissingParams();
+            count();
+        } catch (e) {
+            done(e);
+        }
     },
 
     validateOrgPullRequests: function (req, done) {
