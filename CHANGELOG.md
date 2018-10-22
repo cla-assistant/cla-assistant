@@ -1,5 +1,11 @@
 # Change Log
 
+## [v1.8.4](https://github.com/cla-assistant/cla-assistant/tree/v1.8.4) (2018-10-22)
+
+**Fixed bugs:**
+- avoid node deprecation warning: Unhandled promise rejection...
+- don't access parameters of null (in case PR could not be read via github api)
+
 ## [v1.8.3](https://github.com/cla-assistant/cla-assistant/tree/v1.8.3) (2018-10-01)
 
 **Merged pull requests:**
