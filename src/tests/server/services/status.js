@@ -574,6 +574,15 @@ describe('status', function () {
                 it_done();
             });
         });
+
+        it('should send error when get pull request head sha is null', function (it_done) {
+            githubCallPRGet.data = null;
+            status.updateForNullCla(args, function (err) {
+                assert(err);
+                // assert.equal(err, githubCallPRGet.err);
+                it_done();
+            });
+        });
     });
 
     describe('updateForClaNotRequired', function () {
