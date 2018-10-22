@@ -163,8 +163,9 @@ let getPullRequestHeadShaIfNeeded = function (args, done) {
     getPR(args, function (err, resp) {
         if (!resp || !resp.head) {
             err = new Error('Cannot get pull request head.');
+        } else {
+            args.sha = resp.head.sha;
         }
-        args.sha = resp.head.sha;
         done(err, args);
     });
 };
