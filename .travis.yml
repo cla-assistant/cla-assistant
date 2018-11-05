@@ -6,7 +6,7 @@ cache:
   directories:
   - src/bower
 notifications:
-  slack: sap-pi-tools:DnnrvTL6F00vEbUR45VJsa2X
+  slack: sap-pi-tools:$SLACK_TOKEN
 before_script:
 - bower install
 after_script:
