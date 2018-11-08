@@ -447,7 +447,7 @@ let ClaApi = {
                         });
                     } catch (e) {
                         log.info(e, 'There is no such item for args: ', req.args);
-                        throw `${e} There is no such item`;
+                        reject(`${e} There is no such item`);
                     }
                 }
             });
