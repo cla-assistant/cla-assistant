@@ -58,18 +58,18 @@ let selection = function (args) {
 module.exports = {
     timesToRetryGitHubCall: 3,
     all: function (done) {
-        Repo.find({}, function (err, repos) {
+        this._find({}, function (err, repos) {
             done(err, repos);
         });
     },
 
     check: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
+        this._findOne(selection(args), function (err, repo) {
             done(err, !!repo);
         });
     },
     create: function (args, done) {
-        Repo.create({
+        this._create({
             repo: args.repo,
             owner: args.owner,
             repoId: args.repoId,
@@ -86,7 +86,7 @@ module.exports = {
         });
     },
     get: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
+        this._findOne(selection(args), function (err, repo) {
             if (!err && !repo) {
                 err = 'Repository not found in Database';
             }
@@ -101,9 +101,9 @@ module.exports = {
             });
         });
         let idChunk = _.chunk(repoIds, 100);
-        async.parallelLimit(idChunk.map(function (chunk) {
-            return function (callback) {
-                Repo.find({
+        async.parallelLimit(idChunk.map((chunk) => {
+            return (callback) => {
+                this._find({
                     $or: chunk
                 }, callback);
             };
@@ -117,13 +117,13 @@ module.exports = {
     },
 
     getByOwner: function (owner, done) {
-        Repo.find({
+        this._find({
             owner: owner
         }, done);
     },
 
     getRepoWithSharedGist: function (gist, done) {
-        Repo.find({ gist: gist, sharedGist: true }, done);
+        this._find({ gist: gist, sharedGist: true }, done);
     },
 
     update: function (args, done) {
@@ -131,7 +131,7 @@ module.exports = {
             repo: args.repo,
             owner: args.owner
         };
-        Repo.findOne(repoArgs, function (err, repo) {
+        this._findOne(repoArgs, function (err, repo) {
             if (err) {
                 done(err);
 
@@ -146,7 +146,9 @@ module.exports = {
             repo.whiteListPattern = args.whiteListPattern;
             repo.privacyPolicy = args.privacyPolicy;
             repo.updatedAt = new Date();
-
+            if (config.server.github.adminToken) {
+                repo.token = undefined;
+            }
             repo.save(done);
         });
     },
@@ -357,5 +359,37 @@ module.exports = {
             token: args.token
         };
         github.call(params, done);
+    },
+
+    _find: (query, done) => {
+        Repo.find(query, (err, repos) => {
+            if (err) return done(err);
+            if (config.server.github.adminToken) {
+                return done(null, repos.map(repo => {
+                    repo.token = config.server.github.adminToken;
+                    return repo;
+                }));
+            }
+            return done(null, repos);
+        });
+    },
+
+    _findOne: (query, done) => {
+        Repo.findOne(query, (err, repo) => {
+            if (err) return done(err);
+            if (repo && config.server.github.adminToken) {
+                repo.token = config.server.github.adminToken;
+            }
+            return done(null, repo);
+        });
+    },
+
+    _create: (repo, done) => {
+        if (config.server.github.adminToken) {
+            delete repo.token;
+        }
+        Repo.create(repo, function (err, repo) {
+            done(err, repo);
+        });
     }
 };

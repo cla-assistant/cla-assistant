@@ -1,6 +1,7 @@
 require('../documents/org');
 let mongoose = require('mongoose');
 let Org = mongoose.model('Org');
+let config = require('../../config');
 
 let selection = function (args) {
     let selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
@@ -10,7 +11,7 @@ let selection = function (args) {
 
 module.exports = {
     create: function (args, done) {
-        Org.create({
+        const doc = {
             orgId: args.orgId,
             org: args.org,
             gist: args.gist,
@@ -22,7 +23,11 @@ module.exports = {
             whiteListPattern: args.whiteListPattern,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
-        }, function (err, org) {
+        };
+        if (config.server.github.adminToken) {
+            delete doc.token;
+        }
+        Org.create(doc, function (err, org) {
             done(err, org);
         });
     },
@@ -43,7 +48,9 @@ module.exports = {
             org.whiteListPattern = args.whiteListPattern;
             org.privacyPolicy = args.privacyPolicy;
             org.updatedAt = new Date();
-
+            if (config.server.github.adminToken) {
+                org.token = undefined;
+            }
             org.save(done);
         });
     },
@@ -53,19 +60,34 @@ module.exports = {
             if (!err && !org) {
                 err = 'Organization not found in Database';
             }
+            if (org && config.server.github.adminToken) {
+                org.token = config.server.github.adminToken;
+            }
             done(err, org);
         });
     },
 
     getMultiple: function (args, done) {
-        Org.find({ orgId: { $in: args.orgId } }, done);
+        this._find({ orgId: { $in: args.orgId } }, done);
     },
 
     getOrgWithSharedGist: function (gist, done) {
-        Org.find({ gist: gist, sharedGist: true }, done);
+        this._find({ gist: gist, sharedGist: true }, done);
     },
 
     remove: function (args, done) {
         Org.findOneAndRemove(selection(args), done);
+    },
+
+    _find: (query, done) => {
+        Org.find(query, (err, orgs) => {
+            if (err) return done(err);
+            done(null, orgs.map(org => {
+                if (config.server.github.adminToken) {
+                    org.token = config.server.github.adminToken;
+                }
+                return org;
+            }));
+        });
     }
 };
