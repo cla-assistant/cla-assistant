@@ -42,7 +42,7 @@
         "lodash": "^4.17.5",
         "memory-cache": "^0.2.0",
         "merge": ">=1.2.0",
-        "mongoose": "^4.13.12",
+        "mongoose": "^4.13.17",
         "node-sass-middleware": "^0.11.0",
         "passport": "^0.4.0",
         "passport-accesstoken": "^0.1.0",
