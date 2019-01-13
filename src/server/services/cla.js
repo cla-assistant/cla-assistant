@@ -1,3 +1,4 @@
+const util = require('util');
 // models
 require('../documents/cla');
 let q = require('q');
@@ -244,9 +245,8 @@ module.exports = function () {
         return deferred.promise;
     };
 
-    let getLastSignatureOnMultiDates = function (user, userId, repoId, orgId, sharedGist, gist_url, gist_version, date) {
+    let getLastSignatureOnMultiDates = function (user, userId, repoId, orgId, sharedGist = false, gist_url, gist_version, date) {
         let deferred = q.defer();
-        sharedGist = sharedGist === undefined ? false : sharedGist;
 
         if (!user || (!repoId && !orgId) || !gist_url || (date && !Array.isArray(date))) {
             let msg = `Not provide enough arguments for getSignature() ${user} ${userId} ${repoId} ${orgId} ${sharedGist} ${gist_url} ${gist_version} ${date}`;
@@ -383,9 +383,16 @@ module.exports = function () {
 
                     return args;
                 }).then(function (args) {
-                    return getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (cla) {
-                        return cla;
-                    });
+                    return getLastSignatureOnMultiDates(
+                        args.user,
+                        args.userId,
+                        item.repoId,
+                        item.orgId,
+                        item.sharedGist,
+                        item.gist,
+                        args.gist_version,
+                        args.onDates
+                    );
                 });
             }).then(function (cla) {
                 return done(null, cla);
@@ -403,9 +410,7 @@ module.exports = function () {
          *   number (optional)
          */
         checkUserSignature: function (args, done) {
-            let self = this;
-
-            return self.getLastSignature(args, function (error, cla) {
+            return this.getLastSignature(args, function (error, cla) {
                 done(error, { signed: !!cla });
             });
         },
@@ -418,78 +423,82 @@ module.exports = function () {
          *   owner (mandatory)
          *   repo (optional)
          */
-        checkPullRequestSignatures: function (args, done) {
-            getLinkedItem(args.repo, args.owner, args.token).then(function (item) {
-                args.gist = item.gist;
-                args.repoId = item.repoId;
-                args.orgId = item.orgId;
-                args.onDates = [new Date()];
-                if (!args.gist) {
-                    return done(null, {
-                        signed: true
-                    });
-                }
+        checkPullRequestSignatures: async function (args, done) {
+            const submitterSignatureRequired = config.server.feature_flag.required_signees.indexOf('submitter') > -1;
+            const committerSignatureRequired = !config.server.feature_flag.required_signees || config.server.feature_flag.required_signees.indexOf('committer') > -1;
+            const organizationOverrideEnabled = config.server.feature_flag.organization_override_enabled;
+            const item = await getLinkedItem(args.repo, args.owner, args.token).catch(done);
+            let signees = [];
 
-                return getGistObject(args.gist, item.token).then(function (gist) {
-                    args.gist_version = gist.data.history[0].version;
-
-                    return getPR(args.owner, args.repo, args.number, item.token).then(pullRequest => {
-                        args.onDates.push(new Date(pullRequest.created_at));
-                        const signees = [];
-                        if (config.server.feature_flag.required_signees.indexOf('submitter') > -1 && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(pullRequest.user.login))) { //TODO: test it
-                            signees.push({
-                                name: pullRequest.user.login,
-                                id: pullRequest.user.id
-                            });
-                        }
-
-                        return q(signees);
-                    }).then(signees => {
-                        const deferred = q.defer();
-                        if (!config.server.feature_flag.required_signees || config.server.feature_flag.required_signees.indexOf('committer') > -1) {
-                            repoService.getPRCommitters(args, function (error, committers) {
-                                if (error) {
-                                    logger.warn(new Error(error).stack);
-                                    if ((!signees || signees.length < 1) && (!committers || committers.length < 1)) {
-                                        done(error);
-                                    }
-                                }
-                                signees = _.uniqWith(signees.concat(committers), (object, other) => {
-                                    return object.id == other.id;
-                                }).filter((signee) => {
-                                    return signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name)); //TODO: test it
-                                });
-                                deferred.resolve(signees);
-                            });
-                        } else {
-                            deferred.resolve(signees);
-                        }
-
-                        return deferred.promise;
-                    }).then(signees => {
-                        return checkAll(signees, item.repoId, item.orgId, item.sharedGist, item.gist, args.gist_version, args.onDates).then(function (result) {
-                            done(null, result);
-                        });
-                    }, function (er) {
-                        done(er);
-                    });
-                }, function (er) {
-                    done(er);
+            args.gist = item.gist;
+            args.repoId = item.repoId;
+            args.orgId = item.orgId;
+            args.onDates = [new Date()];
+            if (!args.gist) {
+                return done(null, {
+                    signed: true
                 });
-                // }).catch(function (er) {
-            }, function (er) {
-                done(er);
-            });
+            }
+
+            const gist = await getGistObject(args.gist, item.token).catch(done);
+            args.gist_version = gist.data.history[0].version;
+
+            const pullRequest = await getPR(args.owner, args.repo, args.number, item.token)
+                .catch(done);
+            args.onDates.push(new Date(pullRequest.created_at));
+            if (organizationOverrideEnabled) {
+                // TODO organization stuff
+            }
+
+            if (submitterSignatureRequired &&
+                !(item.isUserWhitelisted !== undefined &&
+                item.isUserWhitelisted(pullRequest.user.login))
+            ) { //TODO: test it
+                signees.push({
+                    name: pullRequest.user.login,
+                    id: pullRequest.user.id
+                });
+            }
+
+            if (committerSignatureRequired) {
+                await new Promise((resolve, reject) => {
+                    repoService.getPRCommitters(args, function (error, committers) {
+                        if (error) {
+                            logger.warn(new Error(error).stack);
+                            if ((!signees || signees.length < 1) && (!committers || committers.length < 1)) {
+                                reject(error);
+                            }
+                        }
+                        signees = _.uniqWith(signees.concat(committers), (object, other) => {
+                            return object.id == other.id;
+                        }).filter((signee) => {
+                            return signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name)); //TODO: test it
+                        });
+                        resolve();
+                    });
+                }).catch(done);
+            }
+
+            const result = await checkAll(
+                signees,
+                item.repoId,
+                item.orgId,
+                item.sharedGist,
+                item.gist,
+                args.gist_version,
+                args.onDates
+            ).catch(done);
+
+            done(null, result);
         },
 
         check: function (args, done) {
-            let self = this;
             if (args.user) {
-                return self.checkUserSignature(args, function (error, result) {
+                return this.checkUserSignature(args, function (error, result) {
                     done(error, result.signed);
                 });
             } else if (args.number) {
-                return self.checkPullRequestSignatures(args, function (error, result) {
+                return this.checkPullRequestSignatures(args, function (error, result) {
                     const signed = result ? result.signed : false;
                     const user_map = result ? result.user_map : undefined;
                     done(error, signed, user_map);
