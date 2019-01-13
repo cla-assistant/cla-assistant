@@ -2,6 +2,7 @@
 // unit test
 let assert = require('assert');
 let sinon = require('sinon');
+const util = require('util');
 
 //model
 let CLA = require('../../../server/documents/cla').CLA;
@@ -36,7 +37,9 @@ function stub() {
     testErr.repoServiceGet = null;
     testErr.repoServiceGetCommitters = null;
 
-    testRes.claFindOne = {};
+    testRes.claFindOne = {
+        save: sinon.stub().resolves(),
+    };
     testRes.repoServiceGet = {
         repoId: 123,
         gist: 'url/gistId',
@@ -655,9 +658,10 @@ describe('cla:checkPullRequestSignatures', function () {
         });
     });
 
-    it('should send error if committers list is empty', function (it_done) {
+    it('should send error if committers list is empty', async function () {
         testErr.repoServiceGetCommitters = 'err';
         testRes.repoServiceGetCommitters = undefined;
+        const checkPullRequestSignatures = util.promisify(cla.checkPullRequestSignatures);
 
         let args = {
             repo: 'myRepo',
@@ -665,10 +669,9 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err) {
-            assert(!!err);
-            it_done();
-        });
+        return checkPullRequestSignatures(args)
+            .then(() => assert(false, 'should have thrown error'))
+            .catch(error => assert(!!error));
     });
 
     it('should positive check if an repo has a null CLA', function (it_done) {
@@ -882,6 +885,55 @@ describe('cla:checkPullRequestSignatures', function () {
             assert.equal(result.user_map.unknown[0], 'login3');
             it_done();
         });
+    });
+
+    describe('organization signee', function () {
+        let checkPRSignaturesPromise;
+        before(function () {
+            checkPRSignaturesPromise = util.promisify(cla.checkPullRequestSignatures);
+        });
+
+        beforeEach(function () {
+            config.server.feature_flag.org_signee_override = true;
+            testRes.getPR = {
+                head: {
+                    repo: {
+                        owner: {
+                            login: 'orgLogin0',
+                            type: 'Organization',
+                            id: '37'
+                        }
+                    }
+                },
+                user: {
+                    login: 'login0',
+                    id: '0'
+                },
+            };
+        });
+
+        it('should call callback function immediately if organization is whitelisted', async function () {
+            config.server.feature_flag.required_signees = 'submitter committer';
+            testRes.repoServiceGet.isUserWhitelisted = (login) => login === testRes.getPR.head.repo.owner.login;
+
+            const { signed } = await checkPRSignaturesPromise({});
+            assert(signed);
+            sinon.assert.notCalled(CLA.findOne);
+        });
+
+        // it('should call `checkAll` with organization user', async function () {
+        //     config.server.feature_flag.required_signees = 'submitter committer';
+
+        //     await checkPRSignaturesPromise({});
+
+        //     sinon.assert.called(CLA.findOne);
+        //     assert(
+        //         CLA.findOne.getCalls().some(call => call.args[0].$or[0].userId === testRes.getPR.head.repo.owner.id),
+        //         'Organization user was not '
+        //     );
+        // });
+
+        // it('should not call `checkAll` with organization user if override disabled');
     });
 });
 
