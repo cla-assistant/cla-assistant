@@ -593,13 +593,27 @@ describe('cla:checkPullRequestSignatures', function () {
         clock = sinon.useFakeTimers(now.getTime());
         let prCreateDateString = '1970-01-01T00:00:00.000Z';
         let prCreateDate = new Date(prCreateDateString);
-        testErr.getPR = null;
+        testErr = {
+            repoServiceGet: null,
+            orgServiceGet: null,
+            getPR: null,
+            repoServiceGetCommitters: {}
+        };
         testRes.getPR = {
             user: {
                 login: 'login0',
                 id: '0'
             },
-            created_at: prCreateDate
+            created_at: prCreateDate,
+            head: {
+                repo: {
+                    owner: {
+                        login: 'orgLogin0',
+                        type: 'Organization',
+                        id: '37'
+                    }
+                }
+            }
         };
         sinon.stub(repo_service, 'getPRCommitters').callsFake(function (arg, done) {
             done(testErr.repoServiceGetCommitters, testRes.repoServiceGetCommitters);
@@ -612,56 +626,75 @@ describe('cla:checkPullRequestSignatures', function () {
         clock.restore();
     });
 
-    it('should send error if there is no linked repo or org', function (it_done) {
+    it('should send error if there is no linked repo found in database', async function () {
         testErr.repoServiceGet = 'Repository not found in Database';
-        testErr.orgServiceGet = 'Organization not found in Database';
-        testRes.repoServiceGet = null;
-        testRes.orgServiceGet = null;
-        let args = {
+        // testErr.orgServiceGet = 'Organization not found in Database';
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(!!err);
-            assert(!result);
-            it_done();
-        });
+
+        try {
+            await cla.checkPullRequestSignatures(args);
+            assert(false, 'should have thrown error');
+        } catch (error) {
+            assert(error, testErr.repoServiceGet);
+        }
     });
 
-    it('should send error if getGist has an error', function (it_done) {
+    it('should send error if there is no linked org found in the database', async function () {
+        testErr.orgServiceGet = 'Organization not found in Database';
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        };
+
+        try {
+            await cla.checkPullRequestSignatures(args);
+            assert(false, 'should have thrown error');
+        } catch (error) {
+            assert(error, testErr.orgServiceGet);
+        }
+    });
+
+    it('should send error if getGist has an error', async function () {
         testErr.gistData = 'Error';
         let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(!!err);
-            assert(!result);
-            it_done();
-        });
 
+        try {
+            await cla.checkPullRequestSignatures(args);
+            assert(false, 'should have thrown error');
+        } catch (error) {
+            assert(error, testErr.gistData);
+        }
     });
 
-    it('should send error if get pull request failed', function (it_done) {
+    it('should send error if get pull request failed', async function () {
         testErr.getPR = 'Error';
         let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(!!err);
-            assert(!result);
-            it_done();
-        });
+
+        try {
+            await cla.checkPullRequestSignatures(args);
+            assert(false, 'should have thrown error');
+        }
+        catch (error) {
+            assert(error, testErr.getPR);
+        }
     });
 
     it('should send error if committers list is empty', async function () {
         testErr.repoServiceGetCommitters = 'err';
         testRes.repoServiceGetCommitters = undefined;
-        const checkPullRequestSignatures = util.promisify(cla.checkPullRequestSignatures);
 
         let args = {
             repo: 'myRepo',
@@ -669,26 +702,31 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        return checkPullRequestSignatures(args)
-            .then(() => assert(false, 'should have thrown error'))
-            .catch(error => assert(!!error));
+        try {
+            await cla.checkPullRequestSignatures(args);
+            assert(false, 'should have thrown error');
+        } catch (error) {
+            assert(error, testErr.repoServiceGetCommitters);
+        }
     });
 
-    it('should positive check if an repo has a null CLA', function (it_done) {
+    it('should positive check if an repo has a null CLA', async function () {
         testRes.repoServiceGet.gist = undefined;
         let args = {
             repo: 'myRepo',
             owner: 'owner',
             number: '1'
         };
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert(!err);
+
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert(result.signed);
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
-    it('should return map of committers who has signed, who has not signed and who has no github account', function (it_done) {
+    it('should return map of committers who has signed, who has not signed and who has no github account', async function () {
         testRes.repoServiceGetCommitters = [{
             name: 'login1',
             id: '123'
@@ -723,18 +761,19 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert.ifError(err);
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert(!result.signed);
             assert.equal(result.user_map.signed[0], 'login1');
             assert.equal(result.user_map.not_signed[0], 'login2');
             assert.equal(result.user_map.not_signed[1], 'login3');
             assert.equal(result.user_map.unknown[0], 'login3');
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
-    it('should return map of committers also for old linked repos without sharedGist flag', function (it_done) {
+    it('should return map of committers also for old linked repos without sharedGist flag', async function () {
         delete testRes.repoServiceGet.sharedGist;
         testRes.repoServiceGetCommitters = [{
             name: 'login1',
@@ -759,15 +798,16 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert.ifError(err);
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert(result.signed);
             assert.equal(result.user_map.signed[0], 'login1');
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
-    it('should only check submitter when using submitter mode', function (it_done) {
+    it('should only check submitter when using submitter mode', async function () {
         config.server.feature_flag.required_signees = 'submitter';
         testRes.claFindOne = null;
         testRes.repoServiceGetCommitters = [{
@@ -784,16 +824,18 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            config.server.feature_flag.required_signees = '';
-            assert.ifError(err);
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert.equal(result.user_map.not_signed.length, 1);
             assert.equal(result.user_map.not_signed[0], 'login0');
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        } finally {
+            config.server.feature_flag.required_signees = '';
+        }
     });
 
-    it('should check submitter and committer when using submitter+committer mode', function (it_done) {
+    it('should check submitter and committer when using submitter+committer mode', async function () {
         config.server.feature_flag.required_signees = 'submitter, committer';
         testRes.claFindOne = null;
         testRes.repoServiceGetCommitters = [{
@@ -810,18 +852,18 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            config.server.feature_flag.required_signees = '';
-            assert.ifError(err);
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert.equal(result.user_map.not_signed.length, 3);
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        } finally {
+            config.server.feature_flag.required_signees = '';
+        }
     });
 
-    it('should not check submitter if he/she is whitelisted', function (it_done) {
-        testRes.repoServiceGet.isUserWhitelisted = function (user) {
-            return user === 'login0';
-        };
+    it('should not check submitter if he/she is whitelisted', async function () {
+        testRes.repoServiceGet.isUserWhitelisted = user => user === 'login0';
         config.server.feature_flag.required_signees = 'submitter';
         testRes.claFindOne = null;
         testRes.repoServiceGetCommitters = [{
@@ -838,15 +880,17 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
+        try {
+            const { user_map: { not_signed } } = await cla.checkPullRequestSignatures(args);
+            assert.equal(not_signed.length, 0);
+        } catch (error) {
+            assert(false, error);
+        } finally {
             config.server.feature_flag.required_signees = '';
-            assert.ifError(err);
-            assert.equal(result.user_map.not_signed.length, 0);
-            it_done();
-        });
+        }
     });
 
-    it('should exclude whitelisted committers from the map', function (it_done) {
+    it('should exclude whitelisted committers from the map', async function () {
         testRes.repoServiceGet.isUserWhitelisted = function (user) {
             return user === 'login1';
         };
@@ -875,26 +919,22 @@ describe('cla:checkPullRequestSignatures', function () {
             number: '1'
         };
 
-        cla.checkPullRequestSignatures(args, function (err, result) {
-            assert.ifError(err);
+        try {
+            const result = await cla.checkPullRequestSignatures(args);
             assert(!result.signed);
             assert.equal(result.user_map.signed.length, 0);
             assert.equal(result.user_map.not_signed.length, 2);
             assert.equal(result.user_map.not_signed[0], 'login2');
             assert.equal(result.user_map.not_signed[1], 'login3');
             assert.equal(result.user_map.unknown[0], 'login3');
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
     describe('organization signee', function () {
-        let checkPRSignaturesPromise;
-        before(function () {
-            checkPRSignaturesPromise = util.promisify(cla.checkPullRequestSignatures);
-        });
-
         beforeEach(function () {
-            config.server.feature_flag.org_signee_override = true;
+            config.server.feature_flag.organization_override_enabled = true;
             testRes.getPR = {
                 head: {
                     repo: {
@@ -910,41 +950,43 @@ describe('cla:checkPullRequestSignatures', function () {
                     id: '0'
                 },
             };
+
+            after(function () {
+                config.server.feature_flag.organization_override_enabled = false;
+                testRes.getPR = undefined;
+            });
         });
 
         it('should call callback function immediately if organization is whitelisted', async function () {
             config.server.feature_flag.required_signees = 'submitter committer';
-            testRes.repoServiceGet.isUserWhitelisted = (login) => login === testRes.getPR.head.repo.owner.login;
+            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.head.repo.owner.login;
+            let args = {
+                repo: 'myRepo',
+                owner: 'owner',
+                number: '1'
+            };
 
-            const { signed } = await checkPRSignaturesPromise({});
-            assert(signed);
-            sinon.assert.notCalled(CLA.findOne);
+            try {
+                const result = await cla.checkPullRequestSignatures(args);
+                const { signed } = result;
+                assert(signed);
+                sinon.assert.notCalled(CLA.findOne);
+            } catch (error) {
+                assert(false, error);
+            } finally {
+                config.server.feature_flag.required_signees = '';
+            }
         });
-
-        // it('should call `checkAll` with organization user', async function () {
-        //     config.server.feature_flag.required_signees = 'submitter committer';
-
-        //     await checkPRSignaturesPromise({});
-
-        //     sinon.assert.called(CLA.findOne);
-        //     assert(
-        //         CLA.findOne.getCalls().some(call => call.args[0].$or[0].userId === testRes.getPR.head.repo.owner.id),
-        //         'Organization user was not '
-        //     );
-        // });
-
-        // it('should not call `checkAll` with organization user if override disabled');
     });
 });
 
 describe('cla.check', function () {
     beforeEach(function () {
-        sinon.stub(cla, 'checkUserSignature').callsFake(function (args, done) {
-            return done(null, { signed: true });
-        });
-        sinon.stub(cla, 'checkPullRequestSignatures').callsFake(function (args, done) {
-            return done(null, { signed: true, user_map: {} });
-        });
+        // sinon.stub(cla, 'checkPullRequestSignatures').callsFake(function (args, done) {
+        //     return done(null, { signed: true, user_map: {} });
+        // });
+        sinon.stub(cla, 'checkUserSignature');
+        sinon.stub(cla, 'checkPullRequestSignatures').resolves({ signed: true, user_map: {} });
     });
 
     afterEach(function () {
@@ -952,30 +994,36 @@ describe('cla.check', function () {
         cla.checkPullRequestSignatures.restore();
     });
 
-    it('Should call checkUser when user is given', function (it_done) {
+    it('Should call checkUser when user is given', async function () {
         let args = {
             repo: 'repo',
             owner: 'owner',
             user: 'user'
         };
-        cla.check(args, function () {
+
+        try {
+            await cla.check(args);
             assert(cla.checkUserSignature.called);
             assert(!cla.checkPullRequestSignatures.called);
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
-    it('Should call checkPullRequest when user is NOT given and pull request number is given', function (it_done) {
+    it('Should call checkPullRequest when user is NOT given and pull request number is given', async function () {
         let args = {
             repo: 'repo',
             owner: 'owner',
             number: '1'
         };
-        cla.check(args, function () {
+
+        try {
+            await cla.check(args, () => (undefined));
             assert(cla.checkPullRequestSignatures.called);
             assert(!cla.checkUserSignature.called);
-            it_done();
-        });
+        } catch (error) {
+            assert(false, error);
+        }
     });
 
     it('Should send error if user or pull request number is NOT given', function (it_done) {
