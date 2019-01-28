@@ -104,6 +104,7 @@ module.exports = {
 
         feature_flag: {
             required_signees: process.env.REQUIRED_SIGNEES || '',
+            organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
         },
 
         static: [
