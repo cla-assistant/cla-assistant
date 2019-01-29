@@ -173,7 +173,7 @@ describe('Settings Controller', function () {
         testResp = { cla: {}, repo: {}, webhook: {} };
     });
 
-    describe('normaly', function () {
+    describe('normally', function () {
         beforeEach(function () {
             settingsCtrl = createCtrl();
         });
