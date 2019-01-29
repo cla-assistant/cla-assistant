@@ -484,7 +484,7 @@ describe('webhook pull request', function () {
         test_req.args.number = 1;
         cla.check.restore();
         testUser.save = function () {
-            assert('shold not be called');
+            assert('should not be called');
         };
 
         sinon.stub(cla, 'check').callsFake(function (args, done) {
