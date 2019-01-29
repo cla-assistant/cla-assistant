@@ -73,7 +73,7 @@
 
 **Fixed bugs:**
 - add null check on commits returned by graphAPI - Anton Kharitonov
-- don't use pagination in api/cla, github servise loads all pages per default - Anton Kharitonov
+- don't use pagination in api/cla, github service loads all pages per default - Anton Kharitonov
 - fix validation org repos - don't break the app if linked repo doesn't have a repoId - Anton Kharitonov
 
 **New features:**
@@ -83,7 +83,7 @@
 
 **Fixed bugs:**
 
-- don't use pagination in api/cla, github servise loads all pages per default
+- don't use pagination in api/cla, github service loads all pages per default
 - add null check on commits returned by graphAPI
 
 ## [v1.4.0](https://github.com/cla-assistant/cla-assistant/tree/v1.4.0) (2018-01-10)
