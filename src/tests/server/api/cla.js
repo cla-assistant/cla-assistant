@@ -106,7 +106,7 @@ describe('', function () {
                 getGist: null,
             },
             github: {
-                pullReqest: null,
+                pullRequest: null,
                 markdown: null,
                 user: null
             },
@@ -137,7 +137,7 @@ describe('', function () {
             if (args.obj === 'pullRequests') {
                 assert(args.token);
 
-                cb(error.github.pullReqest, resp.github.callPullRequest);
+                cb(error.github.pullRequest, resp.github.callPullRequest);
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
             } else if (args.obj === 'users') {
