@@ -30,7 +30,7 @@
 **New features:**
 - add edit screen for linked repos and orgs
 - provide a possibility to whitelist committers [\#173](https://github.com/cla-assistant/cla-assistant/issues/173), [\#232](https://github.com/cla-assistant/cla-assistant/issues/232), [\#197](https://github.com/cla-assistant/cla-assistant/issues/197)
-- add origin flag to the signatures in order to differentiate between signatures made via CLA Assistant tool, imported signatures and signatures comming via API 
+- add origin flag to the signatures in order to differentiate between signatures made via CLA Assistant tool, imported signatures and signatures coming via API 
 - provide a possibility to import signature date and custom fields in addition to github user names [\#328](https://github.com/cla-assistant/cla-assistant/issues/328)
 - project owners can provide a link to their privacy policy and obtain user consent before signing the CLA [\#329](https://github.com/cla-assistant/cla-assistant/issues/329)
 
