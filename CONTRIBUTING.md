@@ -13,7 +13,7 @@ You can help CLA Assistant by helping others who use it and need support.
 ## Analyze Issues
 
 Analyzing issue reports can be a lot of effort. Any help is welcome!
-Go to [the Github issue tracker](https://github.com/cla-assistant/cla-assistant/issues?state=open) and find an open issue which needs additional work or a bugfix (e.g. issues labeled with "help wanted" or "bug").
+Go to [the GitHub issue tracker](https://github.com/cla-assistant/cla-assistant/issues?state=open) and find an open issue which needs additional work or a bugfix (e.g. issues labeled with "help wanted" or "bug").
 
 Additional work could include any further information, or a gist, or it might be a hint that helps understanding the issue. Maybe you can even find and [contribute](#contribute-code) a bugfix?
 
@@ -22,7 +22,7 @@ Additional work could include any further information, or a gist, or it might be
 If you find a bug - behavior of CLA Assistant code contradicting your expectation - you are welcome to report it.
 We can only handle well-reported, actual bugs, so please follow the guidelines below.
 
-Once you have familiarized with the guidelines, you can go to the [Github issue tracker for CLA Assistant](https://github.com/cla-assistant/cla-assistant/issues/new) to report the issue.
+Once you have familiarized with the guidelines, you can go to the [GitHub issue tracker for CLA Assistant](https://github.com/cla-assistant/cla-assistant/issues/new) to report the issue.
 
 ### Quick Checklist for Bug Reports
 
@@ -52,7 +52,7 @@ Also refer to the general [SAP security information page](https://www.sap.com/co
 
 ### Usage of Labels
 
-Github offers labels to categorize issues. We defined the following labels so far:
+GitHub offers labels to categorize issues. We defined the following labels so far:
 
 Labels for issue categories:
  * bug: this issue is a bug in the code
