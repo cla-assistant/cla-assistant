@@ -126,7 +126,7 @@ These are some of the rules we try to follow:
 4.  In the commit message 
  - Describe the problem you fix with this change.
  - Describe the effect that this change has from a user's point of view. App crashes and lockups are pretty convincing for example, but not all bugs are that obvious and should be mentioned in the text.
- - describe the technical details of what you changed. It is important to describe the change in a most understandable way so the reviewer is able to verify that the code is behaving as you intend it to.
+ - Describe the technical details of what you changed. It is important to describe the change in a most understandable way so the reviewer is able to verify that the code is behaving as you intend it to.
 5.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
     - ```Fixes #(issueNumber)```
     - Do NOT add a colon after "Fixes" - this prevents automatic closing.
