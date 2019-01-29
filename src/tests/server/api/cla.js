@@ -344,7 +344,7 @@ describe('', function () {
             it('should handle error stored in response message', function (it_done) {
                 resp.github.callMarkdown = {
                     statusCode: 500,
-                    message: 'somthing went wrong, e.g. user revoked access rights'
+                    message: 'something went wrong, e.g. user revoked access rights'
                 };
                 error.github.markdown = null;
                 cla_api.get(req, function (err) {
