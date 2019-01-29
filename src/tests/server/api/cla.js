@@ -922,7 +922,7 @@ describe('', function () {
             });
         });
 
-        it('it should handle unexisting gist', function (it_done) {
+        it('it should handle nonexistent gist', function (it_done) {
             resp.cla.getGist = null;
 
             cla_api.countCLA(req, function (err) {
