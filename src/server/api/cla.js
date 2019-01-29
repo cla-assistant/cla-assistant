@@ -373,7 +373,7 @@ let ClaApi = {
 
 
     //Get list of signed CLAs for all repos the authenticated user has contributed to
-    //Prameters: none (user should be taken)
+    //Parameters: none (user should be taken)
     getSignedCLA: function (req, done) {
         cla.getSignedCLA(req.args, done);
     },
