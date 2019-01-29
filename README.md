@@ -132,7 +132,7 @@ The following are the environment variables you have to configure to run a priva
 
 - `HOST`: This should only set the hostname of your CLA assistant instance (without the protocol).
 - `PORT`: The local port to bind to. Defaults to 5000.
-- `HOST_PORT`: You can set the port of your hosted CLA assistant instance here (in case your instnce doesn't use standard http ports like 80 or 443).
+- `HOST_PORT`: You can set the port of your hosted CLA assistant instance here (in case your instance doesn't use standard http ports like 80 or 443).
 - `PROTOCOL`: Valid options are "http" or "https".
 - `GITHUB_CLIENT`: From your registered application in GitHub.
 - `GITHUB_SECRET`: From your registered application in GitHub.
