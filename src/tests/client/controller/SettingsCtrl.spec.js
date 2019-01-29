@@ -178,7 +178,7 @@ describe('Settings Controller', function () {
             settingsCtrl = createCtrl();
         });
 
-        it('should check whethter the user has admin rights or NOT', function () {
+        it('should check whether the user has admin rights or NOT', function () {
             (settingsCtrl.scope.admin).should.not.be.ok;
         });
 
