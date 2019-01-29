@@ -387,7 +387,7 @@ let ClaApi = {
         cla.getLastSignature(args, done);
     },
 
-    //Fihnd linked item using reponame and owner as parameters
+    //Find linked item using reponame and owner as parameters
     // Params:
     // repo (mandatory)
     // owner (mandatory)
