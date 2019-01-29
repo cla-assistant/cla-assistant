@@ -514,7 +514,7 @@ describe('Home Controller', function () {
     // });
 
     it('should not load user repos if github call failed', function () {
-        getAllReposError = 'Github call failed';
+        getAllReposError = 'GitHub call failed';
 
         homeCtrl = createCtrl();
         _timeout.flush();
