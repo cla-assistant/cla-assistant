@@ -6,7 +6,7 @@
     var im='assets/images/CLA_sign/',
         aud='media/',
         vid='media/',
-        js='assetes/js/',
+        js='assets/js/',
         fonts = {
         },
         opts = {
