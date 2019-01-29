@@ -82,7 +82,7 @@ You are welcome to contribute code to CLA Assistant in order to fix bugs or to i
 There are three important things to know:
 
 1.  You must be aware of the Apache License (which describes contributions) and **agree to the Contributors License Agreement**. This is common practice in all major Open Source projects. 
- For company contributers special rules apply. See the respective section below for details.
+ For company contributors special rules apply. See the respective section below for details.
 2.  There are **several requirements regarding code style, quality, and product standards** which need to be met (we also have to follow them). The respective section below gives more details on the coding guidelines.
 3.  **Not all proposed contributions can be accepted**. Some features may e.g. just fit a third-party add-on better. The code must fit the overall direction of CLA Assistant and really improve it. The more effort you invest, the better you should clarify in advance whether the contribution fits: the best way would be to just open an issue to discuss the feature you plan to implement (make it clear you intend to contribute).
 

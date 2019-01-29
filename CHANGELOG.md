@@ -90,7 +90,7 @@
 **Fixed bugs:**
 
 - Checker stuck on "Waiting for status to be reported" [\#303](https://github.com/cla-assistant/cla-assistant/issues/303)
-- Unable to import csv file containing github usernames of contributers who have already signed the CLA.  [\#188](https://github.com/cla-assistant/cla-assistant/issues/188)
+- Unable to import csv file containing github usernames of contributors who have already signed the CLA.  [\#188](https://github.com/cla-assistant/cla-assistant/issues/188)
 - CLA status shows up as Pending incorrectly [\#150](https://github.com/cla-assistant/cla-assistant/issues/150)
 - CLA-Assistant integration not working [\#122](https://github.com/cla-assistant/cla-assistant/issues/122)
 - Status not updated after adopting commit email [\#113](https://github.com/cla-assistant/cla-assistant/issues/113)
