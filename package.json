@@ -23,7 +23,7 @@
         "array-sugar": "^1.2.2",
         "async": "^2.6.0",
         "body-parser": "^1.18.2",
-        "bower": "^1.8.4",
+        "bower": "^1.8.8",
         "bunyan": "^1.8.12",
         "bunyan-sentry-stream": "^1.2.1",
         "bunyan-slack": "0.0.10",
