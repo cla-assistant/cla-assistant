@@ -17,6 +17,7 @@ var filters = angular.module('cla.filters', []);
 
 angular.element(document).ready(function () {
     angular.bootstrap(document, ['app']);
+    angular.element(document.querySelectorAll('.needs-javascript')).removeClass('needs-javascript');
 });
 
 // *************************************************************
