@@ -44,9 +44,11 @@
             <div class="navbar-home-left">
                 <div ng-show="!!user.value.login">
                     <a ng-href="{{user.value.html_url}}" target="spcae">
-                        <img ng-src="{{ user.value.avatarUrl }}" style="height:25px;" />
+                        <img class="needs-javascript" alt="[ {{ user.value.login }} avatar ]" ng-src="{{ user.value.avatarUrl }}" style="height:25px;" />
                         <a class="navbar-text-hide">&nbsp; Hey,
-                            <b>{{ user.value.login }}</b>!</a>
+                            <noscript>GitHub user whose browser isn't processing JavaScript</noscript>
+                            <b class="needs-javascript">{{ user.value.login }}</b>!
+                        </a>
                     </a>
                 </div>
             </div>
@@ -56,7 +58,7 @@
             </div>
             <div class="navbar-center">
                 <a href="/">
-                    <img class="center-block img-responsive" src="/assets/images/logo_b.svg" style="width:55px;">
+                    <img class="center-block img-responsive" src="/assets/images/logo_b.svg" alt="[ CLA - assistant ]" style="width:55px;">
                 </a>
             </div>
         </div>
