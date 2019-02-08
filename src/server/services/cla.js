@@ -438,7 +438,9 @@ module.exports = function () {
             args.orgId = item.orgId;
             args.onDates = [new Date()];
 
-            if (!args.gist) return ({ signed: true });
+            if (!args.gist) { 
+                return ({ signed: true });
+            }
 
             const gist = await getGistObject(args.gist, item.token);
             if (!gist) {
