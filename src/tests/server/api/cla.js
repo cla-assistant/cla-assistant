@@ -500,19 +500,28 @@ describe('', function () {
             sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
         });
 
-        xit('should update status of all open pull requests for the repo if user model has no requests stored', async function () {
+        it('should update status of all open pull requests for the repo if user model has no requests stored', async function () {
             testUser.requests = undefined;
+            this.timeout(100);
+            try {
+                const res = await cla_api.sign(req);
 
-            const res = await cla_api.sign(req);
-
-            assert.ok(res);
-            sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
-            assert(github.call.calledWithMatch({
-                obj: 'pullRequests',
-                fun: 'getAll'
-            }));
-            assert(prService.editComment.called);
-            assert.equal(statusService.update.callCount, 2);
+                return new Promise((resolve) => {
+                    setTimeout(function () {
+                        assert.ok(res);
+                        sinon.assert.calledWithMatch(cla.sign, expArgs.claSign);
+                        assert(github.call.calledWithMatch({
+                            obj: 'pullRequests',
+                            fun: 'getAll'
+                        }));
+                        assert(prService.editComment.called);
+                        assert.equal(statusService.update.callCount, 2);
+                        resolve();
+                    }, 50);
+                });
+            } catch (e) {
+                assert.ifError(e);
+            }
         });
 
         it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', async function () {
