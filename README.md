@@ -132,12 +132,12 @@ The following are the environment variables you have to configure to run a priva
 
 - `HOST`: This should only set the hostname of your CLA assistant instance (without the protocol).
 - `PORT`: The local port to bind to. Defaults to 5000.
-- `HOST_PORT`: You can set the port of your hosted CLA assistant instance here (in case your instnce doesn't use standard http ports like 80 or 443).
+- `HOST_PORT`: You can set the port of your hosted CLA assistant instance here (in case your instance doesn't use standard http ports like 80 or 443).
 - `PROTOCOL`: Valid options are "http" or "https".
 - `GITHUB_CLIENT`: From your registered application in GitHub.
 - `GITHUB_SECRET`: From your registered application in GitHub.
 - `GITHUB_USER`: For CLA assistant to comment on pull requests, it requires a GitHub account.
-- `GITHUB_PASS`: Use CLA assistant's user and password for basic authentication (where github_token doesn't work). Use the GITHUB_TOKEN value here in addition to setting GITHUB_TOKEN envirnonment when using github token authentication.
+- `GITHUB_PASS`: Use CLA assistant's user and password for basic authentication (where github_token doesn't work). Use the GITHUB_TOKEN value here in addition to setting GITHUB_TOKEN environment when using github token authentication.
 - `GITHUB_TOKEN`: Use GitHub token of CLA assistant's user for API calls of not authenticated users. It can be generated here https://github.com/settings/tokens/new. The Only scope required is `public_repo`.
 - `GITHUB_ADMIN_USERS`: (optional, comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.
 - `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.

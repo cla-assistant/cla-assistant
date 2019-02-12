@@ -6,7 +6,7 @@ let testUserPass = process.env.TEST_USER_PASS
 Feature('Authorize claowner1')
 
 
-Scenario('Autorize cla assistant for claowner1', (I) => {
+Scenario('Authorize cla assistant for claowner1', (I) => {
     github.login(I, testUserName, testUserPass)
     I.amOnPage('https://preview.cla-assistant.io/')
     I.click('Sign in')

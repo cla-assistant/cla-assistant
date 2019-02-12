@@ -13,7 +13,7 @@ You can help CLA Assistant by helping others who use it and need support.
 ## Analyze Issues
 
 Analyzing issue reports can be a lot of effort. Any help is welcome!
-Go to [the Github issue tracker](https://github.com/cla-assistant/cla-assistant/issues?state=open) and find an open issue which needs additional work or a bugfix (e.g. issues labeled with "help wanted" or "bug").
+Go to [the GitHub issue tracker](https://github.com/cla-assistant/cla-assistant/issues?state=open) and find an open issue which needs additional work or a bugfix (e.g. issues labeled with "help wanted" or "bug").
 
 Additional work could include any further information, or a gist, or it might be a hint that helps understanding the issue. Maybe you can even find and [contribute](#contribute-code) a bugfix?
 
@@ -22,7 +22,7 @@ Additional work could include any further information, or a gist, or it might be
 If you find a bug - behavior of CLA Assistant code contradicting your expectation - you are welcome to report it.
 We can only handle well-reported, actual bugs, so please follow the guidelines below.
 
-Once you have familiarized with the guidelines, you can go to the [Github issue tracker for CLA Assistant](https://github.com/cla-assistant/cla-assistant/issues/new) to report the issue.
+Once you have familiarized with the guidelines, you can go to the [GitHub issue tracker for CLA Assistant](https://github.com/cla-assistant/cla-assistant/issues/new) to report the issue.
 
 ### Quick Checklist for Bug Reports
 
@@ -52,7 +52,7 @@ Also refer to the general [SAP security information page](https://www.sap.com/co
 
 ### Usage of Labels
 
-Github offers labels to categorize issues. We defined the following labels so far:
+GitHub offers labels to categorize issues. We defined the following labels so far:
 
 Labels for issue categories:
  * bug: this issue is a bug in the code
@@ -82,7 +82,7 @@ You are welcome to contribute code to CLA Assistant in order to fix bugs or to i
 There are three important things to know:
 
 1.  You must be aware of the Apache License (which describes contributions) and **agree to the Contributors License Agreement**. This is common practice in all major Open Source projects. 
- For company contributers special rules apply. See the respective section below for details.
+ For company contributors special rules apply. See the respective section below for details.
 2.  There are **several requirements regarding code style, quality, and product standards** which need to be met (we also have to follow them). The respective section below gives more details on the coding guidelines.
 3.  **Not all proposed contributions can be accepted**. Some features may e.g. just fit a third-party add-on better. The code must fit the overall direction of CLA Assistant and really improve it. The more effort you invest, the better you should clarify in advance whether the contribution fits: the best way would be to just open an issue to discuss the feature you plan to implement (make it clear you intend to contribute).
 
@@ -126,7 +126,7 @@ These are some of the rules we try to follow:
 4.  In the commit message 
  - Describe the problem you fix with this change.
  - Describe the effect that this change has from a user's point of view. App crashes and lockups are pretty convincing for example, but not all bugs are that obvious and should be mentioned in the text.
- - describe the technical details of what you changed. It is important to describe the change in a most understandable way so the reviewer is able to verify that the code is behaving as you intend it to.
+ - Describe the technical details of what you changed. It is important to describe the change in a most understandable way so the reviewer is able to verify that the code is behaving as you intend it to.
 5.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
     - ```Fixes #(issueNumber)```
     - Do NOT add a colon after "Fixes" - this prevents automatic closing.

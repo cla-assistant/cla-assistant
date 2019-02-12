@@ -1,4 +1,4 @@
-/*jshiint expr:true*/
+/*jshint expr:true*/
 /*sinon, describe, xit, it, beforeEach, afterEach*/
 var utils, testData;
 

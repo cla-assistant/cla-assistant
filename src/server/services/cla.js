@@ -535,7 +535,7 @@ module.exports = function () {
                     argsToCreate.repo = item.repo;
                 }
                 if (!argsToCreate.origin) {
-                    logger.error(new Error('uknown origin of the signature'));
+                    logger.error(new Error('unknown origin of the signature'));
                     argsToCreate.origin = `unknown|${args.user}`;
                 }
 

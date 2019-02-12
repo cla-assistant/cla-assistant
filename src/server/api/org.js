@@ -128,7 +128,7 @@ module.exports = {
                     try {
                         done(res.message || body.errors[0].message);
                     } catch (error) {
-                        done('Error occured by getting users organizations');
+                        done('Error occurred by getting users organizations');
                     }
                 }
 

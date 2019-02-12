@@ -106,7 +106,7 @@ describe('', function () {
                 getGist: null,
             },
             github: {
-                pullReqest: null,
+                pullRequest: null,
                 markdown: null,
                 user: null
             },
@@ -137,7 +137,7 @@ describe('', function () {
             if (args.obj === 'pullRequests') {
                 assert(args.token);
 
-                cb(error.github.pullReqest, resp.github.callPullRequest);
+                cb(error.github.pullRequest, resp.github.callPullRequest);
             } else if (args.obj === 'misc') {
                 cb(error.github.markdown, resp.github.callMarkdown);
             } else if (args.obj === 'users') {
@@ -344,7 +344,7 @@ describe('', function () {
             it('should handle error stored in response message', function (it_done) {
                 resp.github.callMarkdown = {
                     statusCode: 500,
-                    message: 'somthing went wrong, e.g. user revoked access rights'
+                    message: 'something went wrong, e.g. user revoked access rights'
                 };
                 error.github.markdown = null;
                 cla_api.get(req, function (err) {
@@ -922,7 +922,7 @@ describe('', function () {
             });
         });
 
-        it('it should handle unexisting gist', function (it_done) {
+        it('it should handle nonexistent gist', function (it_done) {
             resp.cla.getGist = null;
 
             cla_api.countCLA(req, function (err) {
