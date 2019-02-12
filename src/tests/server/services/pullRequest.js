@@ -352,7 +352,7 @@ describe('pullRequest:getComment', function () {
         github.call.restore();
     });
 
-    it('should get CLA assistant_s commment', function (it_done) {
+    it('should get CLA assistant_s comment', function (it_done) {
 
         let args = {
             repo: 'myRepo',

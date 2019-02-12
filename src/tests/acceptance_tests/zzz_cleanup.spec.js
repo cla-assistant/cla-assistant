@@ -14,7 +14,7 @@ Scenario('cleanup CLA assistant', (I) => {
     cla.removeLinkedRepo(I, testUserName, 'repo2')
 })
 
-Scenario('cleanup Github', (I) => {
+Scenario('cleanup GitHub', (I) => {
     session('owner', () => {
         github.login(I, testUserName, testUserPass)
         github.deleteRepo(I, testUserName, 'repo1')

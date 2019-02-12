@@ -50,7 +50,7 @@
         },
         "githubKey": {
           "type": "string",
-          "description": "Data of github user profile can be used to prefill the form. GithubKey refers to the response of the github api https://developer.github.com/v3/users/#get-a-single-user"
+          "description": "Data of github user profile can be used to prefill the form. This refers to the response of the github api https://developer.github.com/v3/users/#get-a-single-user"
         }
       },
       "anyOf": [{

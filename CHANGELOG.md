@@ -30,7 +30,7 @@
 **New features:**
 - add edit screen for linked repos and orgs
 - provide a possibility to whitelist committers [\#173](https://github.com/cla-assistant/cla-assistant/issues/173), [\#232](https://github.com/cla-assistant/cla-assistant/issues/232), [\#197](https://github.com/cla-assistant/cla-assistant/issues/197)
-- add origin flag to the signatures in order to differentiate between signatures made via CLA Assistant tool, imported signatures and signatures comming via API 
+- add origin flag to the signatures in order to differentiate between signatures made via CLA Assistant tool, imported signatures and signatures coming via API 
 - provide a possibility to import signature date and custom fields in addition to github user names [\#328](https://github.com/cla-assistant/cla-assistant/issues/328)
 - project owners can provide a link to their privacy policy and obtain user consent before signing the CLA [\#329](https://github.com/cla-assistant/cla-assistant/issues/329)
 
@@ -73,7 +73,7 @@
 
 **Fixed bugs:**
 - add null check on commits returned by graphAPI - Anton Kharitonov
-- don't use pagination in api/cla, github servise loads all pages per default - Anton Kharitonov
+- don't use pagination in api/cla, github service loads all pages per default - Anton Kharitonov
 - fix validation org repos - don't break the app if linked repo doesn't have a repoId - Anton Kharitonov
 
 **New features:**
@@ -83,14 +83,14 @@
 
 **Fixed bugs:**
 
-- don't use pagination in api/cla, github servise loads all pages per default
+- don't use pagination in api/cla, github service loads all pages per default
 - add null check on commits returned by graphAPI
 
 ## [v1.4.0](https://github.com/cla-assistant/cla-assistant/tree/v1.4.0) (2018-01-10)
 **Fixed bugs:**
 
 - Checker stuck on "Waiting for status to be reported" [\#303](https://github.com/cla-assistant/cla-assistant/issues/303)
-- Unable to import csv file containing github usernames of contributers who have already signed the CLA.  [\#188](https://github.com/cla-assistant/cla-assistant/issues/188)
+- Unable to import csv file containing github usernames of contributors who have already signed the CLA.  [\#188](https://github.com/cla-assistant/cla-assistant/issues/188)
 - CLA status shows up as Pending incorrectly [\#150](https://github.com/cla-assistant/cla-assistant/issues/150)
 - CLA-Assistant integration not working [\#122](https://github.com/cla-assistant/cla-assistant/issues/122)
 - Status not updated after adopting commit email [\#113](https://github.com/cla-assistant/cla-assistant/issues/113)
@@ -146,7 +146,7 @@
 - Changing the URL of the gist containing the CLA [\#223](https://github.com/cla-assistant/cla-assistant/issues/223)
 - Action required: Greenkeeper could not be activated 🚨 [\#221](https://github.com/cla-assistant/cla-assistant/issues/221)
 - URGENT! 404 Not Found: Requested route \('cla-assistant.io'\) does not exist. [\#220](https://github.com/cla-assistant/cla-assistant/issues/220)
-- Getting double notifications on Github [\#218](https://github.com/cla-assistant/cla-assistant/issues/218)
+- Getting double notifications on GitHub [\#218](https://github.com/cla-assistant/cla-assistant/issues/218)
 - CLA appears as not signed [\#217](https://github.com/cla-assistant/cla-assistant/issues/217)
 - Change license  [\#215](https://github.com/cla-assistant/cla-assistant/issues/215)
 - cla email invalid [\#214](https://github.com/cla-assistant/cla-assistant/issues/214)
@@ -167,7 +167,7 @@
 - Problem with signing CLA after changing username/email [\#186](https://github.com/cla-assistant/cla-assistant/issues/186)
 - CLAassistant thinks CLA isn't signed, yet it is [\#185](https://github.com/cla-assistant/cla-assistant/issues/185)
 - Sign CLA for entire organization  [\#184](https://github.com/cla-assistant/cla-assistant/issues/184)
-- Page says I've accepted, badge on Github says I haven't [\#181](https://github.com/cla-assistant/cla-assistant/issues/181)
+- Page says I've accepted, badge on GitHub says I haven't [\#181](https://github.com/cla-assistant/cla-assistant/issues/181)
 - Phone number field should not be a input type=number [\#180](https://github.com/cla-assistant/cla-assistant/issues/180)
 - Just can't get a check to pass [\#179](https://github.com/cla-assistant/cla-assistant/issues/179)
 - Capture email address, address etc [\#178](https://github.com/cla-assistant/cla-assistant/issues/178)
@@ -244,7 +244,7 @@
 - CLA status reporting not working [\#77](https://github.com/cla-assistant/cla-assistant/issues/77)
 - Badge for CLA assistant [\#76](https://github.com/cla-assistant/cla-assistant/issues/76)
 - Add screenshots to marketing page [\#75](https://github.com/cla-assistant/cla-assistant/issues/75)
-- CLA Commiter's List Not Updated After Rebase/Force Push [\#74](https://github.com/cla-assistant/cla-assistant/issues/74)
+- CLA Committer's List Not Updated After Rebase/Force Push [\#74](https://github.com/cla-assistant/cla-assistant/issues/74)
 - CLA disappeared for cockroachdb/cockroach [\#71](https://github.com/cla-assistant/cla-assistant/issues/71)
 - Use separate repo for CLA + list of signees [\#70](https://github.com/cla-assistant/cla-assistant/issues/70)
 - After I've successfully signed the CLA still get "not signed yet" [\#68](https://github.com/cla-assistant/cla-assistant/issues/68)
@@ -311,7 +311,7 @@
 - Add "Table of Contents" of README to improve readability [\#284](https://github.com/cla-assistant/cla-assistant/pull/284) ([PeterDaveHello](https://github.com/PeterDaveHello))
 - Multiple changes to enable bigger repo scale [\#275](https://github.com/cla-assistant/cla-assistant/pull/275) ([MichaelTsengLZ](https://github.com/MichaelTsengLZ))
 - change settings via probot [\#271](https://github.com/cla-assistant/cla-assistant/pull/271) ([thojansen](https://github.com/thojansen))
-- add commiters automatically to team [\#270](https://github.com/cla-assistant/cla-assistant/pull/270) ([thojansen](https://github.com/thojansen))
+- add committers automatically to team [\#270](https://github.com/cla-assistant/cla-assistant/pull/270) ([thojansen](https://github.com/thojansen))
 - probot integration to ask for more info on pr or issue [\#269](https://github.com/cla-assistant/cla-assistant/pull/269) ([thojansen](https://github.com/thojansen))
 - add probot for stale/ inactive issues [\#268](https://github.com/cla-assistant/cla-assistant/pull/268) ([thojansen](https://github.com/thojansen))
 - \[Snyk Update\] New fixes for 8 vulnerable dependency paths [\#262](https://github.com/cla-assistant/cla-assistant/pull/262) ([snyk-bot](https://github.com/snyk-bot))
@@ -357,4 +357,4 @@
 
 
 
-\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
+\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/GitHub-Changelog-Generator)*

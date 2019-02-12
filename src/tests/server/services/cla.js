@@ -1057,7 +1057,7 @@ describe('cla:sign', function () {
         assert.equal(CLA.create.called, false);
     });
 
-    it('should report error if error occours on DB', async function () {
+    it('should report error if error occurs on DB', async function () {
         testErr.claCreate = 'any DB error';
         testRes.claCreate = null;
 

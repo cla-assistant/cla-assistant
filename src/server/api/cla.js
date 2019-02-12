@@ -373,7 +373,7 @@ let ClaApi = {
 
 
     //Get list of signed CLAs for all repos the authenticated user has contributed to
-    //Prameters: none (user should be taken)
+    //Parameters: none (user should be taken)
     getSignedCLA: function (req, done) {
         cla.getSignedCLA(req.args, done);
     },
@@ -387,7 +387,7 @@ let ClaApi = {
         cla.getLastSignature(args, done);
     },
 
-    //Fihnd linked item using reponame and owner as parameters
+    //Find linked item using reponame and owner as parameters
     // Params:
     // repo (mandatory)
     // owner (mandatory)
@@ -480,7 +480,7 @@ let ClaApi = {
                     },
                     user: req.user
                 };
-                //try to avoid rasing githubs abuse rate limit:
+                //try to avoid raising githubs abuse rate limit:
                 //take 1 second per repo and wait 10 seconds after each 10th repo
                 setTimeout(function () {
                     log.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo);
