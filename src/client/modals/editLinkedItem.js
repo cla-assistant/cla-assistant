@@ -24,6 +24,15 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
             windowClass: 'howto'
         });
     };
+
+    $scope.whitelistInfo = function () {
+        $modal.open({
+            templateUrl: '/modals/templates/whitelist_info.html',
+            controller: 'InfoCtrl',
+            windowClass: 'howto'
+        });
+    };
+
     $scope.ok = function () {
         $scope.selected.item.gist = $scope.selected.gist.url;
         linkItemService.updateLink($scope.selected.item).then(function success(data) {
