@@ -1,11 +1,41 @@
 <div class="modal-body modal-primary">
-    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+  <div ng-click="cancel()" class="fa fa-times close-button"></div>
 
-    <div class="free-space">
-        <h4>How does whitelisting work?</h4>
-        <div>
-                If a GitHub username is included in the whitelist, they will not be required to sign a CLA. This also applies to organization usernames.
-        </div>
+  <div class="free-space">
+    <h4>How does whitelisting work?</h4>
+    <div>
+      If a GitHub username is included in the whitelist, they will not be
+      required to sign a CLA. This also applies to organization usernames.
     </div>
-
+    <h4>Why whitelist usernames?</h4>
+    <div>
+      Since there's no way for bot users (such as Dependabot or Greenkeeper) to
+      sign a CLA, you may want to whitelist them. You can do so by adding their
+      names (in this case <i>dependabot[bot]</i> and
+      <i>greenkeeper[bot]</i> separated by a comma) to the whitelist. You can
+      also use wildcard symbol in case you want to whitelist all bot users
+      <i>*[bot]</i>.
+    </div>
+    <h4>Why whitelist organizations?</h4>
+    <div>
+      We see at least two use cases you may want to do so:
+      <ul>
+        <li>
+          You develop in a team and commit your changes via feature branches. As
+          soon you create a new pull request CLA assistant would ask you and
+          your team fellows to sign a CLA even if you are part of the
+          organization and doesn't need to do so. Now if you whitelist your own
+          organization name all pull requests coming from the same repository
+          will pass the CLA check.
+        </li>
+        <li>
+          You get contributions from another company which has already signed
+          your corporate CLA. You may want to let CLA assistant accept all PRs
+          coming from this company. Now you can whitelist the GitHub
+          organization name of this company and all pull requests coming from
+          this GitHub organization (i.e., from that organization's fork) will pass the check.
+        </li>
+      </ul>
+    </div>
+  </div>
 </div>
