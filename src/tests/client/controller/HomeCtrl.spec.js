@@ -9,7 +9,7 @@ describe('Home Controller', function () {
         'owner': {
             'login': 'octocat',
             'id': 1,
-            'avatarUrl': 'https://github.com/images/error/octocat_happy.gif',
+            'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
             'gravatar_id': '',
             'url': 'https://api.github.com/users/octocat',
             'html_url': 'https://github.com/octocat',
@@ -69,7 +69,7 @@ describe('Home Controller', function () {
         'owner': {
             'login': 'octocat',
             'id': 1,
-            'avatarUrl': 'https://github.com/images/error/octocat_happy.gif',
+            'avatar_url': 'https://github.com/images/error/octocat_happy.gif',
             'gravatar_id': '',
             'url': 'https://api.github.com/users/octocat',
             'html_url': 'https://github.com/octocat',
