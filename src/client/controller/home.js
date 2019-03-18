@@ -48,6 +48,11 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             $window.location.href = '/auth/github';
         };
 
+        var nullCla = {
+            name: 'No CLA',
+            url: null
+        };
+
         var mixOrgData = function (claOrg) {
             $scope.orgs.some(function (org) {
                 if (org.id == claOrg.orgId) {
@@ -150,7 +155,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                     $scope.gists = $scope.gists.concat($scope.defaultClas);
                 });
             }
-            $scope.gists = $scope.defaultClas.concat([]);
+            $scope.gists = $scope.defaultClas.concat([nullCla]);
 
             $HUBService.call('gists', 'getAll').then(function (data) {
                 if (data && data.value) {
@@ -468,10 +473,6 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
         };
 
         var handleNullCla = function (item) {
-            var nullCla = {
-                name: 'No CLA',
-                url: null
-            };
             var clearDropdown = function (item) {
                 if (item && $scope.isRepo(item)) {
                     if (!$scope.gists.some(function (cla) {

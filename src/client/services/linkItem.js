@@ -8,7 +8,7 @@ module.factory('linkItemService', ['$RPCService',
                 options = item;
             }
             var newItem = {
-                gist: options.gist.url || options.gist,
+                gist: options.gist.url,
                 sharedGist: options.sharedGist,
                 whiteListPattern: options.whiteListPattern,
                 minFileChanges: options.minFileChanges,
