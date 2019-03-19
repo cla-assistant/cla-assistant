@@ -1,5 +1,22 @@
 # Change Log
 
+## [v1.9.0](https://github.com/cla-assistant/cla-assistant/tree/v1.9.0) (2019-03-19)
+
+**Merged pull requests:**
+- Rename avatarUrl to avatar_url for users call [\#423](https://github.com/cla-assistant/cla-assistant/pull/423) ([Serg046](https://github.com/Serg046))
+
+- Check HEAD branch organization user [\#410](https://github.com/cla-assistant/cla-assistant/pull/410) ([tim-mc](https://github.com/tim-mc))
+
+- improve handling of noscript [\#408](https://github.com/cla-assistant/cla-assistant/pull/408) ([jsoref](https://github.com/jsoref))
+
+- improve spelling [\#407](https://github.com/cla-assistant/cla-assistant/pull/407) ([jsoref](https://github.com/jsoref))
+
+- upgrade dependencies [\#385](https://github.com/cla-assistant/cla-assistant/pull/385) ([michael-spengler](https://github.com/michael-spengler))
+
+**Fixed bugs:**
+
+- remove plain text notification token
+
 ## [v1.8.4](https://github.com/cla-assistant/cla-assistant/tree/v1.8.4) (2018-10-22)
 
 **Fixed bugs:**
