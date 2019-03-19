@@ -239,5 +239,20 @@ return deferred.promise;
                 it_done();
             });
         });
+
+        it('should return message when org is not found', function (it_done) {
+            req = {
+                args: {
+                    org: 'org',
+                    orgId: 1
+                }
+            };
+            testRes.org.remove = undefined;
+            org_api.remove(req, (err, msg) => {
+                assert.ifError(err);
+                assert(msg);
+                it_done();
+            });
+        });
     });
 });
