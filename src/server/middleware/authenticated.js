@@ -36,6 +36,15 @@ function authenticateForExternalApi(req, res, next) {
 }
 
 function authenticateForAdminOnlyApi(req, res, next) {
+    if (config.server.github.adminToken) {
+        return passport.authenticate('specialToken', { session: false }, (err, user) => {
+            if (err) {
+                return res.status(401).json({ message: 'Incorrect token credentials' });
+            }
+            req.user = user;
+            return next();
+        })(req, res);
+    }
     passport.authenticate('token', { session: false }, function (err, user) {
         if (err) {
             return next(err);
