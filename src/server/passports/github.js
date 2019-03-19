@@ -84,14 +84,11 @@ passport.use(new Strategy({
         //     upsert: true
         // }, function () {});
 
-        if (params.scope.indexOf('write:repo_hook') >= 0) {
+        if (params.scope.indexOf('write:repo_hook') >= 0 && !config.server.github.adminToken) {
             repoService.getUserRepos({
                 token: accessToken
             }, function (err, res) {
                 if (res && res.length > 0) {
-                    if (config.server.github.adminToken) {
-                        return;
-                    }
                     res.forEach(function (repo) {
                         checkToken(repo, accessToken);
                     });
