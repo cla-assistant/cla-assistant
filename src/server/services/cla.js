@@ -74,6 +74,8 @@ module.exports = function () {
                 signed: all_signed,
                 user_map: user_map
             });
+        }).catch(err => {
+            deferred.reject(err);
         });
 
         return deferred.promise;
