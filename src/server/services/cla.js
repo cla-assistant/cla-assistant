@@ -340,7 +340,7 @@ module.exports = function () {
 
             return false;
         } catch (e) {
-            this.logger.error(new Error(e).stack);
+            logger.error(new Error(e).stack);
 
             return true;
         }
