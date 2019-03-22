@@ -438,7 +438,7 @@ module.exports = function () {
             args.orgId = item.orgId;
             args.onDates = [new Date()];
 
-            if (!args.gist) { 
+            if (!args.gist) {
                 return ({ signed: true });
             }
 
@@ -483,12 +483,12 @@ module.exports = function () {
 
             if (committerSignatureRequired) {
                 try {
-                    const committers = await new Promise((resolve) => {
+                    const committers = await new Promise((resolve, reject) => {
                         repoService.getPRCommitters(args, function (error, committers) {
                             if (error) {
                                 logger.warn(new Error(error).stack);
                                 if ((!signees || signees.length < 1) && (!committers || committers.length < 1)) {
-                                    throw new Error(error);
+                                    reject(new Error(error));
                                 }
                             }
                             resolve(committers);
