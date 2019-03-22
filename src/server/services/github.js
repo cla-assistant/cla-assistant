@@ -1,189 +1,108 @@
-let q = require('q');
-let request = require('request');
+const request = require('request');
 
-let cache = require('memory-cache');
-let config = require('../../config');
-let GitHubApi = require('github');
-let stringify = require('json-stable-stringify');
-let logger = require('../services/logger');
+const cache = require('memory-cache');
+const config = require('../../config');
+const Octokit = require('@octokit/rest')
+    .plugin(require('@octokit/plugin-throttling'))
+    .plugin(require('@octokit/plugin-retry'));
+const stringify = require('json-stable-stringify');
+const logger = require('../services/logger');
 
-
-// let githubApi;
-
-function callGithub(github, obj, fun, arg, stringArgs, done) {
-    let cacheKey = stringArgs;
-    let cachedRes = arg.noCache ? null : cache.get(cacheKey);
+async function callGithub(octokit, obj, fun, arg, cacheKey) {
+    const cachedRes = arg.noCache ? null : cache.get(cacheKey);
     delete arg.noCache;
-    if (cachedRes && config.server.cache_time > 0 && typeof done === 'function') {
-        if (cachedRes.meta) {
-            cachedRes.data.meta = cachedRes.meta;
-        }
-        done(null, cachedRes.data);
-
-        return;
+    if (cachedRes && config.server.cache_time > 0) {
+        return cachedRes
     }
-    github[obj][fun](arg, function (err, res) {
-        if (res && !res.message && config.server.cache_time > 0) {
-            cache.put(cacheKey, {
-                data: res,
-                meta: res && res.meta ? res.meta : undefined
-            }, 60000 * config.server.cache_time);
-        }
-
-        if (typeof done === 'function') {
-            done(err, res);
-            // cacheMissCount++;
-        }
-    });
-}
-
-function concatData(collection, chunk) {
-    if (chunk) {
-        collection = collection ? collection : chunk instanceof Array ? [] : {};
-        collection = chunk instanceof Array ? collection.concat(chunk) : chunk;
+    let res
+    if (fun.match(/list.*/g)) {
+        const options = octokit[obj][fun].endpoint.merge(arg)
+        res = await octokit.paginate(options)
+    } else {
+        res = await octokit[obj][fun](arg)
     }
 
-    return collection;
+    if (res && config.server.cache_time > 0) {
+        cache.put(cacheKey, {
+            data: res,
+            headers: res && res.headers ? res.headers : undefined
+        }, 60000 * config.server.cache_time);
+    }
+    return res;
 }
 
-function newGithubApi() {
-    // githubApi = githubApi ? githubApi : new GitHubApi({
-    let githubApi = new GitHubApi({
+function newOctokit(auth) {
+    return new Octokit({
+        auth,
         protocol: config.server.github.protocol,
         version: config.server.github.version,
         host: config.server.github.api,
-        pathPrefix: config.server.github.enterprise ? '/api/v3' : null
-    });
+        pathPrefix: config.server.github.enterprise ? '/api/v3' : null,
+        throttle: {
+            onRateLimit: (retryAfter, options) => {
+                octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`)
 
-    return githubApi;
+                if (options.request.retryCount === 0) { // only retries once
+                    logger.info(`Retrying after ${retryAfter} seconds!`)
+                    return true
+                }
+            },
+            onAbuseLimit: (retryAfter, options) => {
+                // does not retry, only logs a warning
+                octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`)
+            }
+        }
+    });
 }
 
 
 let githubService = {
     resetList: {},
 
-    call: function (call, done) {
+    call: async function (call, done) {
         let arg = call.arg || {};
-        let basicAuth = call.basicAuth;
-        let data = null;
-        let deferred = q.defer();
-        let fun = call.fun;
-        let obj = call.obj;
-        let token = call.token;
+        const basicAuth = call.basicAuth;
+        const fun = call.fun;
+        const obj = call.obj;
+        const token = call.token;
 
         let argWithoutNoCache = Object.assign({}, arg);
         delete argWithoutNoCache.noCache;
 
-        let stringArgs = stringify({
+        const stringArgs = stringify({
             obj: call.obj,
             fun: call.fun,
             arg: argWithoutNoCache,
             token: call.token
         });
-        let github = newGithubApi();
 
-        function collectData(err, res) {
-            data = res && res.data ? concatData(data, res.data) : data;
-
-            let meta = {};
-            try {
-                meta.link = res.meta.link;
-                // meta.hasMore = !!meta.link && !!github.hasNextPage(res.meta.link);
-                meta.hasMore = !!meta.link && !!github.hasNextPage(res.meta);
-                meta.scopes = res.meta['x-oauth-scopes'];
-                if (res.meta['x-ratelimit-remaining'] < 100) {
-                    setRateLimit(call.token, res.meta['x-ratelimit-reset']);
-                    logger.info('rate limit exceeds for ', call);
-                }
-                delete res.meta;
-            } catch (ex) {
-                meta = null;
-            }
-
-            if (meta && meta.hasMore) {
-                try {
-                    github.getNextPage(meta, collectData);
-                } catch (error) {
-                    logger.error(new Error('Could not get next page ' + error).stack);
-                    if (typeof done === 'function') {
-                        done(err, data, meta);
-                    }
-                    deferred.resolve({
-                        data: data,
-                        meta: meta
-                    });
-                }
-            } else {
-                if (typeof done === 'function') {
-                    done(err, data, meta);
-                }
-                deferred.resolve({
-                    data: data,
-                    meta: meta
-                });
-            }
-        }
-
-        function reject(error) {
-            deferred.reject(error);
-            if (typeof done === 'function') {
-                done(error);
-            }
-        }
-
-        if (!obj || !github[obj]) {
-            reject('obj required/obj not found');
-
-            return deferred.promise;
-        }
-
-        if (!fun || !github[obj][fun]) {
-            reject('fun required/fun not found');
-
-            return deferred.promise;
-        }
-
+        let auth;
         if (token) {
-            github.authenticate({
-                type: 'oauth',
-                token: token
-            });
+            auth = `token ${token}`;
         }
 
         if (basicAuth) {
-            github.authenticate({
-                type: 'basic',
+            auth = {
                 username: basicAuth.user,
                 password: basicAuth.pass
-            });
+            };
+        }
+        const octokit = newOctokit(auth)
+
+        if (!obj || !octokit[obj]) {
+            throw 'obj required/obj not found'
         }
 
-        setTimeout(function () {
-            callGithub(github, obj, fun, arg, stringArgs, collectData);
-        }, getRateLimitTime(token));
-
-        return deferred.promise;
+        if (!fun || !octokit[obj][fun]) {
+            throw 'fun required/fun not found'
+        }
+        try {
+            return callGithub(octokit, obj, fun, arg, stringArgs)
+        } catch (error) {
+            logger.info(`${error} - Error on callGithub.${obj}.${fun} with args ${arg}.`);
+            throw new Error(error)
+        }
     },
-
-    hasNextPage: function (meta) {
-        let github = newGithubApi();
-
-        return github.hasNextPage(meta);
-    },
-
-    getNextPage: function (meta, cb) {
-        let github = newGithubApi();
-
-        return github.getNextPage(meta, cb);
-    },
-
-    // getCacheData: function () {
-    //     return {
-    //         hit: cacheHitCount,
-    //         miss: cacheMissCount,
-    //         currentSize: cache.size()
-    //     };
-    // }
 
     callGraphql: function (query, token, cb) {
         request.post({
@@ -195,28 +114,6 @@ let githubService = {
             body: query
         }, cb);
     }
-};
-
-function getRateLimitTime(token) {
-    let remainingTime = githubService.resetList[token] ? githubService.resetList[token] - Date.now() : 0;
-
-    return Math.max(remainingTime, 0);
-}
-
-function removeRateLimit(token) {
-    try {
-        delete githubService.resetList[token];
-    } catch (e) {
-        logger.debug(e.stack);
-    }
-}
-
-function setRateLimit(token, limit) {
-    githubService.resetList[token] = limit * 1000;
-    let remainingTime = (limit * 1000) - Date.now();
-    setTimeout(function () {
-        removeRateLimit(token);
-    }, remainingTime);
 }
 
 module.exports = githubService;
