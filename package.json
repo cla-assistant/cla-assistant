@@ -52,7 +52,6 @@
         "q": "^1.5.1",
         "raven": "^2.6.4",
         "request": "^2.88.0",
-        "snyk": "^1.136.2",
         "socket.io": "^2.2.0",
         "valid-url": "^1.0.9",
         "x-frame-options": "^1.0.0"
@@ -94,10 +93,6 @@
         "start": "node app.js",
         "postinstall": "bower install",
         "test": "mocha",
-        "acceptance_test": "source .env && npx codeceptjs run",
-        "snyk-monitor": "snyk auth $SNYK_TOKEN && snyk monitor",
-        "snyk-protect": "snyk protect",
-        "prepublish": "npm run snyk-protect"
-    },
-    "snyk": true
+        "acceptance_test": "source .env && npx codeceptjs run"
+    }
 }
