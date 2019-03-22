@@ -112,7 +112,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
             };
 
-            return $HUBService.call('users', 'get', {}, function (err, res) {
+            return $HUBService.call('users', 'getAuthenticated', {}, function (err, res) {
                 if (err) {
                     return;
                 }

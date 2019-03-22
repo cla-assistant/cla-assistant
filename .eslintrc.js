@@ -59,7 +59,6 @@ module.exports = {
             "single"
         ],
         "valid-typeof": "warn",
-        "semi": "error",
         "semi-spacing": "warn",
         "space-infix-ops": "warn",
         "yoda": [

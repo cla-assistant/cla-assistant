@@ -194,7 +194,7 @@ describe('Home Controller', function () {
                 error = getAllReposError ? getAllReposError : null;
                 args.affiliation.indexOf('owner').should.be.above(-1);
                 args.affiliation.indexOf('organization_member').should.be.above(-1);
-            } else if (obj === 'users' && fun === 'get') {
+            } else if (obj === 'users' && fun === 'getAuthenticated') {
                 response = expRes.HUB.getUser;
                 error = expErr.HUB.getUser || null;
             } else {
