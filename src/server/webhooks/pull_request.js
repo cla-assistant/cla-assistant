@@ -15,37 +15,33 @@ const promiseDelay = require('../util').promiseDelay;
 // GitHub Pull Request Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-function storeRequest(committers, repo, owner, number, done) {
-    committers.forEach(function (committer) {
-        User.findOne({ name: committer }, (err, user) => {
-            if (err) {
-                done(err);
-            }
-            let pullRequest = { repo: repo, owner: owner, numbers: [number] };
-            if (!user) {
-                return User.create({ name: committer, requests: [pullRequest] }, done);
-            }
-            if (!user.requests || user.requests.length < 1) {
-                user.requests = user.requests ? user.requests : [];
-                user.requests.push(pullRequest);
+function storeRequest(committers, repo, owner, number) {
+    return Promise.all(committers.map(async committer => {
+        const [ user ] = await promisify(User.findOne.bind(User))({ name: committer });
+        const pullRequest = { repo: repo, owner: owner, numbers: [number] };
+        if (!user) {
+            return promisify(User.create.bind(User))({ name: committer, requests: [pullRequest] });
+        }
+        if (!user.requests || user.requests.length < 1) {
+            user.requests = user.requests ? user.requests : [];
+            user.requests.push(pullRequest);
 
-                return user.save(done);
-            }
-            let repoPullRequests = user.requests.find((request) => {
-                return request.repo === repo && request.owner === owner;
-            });
-            if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
-                repoPullRequests.numbers.push(number);
-
-                return user.save(done);
-            }
-            if (!repoPullRequests) {
-                user.requests.push(pullRequest);
-
-                return user.save(done);
-            }
+            return user.save();
+        }
+        const repoPullRequests = user.requests.find((request) => {
+            return request.repo === repo && request.owner === owner;
         });
-    });
+        if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
+            repoPullRequests.numbers.push(number);
+
+            return user.save();
+        }
+        if (!repoPullRequests) {
+            user.requests.push(pullRequest);
+
+            return user.save();
+        }
+    }));
 }
 
 async function updateStatusAndComment(args) {
