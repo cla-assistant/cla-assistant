@@ -166,6 +166,8 @@ module.exports = async function (req, res) {
                 logger.error(err, 'CLAAssistantHandleWebHookFail', { owner: args.owner, repo: args.repo, number: args.number });
             }
         }
+    } else {
+        res.status(200).send('OK');
     }
 };
 
