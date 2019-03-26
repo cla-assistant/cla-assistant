@@ -1,5 +1,11 @@
 # Change Log
 
+## [v1.9.1](https://github.com/cla-assistant/cla-assistant/tree/v1.9.1) (2019-03-26)
+
+**Fixed bugs:**
+- use reject instead of throw in services/cla.js
+- access logger without 'this.' in services/cla.js
+
 ## [v1.9.0](https://github.com/cla-assistant/cla-assistant/tree/v1.9.0) (2019-03-19)
 
 **Merged pull requests:**
