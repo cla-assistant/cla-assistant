@@ -57,6 +57,11 @@ spec:
             secretKeyRef:
               name: github-msftgits-super-token-dev
               key: value
+        - name: EXTERNAL_QUEUE_URL
+          valueFrom:
+            secretKeyRef:
+              name: cla-web-hook-event-logic-app-dev
+              key: value
         - name: GITHUB_ADMIN_USERS
           value: 'jeffmcaffer, willbar, jeffwilcox, geneh, notlaforge, arnom-ms, capfei, MichaelTsengLZ, MichaelTsengZL'
         - name: CLOSE_COMMENT
@@ -70,6 +75,8 @@ spec:
         - name: PRE_POPULATE_USER_PULL_REQUEST
           value: 'true'
         - name: ALWAYS_SHOW_UNSIGNED_LIST
+          value: 'true'
+        - name: WAIT_FOR_WEB_HOOK_EVENT_PROCESS
           value: 'true'
       imagePullSecrets:
         - name: ospoaksdev.azurecr.io

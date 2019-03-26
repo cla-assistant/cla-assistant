@@ -112,7 +112,9 @@ module.exports = {
             organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
             close_comment: process.env.CLOSE_COMMENT === 'true',
             enable_private_repos: process.env.ENABLE_PRIVATE_REPOS === 'true',
-            always_show_unsigned_list: process.env.ALWAYS_SHOW_UNSIGNED_LIST === 'true'
+            always_show_unsigned_list: process.env.ALWAYS_SHOW_UNSIGNED_LIST === 'true',
+            wait_for_web_hook_event_process: process.env.WAIT_FOR_WEB_HOOK_EVENT_PROCESS === 'true',
+            external_queue_url:process.env.EXTERNAL_QUEUE_URL,
         },
 
         static: [

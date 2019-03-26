@@ -88,7 +88,7 @@ module.exports = function () {
             return checkUrl;
         },
         webhook: function (repo) {
-            return url.resolve(baseUrl, '/github/webhook/' + repo);
+            return config.server.feature_flag.external_queue_url || url.resolve(baseUrl, '/github/webhook/' + repo);
         }
     };
 }();
