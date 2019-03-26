@@ -72,7 +72,7 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     name: 'web',
                     config: {
-                        url: url.webhook('myRepo'),
+                        url: url.webhook('login', 'myRepo'),
                         content_type: 'json'
                     },
                     events: ['pull_request'],
@@ -505,7 +505,7 @@ describe('webhookApi', function () {
             };
 
             webhook_api.remove(req, function (error) {
-                assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
+                assert.equal(error, 'No webhook found with base url ' + url.webhook(req.args.owner, req.args.repo));
                 it_done();
             });
         });

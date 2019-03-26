@@ -28,7 +28,12 @@ function getHook(owner, repo, noCache, token, done) {
 
         if (!err && hooks && hooks.length > 0) {
             hooks.forEach(function (webhook) {
-                if (webhook.active && webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
+                if (webhook.active && webhook.config.url
+                    && (
+                        webhook.config.url.indexOf(url.baseWebhook) > -1
+                        || webhook.config.url === url.webhook(owner, repo)
+                    )
+                ) {
                     hook = webhook;
                 }
             });
@@ -79,7 +84,7 @@ function createHook(owner, repo, token, done) {
         args.obj = 'repos';
         args.arg.repo = repo;
         args.arg.owner = owner;
-        args.arg.config.url = url.webhook(repo);
+        args.arg.config.url = url.webhook(owner, repo);
     } else {
         args.obj = 'orgs';
         args.arg.org = owner;
@@ -100,7 +105,7 @@ function createRepoHook(owner, repo, token, done) {
 function createOrgHook(org, token, done) {
     getOrgHook(org, true, token, function (error, hook) {
         if (error || hook) {
-            return done(error || 'Webhook already exist with base url ' + url.baseWebhook);
+            return done(error || 'Webhook already exist with ' + url.webhook(org));
         }
         createHook(org, undefined, token, function (err, hook) {
             if (err) {
@@ -139,7 +144,7 @@ function removeHook(owner, repo, hookId, token, done) {
 function removeRepoHook(owner, repo, token, done) {
     getRepoHook(owner, repo, true, token, function (err, hook) {
         if (err || !hook) {
-            return done(err || 'No webhook found with base url ' + url.baseWebhook);
+            return done(err || 'No webhook found with base url ' + url.webhook(owner, repo));
         }
         if (hook.type === 'Organization') {
             return done(null, null);
@@ -151,7 +156,7 @@ function removeRepoHook(owner, repo, token, done) {
 function removeOrgHook(org, token, done) {
     getOrgHook(org, true, token, function (error, hook) {
         if (error || !hook) {
-            return done(error || 'No webhook found with base url ' + url.baseWebhook);
+            return done(error || 'No webhook found with base url ' + url.webhook(org));
         }
         removeHook(org, undefined, hook.id, token, function (err) {
             if (err) {
