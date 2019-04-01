@@ -123,7 +123,7 @@ async function handleWebHook(args) {
                 owner: args.owner,
                 number: args.number
             });
-            logger.trackEvent('CLAAssistantPullRequestDeleteCommentStart', { deliveryId: args.deliveryId });
+            logger.trackEvent('CLAAssistantPullRequestDeleteCommentSuccess', { deliveryId: args.deliveryId });
         }
         collectMetrics(args.owner, args.repo, args.number, args.userId, startTime, args.signed, args.action, isClaRequired, args.deliveryId);
     } catch (error) {
