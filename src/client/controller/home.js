@@ -24,8 +24,8 @@ var deleteFromArray = function (item, array) {
     }
 };
 
-module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RPC', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$state', 'utils', 'linkItemService',
-    function ($rootScope, $scope, $document, $HUB, $RPC, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $state, utils, linkItemService) {
+module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$HUBService', '$window', '$modal', '$timeout', '$q', '$location', '$state', 'utils', 'linkItemService',
+    function ($rootScope, $scope, $RPCService, $RAW, $HUBService, $window, $modal, $timeout, $q, $location, $state, utils, linkItemService) {
 
         $scope.active = 0;
         $scope.claRepos = [];
@@ -118,8 +118,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
                 }
 
                 $scope.user = res;
-                $scope.user.value.admin = res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1 ? true : false;
-                $scope.user.value.org_admin = res.meta.scopes && res.meta.scopes.indexOf('admin:org_hook') > -1 ? true : false;
+                $scope.user.value.admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1 ? true : false;
+                $scope.user.value.org_admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('admin:org_hook') > -1 ? true : false;
                 $rootScope.user = $scope.user;
                 $rootScope.$broadcast('user');
             });
@@ -127,7 +127,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
 
         var getRepos = function () {
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
-                return $HUBService.call('repos', 'getAll', {
+                return $HUBService.call('repos', 'list', {
                     per_page: 100,
                     affiliation: 'owner,organization_member'
                 }).then(function (data) {
@@ -152,7 +152,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$document', '$HUB', '$RP
             }
             $scope.gists = $scope.defaultClas.concat([]);
 
-            $HUBService.call('gists', 'getAll').then(function (data) {
+            $HUBService.call('gists', 'list').then(function (data) {
                 if (data && data.value) {
                     data.value.forEach(function (gist) {
                         var gistFile = {};

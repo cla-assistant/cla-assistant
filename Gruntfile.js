@@ -32,7 +32,7 @@ module.exports = function (grunt) {
         mochaTest: {
             server: {
                 options: {
-                    timeout: 4000
+                    timeout: 1000
                 },
                 src: ['src/tests/server/**/*.js']
             },
