@@ -30,7 +30,6 @@ module.exports = {
         "func-call-spacing": "error",
         "func-name-matching": "error",
         "handle-callback-err": "warn",
-        "newline-before-return": "warn",
         "no-confusing-arrow": "error",
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
@@ -40,7 +39,7 @@ module.exports = {
         "no-native-reassign": "error",
         "no-path-concat": "warn",
         "no-trailing-spaces": "warn",
-        "no-undef": "warn",
+        "no-undef": "error",
         "no-unused-expressions": "warn",
         "no-unused-vars": "warn",
         "no-use-before-define": [

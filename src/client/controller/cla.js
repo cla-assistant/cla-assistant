@@ -121,7 +121,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
 
                 $scope.user = res;
                 $scope.user.value.admin = false;
-                if (res.meta && res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                if (res.meta && res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
                 $rootScope.user = $scope.user;

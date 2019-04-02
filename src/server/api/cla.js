@@ -1,167 +1,497 @@
 // modules
-let async = require('async');
-let q = require('q');
-let Joi = require('joi');
+const Joi = require('joi')
 
 // services
-let github = require('../services/github');
-let cla = require('../services/cla');
-let status = require('../services/status');
-let repoService = require('../services/repo');
-let orgService = require('../services/org');
-let prService = require('../services/pullRequest');
-let log = require('../services/logger');
+const github = require('../services/github')
+const cla = require('../services/cla')
+const status = require('../services/status')
+const repoService = require('../services/repo')
+const orgService = require('../services/org')
+const prService = require('../services/pullRequest')
+const logger = require('../services/logger')
 
-let config = require('../../config');
-let User = require('mongoose').model('User');
+const User = require('mongoose').model('User')
 
-let token;
+let token
 
-function markdownRender(content, token) {
-    let deferred = q.defer();
-    let args = {
-        obj: 'misc',
-        fun: 'renderMarkdown',
+const SIGNATURESCHEMA = Joi.object().keys({
+    user: Joi.string().required(),
+    userId: Joi.number().required(),
+    org: Joi.string(),
+    owner: Joi.string(),
+    repo: Joi.string(),
+    custom_fields: Joi.string(),
+    number: Joi.number(),
+    origin: Joi.string(),
+}).and('repo', 'owner').xor('repo', 'org')
+
+const GISTREQUESTSCHEMA = Joi.object().keys({
+    gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({ gist_url: Joi.string().uri(), gist_version: Joi.strict() })]),
+    repoId: Joi.number(),
+    orgId: Joi.number(),
+    repo: Joi.string(),
+    owner: Joi.string()
+})
+
+class ClaApi {
+    async getGist(req) {
+        validateArgs(req.args, GISTREQUESTSCHEMA)
+        if (req.user && req.user.token && req.args.gist) {
+            return cla.getGist({
+                token: req.user.token,
+                gist: req.args.gist
+            })
+        }
+
+        const service = req.args.orgId ? orgService : repoService
+        const item = await service.get(req.args)
+        if (!item) {
+            const err = 'could not get linked item with args: ' + req.args
+            logger.warn(err)
+            throw err
+        }
+        let gistArgs = {
+            gist_url: item.gist
+        }
+        gistArgs = req.args.gist ? req.args.gist : gistArgs
+        token = item.token
+        return cla.getGist({
+            token,
+            gist: gistArgs
+        })
+    }
+
+    async get(req) {
+        if (!req.args || (!req.args.repo && !req.args.repoId && !req.args.orgId)) {
+            logger.info('args: ', removeToken(req.args))
+            logger.info('request headers: ', req.headers)
+            throw 'Please, provide owner and repo name or orgId'
+        }
+        const gist = await this.getGist(req)
+
+        try {
+            let renderToken = token ? token : req.user && req.user.token ? req.user.token : token
+            return renderFiles(gist.files, renderToken)
+        } catch (error) {
+            logger.error(new Error(error).stack, 'with args: ', removeToken(req.args))
+            throw error
+        }
+    }
+
+
+    //Get list of signed CLAs for all repos the authenticated user has contributed to
+    //Parameters: none (user should be taken)
+    getSignedCLA(req) {
+        return cla.getSignedCLA(req.args)
+    }
+
+    //Get users last signature for given repository (if repo is currently linked)
+    //Parameters: repo, owner (mandatory)
+    getLastSignature(req) {
+        let args = req.args
+        args.user = req.user.login
+        args.userId = req.user.id
+        return cla.getLastSignature(args)
+    }
+
+    //Find linked item using reponame and owner as parameters
+    // Params:
+    // repo (mandatory)
+    // owner (mandatory)
+    getLinkedItem(req) {
+        return cla.getLinkedItem(req.args)
+    }
+
+    //Get all signed CLAs for given repo and gist url and/or a given gist version
+    //Params:
+    //	repo (mandatory)
+    //	owner (mandatory)
+    //	gist.gist_url (mandatory)
+    //	gist.gist_version (optional)
+    getAll(req) { return cla.getAll(req.args) }
+
+    //Get number of signed CLAs for the given repo. If no gist_version provided, the latest one will be used.
+    //Params:
+    //	repo (mandatory)
+    //	owner (mandatory)
+    //	gist.gist_url (optional)
+    //	gist.gist_version (optional)
+    async countCLA(req) {
+        let params = req.args
+        try {
+
+            if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
+                throw 'invalid parameters provided'
+            }
+            const item = await this.getLinkedItem(req)
+            if (!item) {
+                throw new Error('no item found')
+            }
+            params.token = item.token
+            params.sharedGist = item.sharedGist
+            if (item.orgId) {
+                params.orgId = item.orgId
+            } else if (item.repoId) {
+                params.repoId = item.repoId
+            }
+            params.gist = params.gist && params.gist.gist_url ? params.gist : {
+                gist_url: item.gist
+            }
+            const gist = await cla.getGist(params)
+            if (!gist) {
+                let error = `No gist found ${removeToken(req.args)}`
+                logger.warn(new Error(error).stack)
+                throw error
+            }
+            params.gist.gist_version = gist.history[0].version
+        } catch (e) {
+            logger.info(`${e} There is no such item for args: ${removeToken(req.args)}`)
+            throw (`${e} There is no such item`)
+        }
+
+        const clas = await cla.getAll(params)
+        return clas.length
+    }
+
+    async validateOrgPullRequests(req) {
+        try {
+            const repos = await getReposNeedToValidate(req)
+
+            repos.forEach(repo => {
+                let validateRequest = {
+                    args: {
+                        owner: repo.owner.login,
+                        repo: repo.name,
+                        token: req.args.token || req.user.token
+                    },
+                    user: req.user
+                }
+                this.validateAllPullRequests(validateRequest)
+                logger.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo)
+            })
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
+        return true
+    }
+
+    // Check/update status and comment of PR
+    // Params:
+    // repo (mandatory)
+    // owner (mandatory)
+    // number (mandatory)
+    // gist (optional)
+    // sharedGist (optional)
+    // token (optional)
+    // sha (optional)
+    async validatePullRequest(args) {
+        return validatePR(args)
+    }
+
+    async validateAllPullRequests(req) {
+        let pullRequests = []
+        const token = req.args.token ? req.args.token : req.user.token
+
+        try {
+            const resp = await github.call({
+                obj: 'pulls',
+                fun: 'list',
+                arg: {
+                    owner: req.args.owner,
+                    repo: req.args.repo,
+                    state: 'open',
+                    per_page: 100
+                },
+                token
+            })
+            pullRequests = resp.data
+        } catch (error) {
+            logger.error(new Error(error).stack)
+        }
+
+        if (pullRequests.length > 0) {
+            const promises = pullRequests.map((pullRequest) => {
+                const status_args = {
+                    repo: req.args.repo,
+                    owner: req.args.owner,
+                    sha: pullRequest.head.sha,
+                    token: token
+                }
+                status_args.number = pullRequest.number
+
+                return this.validatePullRequest(status_args)
+            })
+            return Promise.all(promises)
+        }
+        return []
+    }
+
+    async validateSharedGistItems(req) {
+        const sharedItems = await getLinkedItemsWithSharedGist(req.args.gist)
+        const items = (sharedItems.repos || []).concat(sharedItems.orgs || [])
+        const promises = items.map(function (item) {
+            let tmpReq = {
+                args: {
+                    token: item.token,
+                    gist: item.gist,
+                    sharedGist: true
+                }
+            }
+            if (item.org) {
+                tmpReq.args.org = item.org
+                return this.validateOrgPullRequests(tmpReq)
+            }
+            tmpReq.args.repo = item.repo
+            tmpReq.args.owner = item.owner
+            return this.validateAllPullRequests(tmpReq)
+        }.bind(this))
+        return Promise.all(promises)
+    }
+
+    async sign(req) {
+        let args = {
+            repo: req.args.repo,
+            owner: req.args.owner,
+            user: req.user.login,
+            userId: req.user.id,
+        }
+        if (req.args.custom_fields) {
+            args.custom_fields = req.args.custom_fields
+        }
+        try {
+            const item = await this.getLinkedItem({
+                args: {
+                    repo: args.repo,
+                    owner: args.owner
+                }
+            })
+
+            args.item = item
+            args.token = item.token
+            args.origin = `sign|${req.user.login}`
+
+            const signed = await cla.sign(args)
+            await updateUsersPullRequests(args)
+
+            return signed
+        } catch (e) {
+            if (!e.code || e.code != 200) {
+                logger.error(new Error(e).stack)
+            }
+            throw e
+        }
+    }
+
+    check(req) {
+        let args = {
+            repo: req.args.repo,
+            owner: req.args.owner,
+            number: req.args.number,
+            user: req.user.login,
+            userId: req.user.id
+        }
+        return cla.check(args)
+    }
+
+    async upload(req) {
+        const signatures = req.args.signatures || []
+        const uploadInitiator = req.user.login
+
+        const promises = signatures.map(async signature => {
+            try {
+                if (!signature || !signature.user) {
+                    // eslint-disable-next-line quotes
+                    throw `Uploaded signature doesn't contain user name`
+                }
+                const ghUser = await getGithubUser(signature.user, req.user.token);
+
+                const args = {
+                    repo: req.args.repo,
+                    owner: req.args.owner,
+                    user: ghUser.login,
+                    userId: ghUser.id,
+                    origin: `upload|${uploadInitiator}`
+                }
+                if (signature.created_at) {
+                    args.created_at = signature.created_at
+                }
+                if (signature.custom_fields) {
+                    args.custom_fields = signature.custom_fields
+                }
+
+                const signed = await cla.sign(args)
+                return signed
+
+            } catch (error) {
+                logger.info(new Error(error).stack)
+                throw error
+            }
+        })
+        return Promise.all(promises.map(promise => promise.catch(() => undefined)))
+    }
+
+    async addSignature(req) {
+        validateArgs(req.args, SIGNATURESCHEMA)
+        req.args.owner = req.args.owner || req.args.org
+        delete req.args.org
+        try {
+            const item = await this.getLinkedItem({
+                args: {
+                    repo: req.args.repo,
+                    owner: req.args.owner
+                }
+            })
+            req.args.item = item
+            req.args.token = item.token
+            req.args.origin = `${req.args.origin ? req.args.origin + '|' : ''}addSignature|${req.user.login}`
+            const signed = await cla.sign(req.args)
+            updateUsersPullRequests(req.args)
+            // Add signature API will get a timeout error if waiting for validating pull requests.
+            return signed
+        } catch (e) {
+            logger.error(new Error(e).stack)
+            throw e
+        }
+    }
+
+    hasSignature(req) {
+        validateArgs(req.args, SIGNATURESCHEMA)
+        req.args.owner = req.args.owner || req.args.org
+        delete req.args.org
+        return cla.check(req.args)
+    }
+
+    terminateSignature(req) {
+        let schema = SIGNATURESCHEMA
+        schema = schema.append({
+            endDate: Joi.string().isoDate().required()
+        })
+        validateArgs(req.args, schema)
+
+        req.args.owner = req.args.owner || req.args.org
+        delete req.args.org
+        return cla.terminate(req.args)
+    }
+
+    // updateDBData: function (req, done) {
+    //     // repoService.updateDBData(req, function(){
+    //         cla.updateDBData(req, function(msg){
+    //             done(null, msg)
+    //         })
+    //     // })
+    // }
+}
+const claApi = new ClaApi()
+module.exports = claApi
+
+
+async function markdownRender(content, token) {
+    const args = {
+        obj: 'markdown',
+        fun: 'render',
         arg: {
             text: content
         },
         token: token
-    };
-
-    github.call(args, function (error, response) {
-        let callback_error;
-        if (!response || response.statusCode !== 200) {
-            callback_error = response && response.message ? response.message : error;
-            if (callback_error) {
-                deferred.reject(callback_error);
-
-                return;
-            }
-        }
-        if (response) {
-            deferred.resolve({
-                raw: response.body || response.data || response
-            });
-        } else {
-            deferred.reject(callback_error);
-        }
-
-    });
-
-    return deferred.promise;
+    }
+    const response = await github.call(args)
+    return { raw: response.body || response.data || response }
 }
 
-function renderFiles(files, renderToken) {
-    let deferred = q.defer();
-    let content;
+async function renderFiles(files, renderToken) {
+    let content
     try {
         Object.keys(files).some(function (name) {
-            content = name != 'metadata' ? files[name].content : content;
+            content = name != 'metadata' ? files[name].content : content
 
-            return name != 'metadata';
-        });
+            return name != 'metadata'
+        })
     } catch (e) {
-        deferred.reject(e);
-
-        return deferred.promise;
+        throw new Error(e)
     }
-    let metadata = files && files.metadata ? files.metadata.content : undefined;
 
-    let gistContent = {};
-    let contentPromise;
-    let metaPromise;
-    contentPromise = markdownRender(content, renderToken).then(function (data) {
-        return data.raw;
-    });
-    if (metadata) {
-        metaPromise = markdownRender(metadata, renderToken).then(function (data) {
-            return data.raw;
-        });
-    }
-    q.all([contentPromise, metaPromise]).then(function (data) {
-        gistContent.raw = data[0];
-        gistContent.meta = data[1];
-        deferred.resolve(gistContent);
-    },
-        function (msg) {
-            deferred.reject(msg);
-        });
+    const contentPromise = markdownRender(content, renderToken)
+    const metaPromise = files && files.metadata ? markdownRender(files.metadata.content, renderToken) : undefined
+    const data = await Promise.all([contentPromise, metaPromise])
 
-    return deferred.promise;
+    let gistContent = {}
+    gistContent.raw = data[0] ? data[0].raw : undefined
+    gistContent.meta = data[1] ? data[1].raw : undefined
+
+    return gistContent
 }
 
-function getLinkedItemsWithSharedGist(gist, done) {
+async function getLinkedItemsWithSharedGist(gist) {
     if (!gist) {
-        return done('Gist is required.');
+        throw 'Gist is required.'
     }
-    repoService.getRepoWithSharedGist(gist, function (error, repos) {
-        if (error) {
-            log.error(new Error(error).stack);
-        }
-        orgService.getOrgWithSharedGist(gist, function (err, orgs) {
-            if (err) {
-                log.error(new Error(err).stack);
-            }
-            done(null, {
-                repos: repos,
-                orgs: orgs
-            });
-        });
-    });
+    const linkedItems = {}
+    try {
+        linkedItems.repos = await repoService.getRepoWithSharedGist(gist)
+    } catch (error) {
+        logger.error(new Error(error).stack)
+    }
+    try {
+        linkedItems.orgs = await orgService.getOrgWithSharedGist(gist)
+    } catch (error) {
+        logger.error(new Error(error).stack)
+    }
+
+    return linkedItems
 }
 
 async function validatePR(args) {
-    args.token = args.token ? args.token : token;
+    args.token = args.token ? args.token : token
     try {
-        const item = await cla.getLinkedItem(args);
-        args.token = item.token;
+        const item = await cla.getLinkedItem(args)
+        args.token = item.token
         if (!item.gist) {
-            return status.updateForNullCla(args, function () {
-                prService.deleteComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number
-                }, () => { /*do nothing*/ });
-            });
+            return claNotRequired(args, 'updateForNullCla')
         }
-        const isClaRequired = await cla.isClaRequired(args);
+        const isClaRequired = await cla.isClaRequired(args)
         if (!isClaRequired) {
-            return status.updateForClaNotRequired(args, function () {
-                prService.deleteComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number
-                }, () => { /*do nothing*/ });
-            });
+            return claNotRequired(args, 'updateForClaNotRequired')
         }
-        cla.check(args, function (cla_err, all_signed, user_map) {
-            if (cla_err) {
-                log.error(cla_err.stack);
-            }
-            args.signed = all_signed;
-            var update_method = 'updateForClaNotRequired';
-            if (!user_map ||
-                (user_map.signed && user_map.signed.length > 0) ||
-                (user_map.not_signed && user_map.not_signed.length > 0) ||
-                (user_map.unknown && user_map.unknown.length > 0)
-            ) {
-                update_method = 'update';
-            }
+        const checkResult = await cla.check(args)
 
-            return status[update_method](args, function () {
-                prService.editComment({
-                    repo: args.repo,
-                    owner: args.owner,
-                    number: args.number,
-                    signed: args.signed,
-                    user_map: user_map
-                }, () => { /*do nothing*/ });
-            });
-        });
+        args.signed = checkResult.signed
+        const userMap = checkResult.userMap
+
+        const updateMethod = (!userMap ||
+            (userMap.signed && userMap.signed.length > 0) ||
+            (userMap.not_signed && userMap.not_signed.length > 0) ||
+            (userMap.unknown && userMap.unknown.length > 0)) ? 'update' : 'updateForClaNotRequired'
+
+        await status[updateMethod](args)
+        prService.editComment({
+            repo: args.repo,
+            owner: args.owner,
+            number: args.number,
+            signed: args.signed,
+            userMap: userMap
+        })
     } catch (e) {
-        let logArgs = Object.assign({}, args);
-        logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined;
-        log.error(e.stack, logArgs);
+        logger.error(e.stack, removeToken(args))
+    }
+}
+
+function removeToken(args) {
+    let logArgs = Object.assign({}, args)
+    logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined
+    return logArgs
+}
+
+async function claNotRequired(args, updateMethod) {
+    try {
+        await status[updateMethod](args)
+        prService.deleteComment({
+            repo: args.repo,
+            owner: args.owner,
+            number: args.number
+        })
+    }
+    catch (error) {
+        logger.info(new Error(error).stack)
     }
 }
 
@@ -175,620 +505,134 @@ async function validatePR(args) {
 //      sharedGist (optional)
 // token (mandatory)
 async function updateUsersPullRequests(args) {
-    function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
-        numbers.forEach((prNumber) => {
-            validatePR({
-                repo: repo,
-                owner: owner,
-                number: prNumber,
-                gist: gist,
-                sharedGist: sharedGist,
-                token: token
-            });
-        });
-    }
-
-    function prepareForValidation(item, user) {
-        const needRemove = [];
-
-        return Promise.all(user.requests.map(async (pullRequests, index) => {
-            try {
-                const linkedItem = await cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner });
-                if (!linkedItem) {
-                    needRemove.push(index);
-
-                    return;
-                }
-                if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
-                    needRemove.push(index);
-                    validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
-                }
-
-                return linkedItem;
-            } catch (e) {
-                log.warn(e.stack);
-            }
-        }).filter((promise) => {
-            return promise !== undefined;
-        })).then(() => {
-            needRemove.sort();
-            for (let i = needRemove.length - 1; i >= 0; --i) {
-                user.requests.splice(needRemove[i], 1);
-            }
-            user.save();
-        });
-    }
-
     try {
-        const user = await User.findOne({ name: args.user });
+        const user = await User.findOne({ name: args.user })
         if (!user || !user.requests || user.requests.length < 1) {
-            throw 'user or PRs not found';
+            throw 'user or PRs not found'
         }
 
-        return prepareForValidation(args.item, user);
+        return prepareForValidation(args.item, user)
     } catch (e) {
         let req = {
             args: {
                 gist: args.item.gist,
                 token: args.token
             }
-        };
+        }
         if (args.item.sharedGist) {
-            return ClaApi.validateSharedGistItems(req, () => {
-                // Ignore result
-            });
+            return claApi.validateSharedGistItems(req)
         } else if (args.item.org) {
-            req.args.org = args.item.org;
+            req.args.org = args.item.org
 
-            return ClaApi.validateOrgPullRequests(req, () => {
-                // Ignore result
-            });
+            return claApi.validateOrgPullRequests(req)
         }
 
-        req.args.repo = args.repo;
-        req.args.owner = args.owner;
+        req.args.repo = args.repo
+        req.args.owner = args.owner
 
-        return ClaApi.validatePullRequests(req, () => {
-            // Ignore result
-        });
+        return claApi.validateAllPullRequests(req)
     }
 }
 
-function getReposNeedToValidate(req, done) {
-    let repos = [];
-    github.call({
+async function prepareForValidation(item, user) {
+    const needRemove = []
+
+    await Promise.all(user.requests.map(async (pullRequests, index) => {
+        try {
+            const linkedItem = await cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner })
+            if (!linkedItem) {
+                needRemove.push(index)
+                return
+            }
+            if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                needRemove.push(index);
+                validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
+            }
+            return linkedItem;
+        }
+        catch (e) {
+            logger.warn(e.stack);
+        }
+    }).filter((promise) => {
+        return promise !== undefined;
+    }));
+    needRemove.sort();
+    for (let i = needRemove.length - 1; i >= 0; --i) {
+        user.requests.splice(needRemove[i], 1);
+    }
+    user.save();
+}
+
+function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
+    numbers.forEach((prNumber) => {
+        validatePR({
+            repo: repo,
+            owner: owner,
+            number: prNumber,
+            gist: gist,
+            sharedGist: sharedGist,
+            token: token
+        })
+    })
+}
+
+async function getReposNeedToValidate(req) {
+    let repos = []
+    const allRepos = await github.call({
         obj: 'repos',
-        fun: 'getForOrg',
+        fun: 'listForOrg',
         arg: {
             org: req.args.org,
             per_page: 100
         },
         token: req.args.token || req.user.token
-    }, function (error, allRepos) {
-        if ((allRepos && allRepos.message) || error || (allRepos && allRepos.length === 0)) {
-            return done((allRepos && allRepos.message) || error, repos);
-        }
-        orgService.get(req.args, function (err, linkedOrg) {
-            if (err) {
-                return done(err, repos);
+    })
+    try {
+        const linkedOrg = await orgService.get(req.args)
+        const linkedRepos = await repoService.getByOwner(req.args.org)
+        const linkedRepoSet = new Set(
+            linkedRepos
+                .filter(repo => repo.repoId) //ignore old DB entries with no repoId
+                .map(linkedRepo => linkedRepo.repoId.toString())
+        )
+        repos = allRepos.data.filter(repo => {
+            if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
+                // The repo has been excluded.
+                return false
             }
-            repoService.getByOwner(req.args.org, function (er, linkedRepos) {
-                if (er) {
-                    return done(er, repos);
-                }
-                let linkedRepoSet = new Set(
-                    linkedRepos
-                        .filter(repo => repo.repoId)
-                        .map(linkedRepo => linkedRepo.repoId.toString())
-                );
-                repos = allRepos.filter(repo => {
-                    if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
-                        // The repo has been excluded.
-                        return false;
-                    }
-                    if (linkedRepoSet.has(repo.id.toString())) {
-                        // The repo has a separate CLA.
-                        return false;
-                    }
-
-                    return true;
-                });
-                done(null, repos);
-            });
-        });
-    });
-}
-
-let ClaApi = {
-    getGist: function (req, done) {
-        let schema = Joi.object().keys({
-            gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({ gist_url: Joi.string().uri(), gist_version: Joi.strict() })]),
-            repoId: Joi.number(),
-            orgId: Joi.number(),
-            repo: Joi.string(),
-            owner: Joi.string()
-        });
-        Joi.validate(req.args, schema, { abortEarly: false }, function (joiErr) {
-            if (joiErr) {
-                joiErr.code = 400;
-
-                return done(joiErr);
-            }
-            if (req.user && req.user.token && req.args.gist) {
-                cla.getGist({
-                    token: req.user.token,
-                    gist: req.args.gist
-                }, done);
-            } else {
-                let service = req.args.orgId ? orgService : repoService;
-                service.get(req.args, function (err, item) {
-                    if (err || !item) {
-                        log.warn(err.stack + 'with args: ' + req.args);
-                        done(err);
-
-                        return;
-                    }
-                    let gist_args = {
-                        gist_url: item.gist
-                    };
-                    gist_args = req.args.gist ? req.args.gist : gist_args;
-                    token = item.token;
-                    cla.getGist({
-                        token: token,
-                        gist: gist_args
-                    }, done);
-                });
-            }
-        });
-    },
-
-    get: function (req, done) {
-        if (!req.args || (!req.args.repo && !req.args.repoId && !req.args.orgId)) {
-            log.info('args: ', req.args);
-            log.info('request headers: ', req.headers);
-            done('Please, provide owner and repo name or orgId');
-
-            return;
-        }
-        this.getGist(req, function (err, res) {
-            if (err || !res) {
-                log.error(new Error(err).stack, 'with args: ', req.args);
-                done(err);
-
-                return;
+            if (linkedRepoSet.has(repo.id.toString())) {
+                // The repo has a separate CLA.
+                return false
             }
 
-            let renderToken = token ? token : req.user && req.user.token ? req.user.token : token;
-            renderFiles(res.files, renderToken).then(
-                function success(gistContent) {
-                    done(null, gistContent);
-                },
-                function error(msg) {
-                    log.warn(new Error(msg).stack, ' Args: ', req.args);
-                    done(msg);
-                }
-            );
-        });
-    },
-
-
-    //Get list of signed CLAs for all repos the authenticated user has contributed to
-    //Parameters: none (user should be taken)
-    getSignedCLA: function (req, done) {
-        cla.getSignedCLA(req.args, done);
-    },
-
-    //Get users last signature for given repository (if repo is currently linked)
-    //Parameters: repo, owner (mandatory)
-    getLastSignature: function (req, done) {
-        let args = req.args;
-        args.user = req.user.login;
-        args.userId = req.user.id;
-        cla.getLastSignature(args, done);
-    },
-
-    //Find linked item using reponame and owner as parameters
-    // Params:
-    // repo (mandatory)
-    // owner (mandatory)
-    getLinkedItem: function (req) {
-        return cla.getLinkedItem(req.args);
-    },
-
-    //Get all signed CLAs for given repo and gist url and/or a given gist version
-    //Params:
-    //	repo (mandatory)
-    //	owner (mandatory)
-    //	gist.gist_url (mandatory)
-    //	gist.gist_version (optional)
-    getAll: function (req, done) {
-        cla.getAll(req.args, done);
-    },
-
-    //Get number of signed CLAs for the given repo. If no gist_version provided, the latest one will be used.
-    //Params:
-    //	repo (mandatory)
-    //	owner (mandatory)
-    //	gist.gist_url (optional)
-    //	gist.gist_version (optional)
-    countCLA: async function (req, done) {
-        let params = req.args;
-        let self = this;
-
-        function getMissingParams() {
-            return new Promise(async function (resolve, reject) {
-                if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
-                    throw 'invalid parameters provided';
-                } else {
-                    try {
-                        const item = await self.getLinkedItem(req);
-                        if (!item) {
-                            throw new Error('no item found');
-                        }
-                        params.token = item.token;
-                        params.sharedGist = item.sharedGist;
-                        if (item.orgId) {
-                            params.orgId = item.orgId;
-                        } else if (item.repoId) {
-                            params.repoId = item.repoId;
-                        }
-                        params.gist = params.gist && params.gist.gist_url ? params.gist : {
-                            gist_url: item.gist
-                        };
-                        cla.getGist(req.args, function (err, gist) {
-                            if (!gist) {
-                                let error = `No gist found ${err}`;
-                                log.warn(new Error(error).stack, req.args);
-                                reject(error);
-                            } else {
-                                params.gist.gist_version = gist.history[0].version;
-                                resolve();
-                            }
-                        });
-                    } catch (e) {
-                        log.info(e, 'There is no such item for args: ', req.args);
-                        reject(`${e} There is no such item`);
-                    }
-                }
-            });
-        }
-
-        function count() {
-            cla.getAll(params, function (err, clas) {
-                done(err, clas.length);
-            });
-        }
-
-        try {
-            await getMissingParams();
-            count();
-        } catch (e) {
-            done(e);
-        }
-    },
-
-    validateOrgPullRequests: function (req, done) {
-        let self = this;
-        getReposNeedToValidate(req, function (error, repos) {
-            let time = config.server.github.timeToWait;
-            repos.forEach(function (repo, index) {
-                let validateRequest = {
-                    args: {
-                        owner: repo.owner.login,
-                        repo: repo.name,
-                        token: req.args.token || req.user.token
-                    },
-                    user: req.user
-                };
-                //try to avoid raising githubs abuse rate limit:
-                //take 1 second per repo and wait 10 seconds after each 10th repo
-                setTimeout(function () {
-                    log.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo);
-                    self.validatePullRequests(validateRequest);
-                }, time * (index + (Math.floor(index / 10) * 10)));
-            });
-            if (typeof done === 'function') {
-                done(error, true);
-            }
-        });
-    },
-
-    // Check/update status and comment of PR
-    // Params:
-    // repo (mandatory)
-    // owner (mandatory)
-    // number (mandatory)
-    // gist (optional)
-    // sharedGist (optional)
-    // token (optional)
-    // sha (optional)
-    validatePullRequest: async function (args) {
-        return validatePR(args);
-    },
-
-    validatePullRequests: function (req, done) {
-        let self = this;
-        let pullRequests = [];
-        let token = req.args.token ? req.args.token : req.user.token;
-
-        function doneIfNeed(err, res) {
-            if (typeof done === 'function') {
-                done(err, res);
-            }
-        }
-
-        function validateData(err) {
-            if (pullRequests.length > 0 && !err) {
-                try {
-                    const promises = pullRequests.map((pullRequest) => {
-                        let status_args = {
-                            repo: req.args.repo,
-                            owner: req.args.owner,
-                            sha: pullRequest.head.sha,
-                            token: token
-                        };
-                        status_args.number = pullRequest.number;
-
-                        return self.validatePullRequest(status_args);
-                    });
-                    Promise.all(promises)
-                        .then(res => { doneIfNeed(null, res); })
-                        .catch(error => { doneIfNeed(error); });
-                } catch (error) {
-                    doneIfNeed(error);
-                }
-            } else {
-                doneIfNeed(null);
-            }
-        }
-
-        function collectData(err, res) {
-            if (err) {
-                log.error(new Error(err).stack);
-            }
-
-            if (res && !err) {
-                pullRequests = pullRequests.concat(res);
-            }
-
-            validateData(err);
-        }
-
-        github.call({
-            obj: 'pullRequests',
-            fun: 'getAll',
-            arg: {
-                owner: req.args.owner,
-                repo: req.args.repo,
-                state: 'open',
-                per_page: 3
-            },
-            token: token
-        }, collectData);
-    },
-
-    validateSharedGistItems: function (req, done) {
-        let self = this;
-        getLinkedItemsWithSharedGist(req.args.gist, function (error, sharedItems) {
-            if (error) {
-                done(error);
-            }
-            let items = (sharedItems.repos || []).concat(sharedItems.orgs || []);
-            async.series(items.map(function (item) {
-                return function (callback) {
-                    let tmpReq = {
-                        args: {
-                            token: item.token,
-                            gist: item.gist,
-                            sharedGist: true
-                        }
-                    };
-                    if (item.org) {
-                        tmpReq.args.org = item.org;
-
-                        return self.validateOrgPullRequests(tmpReq, callback);
-                    }
-                    tmpReq.args.repo = item.repo;
-                    tmpReq.args.owner = item.owner;
-                    self.validatePullRequests(tmpReq, callback);
-                };
-            }), done);
-        });
-    },
-
-    sign: async function (req) {
-        let args = {
-            repo: req.args.repo,
-            owner: req.args.owner,
-            user: req.user.login,
-            userId: req.user.id,
-        };
-        if (req.args.custom_fields) {
-            args.custom_fields = req.args.custom_fields;
-        }
-        try {
-            const item = await this.getLinkedItem({
-                args: {
-                    repo: args.repo,
-                    owner: args.owner
-                }
-            });
-
-            args.item = item;
-            args.token = item.token;
-            args.origin = `sign|${req.user.login}`;
-
-            const signed = await cla.sign(args);
-            await updateUsersPullRequests(args);
-
-            return signed;
-        } catch (e) {
-            if (!e.code || e.code != 200) {
-                log.error(new Error(e).stack);
-            }
-            throw e;
-        }
-    },
-
-    check: function (req, done) {
-        let args = {
-            repo: req.args.repo,
-            owner: req.args.owner,
-            number: req.args.number,
-            user: req.user.login,
-            userId: req.user.id
-        };
-
-        cla.check(args, done);
-    },
-
-    upload: function (req, done) {
-        const signatures = req.args.signatures || [];
-        const uploadInitiator = req.user.login;
-
-        async.each(signatures, function (signature, callback) {
-            if (!signature || !signature.user) {
-                // eslint-disable-next-line quotes
-                var error = `Uploaded signature doesn't contain user name`;
-                log.info(new Error(error).stack);
-                callback(error);
-            }
-            github.call({
-                obj: 'users',
-                fun: 'getForUser',
-                arg: {
-                    username: signature.user
-                },
-                token: req.user.token
-            }, async function (err, gh_user) {
-                if (err || !gh_user) {
-                    return callback();
-                }
-
-                const args = {
-                    repo: req.args.repo,
-                    owner: req.args.owner,
-                    user: gh_user.login,
-                    userId: gh_user.id,
-                    origin: `upload|${uploadInitiator}`
-                };
-                if (signature.created_at) {
-                    args.created_at = signature.created_at;
-                }
-                if (signature.custom_fields) {
-                    args.custom_fields = signature.custom_fields;
-                }
-
-                try {
-                    const signed = await cla.sign(args);
-                    callback(null, signed);
-                } catch (e) {
-                    log.info(new Error(e).stack);
-                    callback(e);
-                }
-            });
-        }, done);
-    },
-
-    addSignature: function (req, done) {
-        let self = this;
-        let schema = Joi.object().keys({
-            user: Joi.string().required(),
-            userId: Joi.number().required(),
-            org: Joi.string(),
-            owner: Joi.string(),
-            repo: Joi.string(),
-            custom_fields: Joi.string(),
-            origin: Joi.string(),
-        }).and('repo', 'owner').xor('repo', 'org');
-        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, async function (joiErr) {
-            if (joiErr) {
-                joiErr.code = 400;
-
-                return done(joiErr);
-            }
-            req.args.owner = req.args.owner || req.args.org;
-            delete req.args.org;
-            try {
-
-                const item = await self.getLinkedItem({
-                    args: {
-                        repo: req.args.repo,
-                        owner: req.args.owner
-                    }
-                });
-                req.args.item = item;
-                req.args.token = item.token;
-                req.args.origin = `${req.args.origin ? req.args.origin + '|' : ''}addSignature|${req.user.login}`;
-                const signed = await cla.sign(req.args);
-                updateUsersPullRequests(req.args);
-                // Add signature API will get a timeout error if waiting for validating pull requests.
-                done(null, signed);
-            } catch (e) {
-                log.error(new Error(e).stack);
-
-                return done(e);
-            }
-        });
-    },
-
-    hasSignature: function (req, done) {
-        let argsScheme = Joi.object().keys({
-            user: Joi.string().required(),
-            userId: Joi.number().required(),
-            org: Joi.string(),
-            owner: Joi.string(),
-            repo: Joi.string(),
-            number: Joi.string()
-        }).and('repo', 'owner').xor('repo', 'org');
-        Joi.validate(req.args, argsScheme, { abortEarly: false, convert: false }, function (joiErr) {
-            if (joiErr) {
-                joiErr.code = 400;
-
-                return done(joiErr);
-            }
-            req.args.owner = req.args.owner || req.args.org;
-            delete req.args.org;
-            cla.check(req.args, done);
-        });
-    },
-
-    terminateSignature: function (req, done) {
-        let schema = Joi.object().keys({
-            user: Joi.string().required(),
-            userId: Joi.number().required(),
-            endDate: Joi.string().isoDate().required(),
-            org: Joi.string(),
-            owner: Joi.string(),
-            repo: Joi.string(),
-        }).and('repo', 'owner').xor('repo', 'org');
-        Joi.validate(req.args, schema, { abortEarly: false, convert: false }, function (joiErr) {
-            if (joiErr) {
-                joiErr.code = 400;
-
-                return done(joiErr);
-            }
-            req.args.owner = req.args.owner || req.args.org;
-            delete req.args.org;
-            cla.terminate(req.args, function (err, dbCla) {
-                if (err) {
-                    log.error(new Error(err).stack);
-
-                    return done(err);
-                }
-
-                return done(null, dbCla);
-            });
-        });
+            return true
+        })
+    } catch (error) {
+        logger.warn(new Error(error.stack))
     }
 
-    // updateDBData: function (req, done) {
-    //     // repoService.updateDBData(req, function(){
-    //         cla.updateDBData(req, function(msg){
-    //             done(null, msg);
-    //         });
-    //     // });
-    // }
-};
+    return repos
+}
 
-module.exports = ClaApi;
+function validateArgs(args, schema) {
+    const joiRes = Joi.validate(args, schema, { abortEarly: false, convert: false });
+    if (joiRes.error) {
+        joiRes.error.code = 400;
+        throw joiRes.error;
+    }
+}
+
+async function getGithubUser(userName, token) {
+    const res = await github.call({
+        obj: 'users',
+        fun: 'getByUsername',
+        arg: {
+            username: userName
+        },
+        token: token
+    })
+    if (!res.data) {
+        throw `${userName} is not a GitHub user`
+    }
+    return res.data
+}
