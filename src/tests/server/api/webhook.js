@@ -1,26 +1,24 @@
-/*global describe, it, beforeEach, afterEach*/
-
 // unit test
-let assert = require('assert');
-let sinon = require('sinon');
+const assert = require('assert')
+const sinon = require('sinon')
 
 // module
-let github = require('../../../server/services/github');
-let url = require('../../../server/services/url');
+const github = require('../../../server/services/github')
+const url = require('../../../server/services/url')
 
 //model
-let Repo = require('../../../server/documents/repo').Repo;
+const Repo = require('../../../server/documents/repo').Repo
 
 // api
-let webhook_api = require('../../../server/api/webhook');
+const webhook_api = require('../../../server/api/webhook')
 
-let testData = require('../testData').data;
+const testData = require('../testData').data
 
 describe('webhookApi', function () {
-    let hook;
-    let repo;
-    let resGetRepoHooks;
-    let resGetOrgHooks;
+    let hook
+    let repo
+    let resGetRepoHooks
+    let resGetOrgHooks
     beforeEach(function () {
         hook = {
             id: 123,
@@ -28,42 +26,34 @@ describe('webhookApi', function () {
             config: {
                 url: url.baseWebhook
             }
-        };
+        }
         repo = {
             id: 123,
             repo: 'myRepo',
             owner: 'login',
             gist: 'https://gist.github.com/myRepo/gistId'
-        };
-        resGetRepoHooks = [hook];
-        resGetOrgHooks = [hook];
-        sinon.stub(github, 'call').callsFake(function (args, done) {
-            if (args.fun === 'getHooks') {
-                if (args.obj === 'repos') {
-                    done(null, resGetRepoHooks);
-                } else {
-                    done(null, resGetOrgHooks);
-                }
+        }
+        resGetRepoHooks = [hook]
+        resGetOrgHooks = [hook]
+        sinon.stub(github, 'call').callsFake(async (args) => {
+            if (args.fun === 'listHooks') {
+                return args.obj === 'repos' ? { data: resGetRepoHooks } : { data: resGetOrgHooks }
             } else if (args.fun === 'deleteHook') {
-                done(null, hook);
+                return { data: hook }
             } else if (args.fun === 'createHook') {
-                done(null, hook);
-            } else {
-                done();
+                return { data: hook }
             }
-        });
-        sinon.stub(Repo, 'find').callsFake(function (args, done) {
-            done(null, [repo]);
-        });
-    });
-    afterEach(function () {
-        github.call.restore();
-        Repo.find.restore();
-    });
-    describe('webhook:create', function () {
-        it('should create a repo webhook when both repo and org webhook does NOT exist', function (it_done) {
-            resGetRepoHooks = [];
-            resGetOrgHooks = [];
+        })
+        sinon.stub(Repo, 'find').callsFake(async () => [repo])
+    })
+    afterEach(() => {
+        github.call.restore()
+        Repo.find.restore()
+    })
+    describe('webhook:create', () => {
+        it('should create a repo webhook when both repo and org webhook does NOT exist', async () => {
+            resGetRepoHooks = []
+            resGetOrgHooks = []
             let expArgs = {
                 obj: 'repos',
                 fun: 'createHook',
@@ -79,7 +69,7 @@ describe('webhookApi', function () {
                     active: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -91,15 +81,13 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'login'
                 }
-            };
+            }
 
-            webhook_api.create(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.create(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should NOT create a repo webhook when repo webhook exists', function (it_done) {
+        it('should NOT create a repo webhook when repo webhook exists', async () => {
             let expArgs = {
                 obj: 'repos',
                 fun: 'createHook',
@@ -115,7 +103,7 @@ describe('webhookApi', function () {
                     active: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -127,16 +115,14 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'login'
                 }
-            };
+            }
 
-            webhook_api.create(req, function () {
-                assert(github.call.calledWithMatch(expArgs) === false);
-                it_done();
-            });
-        });
+            await webhook_api.create(req)
+            assert(github.call.calledWithMatch(expArgs) === false)
+        })
 
-        it('should NOT create a repo webhook when corresponding org webhook exists', function (it_done) {
-            resGetRepoHooks = [];
+        it('should NOT create a repo webhook when corresponding org webhook exists', async () => {
+            resGetRepoHooks = []
             let expArgs = {
                 obj: 'repos',
                 fun: 'createHook',
@@ -152,7 +138,7 @@ describe('webhookApi', function () {
                     active: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -164,16 +150,14 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'login'
                 }
-            };
+            }
 
-            webhook_api.create(req, function () {
-                assert(github.call.calledWithMatch(expArgs) === false);
-                it_done();
-            });
-        });
+            await webhook_api.create(req)
+            assert(github.call.calledWithMatch(expArgs) === false)
+        })
 
-        it('should create a webhook for an organization when org webhook does NOT exist', function (it_done) {
-            resGetOrgHooks = [];
+        it('should create a webhook for an organization when org webhook does NOT exist', async () => {
+            resGetOrgHooks = []
             let expArgs = {
                 obj: 'orgs',
                 fun: 'createHook',
@@ -188,7 +172,7 @@ describe('webhookApi', function () {
                     active: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -200,17 +184,15 @@ describe('webhookApi', function () {
                     org: testData.orgs[0].login,
                     orgId: testData.orgs[0].id
                 }
-            };
+            }
 
-            webhook_api.create(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.create(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should remove repo webhook after creating an org webhook', function (it_done) {
-            resGetOrgHooks = [];
-            hook.type = 'Repository';
+        it('should remove repo webhook after creating an org webhook', async () => {
+            resGetOrgHooks = []
+            hook.type = 'Repository'
             let expArgs = {
                 obj: 'repos',
                 fun: 'deleteHook',
@@ -221,7 +203,7 @@ describe('webhookApi', function () {
                     noCache: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -233,16 +215,14 @@ describe('webhookApi', function () {
                     org: testData.orgs[0].login,
                     orgId: testData.orgs[0].id
                 }
-            };
+            }
 
-            webhook_api.create(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.create(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should NOT remove a webhook for a repo with NULL CLA after creating an org webhook', function (it_done) {
-            repo.gist = null;
+        it('should NOT remove a webhook for a repo with NULL CLA after creating an org webhook', async () => {
+            repo.gist = null
             let expArgs = {
                 obj: 'repos',
                 fun: 'deleteHook',
@@ -253,7 +233,7 @@ describe('webhookApi', function () {
                     noCache: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -265,33 +245,32 @@ describe('webhookApi', function () {
                     org: testData.orgs[0].login,
                     orgId: testData.orgs[0].id
                 }
-            };
+            }
+            resGetOrgHooks = []
 
-            webhook_api.create(req, function () {
-                assert(!github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
-    });
+            await webhook_api.create(req)
+            assert(!github.call.calledWithMatch(expArgs))
+        })
+    })
 
-    describe('webhook:get', function () {
-        it('should call github service with user token for repo hooks', function (it_done) {
+    describe('webhook:get', () => {
+        it('should call github service with user token for repo hooks', async () => {
             let expArgs = {
                 obj: 'repos',
-                fun: 'getHooks',
+                fun: 'listHooks',
                 arg: {
                     owner: 'owner',
                     repo: 'myRepo'
                 },
                 token: 'abc'
-            };
+            }
             resGetRepoHooks = [{
                 active: true,
                 config: {
                     url: url.webhook('myRepo'),
                     content_type: 'json'
                 },
-            }];
+            }]
 
             let req = {
                 user: {
@@ -303,26 +282,23 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'owner'
                 }
-            };
+            }
 
-            webhook_api.get(req, function (err, hooks) {
-                assert.ifError(err);
-                assert(hooks);
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            const hooks = await webhook_api.get(req)
+            assert(hooks)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should call github service with user token for org hooks when repo hook does NOT exist', function (it_done) {
-            resGetRepoHooks = [];
+        it('should call github service with user token for org hooks when repo hook does NOT exist', async () => {
+            resGetRepoHooks = []
             let expArgs = {
                 obj: 'orgs',
-                fun: 'getHooks',
+                fun: 'listHooks',
                 arg: {
                     org: 'owner'
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -334,30 +310,28 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'owner'
                 }
-            };
+            }
 
-            webhook_api.get(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.get(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should call github service with user token for org hooks', function (it_done) {
+        it('should call github service with user token for org hooks', async () => {
             let expArgs = {
                 obj: 'orgs',
-                fun: 'getHooks',
+                fun: 'listHooks',
                 arg: {
                     org: 'org'
                 },
                 token: 'abc'
-            };
+            }
             resGetOrgHooks = [{
                 active: true,
                 config: {
                     url: url.webhook(testData.orgs[0].login),
                     content_type: 'json'
                 }
-            }];
+            }]
 
             let req = {
                 user: {
@@ -368,20 +342,17 @@ describe('webhookApi', function () {
                 args: {
                     org: 'org'
                 }
-            };
+            }
 
-            webhook_api.get(req, function (err, hooks) {
-                assert.ifError(err);
-                assert(hooks);
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
-    });
+            const hooks = await webhook_api.get(req)
+            assert(hooks)
+            assert(github.call.calledWithMatch(expArgs))
+        })
+    })
 
     describe('webhook:remove', function () {
-        it('should remove repo hook when it exists', function (it_done) {
-            hook.type = 'Repository';
+        it('should remove repo hook when it exists', async () => {
+            hook.type = 'Repository'
             let expArgs = {
                 obj: 'repos',
                 fun: 'deleteHook',
@@ -391,7 +362,7 @@ describe('webhookApi', function () {
                     id: 123
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -403,15 +374,13 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'login'
                 }
-            };
+            }
 
-            webhook_api.remove(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.remove(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should remove org hook when it exists', function (it_done) {
+        it('should remove org hook when it exists', async () => {
             let expArgs = {
                 obj: 'orgs',
                 fun: 'deleteHook',
@@ -420,7 +389,7 @@ describe('webhookApi', function () {
                     id: 123
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -431,17 +400,15 @@ describe('webhookApi', function () {
                 args: {
                     org: 'octocat'
                 }
-            };
+            }
 
-            webhook_api.remove(req, function () {
-                assert(github.call.calledWithMatch(expArgs));
-                it_done();
-            });
-        });
+            await webhook_api.remove(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
 
-        it('should NOT create hook for repo with NULL CLA after removing org hook', function (it_done) {
-            resGetRepoHooks = [];
-            repo.gist = null;
+        it('should NOT create hook for repo with NULL CLA after removing org hook', async () => {
+            resGetRepoHooks = []
+            repo.gist = null
             let expArgs = {
                 obj: 'repos',
                 fun: 'createHook',
@@ -457,7 +424,7 @@ describe('webhookApi', function () {
                     active: true
                 },
                 token: 'abc'
-            };
+            }
 
             let req = {
                 user: {
@@ -468,29 +435,27 @@ describe('webhookApi', function () {
                 args: {
                     org: 'octocat'
                 }
-            };
+            }
 
-            webhook_api.remove(req, function () {
-                assert(github.call.calledWithMatch(expArgs) === false);
-                it_done();
-            });
-        });
+            await webhook_api.remove(req)
+            assert(github.call.calledWithMatch(expArgs) === false)
+        })
 
-        it('should report error if could not delete repo hook', function (it_done) {
+        it('should report an error if could not delete a repo hook', async () => {
             resGetRepoHooks = [{
                 id: 123,
                 active: true,
                 config: {
                     url: 'any other url'
                 }
-            }];
+            }]
             resGetOrgHooks = [{
                 id: 321,
                 active: true,
                 config: {
                     url: 'any other url'
                 }
-            }];
+            }]
 
             let req = {
                 user: {
@@ -502,12 +467,13 @@ describe('webhookApi', function () {
                     repo: 'myRepo',
                     owner: 'login'
                 }
-            };
-
-            webhook_api.remove(req, function (error) {
-                assert.equal(error, 'No webhook found with base url ' + url.baseWebhook);
-                it_done();
-            });
-        });
-    });
-});
+            }
+            try {
+                await webhook_api.remove(req)
+                assert(false, 'an error should have been thrown before')
+            } catch (error) {
+                assert.equal(error, 'No webhook found with base url ' + url.baseWebhook)
+            }
+        })
+    })
+})
