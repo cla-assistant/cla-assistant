@@ -1,192 +1,164 @@
 // module
-let github = require('../services/github');
-let repoService = require('../services/repo');
-let url = require('../services/url');
-let async = require('async');
+const github = require('../services/github')
+const repoService = require('../services/repo')
+const url = require('../services/url')
 
-function getHook(owner, repo, noCache, token, done) {
-    if (!owner || !token) {
-        return done('Owner/org and token is required.');
-    }
-    let args = {
-        fun: 'getHooks',
-        arg: {
-            noCache: noCache
-        },
-        token: token
-    };
-    if (repo) {
-        args.obj = 'repos';
-        args.arg.owner = owner;
-        args.arg.repo = repo;
-    } else {
-        args.obj = 'orgs';
-        args.arg.org = owner;
-    }
-    github.call(args, function callback(err, hooks) {
-        let hook = null;
+class WebhookApi {
+    async _getHook(owner, repo, noCache, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token is required.'
+        }
+        let args = {
+            fun: 'listHooks',
+            arg: {
+                noCache: noCache
+            },
+            token: token
+        }
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.owner = owner
+            args.arg.repo = repo
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+        }
+        const hooks = await github.call(args)
+        let hook = null
 
-        if (!err && hooks && hooks.length > 0) {
-            hooks.forEach(function (webhook) {
+        if (hooks && hooks.data && hooks.data.length > 0) {
+            hooks.data.forEach(function (webhook) {
                 if (webhook.active && webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
-                    hook = webhook;
+                    hook = webhook
                 }
-            });
-        } else if (hooks && hooks.message) {
-            err = err + hooks.message;
-
+            })
         }
-        done(err, hook);
-    });
-}
+        return hook
+    }
 
-function getRepoHook(owner, repo, noCache, token, done) {
-    getHook(owner, repo, noCache, token, function (error, hook) {
-        if (error || hook) {
-            return done(error, hook);
+    async _getRepoHook(owner, repo, noCache, token) {
+        let hook = await this._getHook(owner, repo, noCache, token)
+        if (!hook) {
+            hook = await this._getHook(owner, undefined, noCache, token)
+            // if (error && error.code !== 404) {
+            //     // When the owner is not an org, github returns 404.
+            //     throw new Error(error).stack
+            // }
         }
-        getHook(owner, undefined, noCache, token, function (error, hook) {
-            if (error && error.code !== 404) {
-                // When the owner is not an org, github returns 404.
-                return done(error);
-            }
-
-            return done(null, hook);
-        });
-    });
-}
-
-function getOrgHook(org, noCache, token, done) {
-    getHook(org, undefined, noCache, token, done);
-}
-
-function createHook(owner, repo, token, done) {
-    if (!owner || !token) {
-        return done('Owner/org and token is required.');
+        return hook
     }
-    let args = {
-        fun: 'createHook',
-        arg: {
-            noCache: true,
-            config: { content_type: 'json' },
-            name: 'web',
-            events: ['pull_request'],
-            active: true
-        },
-        token: token
-    };
-    if (repo) {
-        args.obj = 'repos';
-        args.arg.repo = repo;
-        args.arg.owner = owner;
-        args.arg.config.url = url.webhook(repo);
-    } else {
-        args.obj = 'orgs';
-        args.arg.org = owner;
-        args.arg.config.url = url.webhook(owner);
-    }
-    github.call(args, done);
-}
 
-function createRepoHook(owner, repo, token, done) {
-    getRepoHook(owner, repo, true, token, function (error, hook) {
-        if (error || hook) {
-            return done(error, hook);
+    _getOrgHook(org, noCache, token) {
+        return this._getHook(org, undefined, noCache, token)
+    }
+
+    async _createHook(owner, repo, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token are required.'
         }
-        createHook(owner, repo, token, done);
-    });
-}
-
-function createOrgHook(org, token, done) {
-    getOrgHook(org, true, token, function (error, hook) {
-        if (error || hook) {
-            return done(error || 'Webhook already exist with base url ' + url.baseWebhook);
+        let args = {
+            fun: 'createHook',
+            arg: {
+                noCache: true,
+                config: { content_type: 'json' },
+                name: 'web',
+                events: ['pull_request'],
+                active: true
+            },
+            token: token
         }
-        createHook(org, undefined, token, function (err, hook) {
-            if (err) {
-                return done(err, null);
-            }
-            handleHookForLinkedRepoInOrg(org, token, removeRepoHook, function (e) {
-                done(e, hook);
-            });
-        });
-    });
-}
-
-function removeHook(owner, repo, hookId, token, done) {
-    if (!owner || !token) {
-        return done('Owner/org and token is required.');
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.repo = repo
+            args.arg.owner = owner
+            args.arg.config.url = url.webhook(repo)
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+            args.arg.config.url = url.webhook(owner)
+        }
+        const res = await github.call(args)
+        return res.data
     }
-    let args = {
-        fun: 'deleteHook',
-        arg: {
-            id: hookId,
-            noCache: true
-        },
-        token: token
-    };
-    if (repo) {
-        args.obj = 'repos';
-        args.arg.owner = owner;
-        args.arg.repo = repo;
-    } else {
-        args.obj = 'orgs';
-        args.arg.org = owner;
-    }
-    github.call(args, done);
-}
 
-function removeRepoHook(owner, repo, token, done) {
-    getRepoHook(owner, repo, true, token, function (err, hook) {
-        if (err || !hook) {
-            return done(err || 'No webhook found with base url ' + url.baseWebhook);
+    async _createRepoHook(owner, repo, token) {
+        const hook = await this._getRepoHook(owner, repo, true, token)
+        if (hook) {
+            return hook
+        }
+        return this._createHook(owner, repo, token)
+    }
+
+    async _createOrgHook(org, token) {
+        let hook = await this._getOrgHook(org, true, token)
+        if (hook) {
+            throw new Error('Webhook already exist with base url ' + url.baseWebhook)
+        }
+        hook = await this._createHook(org, undefined, token)
+        return this._handleHookForLinkedRepoInOrg(org, token, this._removeRepoHook.bind(this))
+    }
+
+    async _removeHook(owner, repo, hookId, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token is required.'
+        }
+        let args = {
+            fun: 'deleteHook',
+            arg: {
+                id: hookId,
+                noCache: true
+            },
+            token: token
+        }
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.owner = owner
+            args.arg.repo = repo
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+        }
+        return github.call(args)
+    }
+
+    async _removeRepoHook(owner, repo, token) {
+        const hook = await this._getRepoHook(owner, repo, true, token)
+        if (!hook) {
+            throw 'No webhook found with base url ' + url.baseWebhook
         }
         if (hook.type === 'Organization') {
-            return done(null, null);
+            return null
         }
-        removeHook(owner, repo, hook.id, token, done);
-    });
-}
+        return this._removeHook(owner, repo, hook.id, token)
+    }
 
-function removeOrgHook(org, token, done) {
-    getOrgHook(org, true, token, function (error, hook) {
-        if (error || !hook) {
-            return done(error || 'No webhook found with base url ' + url.baseWebhook);
+    async _removeOrgHook(org, token) {
+        const hook = await this._getOrgHook(org, true, token)
+        if (!hook) {
+            throw 'No webhook found with base url ' + url.baseWebhook
         }
-        removeHook(org, undefined, hook.id, token, function (err) {
-            if (err) {
-                return done(err, null);
+        await this._removeHook(org, undefined, hook.id, token)
+        await this._handleHookForLinkedRepoInOrg(org, token, this._createRepoHook.bind(this))
+        return hook
+    }
+
+    async _handleHookForLinkedRepoInOrg(org, token, delegateFun) {
+        const repos = await repoService.getByOwner(org)
+        if (!repos || repos.length === 0) {
+            throw 'No repos found for the org'
+        }
+        const promises = repos.map(repo => {
+            if (!repo.gist) {
+                // Repos with Null CLA will NOT have webhook
+                return null
             }
-            handleHookForLinkedRepoInOrg(org, token, createRepoHook, function (e) {
-                done(e, hook);
-            });
-        });
-    });
-}
+            return delegateFun(repo.owner, repo.repo, token)
+        })
+        return Promise.all(promises)
+    }
 
-function handleHookForLinkedRepoInOrg(org, token, delegateFun, done) {
-    repoService.getByOwner(org, function (error, repos) {
-        if (error || !repos || repos.length === 0) {
-            return done(error);
-        }
-        async.series(repos.map(function (repo) {
-            return function (callback) {
-                if (!repo.gist) {
-                    // Repos with Null CLA will NOT have webhook
-                    return callback(null, null);
-                }
-                delegateFun(repo.owner, repo.repo, token, callback);
-            };
-        }), function (err) {
-            done(err);
-        });
-    });
-}
-
-module.exports = {
-
-    get: function (req, done) {
-        return req.args && req.args.org ? getOrgHook(req.args.org, req.args.noCache, req.user.token, done) : getRepoHook(req.args.owner, req.args.repo, req.args.noCache, req.user.token, done);
+    async get(req) {
+        return req.args && req.args.org ? this._getOrgHook(req.args.org, req.args.noCache, req.user.token) : this._getRepoHook(req.args.owner, req.args.repo, req.args.noCache, req.user.token)
 
         // now we will have to check two things:
         // 1) webhook user still has push access to this repo
@@ -196,13 +168,15 @@ module.exports = {
 
         // if(hook) {
         // }
-    },
-
-    create: function (req, done) {
-        return req.args && req.args.orgId ? createOrgHook(req.args.org, req.user.token, done) : createRepoHook(req.args.owner, req.args.repo, req.user.token, done);
-    },
-
-    remove: function (req, done) {
-        return req.args && req.args.org ? removeOrgHook(req.args.org, req.user.token, done) : removeRepoHook(req.args.owner, req.args.repo, req.user.token, done);
     }
-};
+
+    async create(req) {
+        return req.args && req.args.orgId ? this._createOrgHook(req.args.org, req.user.token) : this._createRepoHook(req.args.owner, req.args.repo, req.user.token)
+    }
+
+    async remove(req) {
+        return req.args && req.args.org ? this._removeOrgHook(req.args.org, req.user.token) : this._removeRepoHook(req.args.owner, req.args.repo, req.user.token)
+    }
+}
+
+module.exports = new WebhookApi()
