@@ -148,12 +148,12 @@ describe('Home Controller', function () {
         expRes = {
             RPC: {},
             HUB: {
-                getUser: {
+                getAuthenticatedUser: {
                     value: {
                         login: 'login'
                     },
                     meta: {
-                        scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'
+                        'x-oauth-scopes': 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org'
                     }
                 }
             }
@@ -163,7 +163,6 @@ describe('Home Controller', function () {
             HUB: {}
         };
 
-        var hubCall = $HUB.call;
         sinon.stub($HUB, 'call', function (obj, fun, args, cb) {
             calledApi.HUB[obj] = calledApi.HUB[obj] ? calledApi.HUB[obj] : {};
             calledApi.HUB[obj][fun] = true;
@@ -175,7 +174,7 @@ describe('Home Controller', function () {
                 return response;
             }
 
-            if (obj === 'gists' && fun === 'getAll') {
+            if (obj === 'gists' && fun === 'list') {
                 response.value = testDataGists.concat(
                     [{
                         html_url: 'https://gist.github.com/gistId',
@@ -186,8 +185,8 @@ describe('Home Controller', function () {
                         }
                     }]);
             } else if (obj === 'users' && fun === 'getOrgs') {
-                response.value = expRes.HUB ? expRes.HUB.getOrgs : testDataOrgs;
-            } else if (obj === 'repos' && fun === 'getAll') {
+                response.value = expRes.HUB ? expRes.HUB.listUserOrgs : testDataOrgs;
+            } else if (obj === 'repos' && fun === 'list') {
                 response = getAllReposData || {
                     value: testDataRepos
                 };
@@ -195,10 +194,8 @@ describe('Home Controller', function () {
                 args.affiliation.indexOf('owner').should.be.above(-1);
                 args.affiliation.indexOf('organization_member').should.be.above(-1);
             } else if (obj === 'users' && fun === 'getAuthenticated') {
-                response = expRes.HUB.getUser;
-                error = expErr.HUB.getUser || null;
-            } else {
-                return hubCall(obj, fun, args, cb);
+                response = expRes.HUB.getAuthenticatedUser;
+                error = expErr.HUB.getAuthenticatedUser || null;
             }
 
             if (typeof cb === 'function') {
@@ -208,7 +205,6 @@ describe('Home Controller', function () {
             return response;
         });
 
-        var rpcCall = $RPCService.call;
         sinon.stub($RPCService, 'call', function (o, f, args, cb) {
             calledApi.RPC[o] = calledApi.RPC[o] ? calledApi.RPC[o] : {};
             calledApi.RPC[o][f] = true;
@@ -263,8 +259,6 @@ describe('Home Controller', function () {
                 response = expRes.RPC.org && expRes.RPC.org.remove ? expRes.RPC.org.remove : {
                     value: true
                 };
-            } else {
-                return rpcCall(o, f, args, cb);
             }
 
             if (cb) {
@@ -312,35 +306,12 @@ describe('Home Controller', function () {
 
             return ctrl;
         };
-
-        // homeCtrl = createCtrl();
-        // httpBackend.when('POST', '/api/github/direct_call', {
-        //     url: 'https://api.github.com/gists?per_page=100'
-        // }).respond(testDataGists.data.concat(
-        //     [{
-        //         html_url: 'https://gist.github.com/gistId',
-        //         files: {
-        //             'file.txt': {
-        //                 filename: 'file1'
-        //             }
-        //         }
-        //     }]));
-        // httpBackend.when('GET', '/static/cla-assistant.json').respond({
-        //     data: {
-        //         'default-cla': [{
-        //             name: 'first default cla',
-        //             url: 'https://gist.github.com/gistId'
-        //         }]
-        //     }
-        // });
-
     }));
 
     afterEach(function () {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
         homeCtrl = {};
-        // homeCtrl.scope.selected = {};
 
         $RAW.get.restore();
         $RPCService.call.restore();
@@ -361,7 +332,7 @@ describe('Home Controller', function () {
     });
 
     it('should get claOrgs for user if user has admin rights', function () {
-        expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] += ', admin:org_hook';
         expRes.RPC.org = {
             getForUser: {
                 value: [{
@@ -379,7 +350,7 @@ describe('Home Controller', function () {
     });
 
     it('should get only github orgs where user has admin rights, normal membership is not enough', function () {
-        expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] += ', admin:org_hook';
         expRes.RPC.org = {
             getForUser: {
                 value: [{
@@ -396,7 +367,7 @@ describe('Home Controller', function () {
     });
 
     it('should get github repos even if user has NO github orgs', function () {
-        expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] += ', admin:org_hook';
         expRes.RPC.org = {
             getForUser: {
                 value: []
@@ -432,7 +403,7 @@ describe('Home Controller', function () {
     });
 
     it('should check whether the user has admin:org_hook right', function () {
-        expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] += ', admin:org_hook';
 
         homeCtrl = createCtrl();
         _timeout.flush();
@@ -451,7 +422,7 @@ describe('Home Controller', function () {
     });
 
     it('should get user orgs and combine them with repos in one list', function () {
-        expRes.HUB.getUser.meta.scopes += ', admin:org_hook';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] += ', admin:org_hook';
 
         homeCtrl = createCtrl();
         _timeout.flush();
@@ -468,22 +439,6 @@ describe('Home Controller', function () {
         (homeCtrl.scope.groupOrgs(testDataOrgs[0])).should.be.equal('Organisations');
         (homeCtrl.scope.groupOrgs(testDataRepos[0])).should.not.be.equal('Organisations');
     });
-
-    // xit('should get more repos if there are more to load', function() {
-    //     var getMoreCalled = false;
-    //     getAllReposData = {
-    //         value: testDataRepos.data,
-    //         hasMore: true,
-    //         getMore: function() {
-    //             getMoreCalled = true;
-    //         }
-    //     };
-
-    //     homeCtrl = createCtrl();
-    //     httpBackend.flush();
-
-    //     (getMoreCalled).should.be.equal(true);
-    // });
 
     // it('should update scope.repos when all repos loaded first', function() {
     //     getAllReposData = {
@@ -533,7 +488,7 @@ describe('Home Controller', function () {
     });
 
     it('should not load user`s repos if he is not an admin', function () {
-        expRes.HUB.getUser.meta.scopes = 'user:email';
+        expRes.HUB.getAuthenticatedUser.meta['x-oauth-scopes'] = 'user:email';
         httpBackend.resetExpectations();
 
         homeCtrl = createCtrl();
@@ -799,8 +754,8 @@ describe('Home Controller', function () {
     });
 
     it('should load counts if user not logged', function () {
-        expRes.HUB.getUser = null;
-        expErr.HUB.getUser = 'Authentication required';
+        expRes.HUB.getAuthenticatedUser = { data: null };
+        expErr.HUB.getAuthenticatedUser = 'Authentication required';
 
         homeCtrl = createCtrl();
         homeCtrl.scope.showActivity = true;
