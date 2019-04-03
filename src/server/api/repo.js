@@ -1,61 +1,66 @@
 // module
-let repo = require('../services/repo');
-let log = require('../services/logger');
-let Joi = require('joi');
-let webhook = require('./webhook');
+const repo = require('../services/repo');
+const logger = require('../services/logger');
+const Joi = require('joi');
+const webhook = require('./webhook');
+
+const REPOCREATESCHEMA = Joi.object().keys({
+    owner: Joi.string().required(),
+    repo: Joi.string().required(),
+    repoId: Joi.number().required(),
+    token: Joi.string().required(),
+    gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
+    sharedGist: Joi.boolean(),
+    minFileChanges: Joi.number(),
+    minCodeChanges: Joi.number()
+})
+
+const REPOREMOVESCHEMA = Joi.alternatives().try(Joi.object().keys({
+    owner: Joi.string().required(),
+    repo: Joi.string().required(),
+}), Joi.object().keys({
+    repoId: Joi.number().required()
+}))
 
 module.exports = {
 
-    check: function (req, done) {
-        repo.check(req.args, done);
-    },
-    create: function (req, done) {
+    check: (req) => repo.check(req.args),
+    create: async (req) => {
         req.args.token = req.args.token || req.user.token;
-        let schema = Joi.object().keys({
-            owner: Joi.string().required(),
-            repo: Joi.string().required(),
-            repoId: Joi.number().required(),
-            token: Joi.string().required(),
-            gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
-            sharedGist: Joi.boolean(),
-            minFileChanges: Joi.number(),
-            minCodeChanges: Joi.number()
-        });
-        Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
-            if (joiError) {
-                joiError.code = 400;
+        validateArgs(req.args, REPOCREATESCHEMA, true)
 
-                return done(joiError);
+        const repoArgs = {
+            repo: req.args.repo,
+            owner: req.args.owner,
+            token: req.args.token
+        };
+        let dbRepo
+        try {
+            dbRepo = await repo.get(repoArgs)
+            if (!dbRepo) {
+                throw 'New repo should be created'
             }
-            let repoArgs = {
-                repo: req.args.repo,
-                owner: req.args.owner,
-                token: req.args.token
-            };
-            repo.get(repoArgs, function (error, dbRepo) {
-                if (dbRepo) {
-                    repo.getGHRepo(repoArgs, function (err, ghRepo) {
-                        if (err || (ghRepo && ghRepo.id != dbRepo.repoId)) {
-                            repo.update(req.args, done);
-                        } else {
-                            done('This repository is already linked.');
-                        }
-                    });
-                } else {
-                    repo.create(req.args, function (createRepoErr, dbRepo) {
-                        if (createRepoErr) {
-                            return done(createRepoErr);
-                        }
-                        if (!dbRepo.gist) {
-                            return done(null, dbRepo);
-                        }
-                        webhook.create(req, function (createHookErr) {
-                            done(createHookErr, dbRepo);
-                        });
-                    });
+            try {
+                const ghRepo = await repo.getGHRepo(repoArgs)
+                if (ghRepo && ghRepo.id != dbRepo.repoId) {
+                    throw 'Repo id has changed'
                 }
-            });
-        });
+            } catch (error) {
+                return repo.update(req.args)
+            }
+        } catch (error) {
+            dbRepo = await repo.create(req.args)
+
+            if (dbRepo.gist) {
+                try {
+                    webhook.create(req)
+                } catch (error) {
+                    logger.error(`Could not create a webhook for the new repo ${new Error(error)}`)
+                }
+            }
+            return dbRepo
+        }
+        throw 'This repository is already linked.'
     },
     // get: function(req, done){
     // 	repo.get(req.args, function(err, found_repo){
@@ -67,44 +72,32 @@ module.exports = {
     // 		done(err, found_repo);
     // 	});
     // },
-    getAll: function (req, done) {
-        repo.getAll(req.args, function (err, repos) {
-            if (err) {
-                log.error(err);
-            }
-            done(err, repos);
-        });
-    },
-    update: function (req, done) {
+    getAll: (req) => repo.getAll(req.args),
+    update: (req) => {
         req.args.token = req.args.token || req.user.token;
-        repo.update(req.args, done);
+        return repo.update(req.args)
     },
-    remove: function (req, done) {
-        let schema = Joi.alternatives().try(Joi.object().keys({
-            owner: Joi.string().required(),
-            repo: Joi.string().required(),
-        }), Joi.object().keys({
-            repoId: Joi.number().required()
-        }));
-        Joi.validate(req.args, schema, { abortEarly: false }, function (joiError) {
-            if (joiError) {
-                joiError.code = 400;
+    remove: async (req) => {
+        validateArgs(req.args, REPOREMOVESCHEMA)
 
-                return done(joiError);
+        const dbRepo = await repo.remove(req.args)
+        if (dbRepo && dbRepo.gist) {
+            req.args.owner = dbRepo.owner;
+            req.args.repo = dbRepo.repo;
+            try {
+                webhook.remove(req)
+            } catch (error) {
+                logger.error(`Could not remove the webhook for the repo ${new Error(error)}`)
             }
-            repo.remove(req.args, function (removeRepoErr, dbRepo) {
-                if (removeRepoErr) {
-                    return done(removeRepoErr);
-                }
-                if (!dbRepo || !dbRepo.gist) {
-                    return done(null, dbRepo);
-                }
-                req.args.owner = dbRepo.owner;
-                req.args.repo = dbRepo.repo;
-                webhook.remove(req, function (removeHookErr) {
-                    done(removeHookErr, dbRepo);
-                });
-            });
-        });
+        }
+        return dbRepo
     }
 };
+
+function validateArgs(args, schema, allowUnknown) {
+    const joiRes = Joi.validate(args, schema, { abortEarly: false, allowUnknown });
+    if (joiRes.error) {
+        joiRes.error.code = 400;
+        throw joiRes.error;
+    }
+}
