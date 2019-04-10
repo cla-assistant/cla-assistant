@@ -1,5 +1,10 @@
 # Change Log
 
+## [v1.9.2](https://github.com/cla-assistant/cla-assistant/tree/v1.9.2) (2019-04-10)
+
+**Merged pull requests:**
+- Updating some URLs to the https:// prefix [#431](https://github.com/cla-assistant/cla-assistant/pull/431) ([jeffwilcox](https://github.com/jeffwilcox))
+
 ## [v1.9.1](https://github.com/cla-assistant/cla-assistant/tree/v1.9.1) (2019-03-26)
 
 **Fixed bugs:**
