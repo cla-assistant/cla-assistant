@@ -304,25 +304,19 @@ module.exports = function () {
         if (!repo || !owner || !number) {
             return Promise.reject(new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number));
         }
-        try {
-            const item = await getLinkedItem(repo, owner, token);
-            if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
-                return true;
-            }
-            token = token || item.token; // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
-            const pullRequest = await getPR(owner, repo, number, token, true);
-            if (typeof item.minFileChanges === 'number' && pullRequest.changed_files >= item.minFileChanges) {
-                return true;
-            }
-            if (typeof item.minCodeChanges === 'number' && pullRequest.additions + pullRequest.deletions >= item.minCodeChanges) {
-                return true;
-            }
-            return false;
-        } catch (e) {
-            logger.error(new Error(e).stack);
-
+        const item = await getLinkedItem(repo, owner, token);
+        if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
             return true;
         }
+        token = token || item.token; // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
+        const pullRequest = await getPR(owner, repo, number, token, true);
+        if (typeof item.minFileChanges === 'number' && pullRequest.changed_files >= item.minFileChanges) {
+            return true;
+        }
+        if (typeof item.minCodeChanges === 'number' && pullRequest.additions + pullRequest.deletions >= item.minCodeChanges) {
+            return true;
+        }
+        return false;
     };
 
     claService = {

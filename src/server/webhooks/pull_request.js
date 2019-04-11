@@ -45,55 +45,43 @@ function storeRequest(committers, repo, owner, number) {
 }
 
 async function updateStatusAndComment(args) {
-    try {
-        logger.trackEvent('CLAAssistantPullRequestUpdateStatusAndCommentStart', { deliveryId: args.deliveryId });
-        const [committers] = await promisify(repoService.getPRCommitters.bind(repoService))(args);
-        logger.trackEvent('CLAAssistantPullRequestGetPRCommittersSuccess', { deliveryId: args.deliveryId });
-        if (!committers || committers.length === 0) {
-            throw new Error('Cannot get committers of the pull request');
-        }
-        const [signed, user_map] = await promisify(cla.check.bind(cla))(args);
-        logger.trackEvent('CLAAssistantPullRequestClaCheckSuccess', { deliveryId: args.deliveryId });
-        args.signed = signed;
-        if (!user_map ||
-            (user_map.signed && user_map.signed.length > 0) ||
-            (user_map.not_signed && user_map.not_signed.length > 0) ||
-            (user_map.unknown && user_map.unknown.length > 0)
-        ) {
-            await promisify(status.update.bind(status))(args);
-        } else {
-            await promisify(status.updateForClaNotRequired.bind(status))(args);
-        }
-        logger.trackEvent('CLAAssistantPullRequestStatusUpdateSuccess', { deliveryId: args.deliveryId });
-        if (!signed || !config.server.feature_flag.close_comment) {
-            await promisify(pullRequest.badgeComment.bind(pullRequest))(
-                args.owner,
-                args.repo,
-                args.number,
-                signed,
-                user_map
-            );
-            logger.trackEvent('CLAAssistantPullRequestCommentUpdateSuccess', { deliveryId: args.deliveryId });
-        }
-        if (user_map && user_map.not_signed) {
-            await storeRequest(user_map.not_signed, args.repo, args.owner, args.number);
-            logger.trackEvent('CLAAssistantPullRequestStoreUserRequestSuccess', { deliveryId: args.deliveryId });
-        }
-    } catch (err) {
-        if (!args.handleCount || args.handleCount < 2) {
-            args.handleCount = args.handleCount ? ++args.handleCount : 1;
-            await promiseDelay(10000 * args.handleCount * args.handleDelay);
-            await updateStatusAndComment(args);
-        } else {
-            logger.warn(new Error(err).stack, 'called with args: ', { repo: args.repo, owner: args.owner, number: args.number, handleCount: args.handleCount });
-            throw err;
-        }
+    logger.trackEvent('CLAAssistantPullRequestUpdateStatusAndCommentStart', { deliveryId: args.deliveryId });
+    const [committers] = await promisify(repoService.getPRCommitters.bind(repoService))(args);
+    logger.trackEvent('CLAAssistantPullRequestGetPRCommittersSuccess', { deliveryId: args.deliveryId });
+    if (!committers || committers.length === 0) {
+        throw new Error('Cannot get committers of the pull request');
+    }
+    const [signed, user_map] = await promisify(cla.check.bind(cla))(args);
+    logger.trackEvent('CLAAssistantPullRequestClaCheckSuccess', { deliveryId: args.deliveryId });
+    args.signed = signed;
+    if (!user_map ||
+        (user_map.signed && user_map.signed.length > 0) ||
+        (user_map.not_signed && user_map.not_signed.length > 0) ||
+        (user_map.unknown && user_map.unknown.length > 0)
+    ) {
+        await promisify(status.update.bind(status))(args);
+    } else {
+        await promisify(status.updateForClaNotRequired.bind(status))(args);
+    }
+    logger.trackEvent('CLAAssistantPullRequestStatusUpdateSuccess', { deliveryId: args.deliveryId });
+    if (!signed || !config.server.feature_flag.close_comment) {
+        await promisify(pullRequest.badgeComment.bind(pullRequest))(
+            args.owner,
+            args.repo,
+            args.number,
+            signed,
+            user_map
+        );
+        logger.trackEvent('CLAAssistantPullRequestCommentUpdateSuccess', { deliveryId: args.deliveryId });
+    }
+    if (user_map && user_map.not_signed) {
+        await storeRequest(user_map.not_signed, args.repo, args.owner, args.number);
+        logger.trackEvent('CLAAssistantPullRequestStoreUserRequestSuccess', { deliveryId: args.deliveryId });
     }
 }
 
 async function handleWebHook(args) {
     try {
-        await promiseDelay(config.server.github.enforceDelay);
         const startTime = process.hrtime();
         logger.trackEvent('CLAAssistantPullRequestHandleWebHookStart', { deliveryId: args.deliveryId });
         const item = await cla.getLinkedItem(args);
@@ -126,9 +114,18 @@ async function handleWebHook(args) {
             logger.trackEvent('CLAAssistantPullRequestDeleteCommentSuccess', { deliveryId: args.deliveryId });
         }
         collectMetrics(args.owner, args.repo, args.number, args.userId, startTime, args.signed, args.action, isClaRequired, args.deliveryId);
-    } catch (error) {
-        logger.error(error, { repo: args.repo, owner: args.owner, number:args.number, sha: args.sha, signed: args.signed });
-        throw error;
+    } catch (err) {
+        if (!args.handleCount || args.handleCount < 2) {
+            args.handleCount = args.handleCount ? ++args.handleCount : 1;
+            await promiseDelay(10000 * args.handleCount * args.handleDelay);
+            return await handleWebHook(args);
+        }
+        const logProperty = { repo: args.repo, owner: args.owner, number: args.number, deliveryId: args.deliveryId, handleCount: args.handleCount };
+        if (err.code === 404) {
+            return logger.trackEvent('CLAAssistantPullRequestNotFound', logProperty);
+        }
+        logger.warn(new Error(err).stack, 'called with args: ', logProperty);
+        throw err;
     }
 }
 
@@ -150,6 +147,7 @@ module.exports = async function (req, res) {
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id;
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1; // needed for unitTests
 
+        await promiseDelay(config.server.github.enforceDelay);
         if (config.server.feature_flag.wait_for_web_hook_event_process) {
             try {
                 await handleWebHook(args);
