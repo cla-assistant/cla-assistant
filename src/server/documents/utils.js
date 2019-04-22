@@ -13,13 +13,16 @@ module.exports = {
         if (!patternList || !item || !item.includes) {
             return false;
         }
-        let patterns = patternList.split(',');
+        const patterns = patternList.split(',');
 
         return patterns.filter(function (pattern) {
-            let regex = _.escapeRegExp(pattern);
-            regex = regex.includes('\\*') ? regex.split('\\*').join('.*') : pattern;
-
-            return new RegExp(regex).test(item);
+            pattern = pattern.trim();
+            if (pattern.includes('*')) {
+                const regex = _.escapeRegExp(pattern).split('\\*').join('.*');
+                return new RegExp(regex).test(item);
+            } else {
+                return pattern === item;
+            }
         }).length > 0;
     }
 };
