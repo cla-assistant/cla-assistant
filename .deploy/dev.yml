@@ -78,6 +78,8 @@ spec:
           value: 'true'
         - name: WAIT_FOR_WEB_HOOK_EVENT_PROCESS
           value: 'true'
+        - name: ORG_OVERRIDE_ENABLED
+          value: 'true'
       imagePullSecrets:
         - name: ospoaksdev.azurecr.io
 ---
