@@ -4,22 +4,24 @@ let log = require('../services/logger');
 let Joi = require('joi');
 let webhook = require('./webhook');
 
-module.exports = {
+const schema = Joi.object().keys({
+    owner: Joi.string().required(),
+    repo: Joi.string().required(),
+    repoId: Joi.number().required(),
+    token: Joi.string().required(),
+    gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
+    sharedGist: Joi.boolean(),
+    minFileChanges: Joi.number(),
+    minCodeChanges: Joi.number(),
+    whiteListPattern: Joi.string().allow(''),
+    privacyPolicy: Joi.string().allow('') // https://github.com/hapijs/joi/issues/448
+});
 
+module.exports = {
     check: function (req, done) {
         repo.check(req.args, done);
     },
     create: function (req, done) {
-        let schema = Joi.object().keys({
-            owner: Joi.string().required(),
-            repo: Joi.string().required(),
-            repoId: Joi.number().required(),
-            token: Joi.string().required(),
-            gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
-            sharedGist: Joi.boolean(),
-            minFileChanges: Joi.number(),
-            minCodeChanges: Joi.number()
-        });
         req.args.token = req.args.token || req.user.token;
         if (config.server.github.adminToken) {
             req.args.token = config.server.github.adminToken;
@@ -81,6 +83,10 @@ module.exports = {
     },
     update: function (req, done) {
         req.args.token = req.args.token || req.user.token;
+        const { error } = Joi.validate(req.args, schema);
+        if (error) {
+            return done(error);
+        }
         repo.update(req.args, done);
     },
     remove: function (req, done) {

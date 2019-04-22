@@ -15,7 +15,8 @@ let schema = Joi.object().keys({
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
     minCodeChanges: Joi.number(),
-    whiteListPattern: Joi.string()
+    whiteListPattern: Joi.string().allow(''),
+    privacyPolicy: Joi.string().allow('')
 });
 
 module.exports = {
