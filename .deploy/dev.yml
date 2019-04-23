@@ -15,6 +15,15 @@ spec:
         name: cla-dev
         ports:
         - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 5000
+            httpHeaders:
+              - name: x-health-check
+                value: check
+          initialDelaySeconds: 30
+          periodSeconds: 10
         env:
         - name: PROTOCOL
           value: https
