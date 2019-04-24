@@ -173,10 +173,6 @@ async.series([
     },
 
     function (callback) {
-        bootstrap('controller', callback);
-    },
-
-    function (callback) {
         bootstrap('graphQueries', callback);
     },
 
@@ -186,6 +182,10 @@ async.series([
 
     function (callback) {
         bootstrap('webhooks', callback);
+    },
+
+    function (callback) {
+        bootstrap('controller', callback);
     }
 ], function (err) {
     if (err) {
