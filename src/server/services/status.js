@@ -75,6 +75,9 @@ let createStatus = function (args, context, description, state, target_url, done
             logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
             log(error, response, { owner: args.owner, repo: args.repo, number: args.number, sha: args.sha, state });
         }
+        if (error.code === 422) {
+            error = null;
+        }
         if (typeof done === 'function') {
             done(error, response);
         }
