@@ -442,7 +442,7 @@ module.exports = function () {
                     args.gist_version,
                     args.onDates
                 );
-                if (signed && user_map.includes(headOrg.login)) {
+                if (signed && user_map.signed.includes(headOrg.login)) {
                     return ({ signed, user_map });
                 }
             }
