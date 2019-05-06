@@ -24,7 +24,7 @@ let index = {
     repoId: 1,
     owner: 1,
     ownerId: 1,
-    user: 1,
+    userId: 1,
     gist_url: 1,
     gist_version: 1,
     org_cla: 1
