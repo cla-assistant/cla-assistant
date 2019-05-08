@@ -52,6 +52,7 @@
         "q": "^1.5.1",
         "raven": "^2.6.4",
         "request": "^2.88.0",
+        "request-promise-native": "^1.0.7",
         "socket.io": "^2.2.0",
         "valid-url": "^1.0.9",
         "x-frame-options": "^1.0.0"
