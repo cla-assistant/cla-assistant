@@ -1,17 +1,17 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-let assert = require('assert');
-let sinon = require('sinon');
+const assert = require('assert')
+const sinon = require('sinon')
 
 // services
-let github = require('../../../server/services/github');
-let cla_config = require('../../../config');
+const github = require('../../../server/services/github')
+const cla_config = require('../../../config')
 
 // service under test
-let pullRequest = require('../../../server/services/pullRequest');
+const pullRequest = require('../../../server/services/pullRequest')
 
-let testDataComments_withCLAComment = [{
+const testDataComments_withCLAComment = [{
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/comments/1',
     'id': 1,
     'diff_hunk': '@@ -16,33 +16,40 @@ public class Connection : IConnection...',
@@ -99,9 +99,9 @@ let testDataComments_withCLAComment = [{
             'href': 'https://api.github.com/repos/octocat/Hello-World/pulls/1'
         }
     }
-}];
+}]
 
-let testDataComments_withoutCLA = [{
+const testDataComments_withoutCLA = [{
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/comments/1',
     'id': 2,
     'diff_hunk': '@@ -16,33 +16,40 @@ public class Connection : IConnection...',
@@ -145,423 +145,345 @@ let testDataComments_withoutCLA = [{
             'href': 'https://api.github.com/repos/octocat/Hello-World/pulls/1'
         }
     }
-}];
+}]
 
 
-describe('pullRequest:badgeComment', function () {
-    let direct_call_data, assertionCallBack;
-    cla_config.server.github.user = 'cla-assistant';
-    cla_config.server.github.pass = 'secret_pass';
+describe('pullRequest:badgeComment', () => {
+    let direct_call_data, assertionFunction
+    cla_config.server.github.user = 'cla-assistant'
+    cla_config.server.github.pass = 'secret_pass'
 
-    beforeEach(function () {
-        cla_config.server.github.token = 'xyz';
+    beforeEach(() => {
+        cla_config.server.github.token = 'xyz'
 
-        sinon.stub(github, 'call').callsFake(function (args, git_done) {
-            if (args.obj === 'issues' && args.fun === 'getComments') {
-                git_done(null, direct_call_data);
-
-                return;
+        sinon.stub(github, 'call').callsFake(async (args) => {
+            if (args.obj === 'issues' && args.fun === 'listComments') {
+                return direct_call_data
             }
-            if (assertionCallBack) {
-                assertionCallBack(args, git_done);
+            if (assertionFunction) {
+                return assertionFunction(args)
             }
-        });
-    });
+        })
+    })
 
-    afterEach(function () {
-        assertionCallBack = undefined;
-        github.call.restore();
-    });
+    afterEach(() => {
+        assertionFunction = undefined
+        github.call.restore()
+    })
 
-    it('should create comment with cla-assistant user', function (it_done) {
-        direct_call_data = [];
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'createComment');
-            assert(!args.token);
-            assert.equal(args.basicAuth.user, 'cla-assistant');
-            assert.equal(args.basicAuth.pass, 'secret_pass');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should create comment with cla-assistant user', async () => {
+        direct_call_data = []
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'createComment')
+            assert(!args.token)
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.basicAuth.pass, 'secret_pass')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1);
-    });
+        await pullRequest.badgeComment('login', 'myRepo', 1)
+    })
 
-    it('should edit comment with cla-assistant user', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'editComment');
-            assert.equal(args.basicAuth.user, 'cla-assistant');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should edit comment with cla-assistant user', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'editComment')
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1);
-    });
+        pullRequest.badgeComment('login', 'myRepo', 1)
+    })
 
-    it('should add a note to the comment if there is a committer who is not a github user', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'editComment');
-            assert.equal(args.basicAuth.user, 'cla-assistant');
-            assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should add a note to the comment if there is a committer who is not a github user', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'editComment')
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1'],
             unknown: ['user1']
-        });
-    });
+        })
+    })
 
-    it('should add a note to the comment with name of ONE committer who has no github account', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert(args.arg.body.indexOf('**user1** seems not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should add a note to the comment with name of ONE committer who has no github account', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert(args.arg.body.indexOf('**user1** seems not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1'],
             unknown: ['user1']
-        });
-    });
+        })
+    })
 
-    it('should add a note to the comment with names of MULTIPLE committers who has no github account', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert(args.arg.body.indexOf('**user1, user2** seem not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should add a note to the comment with names of MULTIPLE committers who has no github account', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert(args.arg.body.indexOf('**user1, user2** seem not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1', 'user2'],
             unknown: ['user1', 'user2']
-        });
-    });
+        })
+    })
 
-    it('should write a list of signed and not signed users on create', function (it_done) {
-        direct_call_data = [];
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'createComment');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
-            assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
-            assert(args.arg.body.indexOf(':x: user2') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should write a list of signed and not signed users on create', async () => {
+        direct_call_data = []
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'createComment')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
+            assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
+            assert(args.arg.body.indexOf(':x: user2') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2']
-        });
-    });
+        })
+    })
 
-    it('should NOT write a list of signed and not signed users on create if there is only one committer', function (it_done) {
-        direct_call_data = [];
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'createComment');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            assert(args.arg.body.indexOf('**0** out of **1**') < 0);
-            assert(args.arg.body.indexOf(':x: user2') < 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should NOT write a list of signed and not signed users on create if there is only one committer', async () => {
+        direct_call_data = []
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'createComment')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('**0** out of **1**') < 0)
+            assert(args.arg.body.indexOf(':x: user2') < 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user2']
-        });
-    });
+        })
+    })
 
-    it('should write a list of signed and not signed users on edit', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'editComment');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
-            assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
-            assert(args.arg.body.indexOf(':x: user2') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
+    it('should write a list of signed and not signed users on edit', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'editComment')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
+            assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
+            assert(args.arg.body.indexOf(':x: user2') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2']
-        });
-    });
+        })
+    })
+})
 
-    //     it('should NOT comment if there are only white-listed committers', function (it_done) {
-    //         const getComment = sinon.spy(pullRequest, 'getComment');
+describe('pullRequest:getComment', () => {
+    beforeEach(() => {
+        cla_config.server.github.token = 'xyz'
 
-    //         pullRequest.badgeComment('login', 'myRepo', 1, false, {
-    //             signed: [],
-    //             not_signed: [],
-    //             white_list: ['committer[bot]']
-    //         });
-
-    //         assert(!getComment.called);
-    //         pullRequest.getComment.restore();
-    //         it_done();
-    //     });
-
-    //     it('should comment if there are NOT only white-listed committers', function (it_done) {
-    //         direct_call_data = testDataComments_withCLAComment;
-    //         assertionCallBack = function (args, git_done) {
-    //             assert.equal(args.fun, 'editComment');
-    //             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-    //             assert(args.arg.body.indexOf('**1** out of **2**') >= 0);
-    //             assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0);
-    //             assert(args.arg.body.indexOf(':x: user2') >= 0);
-    //             git_done(null, 'res', 'meta');
-    //             it_done();
-    //         };
-
-    //         pullRequest.badgeComment('login', 'myRepo', 1, false, {
-    //             signed: ['user1'],
-    //             not_signed: ['user2'],
-    //             white_list: ['committer[bot]']
-    //         });
-
-    //     });
-});
-
-describe('pullRequest:getComment', function () {
-    beforeEach(function () {
-        cla_config.server.github.token = 'xyz';
-
-        sinon.stub(github, 'call').callsFake(function (args, cb) {
-            if (args.obj === 'issues' && args.fun === 'getComments') {
-                assert.equal(args.token, 'xyz');
-                cb(null, testDataComments_withCLAComment);
+        sinon.stub(github, 'call').callsFake(async (args) => {
+            if (args.obj === 'issues' && args.fun === 'listComments') {
+                assert.equal(args.token, 'xyz')
+                return testDataComments_withCLAComment
             }
-        });
-    });
+        })
+    })
 
-    afterEach(function () {
-        github.call.restore();
-    });
+    afterEach(() => github.call.restore())
 
-    it('should get CLA assistant_s comment', function (it_done) {
-
-        let args = {
+    it('should get CLA assistant_s comment', async () => {
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
-        };
-        pullRequest.getComment(args, function (err, comment) {
-            assert.ifError(err);
-            assert(github.call.called);
-            assert.deepEqual(comment, testDataComments_withCLAComment[1]);
-            it_done();
-        });
-    });
+        }
+        const comment = await pullRequest.getComment(args)
+        assert(github.call.called)
+        assert.deepEqual(comment, testDataComments_withCLAComment[1])
+    })
 
-    it('should not find the comment if it is not there', function (it_done) {
-        github.call.restore();
-        sinon.stub(github, 'call').callsFake(function (arg, cb) {
-            cb(null, testDataComments_withoutCLA);
-        });
-        let args = {
+    it('should not find the comment if it is not there', async () => {
+        github.call.restore()
+        sinon.stub(github, 'call').resolves(testDataComments_withoutCLA)
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
-        };
-        pullRequest.getComment(args, function (err, comment) {
-            assert.ifError(err);
-            assert(github.call.called);
-            assert(!comment);
-            it_done();
-        });
-    });
+        }
+        const comment = await pullRequest.getComment(args)
+        assert(github.call.called)
+        assert(!comment)
+    })
 
-    it('should not find the comment if github is not answering in a proper way', function (it_done) {
-        github.call.restore();
-        sinon.stub(github, 'call').callsFake(function (arg, cb) {
-            cb(null, {
-                message: 'Error'
-            });
-        });
-        let args = {
+    it('should not find the comment if github is not answering in a proper way', async () => {
+        github.call.restore()
+        sinon.stub(github, 'call').rejects(new Error('Error'))
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
-        };
-        pullRequest.getComment(args, function (err, comment) {
-            assert(err);
-            assert(github.call.called);
-            assert(!comment);
-            it_done();
-        });
-    });
-});
+        }
+        try {
+            pullRequest.getComment(args)
+            assert(false, 'should have thrown an error')
+        } catch (error) {
+            assert(error)
+            assert(github.call.called)
+        }
+    })
+})
 
-describe('pullRequest:editComment', function () {
-    let assertionCallBack;
-    beforeEach(function () {
-        cla_config.server.github.token = 'xyz';
+describe('pullRequest:editComment', () => {
+    let assertionFunction
+    beforeEach(() => {
+        cla_config.server.github.token = 'xyz'
 
-        sinon.stub(github, 'call').callsFake(function (args, cb) {
-            if (args.obj === 'issues' && args.fun === 'getComments') {
-                assert.equal(args.token, 'xyz');
-                cb(null, testDataComments_withCLAComment);
-
-                return;
+        sinon.stub(github, 'call').callsFake(async (args) => {
+            if (args.obj === 'issues' && args.fun === 'listComments') {
+                assert.equal(args.token, 'xyz')
+                return testDataComments_withCLAComment
             }
-            if (assertionCallBack) {
-                assertionCallBack(args, cb);
-            } else {
-                assert.equal(args.basicAuth.user, 'cla-assistant');
-                assert(args.arg.id);
-                cb(null, 'res', 'meta');
+            if (assertionFunction) {
+                return assertionFunction(args)
             }
-        });
-    });
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert(args.arg.id)
+            return 'res'
+        })
+    })
 
-    afterEach(function () {
-        github.call.restore();
-        assertionCallBack = undefined;
-    });
+    afterEach(() => {
+        github.call.restore()
+        assertionFunction = undefined
+    })
 
-    it('should edit comment if not signed', function (it_done) {
-        let args = {
+    it('should edit comment if not signed', async () => {
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1
-        };
+        }
 
-        pullRequest.editComment(args, function () {
-            assert(github.call.calledTwice);
+        await pullRequest.editComment(args)
+        assert(github.call.calledTwice)
+    })
 
-            it_done();
-        });
-    });
-
-    it('should write a list of signed and not signed users on edit if not signed', function (it_done) {
-        let args = {
+    it('should write a list of signed and not signed users on edit if not signed', async () => {
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
             signed: false,
-            user_map: {
+            userMap: {
                 signed: ['user1'],
                 not_signed: ['user2']
             }
-        };
+        }
 
-        assertionCallBack = function (params, git_done) {
-            assert.equal(params.fun, 'editComment');
-            assert(params.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            assert(params.arg.body.indexOf('**1** out of **2**') >= 0);
-            assert(params.arg.body.indexOf(':white_check_mark: user1') >= 0);
-            assert(params.arg.body.indexOf(':x: user2') >= 0);
-            git_done(null, 'res', 'meta');
-        };
+        assertionFunction = async (params) => {
+            assert.equal(params.fun, 'editComment')
+            assert(params.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(params.arg.body.indexOf('**1** out of **2**') >= 0)
+            assert(params.arg.body.indexOf(':white_check_mark: user1') >= 0)
+            assert(params.arg.body.indexOf(':x: user2') >= 0)
+            return 'githubRes'
+        }
 
-        pullRequest.editComment(args, function () {
-            assert(github.call.called);
+        await pullRequest.editComment(args)
+        assert(github.call.called)
+    })
 
-            it_done();
-        });
-    });
-
-    it('should edit comment if signed', function (it_done) {
-        let args = {
+    it('should edit comment if signed', async () => {
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
             signed: true
-        };
+        }
 
-        pullRequest.editComment(args, function () {
-            assert(github.call.called);
-            assert(github.call.called);
+        await pullRequest.editComment(args)
+        assert(github.call.called)
+    })
 
-            it_done();
-        });
-    });
-
-    it('should not fail if no callback provided', function () {
-        let args = {
+    it('should not fail if no callback provided', async () => {
+        const args = {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
             signed: true
-        };
+        }
 
-        pullRequest.editComment(args);
-    });
-});
+        await pullRequest.editComment(args)
+    })
+})
 
-describe('pullRequest:deleteComment', function () {
+describe('pullRequest:deleteComment', () => {
     let args = null,
         error = null,
-        res = null;
+        res = null
 
-    beforeEach(function () {
+    beforeEach(() => {
         args = {
             repo: 'Hello-World',
             owner: 'owner',
             number: 1
-        };
-        error = {};
-        res = {};
-        sinon.stub(github, 'call').callsFake(function (args, cb) {
-            if (args.obj === 'issues' && args.fun === 'getComments') {
-                cb(error.getComments, res.getComments);
+        }
+        error = {}
+        res = {}
+        sinon.stub(github, 'call').callsFake(async (args) => {
+            if (args.obj === 'issues' && args.fun === 'listComments') {
+                if (error.listComments) {
+                    throw new Error(error.listComments)
+                }
+                return res.listComments
             }
             if (args.obj === 'issues' && args.fun === 'deleteComment') {
-                cb(error.deleteComment, null);
+                throw new Error(error.deleteComment)
             }
-        });
-    });
+        })
+    })
 
-    afterEach(function () {
-        github.call.restore();
-    });
+    afterEach(() => github.call.restore())
 
-    it('should NOT delete comment if cannot find the comment', function (it_done) {
-        res.getComments = {
-            message: 'Cannot find the comment'
-        };
-        pullRequest.deleteComment(args, function () {
-            assert(!github.call.calledWithMatch({
-                obj: 'issues',
-                fun: 'deleteComment'
-            }));
-            it_done();
-        });
-    });
+    it('should NOT delete comment if cannot find the comment', async () => {
+        error.listComments = 'Cannot find the comment'
+        await pullRequest.deleteComment(args)
+        assert(!github.call.calledWithMatch({
+            obj: 'issues',
+            fun: 'deleteComment'
+        }))
+    })
 
-    it('should NOT delete comment if get commit failed', function (it_done) {
-        error.getComments = 'Get commit failed';
-        pullRequest.deleteComment(args, function () {
-            assert(!github.call.calledWithMatch({
-                obj: 'issues',
-                fun: 'deleteComment'
-            }));
-            it_done();
-        });
-    });
+    it('should NOT delete comment if get commit failed', async () => {
+        error.listComments = 'Get commit failed'
+        await pullRequest.deleteComment(args)
+        assert(!github.call.calledWithMatch({
+            obj: 'issues',
+            fun: 'deleteComment'
+        }))
+    })
 
-    it('should delete comment', function (it_done) {
-        res.getComments = testDataComments_withCLAComment;
-        pullRequest.deleteComment(args, function () {
-            assert(github.call.calledWithMatch({
-                obj: 'issues',
-                fun: 'deleteComment'
-            }));
-            it_done();
-        });
-    });
-});
+    it('should delete comment', async () => {
+        res.listComments = testDataComments_withCLAComment
+        await pullRequest.deleteComment(args)
+        assert(github.call.calledWithMatch({
+            obj: 'issues',
+            fun: 'deleteComment'
+        }))
+    })
+})
