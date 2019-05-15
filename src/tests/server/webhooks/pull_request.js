@@ -1,24 +1,24 @@
 /*eslint no-empty-function: "off"*/
 // unit test
-let assert = require('assert');
-let sinon = require('sinon');
+const assert = require('assert')
+const sinon = require('sinon')
 
 // services
-let pullRequest = require('../../../server/services/pullRequest');
-let status = require('../../../server/services/status');
-let cla = require('../../../server/services/cla');
-let repoService = require('../../../server/services/repo');
-let orgService = require('../../../server/services/org');
-let logger = require('../../../server/services/logger');
+const pullRequest = require('../../../server/services/pullRequest')
+const status = require('../../../server/services/status')
+const cla = require('../../../server/services/cla')
+const repoService = require('../../../server/services/repo')
+const orgService = require('../../../server/services/org')
+const logger = require('../../../server/services/logger')
 
-let config = require('../../../config');
+const config = require('../../../config')
 
-let User = require('../../../server/documents/user').User;
+const User = require('../../../server/documents/user').User
 
 // webhook under test
-let pull_request = require('../../../server/webhooks/pull_request');
+const pull_request = require('../../../server/webhooks/pull_request')
 
-let testData = {
+const testData = {
     'id': 1,
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/1347',
     'html_url': 'https://github.com/octocat/Hello-World/pull/1347',
@@ -240,23 +240,22 @@ let testData = {
     'additions': 100,
     'deletions': 3,
     'changed_files': 5
-};
+}
 
-describe('webhook pull request', function () {
-    config.server.github.enforceDelay = 1;
-    let res = {
-        status: function (res_status) {
-            assert.equal(res_status, 200);
-
+describe('webhook pull request', () => {
+    config.server.github.enforceDelay = 1
+    const res = {
+        status: (res_status) => {
+            assert.equal(res_status, 200)
             return {
                 send: function () { }
-            };
+            }
         }
-    };
+    }
 
-    let test_req, testRes, testUser, testUserSaved;
+    let test_req, testRes, testUser, testUserSaved
 
-    beforeEach(function () {
+    beforeEach(() => {
         test_req = {
             args: {
                 pull_request: testData,
@@ -264,7 +263,7 @@ describe('webhook pull request', function () {
                 number: testData.number,
                 action: 'opened'
             }
-        };
+        }
         testRes = {
             getPRCommitters: [{
                 id: 1,
@@ -285,10 +284,10 @@ describe('webhook pull request', function () {
                     token: 'token'
                 }
             }
-        };
+        }
         testUser = {
             save: function () {
-                testUserSaved = true;
+                testUserSaved = true
             },
             name: 'testUser',
             requests: [{
@@ -296,381 +295,304 @@ describe('webhook pull request', function () {
                 owner: 'octocat',
                 numbers: [1]
             }]
-        };
-        testUserSaved = false;
+        }
+        testUserSaved = false
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            assert(args.number);
-            assert(!args.user);
-            done(null, false);
-        });
+        sinon.stub(cla, 'check').callsFake(async (args) => {
+            assert(args.number)
+            assert(!args.user)
+            return { signed: false }
+        })
 
-        sinon.stub(repoService, 'get').callsFake(function (args, done) {
-            assert(args.repoId);
-            // assert(args.ownerId);
-            done(null, testRes.repoService.get);
-        });
+        sinon.stub(repoService, 'get').callsFake(async (args) => {
+            assert(args.repoId)
+            // assert(args.ownerId)
+            return testRes.repoService.get
+        })
 
-        sinon.stub(cla, 'isClaRequired').callsFake(function () {
-            return Promise.resolve(testRes.cla.isClaRequired);
-        });
+        sinon.stub(cla, 'isClaRequired').callsFake(async () => {
+            return testRes.cla.isClaRequired
+        })
 
-        sinon.stub(repoService, 'getGHRepo').callsFake(function (args, done) {
-            done(null, testRes.repoService.getGHRepo);
-        });
+        sinon.stub(repoService, 'getGHRepo').callsFake(async () => {
+            return testRes.repoService.getGHRepo
+        })
 
-        sinon.stub(cla, 'getLinkedItem').callsFake(function (args) {
-            return Promise.resolve(Object.assign(args, testRes.cla.getLinkedItem));
-        });
+        sinon.stub(cla, 'getLinkedItem').callsFake(async (args) => {
+            return Object.assign(args, testRes.cla.getLinkedItem)
+        })
 
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            assert(args.repo);
-            assert(args.owner);
-            assert(args.number);
-            done(null, testRes.getPRCommitters);
-        });
+        sinon.stub(repoService, 'getPRCommitters').callsFake(async (args) => {
+            assert(args.repo)
+            assert(args.owner)
+            assert(args.number)
+            return testRes.getPRCommitters
+        })
 
-        sinon.stub(pullRequest, 'badgeComment').callsFake(function () { });
-        sinon.stub(pullRequest, 'deleteComment').callsFake(function () { });
-        sinon.stub(status, 'update').callsFake(function (args) {
-            assert(args.owner);
-            assert(args.repo);
-            assert(args.number);
-            assert(args.signed !== undefined);
-            assert(args.token);
-        });
-        sinon.stub(status, 'updateForClaNotRequired').callsFake(function () { });
+        sinon.spy(pullRequest, 'badgeComment')
+        sinon.stub(pullRequest, 'deleteComment').callsFake(() => { })
+        sinon.stub(status, 'update').callsFake((args) => {
+            assert(args.owner)
+            assert(args.repo)
+            assert(args.number)
+            assert(args.signed !== undefined)
+            assert(args.token)
+        })
+        sinon.stub(status, 'updateForClaNotRequired').callsFake(() => { })
 
-        sinon.stub(orgService, 'get').callsFake(function (args, done) {
-            assert(args.orgId);
-            done(null, {
+        sinon.stub(orgService, 'get').callsFake(async (args) => {
+            assert(args.orgId)
+            return {
                 org: 'orgOfRequestedRepo',
                 token: 'abc',
                 isRepoExcluded: function () {
-                    return false;
+                    return false
                 }
-            });
-        });
-        sinon.stub(logger, 'error').callsFake(function (msg) {
-            assert(msg);
-        });
-        sinon.stub(logger, 'warn').callsFake(function (msg) {
-            assert(msg);
-        });
-        sinon.stub(logger, 'info').callsFake(function (msg) {
-            assert(msg);
-        });
-        sinon.stub(User, 'findOne').callsFake((selector, cb) => {
-            cb(null, testUser);
-        });
-    });
+            }
+        })
+        sinon.stub(logger, 'error').callsFake((msg) => assert(msg))
+        sinon.stub(logger, 'warn').callsFake((msg) => assert(msg))
+        sinon.stub(logger, 'info').callsFake((msg) => assert(msg))
+        sinon.stub(User, 'findOne').callsFake(async () => testUser)
+    })
 
-    afterEach(function () {
-        cla.check.restore();
-        cla.isClaRequired.restore();
-        cla.getLinkedItem.restore();
-        pullRequest.badgeComment.restore();
-        pullRequest.deleteComment.restore();
-        repoService.getPRCommitters.restore();
-        repoService.get.restore();
-        repoService.getGHRepo.restore();
-        orgService.get.restore();
-        status.update.restore();
-        status.updateForClaNotRequired.restore();
-        logger.error.restore();
-        logger.warn.restore();
-        logger.info.restore();
-        User.findOne.restore();
-    });
+    afterEach(() => {
+        cla.check.restore()
+        cla.isClaRequired.restore()
+        cla.getLinkedItem.restore()
+        pullRequest.badgeComment.restore()
+        pullRequest.deleteComment.restore()
+        repoService.getPRCommitters.restore()
+        repoService.get.restore()
+        repoService.getGHRepo.restore()
+        orgService.get.restore()
+        status.update.restore()
+        status.updateForClaNotRequired.restore()
+        logger.error.restore()
+        logger.warn.restore()
+        logger.info.restore()
+        User.findOne.restore()
+    })
 
-    it('should update status of pull request if not signed', function (it_done) {
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert(pullRequest.badgeComment.called);
-            it_done();
-        }, 8);
-    });
+    it('should update status of pull request if not signed', async () => {
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        assert(pullRequest.badgeComment.called)
+    })
 
-    it('should provide user_map to badgeComment', function (it_done) {
-        cla.check.restore();
-        pullRequest.badgeComment.restore();
+    it('should provide userMap to badgeComment', async () => {
+        cla.check.restore()
+        pullRequest.badgeComment.restore()
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
-        sinon.stub(pullRequest, 'badgeComment').callsFake(function (owner, repo, prNumber, signed, user_map) {
-            assert(user_map.not_signed);
-        });
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
+        sinon.stub(pullRequest, 'badgeComment').callsFake((_owner, _repo, _prNumber, _signed, userMap) => assert(userMap.not_signed))
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert(pullRequest.badgeComment.called);
-            it_done();
-        }, 8);
-    });
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        assert(pullRequest.badgeComment.called)
+    })
 
-    it('should store PR number if not signed', function (it_done) {
-        cla.check.restore();
+    it('should store PR number if not signed', async () => {
+        cla.check.restore()
+        testUser.save = () => {
+            testUserSaved = true
+            assert(testUser.requests[0].numbers.indexOf(1347) > -1)
+        }
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
+
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 80))
+        sinon.assert.called(User.findOne)
+        assert(testUserSaved)
+    })
+
+    it('should create PR numbers store if not given yet', async () => {
+        cla.check.restore()
+        testUser.requests = []
         testUser.save = function () {
-            testUserSaved = true;
-            assert(testUser.requests[0].numbers.indexOf(1347) > -1);
-        };
+            testUserSaved = true
+            assert(testUser.requests[0].numbers.indexOf(1347) > -1)
+        }
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            sinon.assert.called(User.findOne);
-            assert(testUserSaved);
-            it_done();
-        }, 8);
-    });
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        sinon.assert.called(User.findOne)
+        assert(testUserSaved)
+    })
 
-    it('should create PR numbers store if not given yet', function (it_done) {
-        cla.check.restore();
-        testUser.requests = [];
+    it('should create user if not given yet', async () => {
+        cla.check.restore()
+        testUser = null
+        sinon.stub(User, 'create').resolves()
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
+
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        sinon.assert.called(User.findOne)
+        sinon.assert.called(User.create)
+        User.create.restore()
+    })
+
+    it('should store only distinct PR number if not signed', async () => {
+        test_req.args.number = 1
+        cla.check.restore()
         testUser.save = function () {
-            testUserSaved = true;
-            assert(testUser.requests[0].numbers.indexOf(1347) > -1);
-        };
+            assert('should not be called')
+        }
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            sinon.assert.called(User.findOne);
-            assert(testUserSaved);
-            it_done();
-        }, 8);
-    });
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        sinon.assert.called(User.findOne)
+    })
 
-    it('should create user if not given yet', function (it_done) {
-        cla.check.restore();
-        testUser = null;
-        sinon.stub(User, 'create').callsFake(function (doc, done) {
-            done();
-        });
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
-
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            sinon.assert.called(User.findOne);
-            sinon.assert.called(User.create);
-            User.create.restore();
-            it_done();
-        }, 8);
-    });
-
-    it('should store only distinct PR number if not signed', function (it_done) {
-        test_req.args.number = 1;
-        cla.check.restore();
-        testUser.save = function () {
-            assert('should not be called');
-        };
-
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
-
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            sinon.assert.called(User.findOne);
-            it_done();
-        }, 8);
-    });
-
-    it('should store PR if the PR is from an repo that is not stored before', function (it_done) {
+    it('should store PR if the PR is from an repo that is not stored before', async () => {
         testUser.requests = [{
             repo: 'Another Repo',
             owner: 'octocat',
             numbers: [1]
-        }];
-        test_req.args.number = 1;
-        cla.check.restore();
+        }]
+        test_req.args.number = 1
+        cla.check.restore()
 
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, false, {
-                not_signed: ['test_user']
-            });
-        });
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            sinon.assert.called(User.findOne);
-            assert(testUserSaved);
-            it_done();
-        }, 8);
-    });
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        sinon.assert.called(User.findOne)
+        assert(testUserSaved)
+    })
 
-    it('should update status of pull request if signed', function (it_done) {
-        cla.check.restore();
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, true);
-        });
+    it('should update status of pull request if signed', async () => {
+        cla.check.restore()
+        sinon.stub(cla, 'check').resolves({ signed: true })
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            // assert(!pullRequest.badgeComment.called);
-            assert(pullRequest.badgeComment.called);
-            assert(status.update.called);
-            it_done();
-        }, 8);
-    });
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        assert(pullRequest.badgeComment.called)
+        assert(status.update.called)
+    })
 
-    it('should update status of pull request if not signed and new user', function (it_done) {
-        pull_request(test_req, res);
+    it('should update status of pull request if not signed and new user', async () => {
+        pull_request(test_req, res)
 
-        this.timeout(100);
-        setTimeout(function () {
-            assert(cla.check.called);
-            it_done();
-        }, 8);
-    });
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        assert(cla.check.called)
+    })
 
+    it('should do nothing if the pull request has no committers', async () => {
+        repoService.getPRCommitters.restore()
+        sinon.stub(repoService, 'getPRCommitters').resolves([])
 
-    it('should do nothing if the pull request has no committers', function (it_done) {
-        repoService.getPRCommitters.restore();
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            done(null, []);
-        });
-        this.timeout(150);
-        test_req.args.handleDelay = 0;
+        // this.timeout(150)
+        test_req.args.handleDelay = 0
 
-        pull_request(test_req, res);
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 40))
+        assert(!cla.check.called)
+        assert(logger.warn.called)
 
-        setTimeout(function () {
-            assert(!cla.check.called);
-            assert(logger.warn.called);
+    })
 
-            it_done();
-        }, 40);
+    it('should set ClaNotRequired status if the pull request has only whitelisted committers', async () => {
+        cla.check.restore()
 
-    });
-
-    it('should set ClaNotRequired status if the pull request has only whitelisted committers', function (it_done) {
-        cla.check.restore();
-        sinon.stub(cla, 'check').callsFake(function (args, done) {
-            done(null, true, {
+        sinon.stub(cla, 'check').resolves({
+            signed: true,
+            userMap: {
                 signed: [],
                 not_signed: [],
                 unknown: []
-            });
-        });
-        this.timeout(150);
-        test_req.args.handleDelay = 0;
+            }
+        })
+        // this.timeout(150)
+        test_req.args.handleDelay = 0
 
-        pull_request(test_req, res);
+        pull_request(test_req, res)
 
-        setTimeout(function () {
-            assert(!status.update.called);
-            assert(status.updateForClaNotRequired.called);
+        await new Promise((resolve) => setTimeout(resolve, 40))
+        assert(!status.update.called)
+        assert(status.updateForClaNotRequired.called)
 
-            it_done();
-        }, 40);
-
-    });
+    })
 
     // it('should update status of PR even if repo is unknown but from known org', function() {
-    // 	repoService.get.restore();
-    // 	sinon.stub(repoService, 'get').callsFake(function (args, done) {
-    // 		done(null, null);
-    // 	});
+    // 	repoService.get.restore()
+    // 	sinon.stub(repoService, 'get').callsFake( (args) => {
+    // 		done(null, null)
+    // 	})
 
-    // 	pull_request(test_req, res);
+    // 	pull_request(test_req, res)
 
-    // 	assert.equal(repoService.get.called, false);
-    // 	assert.equal(orgService.get.called, true);
-    // 	assert.equal(repoService.getPRCommitters.called, true);
-    // 	assert.equal(cla.check.called, true);
-    // });
+    // 	assert.equal(repoService.get.called, false)
+    // 	assert.equal(orgService.get.called, true)
+    // 	assert.equal(repoService.getPRCommitters.called, true)
+    // 	assert.equal(cla.check.called, true)
+    // })
 
-    it('should do nothing if the pull request hook comes from unknown repository and unknown org', function (it_done) {
-        testRes.cla.getLinkedItem = null;
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(cla.getLinkedItem.called, true);
-            assert.equal(repoService.getPRCommitters.called, false);
-            assert.equal(cla.check.called, false);
-            it_done();
-        }, 8);
-    });
+    it('should do nothing if the pull request hook comes from unknown repository and unknown org', async () => {
+        testRes.cla.getLinkedItem = null
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
 
-    it('should do nothing if the pull request hook comes from private repository of an org', function (it_done) {
-        test_req.args.repository.private = true;
+        assert.equal(cla.getLinkedItem.called, true)
+        assert.equal(repoService.getPRCommitters.called, false)
+        assert.equal(cla.check.called, false)
+    })
 
-        pull_request(test_req, res);
-        this.timeout(100);
-        setTimeout(function () {
-            assert.equal(cla.getLinkedItem.called, false);
-            assert.equal(repoService.getPRCommitters.called, false);
-            assert.equal(cla.check.called, false);
-            it_done();
-            test_req.args.repository.private = false;
-        }, 8);
-    });
+    it('should do nothing if the pull request hook comes from private repository of an org', async () => {
+        test_req.args.repository.private = true
 
-    it('should call repoService 2 more times if getPRCommitters fails', function (it_done) {
-        repoService.getPRCommitters.restore();
-        sinon.stub(repoService, 'getPRCommitters').callsFake(function (args, done) {
-            done('Could not get committers', null);
-        });
-        this.timeout(1000);
+        pull_request(test_req, res)
+        // this.timeout(100)
+        await new Promise((resolve) => setTimeout(resolve, 8))
 
-        test_req.args.handleDelay = 0.01;
-        pull_request(test_req, res);
+        assert.equal(cla.getLinkedItem.called, false)
+        assert.equal(repoService.getPRCommitters.called, false)
+        assert.equal(cla.check.called, false)
+        test_req.args.repository.private = false
+    })
 
-        setTimeout(function () {
-            assert.equal(repoService.getPRCommitters.calledThrice, true);
-            assert.equal(cla.check.called, false);
-            it_done();
-        }, 800);
+    it('should call repoService 2 more times if getPRCommitters fails', async () => {
+        repoService.getPRCommitters.restore()
+        sinon.stub(repoService, 'getPRCommitters').rejects(new Error('Could not get committers'))
+        // this.timeout(1000)
 
-    });
+        test_req.args.handleDelay = 0.01
+        pull_request(test_req, res)
 
-    it('should NOT try to update a repo that has a null CLA', function (it_done) {
-        this.timeout(100);
-        testRes.cla.getLinkedItem.gist = null;
-        test_req.args.handleDelay = 0;
-        pull_request(test_req, res);
-        setTimeout(function () {
-            assert(!status.update.called);
-            it_done();
-        }, 8);
-    });
+        await new Promise((resolve) => setTimeout(resolve, 800))
 
-    it('should update status and delete comment when a pull request is NOT significant', function (it_done) {
-        this.timeout(100);
-        testRes.cla.isClaRequired = false;
-        pull_request(test_req, res);
-        setTimeout(function () {
-            assert(status.updateForClaNotRequired.called);
-            assert(pullRequest.deleteComment.called);
-            it_done();
-        }, 10);
-    });
-});
+        assert.equal(repoService.getPRCommitters.calledThrice, true)
+        assert.equal(cla.check.called, false)
+    })
+
+    it('should NOT try to update a repo that has a null CLA', async () => {
+        // this.timeout(100)
+        testRes.cla.getLinkedItem.gist = null
+        test_req.args.handleDelay = 0
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 8))
+        assert(!status.update.called)
+    })
+
+    it('should update status and delete comment when a pull request is NOT significant', async () => {
+        // this.timeout(100)
+        testRes.cla.isClaRequired = false
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        assert(status.updateForClaNotRequired.called)
+        assert(pullRequest.deleteComment.called)
+    })
+})
