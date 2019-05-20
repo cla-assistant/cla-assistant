@@ -160,7 +160,7 @@ module.exports = {
                     return done(removeOrgErr);
                 }
                 if (!dbOrg) {
-                    return done(undefined, 'Organization is not Found');
+                    return done('Organization is not Found');
                 }
                 req.args.org = dbOrg.org;
                 webhook.remove(req, function (removeHookErr) {
