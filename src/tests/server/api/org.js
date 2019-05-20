@@ -240,7 +240,7 @@ return deferred.promise;
             });
         });
 
-        it('should return message when org is not found', function (it_done) {
+        it('should throw error when org is not found', function (it_done) {
             req = {
                 args: {
                     org: 'org',
@@ -248,9 +248,8 @@ return deferred.promise;
                 }
             };
             testRes.org.remove = undefined;
-            org_api.remove(req, (err, msg) => {
-                assert.ifError(err);
-                assert(msg);
+            org_api.remove(req, (err) => {
+                assert(err);
                 it_done();
             });
         });
