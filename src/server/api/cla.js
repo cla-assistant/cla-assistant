@@ -9,6 +9,7 @@ const repoService = require('../services/repo')
 const orgService = require('../services/org')
 const prService = require('../services/pullRequest')
 const logger = require('../services/logger')
+const utils = require('../middleware/utils')
 
 const User = require('mongoose').model('User')
 
@@ -35,7 +36,7 @@ const GISTREQUESTSCHEMA = Joi.object().keys({
 
 class ClaApi {
     async getGist(req) {
-        validateArgs(req.args, GISTREQUESTSCHEMA)
+        utils.validateArgs(req.args, GISTREQUESTSCHEMA)
         if (req.user && req.user.token && req.args.gist) {
             return cla.getGist({
                 token: req.user.token,
@@ -331,7 +332,7 @@ class ClaApi {
     }
 
     async addSignature(req) {
-        validateArgs(req.args, SIGNATURESCHEMA)
+        utils.validateArgs(req.args, SIGNATURESCHEMA, false)
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
         try {
@@ -355,7 +356,7 @@ class ClaApi {
     }
 
     hasSignature(req) {
-        validateArgs(req.args, SIGNATURESCHEMA)
+        utils.validateArgs(req.args, SIGNATURESCHEMA, false)
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
         return cla.check(req.args)
@@ -366,7 +367,7 @@ class ClaApi {
         schema = schema.append({
             endDate: Joi.string().isoDate().required()
         })
-        validateArgs(req.args, schema)
+        utils.validateArgs(req.args, schema, false)
 
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
@@ -612,14 +613,6 @@ async function getReposNeedToValidate(req) {
     }
 
     return repos
-}
-
-function validateArgs(args, schema) {
-    const joiRes = Joi.validate(args, schema, { abortEarly: false, convert: false });
-    if (joiRes.error) {
-        joiRes.error.code = 400;
-        throw joiRes.error;
-    }
 }
 
 async function getGithubUser(userName, token) {
