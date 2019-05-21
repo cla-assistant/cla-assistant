@@ -792,3 +792,62 @@ describe('repo:getGHRepo', function () {
         });
     });
 });
+
+describe('repo:update', () => {
+    let response;
+
+    beforeEach(() => {
+        response = {
+            findOne: {}
+        };
+        sinon.stub(Repo, 'findOne').callsFake((_args, done) => {
+            if (response.findOne.error) {
+                return done(response.findOne.error);
+            }
+
+            return done(null, response.findOne.repo);
+        });
+    });
+
+    afterEach(() => {
+        Repo.findOne.restore();
+    });
+
+    it('should return error when query db throw error', () => {
+        response.findOne.error = new Error('Find one in database error');
+        repo.update({ repo: 'repo', owner: 'owner' }, err => {
+            assert.equal(err, response.findOne.error);
+        });
+    });
+
+    it('should update existing linked repo', (it_done) => {
+        const linkedRepo = {
+            repoId: 'repoId',
+            repo: 'repo',
+            owner: 'owner',
+            token: 'link token'
+        };
+        response.findOne = {
+            repo: Object.assign({}, linkedRepo, {
+                save: sinon.spy(done => done())
+            })
+        };
+        const args = Object.assign({}, linkedRepo, {
+            gist: 'updated gist',
+            minFileChanges: 1,
+            minCodeChanges: 20,
+            whiteListPattern: 'whitelist-user',
+            privacyPolicy: 'http://privacy-policy',
+        });
+        repo.update(args, err => {
+            assert.ifError(err);
+            linkedRepo.gist = args.gist;
+            linkedRepo.minFileChanges = args.minFileChanges;
+            linkedRepo.minCodeChanges = args.minCodeChanges;
+            linkedRepo.whiteListPattern = args.whiteListPattern;
+            linkedRepo.privacyPolicy = args.privacyPolicy;
+            response.findOne.repo.save.calledOnce;
+            it_done();
+        });
+    });
+});
