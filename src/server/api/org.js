@@ -15,7 +15,8 @@ let schema = Joi.object().keys({
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
     minCodeChanges: Joi.number(),
-    whiteListPattern: Joi.string()
+    whiteListPattern: Joi.string().allow(''),
+    privacyPolicy: Joi.string().allow('')
 });
 
 module.exports = {
@@ -157,6 +158,9 @@ module.exports = {
             org.remove(req.args, function (removeOrgErr, dbOrg) {
                 if (removeOrgErr) {
                     return done(removeOrgErr);
+                }
+                if (!dbOrg) {
+                    return done('Organization is not Found');
                 }
                 req.args.org = dbOrg.org;
                 webhook.remove(req, function (removeHookErr) {

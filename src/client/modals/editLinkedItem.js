@@ -34,7 +34,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
     };
 
     $scope.ok = function () {
-        $scope.selected.item.gist = $scope.selected.gist.url;
+        $scope.selected.item.gist = $scope.selected.gist;
         linkItemService.updateLink($scope.selected.item).then(function success(data) {
             if (data.value) {
                 $modalInstance.close(data.value);

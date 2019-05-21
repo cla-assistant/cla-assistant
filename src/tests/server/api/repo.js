@@ -227,31 +227,44 @@ describe('repo', function () {
     });
 
     it('should update via repo service', function (it_done) {
-        let repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, done) {
-            let r = {
-                owner: 'login',
-                gist: 1234,
-                save: function (cb) {
-                    assert.equal(this.gist, 'url');
-                    assert.equal(this.token, 'user_token');
-                    cb(null, this);
-                }
-            };
-            done(null, r);
-        });
-
-        let req = {
+        const req = {
             user: {
                 token: 'user_token'
             },
             args: {
                 repo: 'myRepo',
+                repoId: 123,
                 owner: 'login',
                 gist: 'url'
             }
         };
 
-        repo_api.update(req, function () {
+        const repoStub = sinon.stub(repo, 'update').callsFake(function (args, done) {
+            assert.deepEqual(args, Object.assign({}, req.user, req.args));
+            done(null);
+        });
+
+        repo_api.update(req, function (error) {
+            assert.ifError(error);
+            assert(repo.update.calledOnce);
+            repoStub.restore();
+            it_done();
+        });
+    });
+
+    it('should return error when repo update input is invalid', (it_done) => {
+        const req = {
+            user: {
+                token: 'user_token'
+            },
+            args: { }
+        };
+        const repoStub = sinon.stub(repo, 'update').callsFake(function (_args, done) {
+            done(null);
+        });
+        repo_api.update(req, function (error) {
+            assert(error);
+            assert.equal(repo.update.called, false);
             repoStub.restore();
             it_done();
         });
