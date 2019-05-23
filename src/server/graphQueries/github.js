@@ -1,7 +1,7 @@
 
 module.exports = {
-    getPRCommitters: function (owner, repo, number, cursor) {
-        number = typeof number === 'string' ? parseInt(number) : number;
+    getPRCommitters: (owner, repo, number, cursor) => {
+        number = typeof number === 'string' ? parseInt(number) : number
         let query = `
             query($owner:String! $name:String! $number:Int! $cursor:String!){
                 repository(owner: $owner, name: $name) {
@@ -39,19 +39,19 @@ module.exports = {
                     }
                 }
             }
-        }`.replace(/ /g, '');
+        }`.replace(/ /g, '')
         let variables = {
             owner: owner,
             name: repo,
             number: number,
             cursor: cursor
-        };
+        }
 
-        return JSON.stringify({ query, variables });
+        return JSON.stringify({ query, variables })
     },
 
-    getUserOrgs: function (owner, cursor) {
-        let query = `query ($owner: String! ${cursor ? '$cursor: String!)' : ')'} {`;
+    getUserOrgs: (owner, cursor) => {
+        let query = `query ($owner: String! ${cursor ? '$cursor: String!)' : ')'} {`
         query = query + `
             user(login: $owner) {
                 organizations(first: 100${cursor ? ', after: $cursor' : ''}) {
@@ -72,12 +72,12 @@ module.exports = {
                     }
                 }
             }
-        }`;
-        let variables = { owner };
+        }`
+        let variables = { owner }
         if (cursor) {
-            variables.cursor = cursor;
+            variables.cursor = cursor
         }
 
-        return JSON.stringify({ query, variables }).replace(/ /g, '');
+        return JSON.stringify({ query, variables }).replace(/ /g, '')
     }
-};
+}
