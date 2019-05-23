@@ -25,7 +25,9 @@ const indexOptions = {
     unique: true
 }
 
-RepoSchema.methods.isUserWhitelisted = (user) => utils.checkPatternWildcard(this.whiteListPattern, user)
+RepoSchema.methods.isUserWhitelisted = function (user) {
+    return utils.checkPatternWildcard(this.whiteListPattern, user)
+}
 
 const Repo = mongoose.model('Repo', RepoSchema)
 
