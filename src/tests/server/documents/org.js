@@ -1,51 +1,50 @@
-let assert = require('assert');
-let Org = require('../../../server/documents/org').Org;
+const assert = require('assert')
+const Org = require('../../../server/documents/org').Org
 
 // test data
-let testData = require('../testData').data;
+const testData = require('../testData').data
 
-describe('org document', function () {
-    it('should properly work with legacy organisations without excludePattern', function (it_done) {
-        let testOrg = testData.org_from_db;
-        let org = new Org(testOrg);
+describe('org document', () => {
+    it('should properly work with legacy organisations without excludePattern', async () => {
+        const testOrg = testData.org_from_db
+        const org = new Org(testOrg)
 
-        assert.equal(org.isRepoExcluded('foo'), false);
-        assert.equal(org.isRepoExcluded('qux'), false);
-        it_done();
-    });
-    it('should properly parse excluded repositories', function (it_done) {
-        let testOrg = testData.org_from_db_with_excluded_patterns;
-        let org = new Org(testOrg);
+        assert.equal(org.isRepoExcluded('foo'), false)
+        assert.equal(org.isRepoExcluded('qux'), false)
+    })
 
-        assert.equal(org.isRepoExcluded('foo'), true);
-        assert.equal(org.isRepoExcluded('qux'), false);
-        it_done();
-    });
-    it('should properly parse empty exclusion pattern', function (it_done) {
-        let testOrg = testData.org_from_db_with_empty_excluded_patterns;
-        let org = new Org(testOrg);
+    it('should properly parse excluded repositories', async () => {
+        const testOrg = testData.org_from_db_with_excluded_patterns
+        const org = new Org(testOrg)
 
-        assert.equal(org.isRepoExcluded('foo'), false);
-        assert.equal(org.isRepoExcluded('qux'), false);
-        it_done();
-    });
-    it('should properly parse whitelisted users', function (it_done) {
-        let testOrg = testData.org_from_db_with_excluded_patterns;
-        testOrg.whiteListPattern = 'login0,*1,*[bot]';
-        let org = new Org(testOrg);
+        assert.equal(org.isRepoExcluded('foo'), true)
+        assert.equal(org.isRepoExcluded('qux'), false)
+    })
 
-        assert.equal(org.isUserWhitelisted('login0'), true);
-        assert.equal(org.isUserWhitelisted('login1'), true);
-        assert.equal(org.isUserWhitelisted('user[bot]'), true);
-        assert.equal(org.isUserWhitelisted('login2'), false);
-        it_done();
-    });
-    it('should properly parse empty whitelist pattern', function (it_done) {
-        let testOrg = testData.org_from_db_with_empty_excluded_patterns;
-        let org = new Org(testOrg);
+    it('should properly parse empty exclusion pattern', async () => {
+        const testOrg = testData.org_from_db_with_empty_excluded_patterns
+        const org = new Org(testOrg)
 
-        assert.equal(org.isUserWhitelisted('login0'), false);
-        assert.equal(org.isUserWhitelisted('login1'), false);
-        it_done();
-    });
-});
+        assert.equal(org.isRepoExcluded('foo'), false)
+        assert.equal(org.isRepoExcluded('qux'), false)
+    })
+
+    it('should properly parse whitelisted users', async () => {
+        const testOrg = testData.org_from_db_with_excluded_patterns
+        testOrg.whiteListPattern = 'login0,*1,*[bot]'
+        const org = new Org(testOrg)
+
+        assert.equal(org.isUserWhitelisted('login0'), true)
+        assert.equal(org.isUserWhitelisted('login1'), true)
+        assert.equal(org.isUserWhitelisted('user[bot]'), true)
+        assert.equal(org.isUserWhitelisted('login2'), false)
+    })
+
+    it('should properly parse empty whitelist pattern', async () => {
+        const testOrg = testData.org_from_db_with_empty_excluded_patterns
+        const org = new Org(testOrg)
+
+        assert.equal(org.isUserWhitelisted('login0'), false)
+        assert.equal(org.isUserWhitelisted('login1'), false)
+    })
+})

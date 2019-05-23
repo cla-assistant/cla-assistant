@@ -15,9 +15,13 @@ const OrgSchema = mongoose.Schema({
     updated_at: Date
 })
 
-OrgSchema.methods.isRepoExcluded = (repo) => utils.checkPattern(this.excludePattern, repo)
+OrgSchema.methods.isRepoExcluded = function (repo) {
+    return utils.checkPattern(this.excludePattern, repo)
+}
 
-OrgSchema.methods.isUserWhitelisted = (user) => utils.checkPatternWildcard(this.whiteListPattern, user)
+OrgSchema.methods.isUserWhitelisted = function (user) {
+    return utils.checkPatternWildcard(this.whiteListPattern, user)
+}
 
 OrgSchema.index({
     orgId: 1,
