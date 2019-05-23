@@ -1,7 +1,6 @@
-let mongoose = require('mongoose');
-mongoose.Promise = require('q').Promise;
+const mongoose = require('mongoose')
 
-let UserSchema = mongoose.Schema({
+const UserSchema = mongoose.Schema({
     uuid: Number,
     name: String,
     requests: [{
@@ -10,17 +9,17 @@ let UserSchema = mongoose.Schema({
         numbers: [Number]
     }],
     token: String
-});
+})
 
 UserSchema.index({
     name: 1,
     uuid: 1
 }, {
         unique: true
-    });
+    })
 
-let User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema)
 
 module.exports = {
     User: User
-};
+}

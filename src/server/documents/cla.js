@@ -1,8 +1,8 @@
-let mongoose = require('mongoose');
-// let logger = require('../services/logger');
-mongoose.Promise = require('q').Promise;
+const mongoose = require('mongoose')
+// const logger = require('../services/logger')
+mongoose.Promise = require('q').Promise
 
-let CLASchema = mongoose.Schema({
+const CLASchema = mongoose.Schema({
     created_at: Date,
     end_at: Date,
     custom_fields: String,
@@ -17,9 +17,9 @@ let CLASchema = mongoose.Schema({
     userId: String,
     origin: String,
     updated_at: Date
-});
+})
 
-let index = {
+const index = {
     repo: 1,
     repoId: 1,
     owner: 1,
@@ -28,22 +28,22 @@ let index = {
     gist_url: 1,
     gist_version: 1,
     org_cla: 1
-};
-let indexOptions = {
+}
+const indexOptions = {
     unique: true,
     background: true
-};
+}
 
-let CLA = mongoose.model('CLA', CLASchema);
+const CLA = mongoose.model('CLA', CLASchema)
 
 // CLA.collection.dropAllIndexes(function (err, results) {
 //     if (err) {
-//         logger.warn('CLA collection dropAllIndexes error: ', err);
-//         logger.warn('dropAllIndexes results: ', results);
+//         logger.warn('CLA collection dropAllIndexes error: ', err)
+//         logger.warn('dropAllIndexes results: ', results)
 //     }
-// });
-CLA.collection.createIndex(index, indexOptions);
+// })
+CLA.collection.createIndex(index, indexOptions)
 
 module.exports = {
     CLA: CLA
-};
+}
