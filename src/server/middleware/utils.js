@@ -1,96 +1,87 @@
-let githubService = require('../services/github');
-let log = require('../services/logger');
-let q = require('q');
+const githubService = require('../services/github')
+const log = require('../services/logger')
+const q = require('q')
+const Joi = require('joi')
 
-module.exports = {
-    couldBeAdmin: function (username) {
-        return config.server.github.admin_users.length === 0 || config.server.github.admin_users.indexOf(username) >= 0;
-    },
+class Utils {
+    couldBeAdmin(username) {
+        return config.server.github.admin_users.length === 0 || config.server.github.admin_users.indexOf(username) >= 0
+    }
 
-    checkRepoPushPermissionByName: function (repo, owner, token) {
-        let deferred = q.defer();
-        githubService.call({
-            obj: 'repos',
-            fun: 'get',
-            arg: {
-                repo: repo,
-                owner: owner
-            },
-            token: token
-        }, function (err, data) {
-            if (!err && !data) {
-                err = new Error('No data returned');
+    async checkRepoPushPermissionByName(repo, owner, token) {
+        try {
+            const res = await githubService.call({
+                obj: 'repos',
+                fun: 'get',
+                arg: {
+                    repo: repo,
+                    owner: owner
+                },
+                token: token
+            })
+            if (!res.data) {
+                throw new Error('No data returned')
             }
-            if (err && err.code === 404) {
-                log.info('You do not have authorization for ' + repo + ' repository.');
+            if (!res.data.permissions || !res.data.permissions.push) {
+                throw new Error('User has no push permission for this repo')
             }
-            if (err) {
-                return deferred.reject(err);
+            return res.data
+        } catch (error) {
+            if (error.code === 404) {
+                log.info('User has no authorization for ' + repo + ' repository.')
+                log.warn(error.stack)
             }
-            if (!data.permissions.push) {
-                return deferred.reject('You do not have push permission for this repo');
-            }
-            deferred.resolve(data);
-        });
+            throw error
+        }
+    }
 
-        return deferred.promise;
-    },
-
-    checkRepoPushPermissionById: function (repoId, token, cb) {
-        let deferred = q.defer();
-
-        githubService.call({
+    async checkRepoPushPermissionById(repoId, token) {
+        const res = await githubService.call({
             obj: 'repos',
             fun: 'getById',
             arg: {
                 id: repoId
             },
             token: token
-        }, function (err, data) {
-            if (err || !data) {
-                if (cb) {
-                    cb(err, data);
-                }
+        })
+        return res.data.permissions.push
+    }
 
-                return deferred.reject(err);
+    async checkOrgAdminPermission(org, username, token) {
+        try {
+            const res = await githubService.call({
+                obj: 'orgs',
+                fun: 'getOrgMembership',
+                arg: {
+                    org: org,
+                    username: username
+                },
+                token: token
+            })
+            if (!res.data) {
+                throw new Error('No data returned')
             }
-            let hasPermission = data.permissions.push;
-            if (cb) {
-                cb(err, hasPermission);
-            }
-            deferred.resolve(hasPermission);
-        });
-
-        return deferred.promise;
-    },
-
-    checkOrgAdminPermission: function (org, username, token) {
-        let deferred = q.defer();
-        githubService.call({
-            obj: 'orgs',
-            fun: 'getOrgMembership',
-            arg: {
-                org: org,
-                username: username
-            },
-            token: token
-        }, function (err, data) {
-            if (!err && !data) {
-                err = new Error('No data returned');
-            }
-            if (err && err.code === 404) {
-                log.info('You do not have authorization for ' + org + ' organization.');
-            }
-            if (err) {
-                return deferred.reject(err);
-            }
-            if (data.role !== 'admin') {
-                return deferred.reject('You are not an admin of this org');
+            if (res.data.role !== 'admin') {
+                throw new Error('User is not an admin of this org')
             }
 
-            return deferred.resolve(data);
-        });
+            return res.data
+        } catch (error) {
+            if (error.code === 404) {
+                log.info('User has no authorization for ' + org + ' repository.')
+            }
+            throw error
+        }
 
-        return deferred.promise;
-    },
-};
+    }
+
+    validateArgs(args, schema, allowUnknown = false, convert = false) {
+        const joiRes = Joi.validate(args, schema, { abortEarly: false, allowUnknown, convert })
+        if (joiRes.error) {
+            joiRes.error.code = 400
+            throw joiRes.error
+        }
+    }
+}
+
+module.exports = new Utils()
