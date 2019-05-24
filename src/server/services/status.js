@@ -13,12 +13,12 @@ const log = (err, res, args) => {
 const getPR = async (args) => {
     try {
         return github.call({
-            obj: 'pullRequests',
+            obj: 'pulls',
             fun: 'get',
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                number: args.number,
+                pull_number: args.number,
                 noCache: true
             },
             token: args.token
@@ -34,7 +34,7 @@ const getStatuses = async (args) => {
     try {
         return github.call({
             obj: 'repos',
-            fun: 'getStatuses',
+            fun: 'listStatusesForRef',
             arg: {
                 owner: args.owner,
                 repo: args.repo,
