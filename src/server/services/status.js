@@ -1,11 +1,11 @@
 // services
-const url = require('../services/url');
-const github = require('../services/github');
-const logger = require('../services/logger');
+const url = require('../services/url')
+const github = require('../services/github')
+const logger = require('../services/logger')
 
 const log = (err, res, args) => {
     if (err) {
-        logger.warn(new Error(err));
+        logger.warn(new Error(err))
     }
     logger.info('Error: ', err, '; result: ', res, '; Args: ', args);
 };
@@ -90,7 +90,7 @@ const createStatus = async (args, context, description, state, target_url) => {
         });
 
     } catch (error) {
-        logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ');
+        logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ')
 
     }
 };
@@ -98,7 +98,7 @@ const createStatus = async (args, context, description, state, target_url) => {
 const findStatusToBeChanged = async (args) => {
     try {
 
-        const response = await getStatuses(args);
+        const response = await getStatuses(args)
         // let statuses = '';
         const description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.';
         let status = {
@@ -117,27 +117,27 @@ const findStatusToBeChanged = async (args) => {
             let shouldBeChanged = false;
             response.some(function findClaStatusToChange(s) {
                 if (s.context.match(/licence\/cla/g)) {
-                    shouldBeChanged = s.state === 'pending';
+                    shouldBeChanged = s.state === 'pending'
                     return true;
                 }
             });
 
             if (shouldBeChanged) {
-                return status;
+                return status
             }
         }
         if (response) {
             response.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
-                    status = s.state !== status.state ? status : undefined;
+                    status = s.state !== status.state ? status : undefined
 
-                    return true;
+                    return true
                 }
             });
         }
-        return status;
+        return status
     } catch (error) {
-        logger.warn(error);
+        logger.warn(error)
 
     }
 
@@ -145,18 +145,18 @@ const findStatusToBeChanged = async (args) => {
 
 const findClaStatus = async (args) => {
     try {
-        const resp = await getCombinedStatus(args);
-        let claStatus = null;
+        const resp = await getCombinedStatus(args)
+        let claStatus = null
         resp.statuses.some(function (status) {
             if (status.context.match(/license\/cla/g)) {
-                claStatus = status;
-                return true;
+                claStatus = status
+                return true
             }
         });
-        return claStatus;
+        return claStatus
 
     } catch (error) {
-        logger.warn(error);
+        logger.warn(error)
 
     }
 
@@ -168,7 +168,7 @@ const updateStatus = async (args) => {
         const status = await findStatusToBeChanged(args);
 
         if (!status) {
-            return;
+            return
         }
         return createStatus(args, status.context, status.description, status.state, status.target_url);
 
@@ -181,35 +181,35 @@ const updateStatus = async (args) => {
 const getPullRequestHeadShaIfNeeded = async (args) => {
     try {
         if (args.sha) {
-            return args;
+            return args
         }
-        const pullRequest = await getPR(args);
-        args.sha = pullRequest.head.sha;
-        return args;
+        const pullRequest = await getPR(args)
+        args.sha = pullRequest.head.sha
+        return args
     } catch (error) {
-        logger.info(new Error(error + 'Cannot get pull request head.').stack);
+        logger.info(new Error(error + 'Cannot get pull request head.').stack)
     }
 };
 
 const updateStatusIfNeeded = async (args, status, allowAbsent) => {
 
     if (!status) {
-        return new Error('Status is required for updateStatusIfNeeded.');
+        return new Error('Status is required for updateStatusIfNeeded.')
 
     }
     try {
-        const argsWithSha = await getPullRequestHeadShaIfNeeded(args);
-        const claStatus = await findClaStatus(args);
+        const argsWithSha = await getPullRequestHeadShaIfNeeded(args)
+        const claStatus = await findClaStatus(args)
 
 
         if (!claStatus || allowAbsent) {
-            return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url);
+            return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url)
         }
         if (!claStatus || claStatus.state !== status.state || claStatus.description !== status.description || claStatus.target_url !== status.target_url) {
-            return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url);
+            return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url)
         }
     } catch (error) {
-        logger.warn(error);
+        logger.warn(error)
     }
 }
 
@@ -228,7 +228,7 @@ class StatusService {
                     return updateStatus(args);
                 }
             } catch (error) {
-                logger.warn(new Error(`${error} with args: ${args}`).stack);
+                logger.warn(new Error(`${error} with args: ${args}`).stack)
             }
 
         }

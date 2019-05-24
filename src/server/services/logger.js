@@ -1,16 +1,14 @@
-let raven = require('raven');
-let bunyan = require('bunyan');
-let BunyanSlack = require('bunyan-slack');
-let SentryStream = require('bunyan-sentry-stream').SentryStream;
+const raven = require('raven')
+const bunyan = require('bunyan')
+const BunyanSlack = require('bunyan-slack')
+const SentryStream = require('bunyan-sentry-stream').SentryStream;
 
 let client = new raven.Client(config.server.sentry_dsn);
-let log;
+let log
 
-let formatter = function (record, levelName) {
-    return {
-        text: '[' + levelName + '] ' + record.msg + ' (source: ' + record.src.file + ' line: ' + record.src.line + ')'
-    };
-};
+const formatter = (record, levelName) => {
+    text: '[' + levelName + '] ' + record.msg + ' (source: ' + record.src.file + ' line: ' + record.src.line + ')'
+}
 
 log = bunyan.createLogger({
     src: true,
@@ -32,9 +30,9 @@ try {
             username: 'CLA Assistant',
             customFormatter: formatter
         })
-    });
+    })
 } catch (e) {
-    log.info(e);
+    log.info(e)
 }
 
 try {
@@ -45,7 +43,7 @@ try {
         stream: new SentryStream(client)
     });
 } catch (e) {
-    log.info(e);
+    log.info(e)
 }
 
-module.exports = log;
+module.exports = log

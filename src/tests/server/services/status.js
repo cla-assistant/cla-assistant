@@ -1,14 +1,14 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-const assert = require('assert');
-const sinon = require('sinon');
+const assert = require('assert')
+const sinon = require('sinon')
 
 // services
-const github = require('../../../server/services/github');
+const github = require('../../../server/services/github')
 
 // service under test
-const status = require('../../../server/services/status');
+const status = require('../../../server/services/status')
 
 const testData = {
     'id': 1,
@@ -346,8 +346,8 @@ describe('status', () => {
 
         it('should create status pending if not signed', async () => {
             assertFunction = (args) => {
-                assert.equal(args.arg.state, 'pending');
-                assert.equal(args.arg.context, 'license/cla');
+                assert.equal(args.arg.state, 'pending')
+                assert.equal(args.arg.context, 'license/cla')
 
             };
             githubCallStatusGet.data = testStatusesSuccess;
@@ -359,7 +359,7 @@ describe('status', () => {
                 token: 'abc'
             };
 
-            await status.update(args);
+            await status.update(args)
             assert(github.call.calledThrice);
         });
 
@@ -374,8 +374,8 @@ describe('status', () => {
                 token: 'abc'
             };
 
-            await status.update(args);
-            assert(github.call.calledOnce);
+            await status.update(args)
+            assert(github.call.calledOnce)
         });
 
         it('should not update status if no pull request found', async () => {
@@ -390,8 +390,8 @@ describe('status', () => {
                 token: 'abc'
             };
 
-            await status.update(args);
-            assert(github.call.calledOnce);
+            await status.update(args)
+            assert(github.call.calledOnce)
         });
 
         it('should not load PR if sha is provided', async () => {
@@ -404,8 +404,8 @@ describe('status', () => {
                 sha: 'sha1'
             };
 
-            await status.update(args);
-            assert(github.call.calledTwice);
+            await status.update(args)
+            assert(github.call.calledTwice)
         });
 
         it('should use old and new context if there is already a status with this context', async () => {
@@ -417,8 +417,8 @@ describe('status', () => {
                 token: 'abc',
                 sha: 'sha1'
             };
-            await status.update(args);
-            assert(github.call.calledTwice);
+            await status.update(args)
+            assert(github.call.calledTwice)
 
         });
 
@@ -432,8 +432,8 @@ describe('status', () => {
                 token: 'abc',
                 sha: 'sha1'
             };
-            await status.update(args);
-            assert(github.call.calledOnce);
+            await status.update(args)
+            assert(github.call.calledOnce)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'listStatusesForRef'
@@ -451,9 +451,9 @@ describe('status', () => {
                 token: 'abc',
                 sha: 'sha1'
             };
-            githubCallStatusGet.data = null;
-            await status.update(args);
-            assert(github.call.calledTwice);
+            githubCallStatusGet.data = null
+            await status.update(args)
+            assert(github.call.calledTwice)
         });
 
         it('should update statuses of all contexts if there are both (licenCe and licenSe)', async () => {
@@ -465,9 +465,9 @@ describe('status', () => {
                 token: 'abc',
                 sha: 'sha1'
             };
-            githubCallStatusGet.data = testStatusesFailure;
-            await status.update(args);
-            assert(github.call.calledTwice);
+            githubCallStatusGet.data = testStatusesFailure
+            await status.update(args)
+            assert(github.call.calledTwice)
 
 
         });
