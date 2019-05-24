@@ -1,6 +1,5 @@
 const githubService = require('../services/github')
 const log = require('../services/logger')
-const q = require('q')
 const Joi = require('joi')
 
 class Utils {
