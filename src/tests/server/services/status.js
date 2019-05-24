@@ -306,10 +306,10 @@ describe('status', () => {
             err: null
         };
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (args.obj === 'pullRequests' && args.fun === 'get') {
+            if (args.obj === 'pulls' && args.fun === 'get') {
                 assert(args.token);
                 return githubCallPRGet.data;
-            } else if (args.obj === 'repos' && args.fun === 'getStatuses') {
+            } else if (args.obj === 'repos' && args.fun === 'listStatusesForRef') {
                 assert.equal(args.token, 'abc');
                 return githubCallStatusGet.data;
             } else if (args.obj === 'repos' && args.fun === 'getCombinedStatusForRef') {
@@ -436,7 +436,7 @@ describe('status', () => {
             assert(github.call.calledOnce);
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'getStatuses'
+                fun: 'listStatusesForRef'
             }));
 
 
