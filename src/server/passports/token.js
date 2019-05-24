@@ -1,24 +1,23 @@
-let github = require('../services/github');
-let passport = require('passport');
-let Strategy = require('passport-accesstoken').Strategy;
-let merge = require('merge');
+const github = require('../services/github')
+const passport = require('passport')
+const Strategy = require('passport-accesstoken').Strategy
+const merge = require('merge')
+const User = require('mongoose').model('User')
 
-function getGHUser(accessToken, cb) {
-    let args = {
+function getGHUser(accessToken) {
+    const args = {
         obj: 'users',
         fun: 'get',
         token: accessToken
-    };
+    }
 
-    github.call(args, function (err, data) {
-        cb(err, data);
-    });
+    return github.call(args)
 }
 
-function checkToken(accessToken, cb) {
-    let args = {
-        obj: 'authorization',
-        fun: 'check',
+async function checkToken(accessToken) {
+    const args = {
+        obj: 'oauthAuthorizations',
+        fun: 'checkAuthorization',
         arg: {
             access_token: accessToken,
             client_id: config.server.github.client
@@ -27,67 +26,33 @@ function checkToken(accessToken, cb) {
             user: config.server.github.client,
             pass: config.server.github.secret
         }
-    };
-
-    github.call(args, function (err, data) {
-        if (err || (data && data.scopes && data.scopes.indexOf('write:repo_hook') < 0) || !data) {
-            err = err || 'You have not enough rights to call this API';
-        }
-        cb(err, data);
-    });
+    }
+    const res = await github.call(args)
+    if (!res.data || (res.data && res.data.scopes && res.data.scopes.indexOf('write:repo_hook') < 0)) {
+        throw new Error('You have not enough rights to call this API')
+    }
+    return res.data
 }
 
 passport.use(new Strategy(
-    function (token, done) {
-        getGHUser(token, function (err, data) {
-            if (err || !data) {
-                done(err || 'Could not find GitHub user for given token');
-
-                return;
+    async (token, done) => {
+        try {
+            const res = await getGHUser(token)
+            if (!res || !res.data) {
+                throw new Error('Could not find GitHub user for given token')
             }
-            models.User.findOne({
-                uuid: data.id,
-                name: data.login
-            }, function (err, dbUser) {
-                if (err || !dbUser) {
-                    done(err || 'Could not find ' + data.login);
+            const dbUser = await User.findOne({ uuid: res.data.id, name: res.data.login })
+            if (!dbUser) {
+                throw new Error(`Could not find user ${res.data.login} in the database`)
+            }
+            const authorization = await checkToken(dbUser.token)
 
-                    return;
-                }
-                checkToken(dbUser.token, function (err, authorization) {
-                    if (err || !dbUser) {
-                        done(err || 'Could not find ' + data.login);
-
-                        return;
-                    }
-                    done(err, merge(data, {
-                        token: dbUser.token,
-                        scope: authorization.scopes.toString()
-                    }));
-                });
-            });
-        });
-
-        // if (params.scope.indexOf('write:repo_hook') >= 0) {
-        //     repoService.getUserRepos({ token: accessToken }, function (err, res) {
-        //         if (res && res.length > 0) {
-        //             res.forEach(function (repo) {
-        //             });
-        //         } else if (err) {
-        //             logger.warn(err);
-        //         }
-        //     });
-        // }
-        // if (params.scope.indexOf('admin:org_hook') >= 0) {
-        //     orgApi.getForUser({ user: { token: accessToken } }, function (err, res) {
-        //         if (res && res.length > 0) {
-        //             res.forEach(function (org) {
-        //                 checkToken(org, accessToken);
-        //             });
-        //         } else if (err) {
-        //             logger.warn(err);
-        //         }
-        //     });
-        // }
+            done(null, merge(res.data, {
+                token: dbUser.token,
+                scope: authorization.scopes.toString()
+            }))
+        } catch (error) {
+            done(error)
+        }
     }
-));
+))
