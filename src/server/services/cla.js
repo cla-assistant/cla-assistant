@@ -25,7 +25,7 @@ class ClaService {
             obj: 'gists',
             fun: 'get',
             arg: {
-                id: id
+                gist_id: id
             },
             token: token
         }
@@ -286,8 +286,8 @@ class ClaService {
     async getGist(args) {
         let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined
         // let gist_version = args.gist ? args.gist.gist_version : undefined
-
-        return this._getGistObject(gist_url, args.token)
+        const gistRes = this._getGistObject(gist_url, args.token)
+        return gistRes.data
     }
 
     /**

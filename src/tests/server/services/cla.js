@@ -1322,8 +1322,8 @@ describe('cla:getAll', () => {
 describe('cla:getGist', () => {
     beforeEach(() => {
         sinon.stub(github, 'call').callsFake(async (args) => {
-            assert.equal(args.arg.id, 'gistId')
-            return {}
+            assert.equal(args.arg.gist_id, 'gistId')
+            return { data: {} }
         })
     })
 
