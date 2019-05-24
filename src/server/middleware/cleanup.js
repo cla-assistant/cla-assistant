@@ -1,27 +1,27 @@
-let removeToken = function (obj) {
+let removeToken = (obj) => {
     try {
-        obj = obj.toObject();
+        obj = obj.toObject()
         if (obj.token) {
-            delete obj.token;
+            delete obj.token
         }
     } catch (e) {
         //do nothing
     }
 
-    return obj;
-};
+    return obj
+}
 
 module.exports = {
-    cleanObject: function (obj) {
+    cleanObject: (obj) => {
         if (Object.prototype.toString.call(obj) === '[object Array]') {
-            let cleanedObj = [];
+            let cleanedObj = []
             obj.forEach(function (el) {
-                cleanedObj.push(removeToken(el));
-            });
+                cleanedObj.push(removeToken(el))
+            })
 
-            return cleanedObj;
+            return cleanedObj
         }
 
-        return removeToken(obj);
+        return removeToken(obj)
     }
-};
+}
