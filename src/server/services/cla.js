@@ -286,7 +286,7 @@ class ClaService {
     async getGist(args) {
         let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined
         // let gist_version = args.gist ? args.gist.gist_version : undefined
-        const gistRes = this._getGistObject(gist_url, args.token)
+        const gistRes = await this._getGistObject(gist_url, args.token)
         return gistRes.data
     }
 
@@ -310,7 +310,7 @@ class ClaService {
         args.gist_version = gist.data.history[0].version
         args.onDates = [new Date()]
         if (args.number) {
-            const pullRequest = await this._getPR(args.owner, args.repo, args.number, item.token)
+            const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
             args.onDates.push(new Date(pullRequest.created_at))
         }
 
@@ -373,7 +373,7 @@ class ClaService {
         }
         args.gist_version = gist.data.history[0].version
 
-        const pullRequest = await this._getPR(args.owner, args.repo, args.number, item.token)
+        const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
         if (!pullRequest) {
             throw new Error('No pull request found')
         }

@@ -252,7 +252,7 @@ class RepoService {
         })
 
         let repoSet = []
-        ghRepos.forEach((githubRepo) => {
+        ghRepos.data.forEach((githubRepo) => {
             if (githubRepo.permissions.push) {
                 repoSet.push({
                     owner: githubRepo.owner.login,
@@ -290,7 +290,7 @@ class RepoService {
     // }
 
     async getGHRepo(args) {
-        let params = {
+        let res = await github.call({
             obj: 'repos',
             fun: 'get',
             arg: {
@@ -298,8 +298,8 @@ class RepoService {
                 repo: args.repo
             },
             token: args.token
-        }
-        return github.call(params)
+        })
+        return res.data
     }
 }
 

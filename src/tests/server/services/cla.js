@@ -303,9 +303,7 @@ describe('cla:getLastSignature', () => {
         const prCreateDateString = '1970-01-01T00:00:00.000Z'
         const prCreateDate = new Date(prCreateDateString)
         testErr.getPR = null
-        testRes.getPR = {
-            created_at: prCreateDate
-        }
+        testRes.getPR = { data: { created_at: prCreateDate } }
         CLA.findOne.restore()
         sinon.stub(CLA, 'findOne').callsFake(async (query) => {
             assert.equal(query.$or.length, 8)
@@ -457,17 +455,19 @@ describe('cla:checkPullRequestSignatures', () => {
             repoServiceGetCommitters: null
         }
         testRes.getPR = {
-            user: {
-                login: 'login0',
-                id: '0'
-            },
-            created_at: prCreateDate,
-            head: {
-                repo: {
-                    owner: {
-                        login: 'orgLogin0',
-                        type: 'Organization',
-                        id: '37'
+            data: {
+                user: {
+                    login: 'login0',
+                    id: '0'
+                },
+                created_at: prCreateDate,
+                head: {
+                    repo: {
+                        owner: {
+                            login: 'orgLogin0',
+                            type: 'Organization',
+                            id: '37'
+                        }
                     }
                 }
             }
@@ -764,19 +764,21 @@ describe('cla:checkPullRequestSignatures', () => {
         beforeEach(() => {
             config.server.feature_flag.organization_override_enabled = true
             testRes.getPR = {
-                head: {
-                    repo: {
-                        owner: {
-                            login: 'orgLogin0',
-                            type: 'Organization',
-                            id: '37'
+                data: {
+                    head: {
+                        repo: {
+                            owner: {
+                                login: 'orgLogin0',
+                                type: 'Organization',
+                                id: '37'
+                            }
                         }
-                    }
-                },
-                user: {
-                    login: 'login0',
-                    id: '0'
-                },
+                    },
+                    user: {
+                        login: 'login0',
+                        id: '0'
+                    },
+                }
             }
 
             after(() => {
@@ -787,7 +789,7 @@ describe('cla:checkPullRequestSignatures', () => {
 
         it('should call callback function immediately if organization is whitelisted', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
-            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.head.repo.owner.login
+            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
             const args = {
                 repo: 'myRepo',
                 owner: 'owner',
@@ -1349,7 +1351,7 @@ describe('cla:getGist', () => {
         }
 
         await cla.getGist(repo)
-
+        assert(github.call.called)
     })
 
     it('should handle repo without gist', async () => {
@@ -1574,16 +1576,18 @@ describe('cla:isClaRequired', () => {
             token: 'abc',
             isUserWhitelisted: () => false
         }
-        testRes.pullRequestFiles = [
-            {
-                filename: 'test1',
-                changes: 4,
-            },
-            {
-                filename: 'test2',
-                changes: 10,
-            }
-        ]
+        testRes.pullRequestFiles = {
+            data: [
+                {
+                    filename: 'test1',
+                    changes: 4,
+                },
+                {
+                    filename: 'test2',
+                    changes: 10,
+                }
+            ]
+        }
     })
 
     afterEach(() => restore())

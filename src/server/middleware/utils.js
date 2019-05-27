@@ -26,7 +26,7 @@ class Utils {
             }
             return res.data
         } catch (error) {
-            if (error.code === 404) {
+            if (error.status === 404) {
                 log.info('User has no authorization for ' + repo + ' repository.')
                 log.warn(error.stack)
             }
@@ -66,7 +66,7 @@ class Utils {
 
             return res.data
         } catch (error) {
-            if (error.code === 404) {
+            if (error.status === 404) {
                 log.info('User has no authorization for ' + org + ' repository.')
             }
             throw error
@@ -74,7 +74,7 @@ class Utils {
 
     }
 
-    validateArgs(args, schema, allowUnknown = false, convert = false) {
+    validateArgs(args, schema, allowUnknown = false, convert = true) {
         const joiRes = Joi.validate(args, schema, { abortEarly: false, allowUnknown, convert })
         if (joiRes.error) {
             joiRes.error.code = 400

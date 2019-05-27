@@ -316,6 +316,42 @@ describe('webhookApi', function () {
             assert(github.call.calledWithMatch(expArgs))
         })
 
+        it('should NOT throw an error when repo hook does NOT exist and owner is not an org', async () => {
+            github.call.restore()
+            sinon.stub(github, 'call').callsFake(async (args) => {
+                if (args.obj === 'repos') {
+                    return { data: resGetRepoHooks }
+                }
+                const error = new Error()
+                error.status = 404
+                throw error
+            })
+            resGetRepoHooks = []
+            let expArgs = {
+                obj: 'orgs',
+                fun: 'listHooks',
+                arg: {
+                    org: 'owner'
+                },
+                token: 'abc'
+            }
+
+            let req = {
+                user: {
+                    id: 1,
+                    login: 'login',
+                    token: 'abc'
+                },
+                args: {
+                    repo: 'myRepo',
+                    owner: 'owner'
+                }
+            }
+
+            await webhook_api.get(req)
+            assert(github.call.calledWithMatch(expArgs))
+        })
+
         it('should call github service with user token for org hooks', async () => {
             let expArgs = {
                 obj: 'orgs',

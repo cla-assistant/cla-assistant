@@ -36,7 +36,7 @@ const GISTREQUESTSCHEMA = Joi.object().keys({
 
 class ClaApi {
     async getGist(req) {
-        utils.validateArgs(req.args, GISTREQUESTSCHEMA)
+        utils.validateArgs(req.args, GISTREQUESTSCHEMA, false)
         if (req.user && req.user.token && req.args.gist) {
             return cla.getGist({
                 token: req.user.token,
@@ -356,7 +356,7 @@ class ClaApi {
     }
 
     hasSignature(req) {
-        utils.validateArgs(req.args, SIGNATURESCHEMA, false)
+        utils.validateArgs(req.args, SIGNATURESCHEMA, false, true)
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
         return cla.check(req.args)
