@@ -235,16 +235,16 @@ app.all('/api/:obj/:fun', async (req, res) => {
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.all('/github/webhook/:repo', (req, res) => {
-    let event = req.headers['x-github-event'];
+    let event = req.headers['x-github-event']
     try {
         if (!webhooks[event]) {
-            return res.status(400).send('Unsupported event');
+            return res.status(400).send('Unsupported event')
         }
-        webhooks[event](req, res);
+        webhooks[event](req, res)
     } catch (err) {
-        res.status(500).send('Internal Server Error');
+        res.status(500).send('Internal Server Error')
     }
-});
+})
 
 function retryInitializeMongoose(uri, options, callback) {
     const defaultInterval = 1000;
@@ -258,7 +258,7 @@ function retryInitializeMongoose(uri, options, callback) {
         if (typeof callback === 'function') {
             callback()
         }
-    });
+    })
 }
 
 // async function retryInitializeMongoose(uri, options) {
