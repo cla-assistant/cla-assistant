@@ -39,11 +39,14 @@ class WebhookApi {
     async _getRepoHook(owner, repo, noCache, token) {
         let hook = await this._getHook(owner, repo, noCache, token)
         if (!hook) {
-            hook = await this._getHook(owner, undefined, noCache, token)
-            // if (error && error.code !== 404) {
-            //     // When the owner is not an org, github returns 404.
-            //     throw new Error(error).stack
-            // }
+            try {
+                hook = await this._getHook(owner, undefined, noCache, token)
+            } catch (error) {
+                if (error && error.status !== 404) {
+                    // When the owner is not an org, github returns 404.
+                    throw new Error(error)
+                }
+            }
         }
         return hook
     }

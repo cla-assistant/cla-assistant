@@ -566,7 +566,7 @@ describe('repo:getUserRepos', () => {
                 if (githubCallRes.err) {
                     throw new Error(githubCallRes.err)
                 }
-                return githubCallRes.data
+                return githubCallRes
             }
         })
 
@@ -625,7 +625,7 @@ describe('repo:getUserRepos', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             assert(args.arg.affiliation === 'x,y')
             assert(args.token)
-            return githubCallRes.data
+            return githubCallRes
         })
 
         await repo.getUserRepos({ token: 'test_token', affiliation: 'x,y' })
@@ -637,7 +637,7 @@ describe('repo:getUserRepos', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             assert(args.arg.affiliation === 'owner,organization_member')
             assert(args.token)
-            return githubCallRes.data
+            return githubCallRes
         })
 
         repo.getUserRepos({ token: 'test_token' })
@@ -697,7 +697,7 @@ describe('repo:getGHRepo', () => {
             if (githubCallRes.err) {
                 throw new Error(githubCallRes.err)
             }
-            return githubCallRes.data
+            return githubCallRes
         })
 
     })
