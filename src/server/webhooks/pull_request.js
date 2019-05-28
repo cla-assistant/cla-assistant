@@ -113,7 +113,7 @@ async function handleWebHook(args) {
     }
 }
 
-module.exports = function (req, res) {
+module.exports = async function (req, res) {
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
             // eslint-disable-next-line no-console
@@ -128,26 +128,26 @@ module.exports = function (req, res) {
         args.orgId = req.args.organization ? req.args.organization.id : req.args.repository.owner.id
         args.handleDelay = req.args.handleDelay != undefined ? req.args.handleDelay : 1 // needed for unitTests
 
-        setTimeout(async () => {
-            try {
-                const item = await cla.getLinkedItem(args)
-                let nullCla = !item.gist
-                let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo)
-                if (nullCla || isExcluded) {
-                    return
-                }
-                args.token = item.token
-                args.gist = item.gist
-                if (item.repoId) {
-                    args.orgId = undefined
-                }
-
-                return handleWebHook(args)
-            } catch (e) {
-                logger.warn(e)
-
+        // setTimeout(async () => {
+        try {
+            const item = await cla.getLinkedItem(args)
+            let nullCla = !item.gist
+            let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo)
+            if (nullCla || isExcluded) {
+                return
             }
-        }, config.server.github.enforceDelay)
+            args.token = item.token
+            args.gist = item.gist
+            if (item.repoId) {
+                args.orgId = undefined
+            }
+
+            return handleWebHook(args)
+        } catch (e) {
+            logger.warn(e)
+
+        }
+        // }, config.server.github.enforceDelay)
     }
 
     res.status(200).send('OK')

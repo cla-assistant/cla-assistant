@@ -157,11 +157,11 @@ describe('pullRequest:badgeComment', () => {
         cla_config.server.github.token = 'xyz'
 
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (args.obj === 'issues' && args.fun === 'listComments') {
-                return direct_call_data
-            }
             if (assertionFunction) {
-                return assertionFunction(args)
+                await assertionFunction(args)
+            }
+            if (args.obj === 'issues' && args.fun === 'listComments') {
+                return { data: direct_call_data }
             }
         })
     })
