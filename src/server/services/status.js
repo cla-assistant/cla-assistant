@@ -99,11 +99,11 @@ const findStatusToBeChanged = async (args) => {
 
         //statuses = JSON.parse(response)
 
-        const statString = JSON.stringify(response)
+        const statString = JSON.stringify(response.data)
 
         if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
             let shouldBeChanged = false
-            response.some(function findClaStatusToChange(s) {
+            response.data.some(function findClaStatusToChange(s) {
                 if (s.context.match(/licence\/cla/g)) {
                     shouldBeChanged = s.state === 'pending'
                     return true
@@ -114,8 +114,8 @@ const findStatusToBeChanged = async (args) => {
                 return status
             }
         }
-        if (response) {
-            response.some(function findClaStatusToChange(s) {
+        if (response && response.data) {
+            response.data.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
                     status = s.state !== status.state ? status : undefined
 
@@ -133,7 +133,7 @@ const findClaStatus = async (args) => {
     try {
         const resp = await getCombinedStatus(args)
         let claStatus = null
-        resp.statuses.some(function (status) {
+        resp.data.statuses.some(function (status) {
             if (status.context.match(/license\/cla/g)) {
                 claStatus = status
                 return true
@@ -165,7 +165,7 @@ const getPullRequestHeadShaIfNeeded = async (args) => {
         if (args.sha) {
             return args
         }
-        const pullRequest = await getPR(args)
+        const pullRequest = (await getPR(args)).data
         args.sha = pullRequest.head.sha
         return args
     } catch (error) {
@@ -198,7 +198,7 @@ class StatusService {
     async update(args) {
         if (args && !args.sha) {
             try {
-                const resp = await getPR(args)
+                const resp = (await getPR(args)).data
                 if (!resp || resp.message == 'Not found') {
                     return
                 }

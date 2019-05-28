@@ -6,9 +6,7 @@ const SentryStream = require('bunyan-sentry-stream').SentryStream;
 let client = new raven.Client(config.server.sentry_dsn);
 let log
 
-const formatter = (record, levelName) => {
-    text: '[' + levelName + '] ' + record.msg + ' (source: ' + record.src.file + ' line: ' + record.src.line + ')'
-}
+const formatter = (record, levelName) => { return { text: `[${levelName}] ${record.msg} (source: ${record.src.file} line: ${record.src.line})` } }
 
 log = bunyan.createLogger({
     src: true,

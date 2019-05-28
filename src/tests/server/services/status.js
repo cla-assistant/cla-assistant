@@ -232,47 +232,47 @@ const testData = {
     'additions': 100,
     'deletions': 3,
     'changed_files': 5
-};
+}
 
 const testStatusesSuccess = [{
-        'state': 'success',
-        'description': 'Build has completed successfully',
-        'id': 1,
-        'context': 'anything/else'
-    },
-    {
-        'state': 'success',
-        'description': 'Check succeeded',
-        'id': 2,
-        'context': 'license/cla'
-    }
-];
+    'state': 'success',
+    'description': 'Build has completed successfully',
+    'id': 1,
+    'context': 'anything/else'
+},
+{
+    'state': 'success',
+    'description': 'Check succeeded',
+    'id': 2,
+    'context': 'license/cla'
+}
+]
 const testStatusesPending = [{
-        'state': 'success',
-        'description': 'Build has completed successfully',
-        'id': 1,
-        'context': 'anything/else'
-    },
-    {
-        'state': 'pending',
-        'description': 'Check failed',
-        'id': 2,
-        'context': 'licence/cla'
-    }
-];
+    'state': 'success',
+    'description': 'Build has completed successfully',
+    'id': 1,
+    'context': 'anything/else'
+},
+{
+    'state': 'pending',
+    'description': 'Check failed',
+    'id': 2,
+    'context': 'licence/cla'
+}
+]
 const testStatusesFailure = [{
-        'state': 'pending',
-        'description': 'Check failed',
-        'id': 2,
-        'context': 'license/cla'
-    },
-    {
-        'state': 'pending',
-        'description': 'Check failed',
-        'id': 1,
-        'context': 'licence/cla'
-    }
-];
+    'state': 'pending',
+    'description': 'Check failed',
+    'id': 2,
+    'context': 'license/cla'
+},
+{
+    'state': 'pending',
+    'description': 'Check failed',
+    'id': 1,
+    'context': 'licence/cla'
+}
+]
 
 const statusForElse = {
     id: 2,
@@ -280,7 +280,7 @@ const statusForElse = {
     description: 'Build has completed successfully',
     target_url: 'www.test.com',
     context: 'anything/else'
-};
+}
 
 const statusForClaNotSigned = {
     id: 1,
@@ -288,46 +288,46 @@ const statusForClaNotSigned = {
     description: 'Contributor License Agreement is not signed yet.',
     target_url: 'www.test.com',
     context: 'license/cla'
-};
+}
 
 describe('status', () => {
-    let githubCallPRGet, githubCallStatusGet, assertFunction, githubCallCombinedStatus;
+    let githubCallPRGet, githubCallStatusGet, assertFunction, githubCallCombinedStatus
     beforeEach(() => {
         githubCallPRGet = {
             data: testData,
             err: null
-        };
+        }
         githubCallStatusGet = {
             data: testStatusesPending,
             err: null
-        };
+        }
         githubCallCombinedStatus = {
             data: null,
             err: null
-        };
+        }
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'pulls' && args.fun === 'get') {
-                assert(args.token);
-                return githubCallPRGet.data;
+                assert(args.token)
+                return githubCallPRGet
             } else if (args.obj === 'repos' && args.fun === 'listStatusesForRef') {
-                assert.equal(args.token, 'abc');
-                return githubCallStatusGet.data;
+                assert.equal(args.token, 'abc')
+                return githubCallStatusGet
             } else if (args.obj === 'repos' && args.fun === 'getCombinedStatusForRef') {
-                return githubCallCombinedStatus.data;
+                return githubCallCombinedStatus
             }
             if (assertFunction) {
-                assert.equal(args.token, 'abc');
+                assert.equal(args.token, 'abc')
                 if (assertFunction) {
-                    return assertFunction(args);
+                    return assertFunction(args)
                 }
             }
-        });
-    });
+        })
+    })
 
     afterEach(() => {
-        assertFunction = undefined;
-        github.call.restore();
-    });
+        assertFunction = undefined
+        github.call.restore()
+    })
     describe('update', () => {
         it('should create comment with admin token', async () => {
             let args = {
@@ -336,63 +336,63 @@ describe('status', () => {
                 number: 1,
                 signed: true,
                 token: 'abc'
-            };
+            }
 
-            await status.update(args);
-            assert.equal(github.call.callCount, 3);
+            await status.update(args)
+            assert.equal(github.call.callCount, 3)
 
 
-        });
+        })
 
         it('should create status pending if not signed', async () => {
             assertFunction = (args) => {
                 assert.equal(args.arg.state, 'pending')
                 assert.equal(args.arg.context, 'license/cla')
 
-            };
-            githubCallStatusGet.data = testStatusesSuccess;
+            }
+            githubCallStatusGet.data = testStatusesSuccess
             let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
                 signed: false,
                 token: 'abc'
-            };
+            }
 
             await status.update(args)
-            assert(github.call.calledThrice);
-        });
+            assert(github.call.calledThrice)
+        })
 
         it('should not update status if no pull request found', async () => {
-            githubCallPRGet.err = 'error';
-            githubCallPRGet.data = null;
+            githubCallPRGet.err = 'error'
+            githubCallPRGet.data = null
             let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
                 signed: false,
                 token: 'abc'
-            };
+            }
 
             await status.update(args)
             assert(github.call.calledOnce)
-        });
+        })
 
         it('should not update status if no pull request found', async () => {
             githubCallPRGet.data = {
                 message: 'Not found'
-            };
+            }
             let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
                 number: 1,
                 signed: false,
                 token: 'abc'
-            };
+            }
 
             await status.update(args)
             assert(github.call.calledOnce)
-        });
+        })
 
         it('should not load PR if sha is provided', async () => {
             let args = {
@@ -402,11 +402,11 @@ describe('status', () => {
                 signed: true,
                 token: 'abc',
                 sha: 'sha1'
-            };
+            }
 
             await status.update(args)
             assert(github.call.calledTwice)
-        });
+        })
 
         it('should use old and new context if there is already a status with this context', async () => {
             let args = {
@@ -416,14 +416,14 @@ describe('status', () => {
                 signed: true,
                 token: 'abc',
                 sha: 'sha1'
-            };
+            }
             await status.update(args)
             assert(github.call.calledTwice)
 
-        });
+        })
 
         it('should not update status if it has not changed', async () => {
-            githubCallStatusGet.data = testStatusesSuccess;
+            githubCallStatusGet.data = testStatusesSuccess
             let args = {
                 owner: 'octocat',
                 repo: 'Hello-World',
@@ -431,16 +431,16 @@ describe('status', () => {
                 signed: true,
                 token: 'abc',
                 sha: 'sha1'
-            };
+            }
             await status.update(args)
             assert(github.call.calledOnce)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'listStatusesForRef'
-            }));
+            }))
 
 
-        });
+        })
 
         it('should update status if there are no old ones', async () => {
             let args = {
@@ -450,11 +450,11 @@ describe('status', () => {
                 signed: false,
                 token: 'abc',
                 sha: 'sha1'
-            };
+            }
             githubCallStatusGet.data = null
             await status.update(args)
             assert(github.call.calledTwice)
-        });
+        })
 
         it('should update statuses of all contexts if there are both (licenCe and licenSe)', async () => {
             let args = {
@@ -464,18 +464,18 @@ describe('status', () => {
                 signed: true,
                 token: 'abc',
                 sha: 'sha1'
-            };
+            }
             githubCallStatusGet.data = testStatusesFailure
             await status.update(args)
             assert(github.call.calledTwice)
 
 
-        });
-    });
+        })
+    })
 
 
     describe('updateForNullCla', async () => {
-        let args = null;
+        let args = null
 
         let statusForNullCla = {
             id: 1,
@@ -483,22 +483,22 @@ describe('status', () => {
             description: 'No Contributor License Agreement required.',
             target_url: null,
             context: 'license/cla'
-        };
+        }
 
         let testCombinedStatus = {
             state: 'pending',
             statuses: [statusForClaNotSigned, statusForElse]
-        };
+        }
 
         let testNoClaCombinedStatus = {
             state: 'success',
             statuses: [statusForElse]
-        };
+        }
 
         let testNullClaCombinedStatus = {
             state: 'success',
             statuses: [statusForNullCla, statusForElse]
-        };
+        }
 
         beforeEach(function () {
             args = {
@@ -507,57 +507,57 @@ describe('status', () => {
                 number: 1,
                 signed: true,
                 token: 'abc'
-            };
-        });
+            }
+        })
 
         it('should create status if previous status is not for null cla', async () => {
-            githubCallCombinedStatus.data = testCombinedStatus;
-            await status.updateForNullCla(args);
+            githubCallCombinedStatus.data = testCombinedStatus
+            await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus',
-            }));
-        });
+            }))
+        })
 
         it('should not create status if there is no cla status', async () => {
-            githubCallCombinedStatus.data = testNoClaCombinedStatus;
-            await status.updateForNullCla(args);
+            githubCallCombinedStatus.data = testNoClaCombinedStatus
+            await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus'
-            }));
-        });
+            }))
+        })
 
         it('should not create status if previous status is a null cla status', async () => {
-            githubCallCombinedStatus.data = testNullClaCombinedStatus;
-            await status.updateForNullCla(args);
+            githubCallCombinedStatus.data = testNullClaCombinedStatus
+            await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus'
-            }));
-        });
+            }))
+        })
 
         it('should send error when get pull request head sha failed', async () => {
-            githubCallPRGet.err = 'Get pull request failed';
+            githubCallPRGet.err = 'Get pull request failed'
             try {
-                await status.updateForNullCla(args);
+                await status.updateForNullCla(args)
             } catch (error) {
-                assert.equal(error);
+                assert.equal(error)
             }
-        });
+        })
 
         it('should send error when get pull request head sha is null', async () => {
-            githubCallPRGet.data = null;
+            githubCallPRGet.data = null
             try {
-                await status.updateForNullCla(args);
+                await status.updateForNullCla(args)
             } catch (err) {
-                assert(err);
+                assert(err)
             }
-        });
-    });
+        })
+    })
 
     describe('updateForClaNotRequired', () => {
-        let args = null;
+        let args = null
 
         let statusForClaNotRequired = {
             id: 1,
@@ -565,22 +565,22 @@ describe('status', () => {
             state: 'success',
             description: 'All CLA requirements met.',
             target_url: null
-        };
+        }
 
         let testNoClaCombinedStatus = {
             state: 'success',
             statuses: [statusForElse]
-        };
+        }
 
         let testCombinedStatus = {
             state: 'pending',
             statuses: [statusForClaNotSigned, statusForElse]
-        };
+        }
 
         let testCombinedStatusForClaNotRequired = {
             state: 'success',
             statuses: [statusForClaNotRequired, statusForElse]
-        };
+        }
 
         beforeEach(() => {
             args = {
@@ -589,44 +589,44 @@ describe('status', () => {
                 number: 1,
                 signed: true,
                 token: 'abc'
-            };
-        });
+            }
+        })
 
         it('should create status if previous status is not for cla not required', async () => {
-            githubCallCombinedStatus.data = testCombinedStatus;
-            await status.updateForClaNotRequired(args);
+            githubCallCombinedStatus.data = testCombinedStatus
+            await status.updateForClaNotRequired(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus'
-            }));
-        });
+            }))
+        })
 
         it('should create status if there is no cla status', async () => {
-            githubCallCombinedStatus.data = testNoClaCombinedStatus;
-            await status.updateForClaNotRequired(args);
-            assert(github.call.called);
+            githubCallCombinedStatus.data = testNoClaCombinedStatus
+            await status.updateForClaNotRequired(args)
+            assert(github.call.called)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus'
-            }));
-        });
+            }))
+        })
 
         it('should not create status if previous status is for cla not required', async () => {
-            githubCallCombinedStatus.data = testCombinedStatusForClaNotRequired;
-            await status.updateForClaNotRequired(args);
+            githubCallCombinedStatus.data = testCombinedStatusForClaNotRequired
+            await status.updateForClaNotRequired(args)
             assert(!github.call.calledWithMatch({
                 obj: 'repos',
                 fun: 'createStatus'
-            }));
-        });
+            }))
+        })
 
         it('should send error when get pull request head sha failed', async () => {
-            githubCallPRGet.err = 'Get pull request failed';
+            githubCallPRGet.err = 'Get pull request failed'
             try {
-                await status.updateForClaNotRequired(args);
+                await status.updateForClaNotRequired(args)
             } catch (error) {
-                assert.equal(error);
+                assert.equal(error)
             }
-        });
-    });
-});
+        })
+    })
+})
