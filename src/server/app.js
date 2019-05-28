@@ -261,6 +261,7 @@ function retryInitializeMongoose(uri, options, callback) {
     })
 }
 
+module.exports = app
 // async function retryInitializeMongoose(uri, options) {
 //     const defaultInterval = 1000
 //     try {
