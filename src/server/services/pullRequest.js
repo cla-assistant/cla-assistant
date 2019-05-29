@@ -76,7 +76,7 @@ class PullRequestService {
                 }
             })
         } catch (error) {
-            logger.info(new Error(error).stack)
+            logger.warn(new Error(error).stack)
         }
     }
 
@@ -92,7 +92,7 @@ class PullRequestService {
             },
             token: config.server.github.token
         })
-        return res.find(comment => comment.body.match(/.*!\[CLA assistant check\].*/))
+        return res.data.find(comment => comment.body.match(/.*!\[CLA assistant check\].*/))
     }
 
     async editComment(args) {

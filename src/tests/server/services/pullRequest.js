@@ -6,6 +6,7 @@ const sinon = require('sinon')
 
 // services
 const github = require('../../../server/services/github')
+const logger = require('../../../server/services/logger')
 const cla_config = require('../../../config')
 
 // service under test
@@ -157,18 +158,22 @@ describe('pullRequest:badgeComment', () => {
         cla_config.server.github.token = 'xyz'
 
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (assertionFunction) {
-                await assertionFunction(args)
-            }
             if (args.obj === 'issues' && args.fun === 'listComments') {
                 return { data: direct_call_data }
             }
+            if (assertionFunction) {
+                return assertionFunction(args)
+            }
+        })
+        sinon.stub(logger, 'warn').callsFake(error => {
+            console.log(error) // eslint-disable-line no-console
         })
     })
 
     afterEach(() => {
         assertionFunction = undefined
         github.call.restore()
+        logger.warn.restore()
     })
 
     it('should create comment with cla-assistant user', async () => {
@@ -179,10 +184,11 @@ describe('pullRequest:badgeComment', () => {
             assert.equal(args.basicAuth.user, 'cla-assistant')
             assert.equal(args.basicAuth.pass, 'secret_pass')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
-            return 'githubRes'
+            return { data: 'githubRes' }
         }
 
         await pullRequest.badgeComment('login', 'myRepo', 1)
+        assert(!logger.warn.called)
     })
 
     it('should edit comment with cla-assistant user', async () => {
@@ -194,7 +200,8 @@ describe('pullRequest:badgeComment', () => {
             return 'githubRes'
         }
 
-        pullRequest.badgeComment('login', 'myRepo', 1)
+        await pullRequest.badgeComment('login', 'myRepo', 1)
+        assert(!logger.warn.called)
     })
 
     it('should add a note to the comment if there is a committer who is not a github user', async () => {
@@ -211,6 +218,7 @@ describe('pullRequest:badgeComment', () => {
             not_signed: ['user1'],
             unknown: ['user1']
         })
+        assert(!logger.warn.called)
     })
 
     it('should add a note to the comment with name of ONE committer who has no github account', async () => {
@@ -225,6 +233,7 @@ describe('pullRequest:badgeComment', () => {
             not_signed: ['user1'],
             unknown: ['user1']
         })
+        assert(!logger.warn.called)
     })
 
     it('should add a note to the comment with names of MULTIPLE committers who has no github account', async () => {
@@ -239,6 +248,7 @@ describe('pullRequest:badgeComment', () => {
             not_signed: ['user1', 'user2'],
             unknown: ['user1', 'user2']
         })
+        assert(!logger.warn.called)
     })
 
     it('should write a list of signed and not signed users on create', async () => {
@@ -256,6 +266,7 @@ describe('pullRequest:badgeComment', () => {
             signed: ['user1'],
             not_signed: ['user2']
         })
+        assert(!logger.warn.called)
     })
 
     it('should NOT write a list of signed and not signed users on create if there is only one committer', async () => {
@@ -272,6 +283,7 @@ describe('pullRequest:badgeComment', () => {
             signed: [],
             not_signed: ['user2']
         })
+        assert(!logger.warn.called)
     })
 
     it('should write a list of signed and not signed users on edit', async () => {
@@ -289,6 +301,7 @@ describe('pullRequest:badgeComment', () => {
             signed: ['user1'],
             not_signed: ['user2']
         })
+        assert(!logger.warn.called)
     })
 })
 
@@ -299,7 +312,7 @@ describe('pullRequest:getComment', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'issues' && args.fun === 'listComments') {
                 assert.equal(args.token, 'xyz')
-                return testDataComments_withCLAComment
+                return { data: testDataComments_withCLAComment }
             }
         })
     })
@@ -319,7 +332,7 @@ describe('pullRequest:getComment', () => {
 
     it('should not find the comment if it is not there', async () => {
         github.call.restore()
-        sinon.stub(github, 'call').resolves(testDataComments_withoutCLA)
+        sinon.stub(github, 'call').resolves({ data: testDataComments_withoutCLA })
         const args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -356,7 +369,7 @@ describe('pullRequest:editComment', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'issues' && args.fun === 'listComments') {
                 assert.equal(args.token, 'xyz')
-                return testDataComments_withCLAComment
+                return { data: testDataComments_withCLAComment }
             }
             if (assertionFunction) {
                 return assertionFunction(args)
@@ -365,11 +378,15 @@ describe('pullRequest:editComment', () => {
             assert(args.arg.id)
             return 'res'
         })
+        sinon.stub(logger, 'warn').callsFake(error => {
+            console.log(error) // eslint-disable-line no-console
+        })
     })
 
     afterEach(() => {
         github.call.restore()
         assertionFunction = undefined
+        logger.warn.restore()
     })
 
     it('should edit comment if not signed', async () => {
@@ -381,6 +398,7 @@ describe('pullRequest:editComment', () => {
 
         await pullRequest.editComment(args)
         assert(github.call.calledTwice)
+        assert(!logger.warn.called)
     })
 
     it('should write a list of signed and not signed users on edit if not signed', async () => {
@@ -406,6 +424,7 @@ describe('pullRequest:editComment', () => {
 
         await pullRequest.editComment(args)
         assert(github.call.called)
+        assert(!logger.warn.called)
     })
 
     it('should edit comment if signed', async () => {
@@ -418,6 +437,7 @@ describe('pullRequest:editComment', () => {
 
         await pullRequest.editComment(args)
         assert(github.call.called)
+        assert(!logger.warn.called)
     })
 
     it('should not fail if no callback provided', async () => {
@@ -429,6 +449,7 @@ describe('pullRequest:editComment', () => {
         }
 
         await pullRequest.editComment(args)
+        assert(!logger.warn.called)
     })
 })
 
@@ -450,7 +471,7 @@ describe('pullRequest:deleteComment', () => {
                 if (error.listComments) {
                     throw new Error(error.listComments)
                 }
-                return res.listComments
+                return { data: res.listComments }
             }
             if (args.obj === 'issues' && args.fun === 'deleteComment') {
                 throw new Error(error.deleteComment)
