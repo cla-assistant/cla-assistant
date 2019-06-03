@@ -7,8 +7,9 @@
 
     <h5 class="link-topic">
         Choose a CLA
-        <br/>
-        <span class="side-note">(please note that changing the CLA results in a new request to sign the CLA from the contributors!)</span>
+        <br />
+        <span class="side-note">(please note that changing the CLA results in a new request to sign the CLA from the
+            contributors!)</span>
     </h5>
     <div class="row">
 
@@ -17,20 +18,25 @@
             <div class="form-group has-feedback" style="margin-bottom: 10px;">
                 <ui-select ng-model="selected.gist" theme="selectize">
                     <ui-select-match placeholder="select" allow-clear="true">
-                        <button class="fa fa-times clear-button" ng-click="clear($event, 'gist')" ng-show="$select.selected.name"></button> {{$select.selected.name}}
+                        <button class="fa fa-times clear-button" ng-click="clear($event, 'gist')"
+                            ng-show="$select.selected.name"></button> {{$select.selected.name}}
                     </ui-select-match>
-                    <ui-select-choices group-by="groupDefaultCla" repeat="gist in gists | filter: $select.search" null-option="emptyGist">
+                    <ui-select-choices group-by="groupDefaultCla" repeat="gist in gists | filter: $select.search"
+                        null-option="emptyGist">
                         <span ng-bind-html="gist.name | highlight: $select.search"></span>
                     </ui-select-choices>
                 </ui-select>
             </div>
             <div style="margin-bottom:10px">- or -</div>
             <div style="margin-bottom: 5px;">Paste a URL from a Gist</div>
-            <input id="gistUrl" ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url" placeholder="https://gist.github.com/<your cla gist id>"
-                required></input>
+            <input id="gistUrl" ng-disabled="selected.gist.name" class="form-control" ng-model="selected.gist.url"
+                placeholder="https://gist.github.com/<your cla gist id>" required></input>
             <div style="margin-bottom: 15px; margin-top: 15px;">
-                <input id="sharedGist" type="checkbox" ng-model="selected.item.sharedGist" ng-init="selected.sharedGist = false" ng-disabled="selected.gist && !selected.gist.url">&nbsp;Share the Gist &nbsp;</input>
-                <span class="clickable" ng-click="gistShareInfo()" style="font-size:12px; text-decoration:underline">(want to share?)</span>
+                <input id="sharedGist" type="checkbox" ng-model="selected.item.sharedGist"
+                    ng-init="selected.sharedGist = false" ng-disabled="selected.gist && !selected.gist.url">&nbsp;Share
+                the Gist &nbsp;</input>
+                <span class="clickable" ng-click="gistShareInfo()"
+                    style="font-size:12px; text-decoration:underline">(want to share?)</span>
             </div>
         </div>
     </div>
@@ -42,7 +48,8 @@
             <div class="form-group">
                 <span ng-if="!linkedItem.repo">
                     <div style="margin-bottom: 5px; margin-top: 5px;">Exclude the following repos from the org</div>
-                    <input id="excludePattern" class="form-control" ng-model="selected.item.excludePattern" placeholder="repo1,repo2,substring1"></input>
+                    <input id="excludePattern" class="form-control" ng-model="selected.item.excludePattern"
+                        placeholder="repo1,repo2,substring1"></input>
                 </span>
             </div>
         </div>
@@ -51,8 +58,8 @@
         <div class="col-xs-5">
             <div class="form-group">
                 <div style="margin-bottom:5px">Minimum File Number Changes</div>
-                <input id="minFileChanges" class="form-control" type="number" ng-model="selected.item.minFileChanges" ng-disabled="selected.gist && !selected.gist.url"
-                    placeholder="Number"></input>
+                <input id="minFileChanges" class="form-control" type="number" ng-model="selected.item.minFileChanges"
+                    ng-disabled="selected.gist && !selected.gist.url" placeholder="Number"></input>
             </div>
         </div>
         <div class="col-xs-2">
@@ -61,8 +68,8 @@
         <div class="col-xs-5">
             <div class="form-group">
                 <div style="margin-bottom:5px;">Minimum Line Number Changes</div>
-                <input id="minCodeChanges" class="form-control" type="number" ng-model="selected.item.minCodeChanges" ng-disabled="selected.gist && !selected.gist.url"
-                    placeholder="Number"></input>
+                <input id="minCodeChanges" class="form-control" type="number" ng-model="selected.item.minCodeChanges"
+                    ng-disabled="selected.gist && !selected.gist.url" placeholder="Number"></input>
             </div>
         </div>
     </div>
@@ -70,12 +77,14 @@
         <div class="col-xs-12">
             <div class="form-group">
                 <div style="margin-bottom: 5px; margin-top: 5px;">Specify usernames to be whitelisted
-                    <span class="clickable" ng-click="whitelistInfo()" style="font-size:12px; text-decoration:underline">(how does this work?)</span>
-                    <br/>
+                    <span class="clickable" ng-click="whitelistInfo()"
+                        style="font-size:12px; text-decoration:underline">(how does this work?)</span>
+                    <br />
                     <span class="side-note">(you can also use wildcard
                         <span class="wildcard">*</span>)</span>
                 </div>
-                <input id="whiteListPattern" class="form-control" ng-model="selected.item.whiteListPattern" placeholder="user1,user2,*[bot]"></input>
+                <input id="whiteListPattern" class="form-control" ng-model="selected.item.whiteListPattern"
+                    placeholder="user1,user2,*[bot]"></input>
             </div>
         </div>
     </div>
@@ -83,10 +92,12 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="form-group">
-                <div style="margin-bottom: 5px; margin-top: 5px;">Request the user's consent to the use of personal data in accordance with your privacy policy. Please, provide
+                <div style="margin-bottom: 5px; margin-top: 5px;">Request the user's consent to the use of personal data
+                    in accordance with your privacy policy. Please, provide
                     a link to your Privacy Policy here
                 </div>
-                <input id="privacyPolicy" class="form-control" ng-model="selected.item.privacyPolicy" placeholder="https://..."></input>
+                <input id="privacyPolicy" class="form-control" ng-model="selected.item.privacyPolicy"
+                    placeholder="https://..."></input>
             </div>
         </div>
     </div>
@@ -99,6 +110,6 @@
 
     <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
         <button class="btn btn-cancel" ng-click="cancel()">Cancel</button>
-        <button class="btn btn-success" ng-disabled="!selected.gist" ng-click="ok()">Save</button>
+        <button class="btn btn-success" ng-disabled="!selected.gist" ng-click="ok(selected.item)">Save</button>
     </div>
 </div>
