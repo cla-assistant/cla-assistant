@@ -16,7 +16,8 @@ const newOrgSchema = Joi.object().keys({
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
     minCodeChanges: Joi.number(),
-    whiteListPattern: Joi.string()
+    whiteListPattern: Joi.string().allow(''),
+    privacyPolicy: Joi.string().allow('')
 })
 const removeOrgSchema = Joi.object().keys({
     org: Joi.string(),
@@ -121,6 +122,9 @@ class OrgAPI {
     async remove(req) {
         utils.validateArgs(req.args, removeOrgSchema)
         const dbOrg = await org.remove(req.args)
+        if (!dbOrg) {
+            throw new Error('Organization is not Found')
+        }
         req.args.org = dbOrg.org
         try {
             await webhook.remove(req)

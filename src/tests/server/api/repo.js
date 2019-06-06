@@ -9,10 +9,6 @@ let sinon = require('sinon')
 let repo = require('../../../server/services/repo')
 let webhook = require('../../../server/api/webhook')
 
-//model
-let Repo = require('../../../server/documents/repo').Repo
-
-
 // api
 let repo_api = require('../../../server/api/repo')
 
@@ -228,20 +224,43 @@ describe('repo', () => {
                 return repoMock
             }
         }
-        let repoStub = sinon.stub(Repo, 'findOne').callsFake(async () => repoMock)
-
-        let req = {
+        const req = {
             user: {
                 token: 'user_token'
             },
             args: {
                 repo: 'myRepo',
+                repoId: 123,
                 owner: 'login',
                 gist: 'url'
             }
         }
+        let repoStub = sinon.stub(repo, 'update').callsFake(async (args) => {
+            assert.deepEqual(args, Object.assign({}, req.user, req.args))
+            return repoMock
+        })
 
         await repo_api.update(req)
+        assert(repo.update.calledOnce)
+        repoStub.restore()
+    })
+
+    it('should return error when repo update input is invalid', async () => {
+        const req = {
+            user: {
+                token: 'user_token'
+            },
+            args: {}
+        }
+        const repoStub = sinon.stub(repo, 'update').callsFake(async () => null)
+
+        try {
+            await repo_api.update(req)
+            assert(false, 'an error should have been thrown before')
+        } catch (error) {
+            assert(error)
+            assert.equal(repo.update.called, false)
+        }
         repoStub.restore()
     })
 

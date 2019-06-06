@@ -1,8 +1,9 @@
 // module
-const repo = require('../services/repo');
-const logger = require('../services/logger');
-const Joi = require('joi');
-const webhook = require('./webhook');
+const repo = require('../services/repo')
+const logger = require('../services/logger')
+const Joi = require('joi')
+const webhook = require('./webhook')
+const utils = require('../middleware/utils')
 
 const REPOCREATESCHEMA = Joi.object().keys({
     owner: Joi.string().required(),
@@ -12,7 +13,9 @@ const REPOCREATESCHEMA = Joi.object().keys({
     gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
-    minCodeChanges: Joi.number()
+    minCodeChanges: Joi.number(),
+    whiteListPattern: Joi.string().allow(''),
+    privacyPolicy: Joi.string().allow('')
 })
 
 const REPOREMOVESCHEMA = Joi.alternatives().try(Joi.object().keys({
@@ -23,17 +26,16 @@ const REPOREMOVESCHEMA = Joi.alternatives().try(Joi.object().keys({
 }))
 
 module.exports = {
-
     check: (req) => repo.check(req.args),
     create: async (req) => {
-        req.args.token = req.args.token || req.user.token;
-        validateArgs(req.args, REPOCREATESCHEMA, true)
+        req.args.token = req.args.token || req.user.token
+        utils.validateArgs(req.args, REPOCREATESCHEMA, true)
 
         const repoArgs = {
             repo: req.args.repo,
             owner: req.args.owner,
             token: req.args.token
-        };
+        }
         let dbRepo
         try {
             dbRepo = await repo.get(repoArgs)
@@ -65,25 +67,26 @@ module.exports = {
     // get: function(req, done){
     // 	repo.get(req.args, function(err, found_repo){
     // 		if (!found_repo || err || found_repo.owner !== req.user.login) {
-    // 			log.warn(err);
-    // 			done(err);
-    // 			return;
+    // 			log.warn(err)
+    // 			done(err)
+    // 			return
     // 		}
-    // 		done(err, found_repo);
-    // 	});
+    // 		done(err, found_repo)
+    // 	})
     // },
     getAll: (req) => repo.getAll(req.args),
     update: (req) => {
-        req.args.token = req.args.token || req.user.token;
+        req.args.token = req.args.token || req.user.token
+        utils.validateArgs(req.args, REPOCREATESCHEMA)
         return repo.update(req.args)
     },
     remove: async (req) => {
-        validateArgs(req.args, REPOREMOVESCHEMA)
+        utils.validateArgs(req.args, REPOREMOVESCHEMA)
 
         const dbRepo = await repo.remove(req.args)
         if (dbRepo && dbRepo.gist) {
-            req.args.owner = dbRepo.owner;
-            req.args.repo = dbRepo.repo;
+            req.args.owner = dbRepo.owner
+            req.args.repo = dbRepo.repo
             try {
                 webhook.remove(req)
             } catch (error) {
@@ -91,13 +94,5 @@ module.exports = {
             }
         }
         return dbRepo
-    }
-};
-
-function validateArgs(args, schema, allowUnknown) {
-    const joiRes = Joi.validate(args, schema, { abortEarly: false, allowUnknown });
-    if (joiRes.error) {
-        joiRes.error.code = 400;
-        throw joiRes.error;
     }
 }

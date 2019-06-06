@@ -35,7 +35,7 @@ module.factory('utils', ['$q', '$RPCService',
                 $RPCService.call('cla', 'get', args, function (err, cla) {
                     if (!err) {
                         gistContent.claText = cla.value.raw;
-
+                        gistContent.updatedAt = cla.value.updatedAt;
                         if (cla.value.meta) {
                             try {
                                 var metaString = cla.value.meta.replace(/<p>|<\/p>|\n|\t/g, '');

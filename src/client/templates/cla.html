@@ -8,13 +8,10 @@
         </div>
 
         <form class="row" ng-hide="!!redirect || noLinkedItemError">
-            <h4 ng-hide="signed">Please sign the CLA for {{params.user}}/{{params.repo}}</h4>
-            <h4 ng-show="signed">You have signed the CLA for {{params.user}}/{{params.repo}}</h4>
+            <h4>{{titleMsg()}}</h4>
+            <p>Version: {{updatedAt}}</p>
             <div class="cla-box well">
                 <div ng-bind-html="cla"></div>
-            </div>
-            <div class="h4" ng-if="showSharedGistMsg()">
-                <em>This CLA applies to multiple repos or orgs.</em>
             </div>
             <label ng-class="required" ng-show="linkedItem.privacyPolicy">
                 <input ng-disabled="signed" ng-model="privacyPolicyAccepted" type="checkbox" /> I accept, that the information I provide to sign this CLA will be maintained in accordance with project

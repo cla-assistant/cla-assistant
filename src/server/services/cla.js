@@ -98,7 +98,7 @@ class ClaService {
             }, {
                 created_at: { $lte: date },
                 end_at: undefined
-            }]);
+            }])
         })
 
         return dateConditions
@@ -130,14 +130,16 @@ class ClaService {
         return newQuery
     }
 
-    async _getPR(owner, repo, number, token) {
+    async _getPR(owner, repo, number, token, noCache) {
         return github.call({
             obj: 'pulls',
             fun: 'get',
             arg: {
                 owner: owner,
                 repo: repo,
-                number: number
+                pull_number: number,
+                number: number,
+                noCache: noCache
             },
             token: token
         })
@@ -236,20 +238,6 @@ class ClaService {
         return cla
     }
 
-    async _getPullRequestFiles(repo, owner, number, token) {
-        return github.call({
-            obj: 'pulls',
-            fun: 'listFiles',
-            arg: {
-                repo: repo,
-                owner: owner,
-                number: number,
-                noCache: true
-            },
-            token: token
-        })
-    }
-
     async _isSignificantPullRequest(repo, owner, number, token) {
         if (!repo || !owner || !number) {
             throw new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number)
@@ -260,19 +248,12 @@ class ClaService {
                 return true
             }
             token = token || item.token // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
-
-            const resp = await this._getPullRequestFiles(repo, owner, number, token)
-            const files = resp.data
-            if (typeof item.minFileChanges === 'number' && files.length >= item.minFileChanges) {
+            const pullRequest = await this._getPR(owner, repo, number, token, true)
+            if (typeof item.minFileChanges === 'number' && pullRequest.changed_files >= item.minFileChanges) {
                 return true
             }
-            if (typeof item.minCodeChanges === 'number') {
-                let sum = 0
-
-                return files.some((file) => {
-                    sum += file.changes
-                    return sum >= item.minCodeChanges
-                })
+            if (typeof item.minCodeChanges === 'number' && pullRequest.additions + pullRequest.deletions >= item.minCodeChanges) {
+                return true
             }
 
             return false
@@ -394,7 +375,7 @@ class ClaService {
                 args.gist_version,
                 args.onDates
             )
-            if (signed && userMap.includes(headOrg.login)) {
+            if (signed && userMap.signed.includes(headOrg.login)) {
                 return ({ signed, userMap })
             }
         }

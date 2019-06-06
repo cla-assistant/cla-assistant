@@ -714,3 +714,62 @@ describe('repo:getGHRepo', () => {
         assert.equal(res.id, 1296269)
     })
 })
+
+describe('repo:update', () => {
+    let response
+
+    beforeEach(() => {
+        response = {
+            findOne: {}
+        }
+        sinon.stub(Repo, 'findOne').callsFake(async () => {
+            if (response.findOne.error) {
+                throw new Error(response.findOne.error)
+            }
+
+            return response.findOne.repo
+        })
+    })
+
+    afterEach(() => {
+        Repo.findOne.restore()
+    })
+
+    it('should return error when query db throw error', async () => {
+        response.findOne.error = new Error('Find one in database error')
+        try {
+            await repo.update({ repo: 'repo', owner: 'owner' })
+            assert(false, 'should have thrown an error')
+        } catch (error) {
+            assert.equal(error.message, response.findOne.error)
+        }
+    })
+
+    it('should update existing linked repo', async () => {
+        const linkedRepo = {
+            repoId: 'repoId',
+            repo: 'repo',
+            owner: 'owner',
+            token: 'link token'
+        }
+        response.findOne = {
+            repo: Object.assign({}, linkedRepo, {
+                save: sinon.spy(async function () { return this })
+            })
+        }
+        const args = Object.assign({}, linkedRepo, {
+            gist: 'updated gist',
+            minFileChanges: 1,
+            minCodeChanges: 20,
+            whiteListPattern: 'whitelist-user',
+            privacyPolicy: 'http://privacy-policy',
+        })
+        const updatedRepo = await repo.update(args)
+        assert.equal(updatedRepo.gist, args.gist)
+        assert.equal(updatedRepo.minFileChanges, args.minFileChanges)
+        assert.equal(updatedRepo.minCodeChanges, args.minCodeChanges)
+        assert.equal(updatedRepo.whiteListPattern, args.whiteListPattern)
+        assert.equal(updatedRepo.privacyPolicy, args.privacyPolicy)
+        assert(response.findOne.repo.save.calledOnce)
+    })
+})

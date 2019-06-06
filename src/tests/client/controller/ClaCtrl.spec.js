@@ -72,8 +72,15 @@ describe('CLA Controller', function () {
         user.value = { id: 123, login: 'login' };
         user.meta = { scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org' };
         claSigned = true;
-        claText = { raw: '<p>cla text</p>' };
-        claTextWithMeta = { raw: '<p>cla text</p>', meta: '<p>{ "name": {"type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email", "required": "true"},"age": {"description": "Age in years","type": "number","minimum": "0", "required": "true"}}</p>' };
+        claText = {
+            raw: '<p>cla text</p>' ,
+            updatedAt: '2018-05-04T16:49:58.707Z'
+        };
+        claTextWithMeta = {
+            raw: '<p>cla text</p>',
+            meta: '<p>{ "name": {"type": "string","githubKey": "name"},"email": {"type": "string","githubKey": "email", "required": "true"},"age": {"description": "Age in years","type": "number","minimum": "0", "required": "true"}}</p>',
+            updatedAt: '2018-05-04T16:49:58.707Z'
+        };
         linkedItem = { repoId: 1 };
 
 
@@ -101,7 +108,7 @@ describe('CLA Controller', function () {
 
     });
 
-    it('should get CLA text', function () {
+    it('should get CLA text and updated date', function () {
         user.value = {};
         user.meta = {};
         claSigned = false;
@@ -111,6 +118,7 @@ describe('CLA Controller', function () {
 
         _timeout.flush();
         (claController.scope.claText).should.be.ok;
+        (claController.scope.updatedAt).should.be.ok;
     });
 
     it('should get CLA text with meta data', function () {
