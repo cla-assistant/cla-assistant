@@ -33,21 +33,20 @@ app.use((req, res, next) => {
 
         return
     }
-    const host = req.headers['x-forwarded-host'] || req.headers.host
+    let host = req.headers['x-forwarded-host'] || req.headers.host;
 
-    res.setHeader('location', 'https://' + host + req.url)
-    res.statusCode = 301
-    res.end()
-})
+    res.setHeader('location', 'https://' + host + req.url);
+    res.statusCode = 301;
+    res.end();
+});
 
-app.use(require('x-frame-options')())
-app.use(require('body-parser').json({
-    limit: '5mb'
-}))
-app.use(require('cookie-parser')())
-app.use(noSniff())
-const expressSession = require('express-session')
-const MongoStore = require('connect-mongo')(expressSession)
+app.use(require('x-frame-options')());
+app.use(require('body-parser').json({ limit: '5mb' }));
+app.use(require('cookie-parser')());
+app.use(noSniff());
+app.enable('trust proxy');
+let expressSession = require('express-session');
+let MongoStore = require('connect-mongo')(expressSession);
 
 // custom mrepodleware
 app.use('/api', require('./middleware/param'))
@@ -155,6 +154,7 @@ async.series([
             saveUninitialized: true,
             resave: false,
             cookie: {
+                secure: true,
                 maxAge: config.server.security.cookieMaxAge
             },
             store: new MongoStore({
@@ -173,10 +173,6 @@ async.series([
     },
 
     (callback) => {
-        bootstrap('controller', callback)
-    },
-
-    (callback) => {
         bootstrap('graphQueries', callback)
     },
 
@@ -186,6 +182,10 @@ async.series([
 
     (callback) => {
         bootstrap('webhooks', callback)
+    },
+
+    (callback) => {
+        bootstrap('controller', callback)
     }
 ], (err) => {
     if (err) {

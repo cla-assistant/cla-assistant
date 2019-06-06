@@ -252,5 +252,22 @@ describe('org api', () => {
                 assert(!webhook.remove.called)
             }
         })
+
+        it('should throw error when org is not found', async () => {
+            req = {
+                args: {
+                    org: 'org',
+                    orgId: 1
+                }
+            }
+            testRes.org.remove = undefined
+            try {
+                await org_api.remove(req)
+                assert(false, 'should have thrown an error')
+            } catch (error) {
+                assert(org.remove.called)
+                assert(!webhook.remove.called)
+            }
+        })
     })
 })

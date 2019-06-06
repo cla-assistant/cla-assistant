@@ -1,7 +1,8 @@
 // overwrite bootstrap styles
 
 // fonts
-$font-family-sans-serif: 'Source Sans Pro', sans-serif;
+$font-family-sans-serif: 'Source Sans Pro',
+sans-serif;
 
 // colours
 $gray-darkest: #2c3e50;
@@ -540,7 +541,7 @@ a.anchor .octicon-link {
 
 .nervous-drop {
   position: absolute;
-  left: 19px;
+  left: 6px;
   top: 19px;
   -webkit-animation: fall 0.7s linear 0.2s infinite;
   animation: fall 0.7s linear 0.2s infinite;
@@ -548,25 +549,33 @@ a.anchor .octicon-link {
 
 .nervous-drop2 {
   position: absolute;
-  left: 19px;
+  left: 32px;
   top: 19px;
   margin-top: 40px;
+  padding-right: 40px;
   -webkit-animation: fall 0.7s linear infinite;
   animation: fall 0.7s linear infinite;
+
 }
 
 .eye-move {
   position: absolute;
-  left: 19px;
-  top: 19px;
-  -webkit-animation: eye-move 0.7s ease-in infinite;
-  animation: eye-move 0.7s ease-in infinite;
+  left: 0px;
+  right: 33px;
+  top: 2px;
+  margin-right: 32px;
+  margin-top: 13px;
+  // -webkit-animation: eye-move 0.7s ease-in infinite;
+  // animation: eye-move 0.7s ease-in infinite;
+  -webkit-animation: eye-move2 0.7s ease-in 0.1s infinite;
+  animation: eye-move2 0.7s ease-in 0.1s infinite;
 }
 
 .eye-move2 {
   position: absolute;
-  left: 19px;
+  left: 18px;
   top: 19px;
+  margin-right: 38px;
   -webkit-animation: eye-move2 0.7s ease-in 0.1s infinite;
   animation: eye-move2 0.7s ease-in 0.1s infinite;
 }
@@ -579,6 +588,7 @@ a.anchor .octicon-link {
 
 // _popover
 .popover-inner {
+
   // display: -moz-grid-line;
   i {
     width: 100%;

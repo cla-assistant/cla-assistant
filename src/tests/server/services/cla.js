@@ -90,9 +90,6 @@ const stub = () => {
                 throw testErr.gistData
             }
             return testRes.gistData
-        } else if (args.obj === 'pulls' && args.fun === 'listFiles') {
-            assert(args.arg.noCache)
-            return testRes.pullRequestFiles
         }
     })
 }
@@ -1576,18 +1573,6 @@ describe('cla:isClaRequired', () => {
             token: 'abc',
             isUserWhitelisted: () => false
         }
-        testRes.pullRequestFiles = {
-            data: [
-                {
-                    filename: 'test1',
-                    changes: 4,
-                },
-                {
-                    filename: 'test2',
-                    changes: 10,
-                }
-            ]
-        }
     })
 
     afterEach(() => restore())
@@ -1600,44 +1585,44 @@ describe('cla:isClaRequired', () => {
 
     it('should require a CLA when pull request exceed minimum file changes', async () => {
         testRes.repoServiceGet.minFileChanges = 2
-        testRes.pullRequestFiles = {
-            data: [{
-                filename: 'test1'
-            }, {
-                filename: 'test2'
-            }]
+        testRes.getPR = {
+            changed_files: 2,
         }
 
         const claIsRequired = await cla.isClaRequired(args)
 
+        sinon.assert.calledWithMatch(github.call, {
+            obj: 'pulls',
+            fun: 'get',
+            arg: { noCache: true }
+        })
         assert(claIsRequired)
     })
 
     it('should require a CLA when pull request exceed minimum code changes', async () => {
         testRes.repoServiceGet.minCodeChanges = 15
-        testRes.pullRequestFiles = {
-            data: [{
-                filename: 'test1',
-                changes: 5
-            }, {
-                filename: 'test2',
-                changes: 10
-            }]
+        testRes.getPR = {
+            deletions: 10,
+            additions: 10,
         }
 
         const claIsRequired = await cla.isClaRequired(args)
 
+        sinon.assert.calledWithMatch(github.call, {
+            obj: 'pulls',
+            fun: 'get',
+            arg: { noCache: true }
+        })
         assert(claIsRequired)
     })
 
     it('should NOT require a CLA when pull request NOT exceed minimum file and code changes', async () => {
         testRes.repoServiceGet.minFileChanges = 2
         testRes.repoServiceGet.minCodeChanges = 15
-        testRes.pullRequestFiles = {
-            data: [{
-                filename: 'test1',
-                changes: 14,
-            }]
+        testRes.getPR = {
+            changed_files: 1,
+            deletions: 7,
+            additions: 7
         }
 
         const claIsRequired = await cla.isClaRequired(args)
@@ -1657,11 +1642,10 @@ describe('cla:isClaRequired', () => {
     it('should NOT send error if token is not provided but use linked item\'s token', async () => {
         delete args.token
         testRes.repoServiceGet.minCodeChanges = 15
-        testRes.pullRequestFiles = {
-            data: [{
-                filename: 'test1',
-                changes: 15
-            }]
+        testRes.getPR = {
+            changed_files: 1,
+            additions: 14,
+            deletions: 1
         }
 
         const claIsRequired = await cla.isClaRequired(args)

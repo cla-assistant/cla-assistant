@@ -109,7 +109,11 @@ describe('Settings Controller', function () {
                 error = testErr.cla.getAll || null;
                 response.value = testResp.cla.getAll || resp;
             } else if (obj === 'cla' && fun === 'get') {
-                response.value = { raw: '<p>cla text</p>', meta: '<p>{ "name": {"type": "string", "title": "Full Name", "githubKey": "name"},"email": {"type": "string","githubKey": "email", "required": "true"},"age": {"description": "Age in years","type": "number","minimum": "0", "required": "true"}}</p>' };
+                response.value = {
+                    raw: '<p>cla text</p>',
+                    meta: '<p>{ "name": {"type": "string", "title": "Full Name", "githubKey": "name"},"email": {"type": "string","githubKey": "email", "required": "true"},"age": {"description": "Age in years","type": "number","minimum": "0", "required": "true"}}</p>',
+                    updatedAt: '2018-05-04T16:49:58.707Z'
+                };
             } else if (obj === 'cla' && fun === 'getGist') {
                 (args.repo).should.be.equal(scope.item.repo);
                 (args.owner).should.be.equal(scope.item.owner);

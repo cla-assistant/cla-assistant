@@ -1,5 +1,17 @@
 # Change Log
 
+## [v1.10.0](https://github.com/cla-assistant/cla-assistant/tree/v1.10.0) (2019-06-04)
+
+**Merged pull requests:**
+- Add readiness route so that Kubernetes could better swap pods. Show CLA updated date in the CLA signing page. Setup cookie secure [#435](https://github.com/cla-assistant/cla-assistant/pull/435) ([MichaelTsengLZ](https://github.com/MichaelTsengLZ))
+
+**Fixed bugs:**
+- fix unlink animation ([ibakshay](https://github.com/ibakshay))
+- Whitelist should use exact match when there is no wildcard (*) [#435](https://github.com/cla-assistant/cla-assistant/pull/435) ([MichaelTsengLZ](https://github.com/MichaelTsengLZ))
+- When updating a linked repo, we should validate input. And should allow whiteListPattern and privacyPolicy as empty string. [#435](https://github.com/cla-assistant/cla-assistant/pull/435) ([MichaelTsengLZ](https://github.com/MichaelTsengLZ))
+- Do not get pull request files to check significant changes. In this way, we could avoid the Github abuse exception when there are thousands of commits in a pull request. [#435](https://github.com/cla-assistant/cla-assistant/pull/435) ([MichaelTsengLZ](https://github.com/MichaelTsengLZ))
+- don't update gist url on edit if user hasn't changed it [#444](https://github.com/cla-assistant/cla-assistant/issues/444)
+
 ## [v1.9.2](https://github.com/cla-assistant/cla-assistant/tree/v1.9.2) (2019-04-10)
 
 **Merged pull requests:**

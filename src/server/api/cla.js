@@ -72,7 +72,9 @@ class ClaApi {
 
         try {
             let renderToken = token ? token : req.user && req.user.token ? req.user.token : token
-            return renderFiles(gist.files, renderToken)
+            let gistContent = await renderFiles(gist.files, renderToken)
+            gistContent.updatedAt = gist.updated_at
+            return gistContent
         } catch (error) {
             logger.error(new Error(error).stack, 'with args: ', removeToken(req.args))
             throw error

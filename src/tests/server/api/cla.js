@@ -27,12 +27,12 @@ const testData = require('../testData').data
 // api
 const cla_api = require('../../../server/api/cla')
 
-describe('', function () {
+describe('', () => {
     let reqArgs
     let resp
     let expError
 
-    beforeEach(function () {
+    beforeEach(() => {
         reqArgs = {
             cla: {
                 getGist: {
@@ -120,7 +120,7 @@ describe('', function () {
         }
 
 
-        sinon.stub(cla, 'getGist').callsFake(function (args) {
+        sinon.stub(cla, 'getGist').callsFake((args) => {
             if (args.gist && args.gist.gist_url) {
                 assert.equal(args.gist.gist_url, reqArgs.cla.getGist.gist)
             } else {
@@ -130,11 +130,11 @@ describe('', function () {
             return expError.cla.getGist ? Promise.reject(expError.cla.getGist) : Promise.resolve(resp.cla.getGist)
         })
 
-        sinon.stub(cla, 'getLinkedItem').callsFake(function () {
+        sinon.stub(cla, 'getLinkedItem').callsFake(() => {
             return expError.cla.getLinkedItem ? Promise.reject(expError.cla.getLinkedItem) : Promise.resolve(resp.cla.getLinkedItem)
         })
 
-        sinon.stub(github, 'call').callsFake(async function (args) {
+        sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'pulls') {
                 assert(args.token)
                 if (expError.github.pullRequest) {
@@ -167,7 +167,7 @@ describe('', function () {
                 return { data: resp.github.callRepos }
             }
         })
-        sinon.stub(repo_service, 'get').callsFake(async function (args) {
+        sinon.stub(repo_service, 'get').callsFake(async (args) => {
             assert.deepEqual(args, reqArgs.repoService.get)
             if (expError.repoService.get) { throw expError.repoService.get }
 
@@ -181,18 +181,12 @@ describe('', function () {
             return resp.orgService.get
         })
 
-        sinon.stub(log, 'error').callsFake(function (msg) {
-            assert(msg)
-        })
-        sinon.stub(log, 'warn').callsFake(function (msg) {
-            assert(msg)
-        })
-        sinon.stub(log, 'info').callsFake(function (msg) {
-            assert(msg)
-        })
-
+        sinon.stub(log, 'error').callsFake((msg) => assert(msg))
+        sinon.stub(log, 'warn').callsFake((msg) => assert(msg))
+        sinon.stub(log, 'info').callsFake((msg) => assert(msg))
     })
-    afterEach(function () {
+
+    afterEach(() => {
         cla.getGist.restore()
         cla.getLinkedItem.restore()
         github.call.restore()
@@ -204,7 +198,7 @@ describe('', function () {
         log.info.restore()
     })
 
-    describe('cla:get', function () {
+    describe('cla:get', () => {
         it('should get gist and render it with repo token', async () => {
             let req = {
                 args: {
@@ -269,14 +263,13 @@ describe('', function () {
 
         it('should handle wrong gist url', async () => {
 
-            let repoStub = sinon.stub(Repo, 'findOne').callsFake(function (args, cb) {
-                let repo = {
+            let repoStub = sinon.stub(Repo, 'findOne').callsFake(async () => {
+                return {
                     repo: 'Hello-World',
                     owner: 'octocat',
                     gist: '123',
                     token: 'abc'
                 }
-                cb(null, repo)
             })
 
             resp.cla.getGist = undefined
@@ -329,9 +322,10 @@ describe('', function () {
             assert(github.call.calledTwice)
             assert(gistContent.raw)
             assert(gistContent.meta)
+            assert(gistContent.updatedAt)
         })
 
-        describe('in case of failing github api', function () {
+        describe('in case of failing github api', () => {
             let req = {
                 args: {
                     repo: 'Hello-World',
@@ -353,46 +347,12 @@ describe('', function () {
                     assert(error)
                 }
             })
-
-            // xit('should handle error stored in response message', async () => { //should not happen with the octokit module, error expected to be thrown
-            //     resp.github.callMarkdown = {
-            //         statusCode: 500,
-            //         message: 'something went wrong, e.g. user revoked access rights'
-            //     }
-            //     error.github.markdown = null
-            //     cla_api.get(req, function (err) {
-            //         assert.equal(err, resp.github.callMarkdown.message)
-            //         it_done()
-            //     })
-            // })
-
-            // xit('should handle error only if status unequal 200 or there is no response', async () => {
-            //     resp.github.callMarkdown = {
-            //         statusCode: 200,
-            //         data: {}
-            //     }
-            //     error.github.markdown = 'any error'
-
-            //     log.error.restore()
-            //     sinon.stub(log, 'error').callsFake(function () {
-            //         assert()
-            //     })
-
-            //     cla_api.get(req, function (err, res) {
-
-            //         assert(res)
-            //         assert(!err)
-            //         it_done()
-            //     })
-            // })
         })
-
-
     })
 
     describe('cla:sign', function () {
         let req, expArgs, testUser
-        beforeEach(function () {
+        beforeEach(() => {
             req = {
                 user: {
                     id: 3,
@@ -459,7 +419,7 @@ describe('', function () {
             })
         })
 
-        afterEach(function () {
+        afterEach(() => {
             cla.check.restore()
             cla.sign.restore()
             prService.editComment.restore()
@@ -512,7 +472,7 @@ describe('', function () {
             const res = await cla_api.sign(req)
 
             await new Promise((resolve) => {
-                setTimeout(function () {
+                setTimeout(() => {
                     assert.ok(res)
                     sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
                     assert(github.call.calledWithMatch({
@@ -584,7 +544,7 @@ describe('', function () {
             }))
             this.timeout(100)
             await new Promise((resolve) => {
-                setTimeout(function () {
+                setTimeout(() => {
                     assert(statusService.update.called)
                     assert(prService.editComment.called)
                     resolve()
@@ -647,7 +607,7 @@ describe('', function () {
         })
     })
 
-    describe('cla api', function () {
+    describe('cla api', () => {
         let req, getGistReq
         beforeEach(() => {
             req = {
@@ -806,9 +766,9 @@ describe('', function () {
         })
     })
 
-    describe('cla:countCLA', function () {
+    describe('cla:countCLA', () => {
         let req = {}
-        beforeEach(function () {
+        beforeEach(() => {
             resp.cla.getLinkedItem = testData.repo_from_db
             req.args = {
                 repo: 'Hello-World',
@@ -824,9 +784,7 @@ describe('', function () {
                 return resp.cla.getAll
             })
         })
-        afterEach(function () {
-            cla.getAll.restore()
-        })
+        afterEach(() => cla.getAll.restore())
 
         it('should call getAll on countCLA', async () => {
             reqArgs.repoService.get.gist = {
@@ -894,11 +852,11 @@ describe('', function () {
         })
     })
 
-    describe('cla:upload', function () {
+    describe('cla:upload', () => {
         let req
         let expArgs
 
-        beforeEach(function () {
+        beforeEach(() => {
             reqArgs.cla.sign = {}
             req = {
                 args: {
@@ -921,9 +879,7 @@ describe('', function () {
             })
         })
 
-        afterEach(function () {
-            cla.sign.restore()
-        })
+        afterEach(() => cla.sign.restore())
 
         // it('should silently exit when no users provided', async () => {
         //     req.args.users = undefined
@@ -1032,7 +988,7 @@ describe('', function () {
         })
     })
 
-    describe('cla:validateAllPullRequests', function () {
+    describe('cla:validateAllPullRequests', () => {
         let req
         beforeEach(() => {
             reqArgs.orgService.get = {
@@ -1207,7 +1163,7 @@ describe('', function () {
         })
     })
 
-    describe('cla: validateOrgPullRequests', function () {
+    describe('cla: validateOrgPullRequests', () => {
         let req
         beforeEach(() => {
             req = {
@@ -1287,8 +1243,8 @@ describe('', function () {
         })
     })
 
-    describe('cla:getLinkedItem', function () {
-        it('should return linked repo or org using repo_name and owner', async () => {
+    describe('cla:getLinkedItem', () => {
+        it('should linked repo or org using repo_name and owner', async () => {
             let args = {
                 repo: 'Hello-World',
                 owner: 'octocat'
@@ -1300,7 +1256,7 @@ describe('', function () {
         })
     })
 
-    describe('cla: validateSharedGistItems', function () {
+    describe('cla: validateSharedGistItems', () => {
         let req
 
         beforeEach(() => {
@@ -1391,7 +1347,7 @@ describe('', function () {
         })
     })
 
-    describe('cla:validatePullRequest', function () {
+    describe('cla:validatePullRequest', () => {
         let args
         beforeEach(() => {
             args = {
@@ -1498,7 +1454,7 @@ describe('', function () {
         })
     })
 
-    describe('cla:addSignature', function () {
+    describe('cla:addSignature', () => {
         let req, expArgs, testUser
         beforeEach(() => {
             req = {
@@ -1593,7 +1549,7 @@ describe('', function () {
         })
     })
 
-    describe('cla:hasSignature', function () {
+    describe('cla:hasSignature', () => {
         let req
         beforeEach(() => {
             req = {
@@ -1635,7 +1591,7 @@ describe('', function () {
         })
     })
 
-    describe('cla:terminateSignature', function () {
+    describe('cla:terminateSignature', () => {
         let req
         beforeEach(() => {
             req = {
@@ -1653,9 +1609,7 @@ describe('', function () {
             })
         })
 
-        afterEach(function () {
-            cla.terminate.restore()
-        })
+        afterEach(() => cla.terminate.restore())
 
         it('should call cla service terminate', async () => {
             await cla_api.terminateSignature(req)

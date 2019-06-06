@@ -15,11 +15,15 @@ module.exports = {
         }
         const patterns = patternList.split(',')
 
-        return patterns.filter((pattern) => {
-            let regex = _.escapeRegExp(pattern)
-            regex = regex.includes('\\*') ? regex.split('\\*').join('.*') : pattern
+        return patterns.filter(function (pattern) {
+            pattern = pattern.trim()
+            if (pattern.includes('*')) {
+                const regex = _.escapeRegExp(pattern).split('\\*').join('.*')
 
-            return new RegExp(regex).test(item)
+                return new RegExp(regex).test(item)
+            }
+
+            return pattern === item
         }).length > 0
     }
 }
