@@ -7,7 +7,7 @@ const User = require('mongoose').model('User')
 function getGHUser(accessToken) {
     const args = {
         obj: 'users',
-        fun: 'get',
+        fun: 'getAuthenticated',
         token: accessToken
     }
 
