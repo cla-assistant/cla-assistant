@@ -148,20 +148,21 @@ async.series([
         }, () => {
             bootstrap('documents', callback);
         })
-
-        app.use(expressSession({
+        const session = {
             secret: config.server.security.sessionSecret,
             saveUninitialized: true,
             resave: false,
             cookie: {
-                secure: true,
                 maxAge: config.server.security.cookieMaxAge
             },
             store: new MongoStore({
                 mongooseConnection: mongoose.connection,
                 collection: 'cookieSession'
             })
-        }))
+        }
+        session.cookie.secure = app.get('env') === 'production'
+
+        app.use(expressSession(session))
         app.use(passport.initialize())
         app.use(passport.session())
 
@@ -193,8 +194,8 @@ async.series([
     }
     const log = require('./services/logger')
 
-    console.log('\n✓ '.bold.green + 'bootstrapped, '.bold + 'app listening on ' + config.server.http.host + ':' + config.server.localport)
-    log.info('✓ bootstrapped !!! App listening on ' + config.server.http.host + ':' + config.server.http.port)
+    console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
+    log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
 });
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
