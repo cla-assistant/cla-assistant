@@ -306,7 +306,7 @@ class ClaApi {
                     // eslint-disable-next-line quotes
                     throw `Uploaded signature doesn't contain user name`
                 }
-                const ghUser = await getGithubUser(signature.user, req.user.token);
+                const ghUser = await getGithubUser(signature.user, req.user.token)
 
                 const args = {
                     repo: req.args.repo,
@@ -548,22 +548,22 @@ async function prepareForValidation(item, user) {
                 return
             }
             if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
-                needRemove.push(index);
-                validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token);
+                needRemove.push(index)
+                validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token)
             }
-            return linkedItem;
+            return linkedItem
         }
         catch (e) {
-            logger.warn(e.stack);
+            logger.warn(e.stack)
         }
     }).filter((promise) => {
-        return promise !== undefined;
-    }));
-    needRemove.sort();
+        return promise !== undefined
+    }))
+    needRemove.sort()
     for (let i = needRemove.length - 1; i >= 0; --i) {
-        user.requests.splice(needRemove[i], 1);
+        user.requests.splice(needRemove[i], 1)
     }
-    user.save();
+    user.save()
 }
 
 function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
