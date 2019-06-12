@@ -18,8 +18,8 @@ async function checkToken(item, accessToken) {
     const newToken = accessToken
     const oldToken = item.token
     const args = {
-        obj: 'authorization',
-        fun: 'check',
+        obj: 'oauthAuthorizations',
+        fun: 'checkAuthorization',
         arg: {
             access_token: oldToken,
             client_id: config.server.github.client
@@ -56,7 +56,9 @@ passport.use(new Strategy({
 }, async (accessToken, _refreshToken, params, profile, done) => {
     let user
     try {
-        user = await User.findOne({ name: profile.username })
+        user = await User.findOne({
+            name: profile.username
+        })
 
         if (user && !user.uuid) {
             user.uuid = profile.id
@@ -69,7 +71,11 @@ passport.use(new Strategy({
 
     if (!user) {
         try {
-            await User.create({ uuid: profile.id, name: profile.username, token: accessToken })
+            await User.create({
+                uuid: profile.id,
+                name: profile.username,
+                token: accessToken
+            })
         } catch (error) {
             logger.warn(new Error(`Could not create new user ${error}`).stack)
         }
@@ -86,7 +92,9 @@ passport.use(new Strategy({
 
     if (params.scope.indexOf('write:repo_hook') >= 0) {
         try {
-            const repoRes = await repoService.getUserRepos({ token: accessToken })
+            const repoRes = await repoService.getUserRepos({
+                token: accessToken
+            })
             if (repoRes && repoRes.length > 0) {
                 repoRes.forEach((repo) => checkToken(repo, accessToken))
             }
@@ -113,8 +121,7 @@ passport.use(new Strategy({
         token: accessToken,
         scope: params.scope
     }))
-}
-))
+}))
 
 passport.serializeUser((user, done) => done(null, user))
 
