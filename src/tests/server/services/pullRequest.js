@@ -194,7 +194,7 @@ describe('pullRequest:badgeComment', () => {
     it('should edit comment with cla-assistant user', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
-            assert.equal(args.fun, 'editComment')
+            assert.equal(args.fun, 'updateComment')
             assert.equal(args.basicAuth.user, 'cla-assistant')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
             return 'githubRes'
@@ -207,7 +207,7 @@ describe('pullRequest:badgeComment', () => {
     it('should add a note to the comment if there is a committer who is not a github user', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
-            assert.equal(args.fun, 'editComment')
+            assert.equal(args.fun, 'updateComment')
             assert.equal(args.basicAuth.user, 'cla-assistant')
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
             return 'githubRes'
@@ -289,7 +289,7 @@ describe('pullRequest:badgeComment', () => {
     it('should write a list of signed and not signed users on edit', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
-            assert.equal(args.fun, 'editComment')
+            assert.equal(args.fun, 'updateComment')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
             assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
             assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
@@ -414,7 +414,7 @@ describe('pullRequest:editComment', () => {
         }
 
         assertionFunction = async (params) => {
-            assert.equal(params.fun, 'editComment')
+            assert.equal(params.fun, 'updateComment')
             assert(params.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
             assert(params.arg.body.indexOf('**1** out of **2**') >= 0)
             assert(params.arg.body.indexOf(':white_check_mark: user1') >= 0)

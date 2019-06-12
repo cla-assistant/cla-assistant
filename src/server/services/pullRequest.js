@@ -60,7 +60,7 @@ class PullRequestService {
                 fun = 'createComment'
                 arg.number = pullNumber
             } else if (comment && comment.id) {
-                fun = 'editComment'
+                fun = 'updateComment'
                 arg.id = comment.id
             } else {
                 return
@@ -115,7 +115,7 @@ class PullRequestService {
 
             await github.call({
                 obj: 'issues',
-                fun: 'editComment',
+                fun: 'updateComment',
                 arg: {
                     owner: args.owner,
                     repo: args.repo,
