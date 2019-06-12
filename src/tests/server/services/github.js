@@ -39,6 +39,7 @@ describe('github:call', () => {
 
         this.paginate = callStub
     }
+    OctokitMock.plugin = sinon.stub().returns(OctokitMock)
 
     github.__set__('Octokit', OctokitMock)
 

@@ -50,7 +50,7 @@ class Utils {
         try {
             const res = await githubService.call({
                 obj: 'orgs',
-                fun: 'getOrgMembership',
+                fun: 'getMembership',
                 arg: {
                     org: org,
                     username: username

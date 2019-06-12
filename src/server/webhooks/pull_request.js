@@ -6,7 +6,6 @@ const status = require('../services/status')
 const cla = require('../services/cla')
 const repoService = require('../services/repo')
 const logger = require('../services/logger')
-const config = require('../../config')
 const User = require('mongoose').model('User')
 
 

@@ -2,7 +2,7 @@ const request = require('request-promise-native')
 
 const cache = require('memory-cache')
 const config = require('../../config')
-const Octokit = require('@octokit/rest')
+let Octokit = require('@octokit/rest')
     .plugin(require('@octokit/plugin-throttling'))
     .plugin(require('@octokit/plugin-retry'))
 const stringify = require('json-stable-stringify')
@@ -33,6 +33,7 @@ async function callGithub(octokit, obj, fun, arg, cacheKey) {
 }
 
 function newOctokit(auth) {
+    Octokit = addReposGetByIdEndpoint()
     return new Octokit({
         auth,
         protocol: config.server.github.protocol,
@@ -57,6 +58,24 @@ function newOctokit(auth) {
     })
 }
 
+function addReposGetByIdEndpoint() {
+    return Octokit.plugin((octokit) => {
+        octokit.registerEndpoints({
+            repos: {
+                getById: {
+                    method: 'GET',
+                    url: '/repositories/:id',
+                    params: {
+                        id: {
+                            type: 'string',
+                            required: true
+                        }
+                    }
+                }
+            }
+        })
+    })
+}
 
 const githubService = {
     resetList: {},
