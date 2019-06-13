@@ -119,7 +119,7 @@ class PullRequestService {
                 arg: {
                     owner: args.owner,
                     repo: args.repo,
-                    id: comment.id,
+                    comment_id: comment.id,
                     body: body,
                     noCache: true
                 },
@@ -149,7 +149,7 @@ class PullRequestService {
                 arg: {
                     owner: args.owner,
                     repo: args.repo,
-                    id: comment.id
+                    comment_id: comment.id
                 },
                 basicAuth: {
                     user: config.server.github.user,

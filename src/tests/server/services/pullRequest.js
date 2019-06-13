@@ -159,7 +159,9 @@ describe('pullRequest:badgeComment', () => {
 
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'issues' && args.fun === 'listComments') {
-                return { data: direct_call_data }
+                return {
+                    data: direct_call_data
+                }
             }
             if (assertionFunction) {
                 return assertionFunction(args)
@@ -184,7 +186,9 @@ describe('pullRequest:badgeComment', () => {
             assert.equal(args.basicAuth.user, 'cla-assistant')
             assert.equal(args.basicAuth.pass, 'secret_pass')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
-            return { data: 'githubRes' }
+            return {
+                data: 'githubRes'
+            }
         }
 
         await pullRequest.badgeComment('login', 'myRepo', 1)
@@ -312,7 +316,9 @@ describe('pullRequest:getComment', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'issues' && args.fun === 'listComments') {
                 assert.equal(args.token, 'xyz')
-                return { data: testDataComments_withCLAComment }
+                return {
+                    data: testDataComments_withCLAComment
+                }
             }
         })
     })
@@ -332,7 +338,9 @@ describe('pullRequest:getComment', () => {
 
     it('should not find the comment if it is not there', async () => {
         github.call.restore()
-        sinon.stub(github, 'call').resolves({ data: testDataComments_withoutCLA })
+        sinon.stub(github, 'call').resolves({
+            data: testDataComments_withoutCLA
+        })
         const args = {
             repo: 'myRepo',
             owner: 'owner',
@@ -369,13 +377,15 @@ describe('pullRequest:editComment', () => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.obj === 'issues' && args.fun === 'listComments') {
                 assert.equal(args.token, 'xyz')
-                return { data: testDataComments_withCLAComment }
+                return {
+                    data: testDataComments_withCLAComment
+                }
             }
             if (assertionFunction) {
                 return assertionFunction(args)
             }
             assert.equal(args.basicAuth.user, 'cla-assistant')
-            assert(args.arg.id)
+            assert(args.arg.comment_id)
             return 'res'
         })
         sinon.stub(logger, 'warn').callsFake(error => {
@@ -471,7 +481,9 @@ describe('pullRequest:deleteComment', () => {
                 if (error.listComments) {
                     throw new Error(error.listComments)
                 }
-                return { data: res.listComments }
+                return {
+                    data: res.listComments
+                }
             }
             if (args.obj === 'issues' && args.fun === 'deleteComment') {
                 throw new Error(error.deleteComment)
