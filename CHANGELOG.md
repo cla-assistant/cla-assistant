@@ -1,5 +1,10 @@
 # Change Log
 
+## [v1.10.1](https://github.com/cla-assistant/cla-assistant/tree/v1.10.1) (2019-06-17)
+
+**Fixed bugs:**
+- Update vulnerable dependencies 
+
 ## [v1.10.0](https://github.com/cla-assistant/cla-assistant/tree/v1.10.0) (2019-06-04)
 
 **Merged pull requests:**
