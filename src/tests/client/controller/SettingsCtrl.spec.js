@@ -3,7 +3,7 @@
 
 describe('Settings Controller', function () {
 
-    var scope, createCtrl, settingsCtrl, stateParams, modal, RPC, HUB, calledApi, $timeout;
+    var scope, createCtrl, settingsCtrl, stateParams, modal, RPC, calledApi, $timeout;
     var testResp = { cla: {}, repo: {}, webhook: {} };
     var testErr = { cla: {}, repo: {}, webhook: {} };
 
@@ -55,10 +55,9 @@ describe('Settings Controller', function () {
     beforeEach(angular.mock.module('app'));
     beforeEach(angular.mock.module('templates'));
 
-    beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, $modal, $RPC, $HUB, $q, _$timeout_) {
+    beforeEach(angular.mock.inject(function ($injector, $rootScope, $controller, $modal, $RPC, $q, _$timeout_) {
 
         RPC = $RPC;
-        HUB = $HUB;
         $timeout = _$timeout_;
 
         scope = $rootScope.$new();
@@ -80,8 +79,7 @@ describe('Settings Controller', function () {
         };
 
         calledApi = {
-            RPC: {},
-            HUB: {}
+            RPC: {}
         };
 
         var originalRPCCall = RPC.call;
@@ -135,24 +133,6 @@ describe('Settings Controller', function () {
             return response;
         });
 
-        sinon.stub(HUB, 'call', function (obj, fun, args, cb) {
-            calledApi.HUB[obj] = calledApi.HUB[obj] ? calledApi.HUB[obj] : {};
-            calledApi.HUB[obj][fun] = true;
-            var response = {};
-            var error = testErr[obj] && testErr[obj][fun] ? testErr[obj][fun] : null;
-            if (error) {
-                cb(error);
-
-                return response;
-            }
-
-            if (typeof cb === 'function') {
-                cb(error, response);
-            }
-
-            return response;
-        });
-
         createCtrl = function () {
             var ctrl = $controller('SettingsCtrl', {
                 $scope: scope,
@@ -172,7 +152,6 @@ describe('Settings Controller', function () {
 
     afterEach(function () {
         RPC.call.restore();
-        HUB.call.restore();
         testErr = { cla: {}, repo: {}, webhook: {} };
         testResp = { cla: {}, repo: {}, webhook: {} };
     });
