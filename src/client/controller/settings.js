@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q', 'utils', '$log',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q, utils, $log) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC', '$RPCService', '$window', '$sce', '$modal', '$q', 'utils', '$log',
+    function ($rootScope, $scope, $stateParams, $RPC, $RPCService, $window, $sce, $modal, $q, utils, $log) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
