@@ -278,9 +278,10 @@ class ClaApi {
 
             return signed
         } catch (e) {
-            if (!e.code || e.code != 200) {
-                logger.error(new Error(e).stack)
+            if (e.code && e.code === 200) {
+                return true
             }
+            logger.error(new Error(e).stack)
             throw e
         }
     }
