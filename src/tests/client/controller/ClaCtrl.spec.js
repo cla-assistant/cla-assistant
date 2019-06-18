@@ -24,10 +24,10 @@ describe('CLA Controller', function () {
 
         sinon.stub($HUBService, 'call', function (o, functn, data, cb) {
             var deferred = _q.defer();
-            if (o === 'users' && functn === 'get') {
+            if (o === 'users' && functn === 'getAuthenticated') {
                 deferred.resolve(user);
                 cb(null, user);
-            } else if (o === 'users' && functn === 'getEmails') {
+            } else if (o === 'users' && functn === 'listEmails') {
                 var emails = {
                     value: [
                         {
@@ -52,7 +52,7 @@ describe('CLA Controller', function () {
         var rpcCall = $RPCService.call;
         sinon.stub($RPCService, 'call', function (o, functn, data, cb) {
             if (o === 'cla' && functn === 'sign') {
-                cb(null, true);
+                cb(null, { signed: true });
             } else if (o === 'cla' && functn === 'getLastSignature') {
                 cb(null, {
                     value: {
@@ -73,7 +73,7 @@ describe('CLA Controller', function () {
         user.meta = { scopes: 'user:email, repo, repo:status, read:repo_hook, write:repo_hook, read:org' };
         claSigned = true;
         claText = {
-            raw: '<p>cla text</p>' ,
+            raw: '<p>cla text</p>',
             updatedAt: '2018-05-04T16:49:58.707Z'
         };
         claTextWithMeta = {
@@ -87,7 +87,7 @@ describe('CLA Controller', function () {
         createCtrl = function () {
             // httpBackend.when('POS  T', '/api/github/call', { obj: 'user', fun: 'get', arg: {} }).respond(user);
             httpBackend.when('POST', '/api/cla/getLinkedItem', { repo: stateParams.repo, owner: stateParams.user }).respond(linkedItem);
-            httpBackend.when('POST', '/api/cla/check', { repo: stateParams.repo, owner: stateParams.user, number: stateParams.pullRequest }).respond(claSigned);
+            httpBackend.when('POST', '/api/cla/check', { repo: stateParams.repo, owner: stateParams.user, number: stateParams.pullRequest }).respond({ signed: claSigned });
             httpBackend.when('POST', '/api/cla/get', { repoId: linkedItem.repoId }).respond(claText);
 
             var ctrl = $controller('ClaController', {
