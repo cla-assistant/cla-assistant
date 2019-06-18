@@ -154,7 +154,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                     if (err) {
                         $log.info(err);
                     }
-                    $scope.signed = signed && signed.value ? signed.value.signed : false;
+                    $scope.signed = signed ? !!signed.value : false;
                     $scope.privacyPolicyAccepted = $scope.signed ? true : false;
                     if ($scope.signed) {
                         redirect();
