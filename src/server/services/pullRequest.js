@@ -61,7 +61,7 @@ class PullRequestService {
                 arg.number = pullNumber
             } else if (comment && comment.id) {
                 fun = 'updateComment'
-                arg.id = comment.id
+                arg.comment_id = comment.id
             } else {
                 return
             }
