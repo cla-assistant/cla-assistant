@@ -467,13 +467,7 @@ async function validatePR(args) {
             (userMap.unknown && userMap.unknown.length > 0)) ? 'update' : 'updateForClaNotRequired'
 
         await status[updateMethod](args)
-        prService.editComment({
-            repo: args.repo,
-            owner: args.owner,
-            number: args.number,
-            signed: args.signed,
-            userMap: userMap
-        })
+        prService.badgeComment(args.owner, args.repo, args.number, args.signed, userMap)
     } catch (e) {
         logger.error(e.stack, removeToken(args))
     }

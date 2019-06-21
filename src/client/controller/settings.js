@@ -196,19 +196,17 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         };
 
         var validateRepoPr = function (repo, owner) {
-            $scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
+            $RPCService.call('cla', 'validateAllPullRequests', {
                 repo: repo,
                 owner: owner
-            }, function () {
-                $scope.popoverIsOpen = false;
             });
+            $scope.popoverIsOpen = false;
         };
         var validateOrgPr = function (linkedItem) {
             $RPCService.call('cla', 'validateOrgPullRequests', {
                 org: linkedItem.org
-            }).then(function () {
-                $scope.popoverIsOpen = false;
             });
+            $scope.popoverIsOpen = false;
         };
 
         $scope.recheck = function (linkedItem) {
