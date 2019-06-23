@@ -141,21 +141,29 @@ describe('', () => {
                     throw expError.github.pullRequest
                 }
 
-                return { data: resp.github.callPullRequest }
+                return {
+                    data: resp.github.callPullRequest
+                }
             } else if (args.obj === 'markdown') {
                 if (expError.github.markdown) {
                     throw expError.github.markdown
                 }
 
-                return { data: resp.github.callMarkdown }
+                return {
+                    data: resp.github.callMarkdown
+                }
             } else if (args.obj === 'users') {
                 if (expError.github.user) {
                     throw expError.github.user
                 }
                 if (args.arg.username === 'one') {
-                    return { data: resp.github.callUser.one }
+                    return {
+                        data: resp.github.callUser.one
+                    }
                 } else if (args.arg.username === 'two') {
-                    return { data: resp.github.callUser.two }
+                    return {
+                        data: resp.github.callUser.two
+                    }
                 } else if (args.arg.username === 'undefined') {
                     throw 'there is no user with username undefined'
                 }
@@ -164,19 +172,25 @@ describe('', () => {
                     throw expError.github.repos
                 }
 
-                return { data: resp.github.callRepos }
+                return {
+                    data: resp.github.callRepos
+                }
             }
         })
         sinon.stub(repo_service, 'get').callsFake(async (args) => {
             assert.deepEqual(args, reqArgs.repoService.get)
-            if (expError.repoService.get) { throw expError.repoService.get }
+            if (expError.repoService.get) {
+                throw expError.repoService.get
+            }
 
             return resp.repoService.get
         })
         sinon.stub(org_service, 'get').callsFake(async () => {
             sinon.assert.calledWithMatch(org_service.get, reqArgs.orgService.get)
             // assert.deepEqual(args, reqArgs.orgService.get)
-            if (expError.orgService.get) { throw expError.orgService.get }
+            if (expError.orgService.get) {
+                throw expError.orgService.get
+            }
 
             return resp.orgService.get
         })
@@ -374,8 +388,7 @@ describe('', () => {
                 }
             }
             testUser = {
-                save: () => {
-                },
+                save: () => {},
                 name: 'testUser',
                 requests: [{
                     repo: 'Hello-World',
@@ -403,10 +416,15 @@ describe('', () => {
             sinon.stub(cla, 'check').callsFake(async (args) => {
                 args.gist = req.args.gist
 
-                return { signed: true }
+                return {
+                    signed: true
+                }
             })
 
             sinon.stub(prService, 'editComment').callsFake(async () => {
+                //do nothing
+            })
+            sinon.stub(prService, 'badgeComment').callsFake(async () => {
                 //do nothing
             })
 
@@ -423,6 +441,7 @@ describe('', () => {
             cla.check.restore()
             cla.sign.restore()
             prService.editComment.restore()
+            prService.badgeComment.restore()
             statusService.update.restore()
             User.findOne.restore()
             cla.isClaRequired.restore()
@@ -479,7 +498,7 @@ describe('', () => {
                         obj: 'pulls',
                         fun: 'list'
                     }))
-                    assert(prService.editComment.called)
+                    assert(prService.badgeComment.called)
                     assert.equal(statusService.update.callCount, 2)
                     resolve()
                 }, 150)
@@ -491,7 +510,7 @@ describe('', () => {
             resp.cla.getLinkedItem = Object({
                 sharedGist: true
             }, resp.cla.getLinkedItem)
-            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { })
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => {})
 
             await cla_api.sign(req)
 
@@ -502,7 +521,7 @@ describe('', () => {
         it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', async () => {
             testUser.requests = undefined
             resp.cla.getLinkedItem = testData.org_from_db
-            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { })
+            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => {})
 
             try {
                 await cla_api.sign(req)
@@ -516,7 +535,7 @@ describe('', () => {
 
         it('should comment with userMap if it is given', async () => {
             cla.check.restore()
-            prService.editComment.restore()
+            prService.badgeComment.restore()
 
             sinon.stub(cla, 'check').callsFake(async (args) => {
                 args.gist = req.args.gist
@@ -529,7 +548,7 @@ describe('', () => {
                     }
                 }
             })
-            sinon.stub(prService, 'editComment').callsFake((args) => {
+            sinon.stub(prService, 'badgeComment').callsFake((args) => {
                 assert(args.userMap.signed)
             })
 
@@ -546,7 +565,7 @@ describe('', () => {
             await new Promise((resolve) => {
                 setTimeout(() => {
                     assert(statusService.update.called)
-                    assert(prService.editComment.called)
+                    assert(prService.badgeComment.called)
                     resolve()
                 }, 50)
             })
@@ -569,9 +588,15 @@ describe('', () => {
                 numbers: [1]
             })
             resp.cla.getLinkedItem.sharedGist = true
-            sinon.stub(repo_service, 'getRepoWithSharedGist').callsFake(async () => { return [resp.repoService.get] })
-            sinon.stub(org_service, 'getOrgWithSharedGist').callsFake(async () => { return [resp.orgService.get] })
-            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(async () => { /*do nothing*/ })
+            sinon.stub(repo_service, 'getRepoWithSharedGist').callsFake(async () => {
+                return [resp.repoService.get]
+            })
+            sinon.stub(org_service, 'getOrgWithSharedGist').callsFake(async () => {
+                return [resp.orgService.get]
+            })
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(async () => {
+                /*do nothing*/
+            })
             await cla_api.sign(req)
             sinon.assert.notCalled(cla_api.validateSharedGistItems)
             sinon.assert.calledTwice(cla.check)
@@ -628,7 +653,9 @@ describe('', () => {
         })
 
         it('should call cla service on getLastSignature', async () => {
-            sinon.stub(cla, 'getLastSignature').callsFake(async () => { return {} })
+            sinon.stub(cla, 'getLastSignature').callsFake(async () => {
+                return {}
+            })
 
             req.args = {
                 repo: 'Hello-World',
@@ -677,7 +704,9 @@ describe('', () => {
                     number: undefined
                 })
 
-                return { signed: true }
+                return {
+                    signed: true
+                }
             })
 
             await cla_api.check(req)
@@ -780,7 +809,9 @@ describe('', () => {
                 assert(args.gist.gist_version)
                 assert(args.repoId || args.orgId)
 
-                if (expError.cla.getAll) { throw expError.cla.getAll }
+                if (expError.cla.getAll) {
+                    throw expError.cla.getAll
+                }
                 return resp.cla.getAll
             })
         })
@@ -862,7 +893,9 @@ describe('', () => {
                 args: {
                     repo: 'Hello-World',
                     owner: 'octocat',
-                    signatures: [{ user: 'one' }]
+                    signatures: [{
+                        user: 'one'
+                    }]
                 },
                 user: {
                     login: 'projectOwner',
@@ -899,7 +932,11 @@ describe('', () => {
         })
 
         it('should "sign" cla only for existing users', async () => {
-            req.args.signatures = [{ user: 'one' }, { user: 'undefined' }]
+            req.args.signatures = [{
+                user: 'one'
+            }, {
+                user: 'undefined'
+            }]
 
             const res = await cla_api.upload(req)
             assert(github.call.called)
@@ -930,7 +967,11 @@ describe('', () => {
         })
 
         it('should "sign" cla for two users', async () => {
-            req.args.signatures = [{ user: 'one' }, { user: 'two' }]
+            req.args.signatures = [{
+                user: 'one'
+            }, {
+                user: 'two'
+            }]
 
             await cla_api.upload(req)
             assert(github.call.called)
@@ -950,7 +991,11 @@ describe('', () => {
         })
 
         it('should "sign" cla for linked org', async () => {
-            req.args.signatures = [{ user: 'one' }, { user: 'two' }]
+            req.args.signatures = [{
+                user: 'one'
+            }, {
+                user: 'two'
+            }]
             req.args.repo = undefined
 
             await cla_api.upload(req)
@@ -965,7 +1010,11 @@ describe('', () => {
         })
 
         it('should "sign" cla with origin attribute', async () => {
-            req.args.signatures = [{ user: 'one' }, { user: 'two' }]
+            req.args.signatures = [{
+                user: 'one'
+            }, {
+                user: 'two'
+            }]
 
             await cla_api.upload(req)
             assert(github.call.called)
@@ -974,7 +1023,15 @@ describe('', () => {
         })
 
         it('should "sign" cla with provided attributes', async () => {
-            req.args.signatures = [{ user: 'one', created_at: '2011-01-26T19:01:12Z' }, { user: 'two', custom_fields: { name: 'Username' } }]
+            req.args.signatures = [{
+                user: 'one',
+                created_at: '2011-01-26T19:01:12Z'
+            }, {
+                user: 'two',
+                custom_fields: {
+                    name: 'Username'
+                }
+            }]
             await cla_api.upload(req)
             assert(github.call.called)
             assert(cla.sign.calledTwice)
@@ -983,7 +1040,9 @@ describe('', () => {
                 created_at: '2011-01-26T19:01:12Z'
             })
             sinon.assert.calledWithMatch(cla.sign.secondCall, {
-                custom_fields: { name: 'Username' }
+                custom_fields: {
+                    name: 'Username'
+                }
             })
         })
     })
@@ -1023,9 +1082,14 @@ describe('', () => {
             })
             sinon.stub(cla, 'check').callsFake(async (args) => {
                 args.gist = req.args.gist
-                return { signed: true }
+                return {
+                    signed: true
+                }
             })
             sinon.stub(prService, 'editComment').callsFake(() => {
+                //do nothing here
+            })
+            sinon.stub(prService, 'badgeComment').callsFake(() => {
                 //do nothing here
             })
             sinon.stub(prService, 'deleteComment').callsFake(() => {
@@ -1045,6 +1109,7 @@ describe('', () => {
             statusService.updateForNullCla.restore()
             statusService.updateForClaNotRequired.restore()
             prService.editComment.restore()
+            prService.badgeComment.restore()
             prService.deleteComment.restore()
             repo_service.getByOwner.restore()
             cla.isClaRequired.restore()
@@ -1058,7 +1123,7 @@ describe('', () => {
             }))
             await new Promise(resolve => setTimeout(() => {
                 assert.equal(statusService.update.callCount, 2)
-                assert(prService.editComment.called)
+                assert(prService.badgeComment.called)
                 resolve()
             }, 150))
         })
@@ -1074,7 +1139,7 @@ describe('', () => {
                 obj: 'pulls',
                 fun: 'list'
             }))
-            assert(prService.editComment.called)
+            assert(prService.badgeComment.called)
         })
 
         it('should update status of all repos of the org', async () => {
@@ -1096,9 +1161,15 @@ describe('', () => {
         it('should update status with differentiation between whitelisted and other committers', async () => {
             cla.check.restore()
             sinon.stub(cla, 'check').callsFake(async (args) => {
-                const res = { signed: true }
+                const res = {
+                    signed: true
+                }
                 if (args.repo == 'testRepo' && args.number == 1) {
-                    res.userMap = { signed: [], not_signed: [], unknown: [] }
+                    res.userMap = {
+                        signed: [],
+                        not_signed: [],
+                        unknown: []
+                    }
                 }
                 return res
             })
@@ -1251,7 +1322,9 @@ describe('', () => {
             }
             reqArgs.cla.getLinkedItem = args
 
-            await cla_api.getLinkedItem({ args: args })
+            await cla_api.getLinkedItem({
+                args: args
+            })
             assert(cla.getLinkedItem.called)
         })
     })
@@ -1390,6 +1463,9 @@ describe('', () => {
             sinon.stub(prService, 'editComment').callsFake(async () => {
                 return null
             })
+            sinon.stub(prService, 'badgeComment').callsFake(async () => {
+                return null
+            })
             sinon.stub(prService, 'deleteComment').callsFake(async () => {
                 return null
             })
@@ -1402,6 +1478,7 @@ describe('', () => {
             statusService.updateForNullCla.restore()
             statusService.updateForClaNotRequired.restore()
             prService.editComment.restore()
+            prService.badgeComment.restore()
             prService.deleteComment.restore()
         })
 
@@ -1416,13 +1493,14 @@ describe('', () => {
                     sha: 'abcde',
                     number: 1
                 }))
-                assert(prService.editComment.calledWithMatch({
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    number: 1,
-                    signed: resp.cla.check.signed,
-                    userMap: resp.cla.check.userMap
-                }))
+                // assert(prService.editComment.calledWithMatch({
+                //     repo: 'Hello-World',
+                //     owner: 'octocat',
+                //     number: 1,
+                //     signed: resp.cla.check.signed,
+                //     userMap: resp.cla.check.userMap
+                // }))
+                assert(prService.badgeComment.calledWithMatch('octocat', 'Hello-World', 1, resp.cla.check.signed, resp.cla.check.userMap))
                 resolve()
             }))
         })
@@ -1479,8 +1557,7 @@ describe('', () => {
             }
             expError.cla.sign = null
             testUser = {
-                save: function () {
-                },
+                save: function () {},
                 name: 'testUser',
                 requests: [{
                     repo: 'Hello-World',
@@ -1561,7 +1638,9 @@ describe('', () => {
                 }
             }
             sinon.stub(cla, 'check').callsFake(async () => {
-                return { signed: true }
+                return {
+                    signed: true
+                }
             })
         })
 
@@ -1605,7 +1684,9 @@ describe('', () => {
             }
             expError.cla.terminate = null
             sinon.stub(cla, 'terminate').callsFake(async () => {
-                if (expError.cla.terminate) { throw expError.cla.terminate }
+                if (expError.cla.terminate) {
+                    throw expError.cla.terminate
+                }
             })
         })
 
