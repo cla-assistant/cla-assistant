@@ -386,13 +386,13 @@ describe('Settings Controller', function () {
         });
 
         describe('on recheck', function () {
-            it('should call validatePullRequests api', function () {
+            it('should call validateAllPullRequests api', function () {
                 settingsCtrl.scope.recheck({
                     repo: 'myRepo',
                     owner: 'login'
                 });
 
-                (RPC.call.calledWithMatch('cla', 'validatePullRequests', { repo: 'myRepo', owner: 'login' })).should.be.equal(true);
+                (RPC.call.calledWithMatch('cla', 'validateAllPullRequests', { repo: 'myRepo', owner: 'login' })).should.be.equal(true);
             });
 
             it('should get a repo for linked org which should be checked', function () {
