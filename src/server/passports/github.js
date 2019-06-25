@@ -1,24 +1,25 @@
-let url = require('../services/url');
-let repoService = require('../services/repo');
-let orgApi = require('../api/org');
-let github = require('../services/github');
-let logger = require('../services/logger');
-let passport = require('passport');
-let Strategy = require('passport-github').Strategy;
-let merge = require('merge');
+const url = require('../services/url')
+const repoService = require('../services/repo')
+const orgApi = require('../api/org')
+const github = require('../services/github')
+const logger = require('../services/logger')
+const passport = require('passport')
+const Strategy = require('passport-github').Strategy
+const merge = require('merge')
+const User = require('mongoose').model('User')
 
 function updateToken(item, newToken) {
-    item.token = newToken;
-    item.save();
-    logger.debug('Update access token for repo / org', item.repo || item.org);
+    item.token = newToken
+    item.save()
+    logger.debug('Update access token for repo / org', item.repo || item.org)
 }
 
-function checkToken(item, accessToken) {
-    let newToken = accessToken;
-    let oldToken = item.token;
-    let args = {
-        obj: 'authorization',
-        fun: 'check',
+async function checkToken(item, accessToken) {
+    const newToken = accessToken
+    const oldToken = item.token
+    const args = {
+        obj: 'oauthAuthorizations',
+        fun: 'checkAuthorization',
         arg: {
             access_token: oldToken,
             client_id: config.server.github.client
@@ -27,20 +28,22 @@ function checkToken(item, accessToken) {
             user: config.server.github.client,
             pass: config.server.github.secret
         }
-    };
+    }
 
-    github.call(args, function (err, data) {
-        if (err || !(data && data.scopes && data.scopes.indexOf('write:repo_hook') >= 0)) {
-            updateToken(item, newToken);
+    try {
+        const res = github.call(args)
+        if (!(res.data && res.data.scopes && res.data.scopes.indexOf('write:repo_hook') >= 0)) {
+            updateToken(item, newToken)
         } else if (item.repo) {
-            repoService.getGHRepo(item, function (err, ghRepo) {
-                if (err || !(ghRepo && ghRepo.permissions && ghRepo.permissions.admin)) {
-                    updateToken(item, newToken);
-                    logger.info('Update access token for repo ', item.repo, ' admin rights have been changed');
-                }
-            });
+            const ghRepo = await repoService.getGHRepo(item)
+            if (!(ghRepo && ghRepo.permissions && ghRepo.permissions.admin)) {
+                updateToken(item, newToken)
+                logger.info('Update access token for repo ', item.repo, ' admin rights have been changed')
+            }
         }
-    });
+    } catch (e) {
+        updateToken(item, newToken)
+    }
 }
 
 passport.use(new Strategy({
@@ -50,80 +53,76 @@ passport.use(new Strategy({
     authorizationURL: url.githubAuthorization,
     tokenURL: url.githubToken,
     userProfileURL: url.githubProfile()
-    // scope: config.server.github.scopes
-},
-    function (accessToken, refreshToken, params, profile, done) {
-        models.User.findOne({ name: profile.username }, (err, user) => {
-            if (err) {
-                logger.warn(err.stack);
-            }
-            if (!user) {
-                user = { uuid: profile.id, name: profile.username, token: accessToken };
-                models.User.create(user, (err) => {
-                    if (err) {
-                        logger.warn(new Error('Could not create new user ' + err));
-                    }
-                });
+}, async (accessToken, _refreshToken, params, profile, done) => {
+    let user
+    try {
+        user = await User.findOne({
+            name: profile.username
+        })
 
-                return;
-            }
-
-            if (user && !user.uuid) {
-                user.uuid = profile.id;
-            }
-            user.token = accessToken;
-            user.save();
-        });
-        // models.User.update({
-        //     uuid: profile.id
-        // }, {
-        //     name: profile.username,
-        //     email: '', // needs fix
-        //     token: accessToken
-        // }, {
-        //     upsert: true
-        // }, function () {});
-
-        if (params.scope.indexOf('write:repo_hook') >= 0) {
-            repoService.getUserRepos({
-                token: accessToken
-            }, function (err, res) {
-                if (res && res.length > 0) {
-                    res.forEach(function (repo) {
-                        checkToken(repo, accessToken);
-                    });
-                } else if (err) {
-                    logger.warn(err);
-                }
-            });
+        if (user && !user.uuid) {
+            user.uuid = profile.id
         }
-        if (params.scope.indexOf('admin:org_hook') >= 0) {
-            orgApi.getForUser({
+        user.token = accessToken
+        user.save()
+    } catch (error) {
+        logger.warn(error.stack)
+    }
+
+    if (!user) {
+        try {
+            await User.create({
+                uuid: profile.id,
+                name: profile.username,
+                token: accessToken
+            })
+        } catch (error) {
+            logger.warn(new Error(`Could not create new user ${error}`).stack)
+        }
+    }
+    // User.update({
+    //     uuid: profile.id
+    // }, {
+    //     name: profile.username,
+    //     email: '', // needs fix
+    //     token: accessToken
+    // }, {
+    //     upsert: true
+    // }, function () {})
+
+    if (params.scope.indexOf('write:repo_hook') >= 0) {
+        try {
+            const repoRes = await repoService.getUserRepos({
+                token: accessToken
+            })
+            if (repoRes && repoRes.length > 0) {
+                repoRes.forEach((repo) => checkToken(repo, accessToken))
+            }
+        } catch (error) {
+            logger.warn(new Error(error).stack)
+        }
+    }
+    if (params.scope.indexOf('admin:org_hook') >= 0) {
+        try {
+            const orgRes = await orgApi.getForUser({
                 user: {
                     token: accessToken,
                     login: profile.username
                 }
-            }, function (err, res) {
-                if (res && res.length > 0) {
-                    res.forEach(function (org) {
-                        checkToken(org, accessToken);
-                    });
-                } else if (err) {
-                    logger.warn(new Error(err).stack);
-                }
-            });
+            })
+            if (orgRes && orgRes.length > 0) {
+                orgRes.forEach((org) => checkToken(org, accessToken))
+            }
+        } catch (error) {
+            logger.warn(new Error(error).stack)
         }
-        done(null, merge(profile._json, {
-            token: accessToken,
-            scope: params.scope
-        }));
     }
-));
+    done(null, merge(profile._json, {
+        token: accessToken,
+        scope: params.scope
+    }))
+}))
 
-passport.serializeUser(function (user, done) {
-    done(null, user);
-});
+passport.serializeUser((user, done) => done(null, user))
 
-passport.deserializeUser(function (user, done) {
-    done(null, user);
-});
+passport.deserializeUser((user, done) => done(null, user))

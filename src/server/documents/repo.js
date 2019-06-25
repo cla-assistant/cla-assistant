@@ -1,9 +1,8 @@
-let mongoose = require('mongoose');
-let utils = require('./utils');
-// let logger = require('../services/logger');
-mongoose.Promise = require('q').Promise;
+const mongoose = require('mongoose')
+const utils = require('./utils')
+// const logger = require('../services/logger')
 
-let RepoSchema = mongoose.Schema({
+const RepoSchema = mongoose.Schema({
     repoId: String,
     repo: String,
     owner: String,
@@ -15,32 +14,32 @@ let RepoSchema = mongoose.Schema({
     whiteListPattern: String,
     privacyPolicy: String,
     updated_at: Date
-});
+})
 
-let index = {
+const index = {
     repoId: 1,
     repo: 1,
     owner: 1
-};
-let indexOptions = {
+}
+const indexOptions = {
     unique: true
-};
+}
 
 RepoSchema.methods.isUserWhitelisted = function (user) {
-    return utils.checkPatternWildcard(this.whiteListPattern, user);
-};
+    return utils.checkPatternWildcard(this.whiteListPattern, user)
+}
 
-let Repo = mongoose.model('Repo', RepoSchema);
+const Repo = mongoose.model('Repo', RepoSchema)
 
 // Repo.collection.dropAllIndexes(function (err, results) {
 //     if (err) {
-//         logger.warn('Repo collection dropAllIndexes error: ', err);
-//         logger.warn('dropAllIndexes results: ', results);
+//         logger.warn('Repo collection dropAllIndexes error: ', err)
+//         logger.warn('dropAllIndexes results: ', results)
 //     }
-// });
+// })
 
-Repo.collection.createIndex(index, indexOptions);
+Repo.collection.createIndex(index, indexOptions)
 
 module.exports = {
     Repo: Repo
-};
+}

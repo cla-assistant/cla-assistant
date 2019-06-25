@@ -5,8 +5,8 @@
 // path: /detail/:ruser/:repo
 // *****************************************************
 
-module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB', '$RPC', '$RPCService', '$HUBService', '$window', '$sce', '$modal', '$q', 'utils', '$log',
-    function ($rootScope, $scope, $stateParams, $HUB, $RPC, $RPCService, $HUBService, $window, $sce, $modal, $q, utils, $log) {
+module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC', '$RPCService', '$window', '$sce', '$modal', '$q', 'utils', '$log',
+    function ($rootScope, $scope, $stateParams, $RPC, $RPCService, $window, $sce, $modal, $q, utils, $log) {
 
         $scope.gist = {};
         $scope.gistIndex = 0;
@@ -196,19 +196,17 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$HUB
         };
 
         var validateRepoPr = function (repo, owner) {
-            $scope.validatePR = $RPC.call('cla', 'validatePullRequests', {
+            $RPCService.call('cla', 'validateAllPullRequests', {
                 repo: repo,
                 owner: owner
-            }, function () {
-                $scope.popoverIsOpen = false;
             });
+            $scope.popoverIsOpen = false;
         };
         var validateOrgPr = function (linkedItem) {
             $RPCService.call('cla', 'validateOrgPullRequests', {
                 org: linkedItem.org
-            }).then(function () {
-                $scope.popoverIsOpen = false;
             });
+            $scope.popoverIsOpen = false;
         };
 
         $scope.recheck = function (linkedItem) {

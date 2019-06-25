@@ -1,29 +1,29 @@
-let _ = require('lodash');
+const _ = require('lodash')
 
 module.exports = {
-    checkPattern: function (patternList, item) {
+    checkPattern: (patternList, item) => {
         if (!patternList || !item || !item.includes) {
-            return false;
+            return false
         }
-        let patterns = patternList.split(',');
+        const patterns = patternList.split(',')
 
-        return patterns.filter(function (pattern) { return item.includes(pattern); }).length > 0;
+        return patterns.filter(pattern => item.includes(pattern)).length > 0
     },
-    checkPatternWildcard: function (patternList, item) {
+    checkPatternWildcard: (patternList, item) => {
         if (!patternList || !item || !item.includes) {
-            return false;
+            return false
         }
-        const patterns = patternList.split(',');
+        const patterns = patternList.split(',')
 
         return patterns.filter(function (pattern) {
-            pattern = pattern.trim();
+            pattern = pattern.trim()
             if (pattern.includes('*')) {
-                const regex = _.escapeRegExp(pattern).split('\\*').join('.*');
+                const regex = _.escapeRegExp(pattern).split('\\*').join('.*')
 
-                return new RegExp(regex).test(item);
+                return new RegExp(regex).test(item)
             }
 
-            return pattern === item;
-        }).length > 0;
+            return pattern === item
+        }).length > 0
     }
-};
+}

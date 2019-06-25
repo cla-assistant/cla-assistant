@@ -1,64 +1,52 @@
-let express = require('express'),
+const express = require('express'),
     ejs = require('ejs'),
     fs = require('fs'),
     path = require('path'),
-    crypto = require('crypto');
+    crypto = require('crypto')
 
 //api
-let cla = require('./../api/cla');
+const cla = require('./../api/cla')
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// Badge controller
-//////////////////////////////////////////////////////////////////////////////////////////////
+const router = express.Router()
 
-let router = express.Router();
-
-
-router.all('/pull/badge/:signed', function (req, res) {
-    let fileName = req.params.signed === 'signed' ? 'badge_signed.svg' : 'badge_not_signed.svg';
-    let status = req.params.signed === 'signed' ? 'signed' : 'pending';
-    let tmp = fs.readFileSync(path.join(__dirname, '..', 'templates', fileName), 'utf-8');
-    let hash = crypto.createHash('md5').update(status, 'utf8').digest('hex');
+router.all('/pull/badge/:signed', (req, res) => {
+    const fileName = req.params.signed === 'signed' ? 'badge_signed.svg' : 'badge_not_signed.svg'
+    const status = req.params.signed === 'signed' ? 'signed' : 'pending'
+    const tmp = fs.readFileSync(path.join(__dirname, '..', 'templates', fileName), 'utf-8')
+    const hash = crypto.createHash('md5').update(status, 'utf8').digest('hex')
 
     if (req.get('If-None-Match') === hash) {
-        return res.status(304).send();
+        return res.status(304).send()
     }
 
-    let svg = ejs.render(tmp);
+    const svg = ejs.render(tmp)
 
-    res.set('Content-Type', 'image/svg+xml');
-    res.set('Cache-Control', 'no-cache');
-    res.set('Etag', hash);
-    res.send(svg);
-});
+    res.set('Content-Type', 'image/svg+xml')
+    res.set('Cache-Control', 'no-cache')
+    res.set('Etag', hash)
+    res.send(svg)
+})
 
 
-router.all('/readme/badge/:owner/:repo', function (req, res) {
-    let args = {
+router.all('/readme/badge/:owner/:repo', async (req, res) => {
+    req.args = {
         owner: req.params.owner,
         repo: req.params.repo
-    };
-    let style = req.query && req.query.style ? req.query.style : undefined;
-    let label = req.query && req.query.label ? req.query.label : undefined;
-    let colorB = req.query && req.query.colorB ? req.query.colorB : undefined;
-    let logo = req.query && req.query.logo ? req.query.logo : undefined;
-    let redirect = function (count) {
-        let url = 'https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg?';
-        url = style ? url + '&style=' + style : url;
-        url = label ? url + '&label=' + label : url;
-        url = colorB ? url + '&colorB=' + colorB : url;
-        url = logo ? url + '&logo=' + logo : url;
-        res.redirect(url);
-    };
-    req.args = args;
-    cla.countCLA(req, function (err, count) {
-        if (err || !count) {
-            redirect(0);
+    }
+    let count = 0
+    try {
+        count = await cla.countCLA(req)
+    } catch (error) {
+        count = 0
+    }
+    let url = 'https://img.shields.io/badge/CLAs signed-' + count + '-0594c6.svg?'
+    if (req.query) {
+        url = req.query.style ? `${url}&style=${req.query.style}` : url
+        url = req.query.label ? `${url}&label=${req.query.label}` : url
+        url = req.query.colorB ? `${url}&colorB=${req.query.colorB}` : url
+        url = req.query.logo ? `${url}&logo=${req.query.logo}` : url
+    }
+    res.redirect(url)
+})
 
-            return;
-        }
-        redirect(count);
-    });
-});
-
-module.exports = router;
+module.exports = router
