@@ -130,8 +130,12 @@ describe('', () => {
             return expError.cla.getGist ? Promise.reject(expError.cla.getGist) : Promise.resolve(resp.cla.getGist)
         })
 
-        sinon.stub(cla, 'getLinkedItem').callsFake(() => {
-            return expError.cla.getLinkedItem ? Promise.reject(expError.cla.getLinkedItem) : Promise.resolve(resp.cla.getLinkedItem)
+        sinon.stub(cla, 'getLinkedItem').callsFake((args) => {
+            resp.cla.getLinkedItem.repo = args.repo
+            resp.cla.getLinkedItem.owner = args.owner
+            const objectcopy = JSON.parse(JSON.stringify(resp.cla.getLinkedItem))
+
+            return expError.cla.getLinkedItem ? Promise.reject(expError.cla.getLinkedItem) : Promise.resolve(objectcopy)
         })
 
         sinon.stub(github, 'call').callsFake(async (args) => {
@@ -487,6 +491,31 @@ describe('', () => {
 
         it('should update status of all open pull requests for the repo if user model has no requests stored', async () => {
             testUser.requests = undefined
+            this.timeout(200)
+            const res = await cla_api.sign(req)
+
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    assert.ok(res)
+                    sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
+                    assert(github.call.calledWithMatch({
+                        obj: 'pulls',
+                        fun: 'list'
+                    }))
+                    assert(prService.badgeComment.called)
+                    assert.equal(statusService.update.callCount, 2)
+                    resolve()
+                }, 150)
+            })
+        })
+
+        it('should update status of all open pull requests for the repo if user model has requests for other repos', async () => {
+            testUser.requests = [{
+                repo: 'otherRepo',
+                owner: 'testOrg',
+                numbers: [1]
+            }]
+            // resp.cla.getLinkedItem.repo = 'otherRepo'
             this.timeout(200)
             const res = await cla_api.sign(req)
 
@@ -1315,7 +1344,8 @@ describe('', () => {
     })
 
     describe('cla:getLinkedItem', () => {
-        it('should linked repo or org using repo_name and owner', async () => {
+        it('should get linked repo or org using repo_name and owner', async () => {
+            resp.cla.getLinkedItem = resp.repoService.get
             let args = {
                 repo: 'Hello-World',
                 owner: 'octocat'

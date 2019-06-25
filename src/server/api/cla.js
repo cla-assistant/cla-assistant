@@ -27,7 +27,10 @@ const SIGNATURESCHEMA = Joi.object().keys({
 }).and('repo', 'owner').xor('repo', 'org')
 
 const GISTREQUESTSCHEMA = Joi.object().keys({
-    gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({ gist_url: Joi.string().uri(), gist_version: Joi.strict() })]),
+    gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({
+        gist_url: Joi.string().uri(),
+        gist_version: Joi.strict()
+    })]),
     repoId: Joi.number(),
     orgId: Joi.number(),
     repo: Joi.string(),
@@ -111,7 +114,9 @@ class ClaApi {
     //	owner (mandatory)
     //	gist.gist_url (mandatory)
     //	gist.gist_version (optional)
-    getAll(req) { return cla.getAll(req.args) }
+    getAll(req) {
+        return cla.getAll(req.args)
+    }
 
     //Get number of signed CLAs for the given repo. If no gist_version provided, the latest one will be used.
     //Params:
@@ -399,7 +404,9 @@ async function markdownRender(content, token) {
         token: token
     }
     const response = await github.call(args)
-    return { raw: response.body || response.data || response }
+    return {
+        raw: response.body || response.data || response
+    }
 }
 
 async function renderFiles(files, renderToken) {
@@ -487,8 +494,7 @@ async function claNotRequired(args, updateMethod) {
             owner: args.owner,
             number: args.number
         })
-    }
-    catch (error) {
+    } catch (error) {
         logger.info(new Error(error).stack)
     }
 }
@@ -504,12 +510,14 @@ async function claNotRequired(args, updateMethod) {
 // token (mandatory)
 async function updateUsersPullRequests(args) {
     try {
-        const user = await User.findOne({ name: args.user })
+        const user = await User.findOne({
+            name: args.user
+        })
         if (!user || !user.requests || user.requests.length < 1) {
             throw 'user or PRs not found'
         }
 
-        return prepareForValidation(args.item, user)
+        await prepareForValidation(args.item, user)
     } catch (e) {
         let req = {
             args: {
@@ -534,31 +542,36 @@ async function updateUsersPullRequests(args) {
 
 async function prepareForValidation(item, user) {
     const needRemove = []
+    let foundPR = false
 
     await Promise.all(user.requests.map(async (pullRequests, index) => {
         try {
-            const linkedItem = await cla.getLinkedItem({ repo: pullRequests.repo, owner: pullRequests.owner })
-            if (!linkedItem) {
-                needRemove.push(index)
-                return
-            }
-            if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || linkedItem.org === item.org || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+            const linkedItem = await cla.getLinkedItem({
+                repo: pullRequests.repo,
+                owner: pullRequests.owner
+            })
+            if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || (item.org && linkedItem.org === item.org) || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
+                foundPR = true
                 needRemove.push(index)
                 validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token)
             }
             return linkedItem
-        }
-        catch (e) {
+        } catch (e) {
+            needRemove.push(index)
             logger.warn(e.stack)
         }
     }).filter((promise) => {
         return promise !== undefined
     }))
+
     needRemove.sort()
     for (let i = needRemove.length - 1; i >= 0; --i) {
         user.requests.splice(needRemove[i], 1)
     }
     user.save()
+    if (!foundPR) {
+        throw new Error('No user PRs found for the linked item')
+    }
 }
 
 function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
@@ -590,8 +603,8 @@ async function getReposNeedToValidate(req) {
         const linkedRepos = await repoService.getByOwner(req.args.org)
         const linkedRepoSet = new Set(
             linkedRepos
-                .filter(repo => repo.repoId) //ignore old DB entries with no repoId
-                .map(linkedRepo => linkedRepo.repoId.toString())
+            .filter(repo => repo.repoId) //ignore old DB entries with no repoId
+            .map(linkedRepo => linkedRepo.repoId.toString())
         )
         repos = allRepos.data.filter(repo => {
             if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
