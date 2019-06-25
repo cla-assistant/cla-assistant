@@ -1,12 +1,13 @@
-let org = require('../services/org');
-let github = require('../services/github');
-let log = require('../services/logger');
-let Joi = require('joi');
-let webhook = require('./webhook');
-let logger = require('../services/logger');
+const org = require('../services/org')
+const github = require('../services/github')
+const log = require('../services/logger')
+const Joi = require('joi')
+const webhook = require('./webhook')
+const logger = require('../services/logger')
+const utils = require('../middleware/utils')
 //queries
-let queries = require('../graphQueries/github');
-let schema = Joi.object().keys({
+const queries = require('../graphQueries/github')
+const newOrgSchema = Joi.object().keys({
     orgId: Joi.number().required(),
     org: Joi.string().required(),
     gist: Joi.string().required(),
@@ -17,156 +18,121 @@ let schema = Joi.object().keys({
     minCodeChanges: Joi.number(),
     whiteListPattern: Joi.string().allow(''),
     privacyPolicy: Joi.string().allow('')
-});
+})
+const removeOrgSchema = Joi.object().keys({
+    org: Joi.string(),
+    orgId: Joi.number()
+}).or('org', 'orgId')
 
-module.exports = {
+class OrgAPI {
+    async create(req) {
+        req.args.token = req.args.token || req.user.token
+        utils.validateArgs(req.args, newOrgSchema, true)
 
-    // check: function(req, done) {
-    //     org.check(req.args, done);
-    // },
-    create: function (req, done) {
-        req.args.token = req.args.token || req.user.token;
+        const query = {
+            orgId: req.args.orgId,
+            org: req.args.org,
+        }
+        let dbOrg
+        try {
+            dbOrg = await org.get(query)
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
 
-        Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
-            if (joiError) {
-                joiError.code = 400;
+        if (dbOrg) {
+            throw new Error('This org is already linked.')
+        }
+        dbOrg = await org.create(req.args)
 
-                return done(joiError);
+        try {
+            await webhook.create(req)
+        } catch (error) {
+            logger.error(new Error(error).stack)
+        }
+        return dbOrg
+    }
+
+    async update(req) {
+        req.args.token = req.args.token || req.user.token
+        utils.validateArgs(req.args, newOrgSchema, true)
+
+        return org.update(req.args)
+    }
+
+    async getForUser(req) {
+        try {
+            const res = await this.getGHOrgsForUser(req)
+            const argsForOrg = {
+                orgId: res.map((org) => org.id)
             }
-            let query = {
-                orgId: req.args.orgId,
-                org: req.args.org,
-            };
-            org.get(query, function (err, dbOrg) {
-                if (err) {
-                    logger.info(err.stack);
+            return org.getMultiple(argsForOrg)
+        } catch (error) {
+            log.warn(error.stack)
+            throw error
+        }
+    }
+
+    async getGHOrgsForUser(req) {
+        let organizations = []
+
+        async function callGithub(arg) {
+            const query = arg.query ? arg.query : queries.getUserOrgs(req.user.login, null)
+
+            try {
+                let body = await github.callGraphql(query, req.user.token)
+                body = JSON.parse(body)
+
+                if (body.errors) {
+                    const errorMessage = body.errors[0] && body.errors[0].message ? body.errors[0].message : 'Error occurred by getting users organizations'
+                    logger.info(new Error(errorMessage).stack)
                 }
-                if (dbOrg) {
-                    return done('This org is already linked.');
-                }
-                org.create(req.args, function (createOrgErr, dbOrg) {
-                    if (createOrgErr) {
-                        return done(createOrgErr);
+
+                const data = body.data.user.organizations
+
+                organizations = data.edges.reduce((orgs, edge) => {
+                    if (edge.node.viewerCanAdminister) {
+                        edge.node.id = edge.node.databaseId
+                        orgs.push(edge.node)
                     }
-                    webhook.create(req, function (createHookErr) {
-                        done(createHookErr, dbOrg);
-                    });
-                });
-            });
-        });
-    },
 
-    update: function (req, done) {
-        req.args.token = req.args.token || req.user.token;
-        Joi.validate(req.args, schema, { abortEarly: false, allowUnknown: true }, function (joiError) {
-            if (joiError) {
-                joiError.code = 400;
+                    return orgs
+                }, organizations)
 
-                return done(joiError);
+                if (data.pageInfo.hasNextPage) {
+                    arg.query = queries.getUserOrgs(req.user.login, data.pageInfo.endCursor)
+                    return callGithub(arg)
+                }
+                return organizations
+            } catch (error) {
+                log.info(new Error(error).stack)
+                log.warn(`No result on GH call, getting user orgs! For user: ${req.user}`)
+                throw error
             }
-            org.update(req.args, done);
-        });
-    },
-
-    getForUser: function (req, done) {
-        this.getGHOrgsForUser(req, function (err, res) {
-            if (err) {
-                log.warn(new Error(err).stack);
-                done(err);
-
-                return;
-            }
-            let argsForOrg = {
-                orgId: res.map((org) => { return org.id; })
-            };
-            org.getMultiple(argsForOrg, done);
-        });
-    },
-
-    getGHOrgsForUser: function (req, done) {
-        let organizations = [];
-
-        function callGithub(arg) {
-
-            let query = arg.query ? arg.query : queries.getUserOrgs(req.user.login, null);
-
-            github.callGraphql(query, req.user.token, function (err, res, body) {
-                if (err || res.statusCode > 200) {
-                    log.info(new Error(err).stack);
-                    if (!res) {
-                        log.warn('No result on GH call, getting user orgs! For user: ' + req.user);
-
-                        return;
-                    }
-                }
-
-                body = body ? JSON.parse(body) : body;
-                if (body && body.data && !res.message) {
-                    try {
-                        let data = body.data.user.organizations;
-
-                        organizations = data.edges.reduce((orgs, edge) => {
-                            if (edge.node.viewerCanAdminister) {
-                                edge.node.id = edge.node.databaseId;
-                                orgs.push(edge.node);
-                            }
-
-                            return orgs;
-                        }, organizations);
-
-                        if (data.pageInfo.hasNextPage) {
-                            arg.query = queries.getUserOrgs(req.user.login, data.pageInfo.endCursor);
-                            callGithub(arg);
-                        } else {
-                            done(null, organizations);
-                        }
-                    } catch (error) {
-                        log.warn(new Error('Could not find and filter user organizations; ' + error).stack);
-                        done(error);
-                    }
-
-                } else if (res.message || body.errors || res.statusCode > 200) {
-                    try {
-                        done(res.message || body.errors[0].message);
-                    } catch (error) {
-                        done('Error occurred by getting users organizations');
-                    }
-                }
-
-            });
         }
         if (req.user && req.user.login) {
-            callGithub({});
-        } else {
-            done('User is undefined');
+            return callGithub({})
         }
-    },
-    // update: function(req, done){
-    //     org.update(req.args, done);
-    // },
-    remove: function (req, done) {
-        let schema = Joi.object().keys({
-            org: Joi.string(),
-            orgId: Joi.number()
-        }).or('org', 'orgId');
-        Joi.validate(req.args, schema, { abortEarly: false }, function (joiError) {
-            if (joiError) {
-                joiError.code = 400;
 
-                return done(joiError);
-            }
-            org.remove(req.args, function (removeOrgErr, dbOrg) {
-                if (removeOrgErr) {
-                    return done(removeOrgErr);
-                }
-                if (!dbOrg) {
-                    return done('Organization is not Found');
-                }
-                req.args.org = dbOrg.org;
-                webhook.remove(req, function (removeHookErr) {
-                    done(removeHookErr, dbOrg);
-                });
-            });
-        });
+        throw new Error('User is undefined')
     }
-};
+    // update(req, done){
+    //     org.update(req.args, done)
+    // }
+    async remove(req) {
+        utils.validateArgs(req.args, removeOrgSchema)
+        const dbOrg = await org.remove(req.args)
+        if (!dbOrg) {
+            throw new Error('Organization is not Found')
+        }
+        req.args.org = dbOrg.org
+        try {
+            await webhook.remove(req)
+        } catch (error) {
+            logger.warn(new Error(error))
+        }
+        return dbOrg
+    }
+}
+
+module.exports = new OrgAPI()

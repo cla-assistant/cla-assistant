@@ -1,16 +1,11 @@
 // module
-let github = require('../services/github');
-let merge = require('merge');
+const github = require('../services/github')
+const merge = require('merge')
 
 module.exports = {
-    call: function(req, done) {
-        github.call(merge(req.args, {
-            token: req.user.token
-        }), function(err, res, meta) {
-            done(err, {
-                data: res,
-                meta: meta
-            });
-        });
+    call: async (req) => {
+        const res = await github.call(merge(req.args, { token: req.user.token }))
+
+        return { data: res.data, meta: res.headers }
     }
-};
+}

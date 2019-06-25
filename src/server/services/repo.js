@@ -1,75 +1,58 @@
-require('../documents/repo');
-let mongoose = require('mongoose');
-let Repo = mongoose.model('Repo');
-let _ = require('lodash');
-let async = require('async');
+require('../documents/repo')
+const mongoose = require('mongoose')
+const Repo = mongoose.model('Repo')
+const _ = require('lodash')
 
 //services
-let github = require('../services/github');
-let logger = require('../services/logger');
-let orgService = require('../services/org');
+const github = require('../services/github')
+const logger = require('../services/logger')
+const orgService = require('../services/org')
 
 //queries
-let queries = require('../graphQueries/github');
+const queries = require('../graphQueries/github')
 
 //services
-let url = require('../services/url');
+const url = require('../services/url')
 
-let isTransferredRenamed = function (dbRepo, ghRepo) {
-    return ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
-};
+const isTransferredRenamed = (dbRepo, ghRepo) => ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner)
 
-let compareRepoNameAndUpdate = function (dbRepo, ghRepo) {
+const compareRepoNameAndUpdate = (dbRepo, ghRepo) => {
     if (isTransferredRenamed(dbRepo, ghRepo)) {
-        dbRepo.owner = ghRepo.owner;
-        dbRepo.repo = ghRepo.repo;
-        dbRepo.save();
+        dbRepo.owner = ghRepo.owner
+        dbRepo.repo = ghRepo.repo
+        dbRepo.save()
+        return true
+    }
+    return false
+}
 
-        return true;
+const compareAllRepos = (ghRepos, dbRepos) => {
+    dbRepos.forEach((dbRepo) => ghRepos.some((ghRepo) => compareRepoNameAndUpdate(dbRepo, ghRepo)))
+}
+
+const extractUserFromCommit = (commit) => commit.author.user || commit.committer.user || commit.author || commit.committer
+
+const selection = args => {
+    return args.repoId ? { repoId: args.repoId } : { repo: args.repo, owner: args.owner }
+}
+
+class RepoService {
+
+    constructor() {
+        this.timesToRetryGitHubCall = 3
     }
 
-    return false;
-};
+    async all() {
+        return Repo.find({})
+    }
 
-let compareAllRepos = function (ghRepos, dbRepos, done) {
-    dbRepos.forEach(function (dbRepo) {
-        ghRepos.some(function (ghRepo) {
-            return compareRepoNameAndUpdate(dbRepo, ghRepo);
-        });
-    });
-    done();
-};
+    async check(args) {
+        const repo = await Repo.findOne(selection(args))
+        return !!repo
+    }
 
-let extractUserFromCommit = function (commit) {
-    let committer = commit.author.user || commit.committer.user || commit.author || commit.committer;
-
-    return committer;
-};
-
-let selection = function (args) {
-    return args.repoId ? {
-        repoId: args.repoId
-    } : {
-            repo: args.repo,
-            owner: args.owner
-        };
-};
-
-module.exports = {
-    timesToRetryGitHubCall: 3,
-    all: function (done) {
-        Repo.find({}, function (err, repos) {
-            done(err, repos);
-        });
-    },
-
-    check: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
-            done(err, !!repo);
-        });
-    },
-    create: function (args, done) {
-        Repo.create({
+    async create(args) {
+        return Repo.create({
             repo: args.repo,
             owner: args.owner,
             repoId: args.repoId,
@@ -81,175 +64,154 @@ module.exports = {
             whiteListPattern: args.whiteListPattern,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
-        }, function (err, repo) {
-            done(err, repo);
-        });
-    },
-    get: function (args, done) {
-        Repo.findOne(selection(args), function (err, repo) {
-            if (!err && !repo) {
-                err = 'Repository not found in Database';
+        })
+    }
+
+    async get(args) {
+        return Repo.findOne(selection(args))
+        // const repo = await Repo.findOne(selection(args))
+        // if (repo) {
+        //     return repo
+        // }
+        // throw new Error('Repository not found in Database')
+    }
+
+    async getAll(args) {
+        const repoIds = []
+        args.set.forEach((repo) => repoIds.push({ repoId: repo.repoId }))
+        // https://github.com/cla-assistant/cla-assistant/commit/1ed8b9d3a5af61c076aa0fa241fe67c3ed78441c
+        // When query is too big, docuemntDB will send error 'The SQL query text exceeded the maximum limit of 30720 characters'. Chunk big query to small queries.
+        const idChunk = _.chunk(repoIds, 100)
+        let startIndex = 0
+        const parallelLimit = (limit) => {
+            const promises = []
+            for (let i = 0; i < limit; i++) {
+                promises.push(Repo.find({ $or: idChunk[startIndex] }))
+                ++startIndex
             }
-            done(err, repo);
-        });
-    },
-    getAll: function (args, done) {
-        let repoIds = [];
-        args.set.forEach(function (repo) {
-            repoIds.push({
-                repoId: repo.repoId
-            });
-        });
-        let idChunk = _.chunk(repoIds, 100);
-        async.parallelLimit(idChunk.map(function (chunk) {
-            return function (callback) {
-                Repo.find({
-                    $or: chunk
-                }, callback);
-            };
-        }), 3, function (err, repoChunk) {
-            if (err) {
-                return done(err);
+            return promises
+        }
+
+        let allRepos = []
+        while (startIndex < idChunk.length) {
+            const repos = await Promise.all(parallelLimit(Math.min(idChunk.length - startIndex, 3)))
+            for (const set of repos) {
+                allRepos = allRepos.concat(set)
             }
-            let repos = _.concat.apply(null, repoChunk);
-            done(null, repos);
-        });
-    },
+        }
+        return allRepos
+    }
 
-    getByOwner: function (owner, done) {
-        Repo.find({
-            owner: owner
-        }, done);
-    },
+    async getByOwner(owner) {
+        return Repo.find({ owner })
+    }
 
-    getRepoWithSharedGist: function (gist, done) {
-        Repo.find({ gist: gist, sharedGist: true }, done);
-    },
+    async getRepoWithSharedGist(gist) {
+        return Repo.find({ gist, sharedGist: true })
+    }
 
-    update: function (args, done) {
-        let repoArgs = {
+    async update(args) {
+        const repoArgs = {
             repo: args.repo,
             owner: args.owner
-        };
-        Repo.findOne(repoArgs, function (err, repo) {
-            if (err) {
-                done(err);
+        }
+        const repo = await Repo.findOne(repoArgs)
 
-                return;
-            }
-            repo.repoId = repo.repoId ? repo.repoId : args.repoId;
-            repo.gist = args.gist;
-            repo.token = args.token ? args.token : repo.token;
-            repo.sharedGist = !!args.sharedGist;
-            repo.minFileChanges = args.minFileChanges;
-            repo.minCodeChanges = args.minCodeChanges;
-            repo.whiteListPattern = args.whiteListPattern;
-            repo.privacyPolicy = args.privacyPolicy;
-            repo.updatedAt = new Date();
+        repo.repoId = repo.repoId ? repo.repoId : args.repoId
+        repo.gist = args.gist
+        repo.token = args.token ? args.token : repo.token
+        repo.sharedGist = !!args.sharedGist
+        repo.minFileChanges = args.minFileChanges
+        repo.minCodeChanges = args.minCodeChanges
+        repo.whiteListPattern = args.whiteListPattern
+        repo.privacyPolicy = args.privacyPolicy
+        repo.updatedAt = new Date()
 
-            repo.save(done);
-        });
-    },
-    remove: function (args, done) {
-        Repo.findOneAndRemove(selection(args), done);
-    },
+        return repo.save()
+    }
 
-    getPRCommitters: function (args, done) {
-        let self = this;
+    async remove(args) {
+        return Repo.findOneAndRemove(selection(args))
+    }
 
-        let handleError = function (err, message, a) {
-            logger.warn(err);
+    async getPRCommitters(args) {
+        let self = this
+
+        let handleError = (err, message, a) => {
+            logger.warn(err)
             if (!a.count) {
-                logger.info('getPRCommitters with arg: ', a);
+                logger.info('getPRCommitters with arg: ', a)
             }
-            done(message);
-        };
+            throw new Error(message)
+        }
 
-        let callGithub = function (arg, linkedItem) {
-            let committers = [];
-            let linkedRepo = linkedItem && linkedItem.repoId ? linkedItem : undefined;
+        let callGithub = async (arg, linkedItem) => {
+            try {
+                let committers = []
+                let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '')
 
-            let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '');
+                let body = await github.callGraphql(query, arg.token)
 
-            github.callGraphql(query, arg.token, function (err, res, body) {
-                if (err || res.statusCode > 200) {
-                    let msg = 'No result on GH call, getting PR committers!' + err;
-                    handleError(new Error(msg).stack, msg, arg);
-
-                    return;
-                }
-                if (res && !res.message) {
-                    body = JSON.parse(body);
-                    let data = body.data;
-
-                    if (body.errors) {
-                        logger.info(new Error(body.errors[0].message).stack);
-                    }
-                    if (!data || !data.repository || !data.repository.pullRequest || !data.repository.pullRequest.commits || !data.repository.pullRequest.commits.edges) {
-                        done('No committers found');
-
-                        return;
-                    }
-                    data.repository.pullRequest.commits.edges.forEach((edge) => {
-                        try {
-                            let committer = extractUserFromCommit(edge.node.commit);
-                            let user = {
-                                name: committer.login || committer.name,
-                                id: committer.databaseId || ''
-                            };
-                            if (committers.length === 0 || committers.map(function (c) {
-                                return c.name;
-                            }).indexOf(user.name) < 0) {
-                                committers.push(user);
-                            }
-                        } catch (error) {
-                            let msg = 'Problem on PR ' + url.githubPullRequest(arg.owner, arg.repo, arg.number) + 'commit info seems to be wrong; ' + error;
-                            handleError(new Error(msg).stack, msg, arg);
-                        }
-                    });
-
-                    if (data.repository.pullRequest.commits.pageInfo.hasNextPage) {
-                        arg.query = queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, data.repository.pullRequest.commits.pageInfo.endCursor);
-                        callGithub(arg, linkedItem);
-                    } else {
-                        done(null, committers);
-                    }
-                } else if (res.message) {
-                    if (res && res.message === 'Moved Permanently' && linkedRepo) {
-                        self.getGHRepo(args, function (err, res) {
-                            if (res && res.id && compareRepoNameAndUpdate(linkedRepo, {
-                                repo: res.name,
-                                owner: res.owner.login,
-                                repoId: res.id
-                            })) {
-                                arg.arg.repo = res.name;
-                                arg.arg.owner = res.owner.login;
-
-                                callGithub(arg);
-                            } else {
-                                let msg = 'Moved Permanently ' + err;
-                                handleError(new Error(msg).stack, msg, arg);
-                            }
-                        });
-                    } else {
-                        if (!!self.timesToRetryGitHubCall && (!arg.count || self.timesToRetryGitHubCall > arg.count)) {
-                            arg.count = arg.count ? ++arg.count : 1;
-                            setTimeout(function () {
-                                callGithub(arg, linkedItem);
-                            }, 1000);
-
-                            return;
-                        }
-                        handleError(new Error(res.message).stack, res.message, arg);
-                        // done(res.message);
-                    }
+                body = JSON.parse(body)
+                if (body.errors) {
+                    logger.info(new Error(body.errors[0].message).stack)
                 }
 
-            });
-        };
+                const data = body.data
+                if (!data || !data.repository || !data.repository.pullRequest || !data.repository.pullRequest.commits || !data.repository.pullRequest.commits.edges) {
+                    throw new Error('No committers found')
+                }
 
-        let collectTokenAndCallGithub = function (args, item) {
-            args.token = item.token;
+                data.repository.pullRequest.commits.edges.forEach((edge) => {
+                    try {
+                        let committer = extractUserFromCommit(edge.node.commit)
+                        let user = {
+                            name: committer.login || committer.name,
+                            id: committer.databaseId || ''
+                        }
+                        if (committers.length === 0 || committers.map((c) => {
+                            return c.name
+                        }).indexOf(user.name) < 0) {
+                            committers.push(user)
+                        }
+                    } catch (error) {
+                        throw new Error('Problem on PR ' + url.githubPullRequest(arg.owner, arg.repo, arg.number) + 'commit info seems to be wrong ' + error)
+                    }
+                })
+
+                if (data.repository.pullRequest.commits.pageInfo.hasNextPage) {
+                    arg.query = queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, data.repository.pullRequest.commits.pageInfo.endCursor)
+                    return callGithub(arg, linkedItem)
+                }
+                return committers
+
+            } catch (error) {
+                let msg = 'No result on GH call, getting PR committers! ' + error
+
+                const linkedRepo = linkedItem && linkedItem.repoId ? linkedItem : undefined
+                if (error.message === 'Moved Permanently' && linkedRepo) {
+                    let res
+                    try {
+                        res = await self.getGHRepo(args)
+                        if (res && res.id && compareRepoNameAndUpdate(linkedRepo, { repo: res.name, owner: res.owner.login, repoId: res.id })) {
+                            arg.arg.repo = res.name
+                            arg.arg.owner = res.owner.login
+                            return callGithub(arg)
+                        }
+                    } catch (err) {
+                        msg = msg + err
+                    }
+                } else if (!!this.timesToRetryGitHubCall && (!arg.count || this.timesToRetryGitHubCall > arg.count)) {
+                    arg.count = arg.count ? ++arg.count : 1
+                    await new Promise((resolve) => setTimeout(resolve, 1000))
+                    return callGithub(arg, linkedItem)
+                }
+                handleError(new Error(msg).stack, msg, arg)
+            }
+        }
+
+        let collectTokenAndCallGithub = (args, item) => {
+            args.token = item.token
             let params = {
                 arg: {
                     owner: args.owner,
@@ -258,96 +220,77 @@ module.exports = {
                     per_page: 100
                 },
                 token: args.token
-            };
-            callGithub(params, item);
-
-        };
-
-        self.get(args, function (error, repo) {
-            if (!repo) {
-                orgService.get({
-                    orgId: args.orgId
-                }, function (err, org) {
-                    if (!org) {
-                        return handleError(new Error(error).stack, error, args);
-                    }
-                    if (err) {
-                        logger.warn(err);
-                    }
-                    collectTokenAndCallGithub(args, org);
-                });
-            } else {
-                collectTokenAndCallGithub(args, repo);
             }
-        });
-    },
+            return callGithub(params, item)
+        }
 
-    getUserRepos: function (args, done) {
-        let that = this;
-        let affiliation = args.affiliation ? args.affiliation : 'owner,organization_member';
-        github.call({
+        let linkedItem
+        try {
+            linkedItem = await this.get(args)
+            if (!linkedItem) {
+                linkedItem = await orgService.get({ orgId: args.orgId })
+            }
+            if (!linkedItem) {
+                throw 'no linked item found'
+            }
+        } catch (error) {
+            handleError(new Error(error).stack, error, args)
+        }
+        return collectTokenAndCallGithub(args, linkedItem)
+    }
+
+    async getUserRepos(args) {
+        const affiliation = args.affiliation ? args.affiliation : 'owner,organization_member'
+        const ghRepos = await github.call({
             obj: 'repos',
-            fun: 'getAll',
+            fun: 'listAll',
             arg: {
                 affiliation: affiliation,
                 per_page: 100
             },
             token: args.token
-        }, function (err, res) {
-            if (!res || res.length < 1 || res.message) {
-                err = res && res.message ? res.message : err;
-                done(err, null);
+        })
 
-                return;
+        let repoSet = []
+        ghRepos.data.forEach((githubRepo) => {
+            if (githubRepo.permissions.push) {
+                repoSet.push({
+                    owner: githubRepo.owner.login,
+                    repo: githubRepo.name,
+                    repoId: githubRepo.id
+                })
             }
-
-            let repoSet = [];
-            res.forEach(function (githubRepo) {
-                if (githubRepo.permissions.push) {
-                    repoSet.push({
-                        owner: githubRepo.owner.login,
-                        repo: githubRepo.name,
-                        repoId: githubRepo.id
-                    });
-                }
-            });
-            that.getAll({
-                set: repoSet
-            }, function (err, dbRepos) {
-                if (dbRepos) {
-                    compareAllRepos(repoSet, dbRepos, function () {
-                        done(err, dbRepos);
-                    });
-                } else {
-                    done(err);
-                }
-            });
-        });
-    },
+        })
+        const dbRepos = await this.getAll({
+            set: repoSet
+        })
+        compareAllRepos(repoSet, dbRepos)
+        return dbRepos
+    }
 
     // updateDBData: function(req, done) {
-    //     let self = this;
-    //     Repo.find({}, function(error, dbRepos){
+    //     let self = this
+    //     Repo.find({} function(error, dbRepos){
     //         dbRepos.forEach(function(dbRepo){
     //             let params = {
     //                 url: url.githubRepository(dbRepo.owner, dbRepo.repo),
     //                 token: req.user.token
-    //             };
+    //             }
     //             github.direct_call(params, function(err, ghRepo){
     //                 if (ghRepo && ghRepo && ghRepo.id) {
-    //                     dbRepo.repoId = ghRepo.id;
-    //                     dbRepo.save();
+    //                     dbRepo.repoId = ghRepo.id
+    //                     dbRepo.save()
     //                 } else if (ghRepo && ghRepo && ghRepo.message) {
-    //                     logger.info(ghRepo.message, 'with params ', params);
+    //                     logger.info(ghRepo.message, 'with params ', params)
     //                 }
-    //             });
-    //         });
-    //         done();
-    //     });
-    // },
+    //             })
+    //         })
+    //         done()
+    //     })
+    // }
 
-    getGHRepo: function (args, done) {
-        let params = {
+    async getGHRepo(args) {
+        let res = await github.call({
             obj: 'repos',
             fun: 'get',
             arg: {
@@ -355,7 +298,9 @@ module.exports = {
                 repo: args.repo
             },
             token: args.token
-        };
-        github.call(params, done);
+        })
+        return res.data
     }
-};
+}
+
+module.exports = new RepoService()

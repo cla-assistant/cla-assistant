@@ -21,7 +21,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
 
         function getUserEmail(key) {
             // eslint-disable-next-line handle-callback-err
-            $HUBService.call('users', 'getEmails', {}, function (err, data) {
+            $HUBService.call('users', 'listEmails', {}, function (err, data) {
                 if (data && data.value) {
                     data.value.some(function (email) {
                         $scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];
@@ -92,7 +92,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                 owner: $stateParams.user,
                 number: $stateParams.pullRequest
             }, function (err, signed) {
-                if (!err && signed.value) {
+                if (!err && signed.value && signed.value.signed) {
                     $scope.signed = true;
                     $scope.privacyPolicyAccepted = true;
                 } else {
@@ -114,14 +114,14 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
         }
 
         var getUser = function () {
-            return $HUBService.call('users', 'get', {}, function (err, res) {
+            return $HUBService.call('users', 'getAuthenticated', {}, function (err, res) {
                 if (err) {
                     return;
                 }
 
                 $scope.user = res;
                 $scope.user.value.admin = false;
-                if (res.meta && res.meta.scopes && res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                if (res.meta && res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
                 $rootScope.user = $scope.user;
@@ -154,7 +154,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                     if (err) {
                         $log.info(err);
                     }
-                    $scope.signed = signed ? signed.value : false;
+                    $scope.signed = signed ? !!signed.value : false;
                     $scope.privacyPolicyAccepted = $scope.signed ? true : false;
                     if ($scope.signed) {
                         redirect();
@@ -216,7 +216,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
                 // var claPromise = getCLA();
                 var signedPromise = checkCLA().then(function (signed) {
                     // $scope.customValues = signed.value ? {} : $scope.customValues;
-                    if (signed.value && $stateParams.redirect) {
+                    if (signed.value && signed.value.signed && $stateParams.redirect) {
                         redirect();
                     }
                 });

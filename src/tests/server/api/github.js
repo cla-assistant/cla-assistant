@@ -1,34 +1,26 @@
 /*global describe, it, beforeEach, afterEach*/
 
 // unit test
-let assert = require('assert');
-let sinon = require('sinon');
+const assert = require('assert')
+const sinon = require('sinon')
 
 // api
-let github_api = require('../../../server/api/github');
+const github_api = require('../../../server/api/github')
 
 // module
-let github = require('../../../server/services/github');
+const github = require('../../../server/services/github')
 
-describe('github:call', function () {
-    beforeEach(function () {
-        sinon.stub(github, 'call').callsFake(function (args, cb) {
-            assert.deepEqual(args, { obj: 'gists', fun: 'get', token: 'abc' });
-            cb();
-        });
-    });
+describe('github:call', () => {
+    beforeEach(() => sinon.stub(github, 'call').callsFake(async args => {
+        assert.deepEqual(args, { obj: 'gists', fun: 'list', token: 'abc' })
+        return { data: '', headers: '' }
+    }))
 
-    afterEach(function () {
-        github.call.restore();
-    });
+    afterEach(() => github.call.restore())
 
-    it('should call github service with user token', function (it_done) {
+    it('should call github service with user token', async () => {
+        const req = { user: { id: 1, login: 'login', token: 'abc' }, args: { obj: 'gists', fun: 'list' } }
 
-
-        let req = { user: { id: 1, login: 'login', token: 'abc' }, args: { obj: 'gists', fun: 'get' } };
-
-        github_api.call(req, function () {
-            it_done();
-        });
-    });
-});
+        await github_api.call(req)
+    })
+})
