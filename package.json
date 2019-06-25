@@ -93,7 +93,7 @@
     "scripts": {
         "start": "node app.js",
         "postinstall": "bower install",
-        "test": "mocha",
+        "test": "node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
     }
 }
