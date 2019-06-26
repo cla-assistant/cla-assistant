@@ -235,43 +235,43 @@ const testData = {
 }
 
 const testStatusesSuccess = [{
-    'state': 'success',
-    'description': 'Build has completed successfully',
-    'id': 1,
-    'context': 'anything/else'
-},
-{
-    'state': 'success',
-    'description': 'Check succeeded',
-    'id': 2,
-    'context': 'license/cla'
-}
+        'state': 'success',
+        'description': 'Build has completed successfully',
+        'id': 1,
+        'context': 'anything/else'
+    },
+    {
+        'state': 'success',
+        'description': 'Check succeeded',
+        'id': 2,
+        'context': 'license/cla'
+    }
 ]
 const testStatusesPending = [{
-    'state': 'success',
-    'description': 'Build has completed successfully',
-    'id': 1,
-    'context': 'anything/else'
-},
-{
-    'state': 'pending',
-    'description': 'Check failed',
-    'id': 2,
-    'context': 'licence/cla'
-}
+        'state': 'success',
+        'description': 'Build has completed successfully',
+        'id': 1,
+        'context': 'anything/else'
+    },
+    {
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 2,
+        'context': 'licence/cla'
+    }
 ]
 const testStatusesFailure = [{
-    'state': 'pending',
-    'description': 'Check failed',
-    'id': 2,
-    'context': 'license/cla'
-},
-{
-    'state': 'pending',
-    'description': 'Check failed',
-    'id': 1,
-    'context': 'licence/cla'
-}
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 2,
+        'context': 'license/cla'
+    },
+    {
+        'state': 'pending',
+        'description': 'Check failed',
+        'id': 1,
+        'context': 'licence/cla'
+    }
 ]
 
 const statusForElse = {
@@ -481,7 +481,6 @@ describe('status', () => {
             id: 1,
             state: 'success',
             description: 'No Contributor License Agreement required.',
-            target_url: null,
             context: 'license/cla'
         }
 
@@ -563,8 +562,7 @@ describe('status', () => {
             id: 1,
             context: 'license/cla',
             state: 'success',
-            description: 'All CLA requirements met.',
-            target_url: null
+            description: 'All CLA requirements met.'
         }
 
         let testNoClaCombinedStatus = {

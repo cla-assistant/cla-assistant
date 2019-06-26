@@ -221,8 +221,7 @@ class StatusService {
         let status = {
             context: 'license/cla',
             state: 'success',
-            description: 'No Contributor License Agreement required.',
-            target_url: null
+            description: 'No Contributor License Agreement required.'
         }
         return updateStatusIfNeeded(args, status, true)
     }
@@ -231,8 +230,7 @@ class StatusService {
         let status = {
             context: 'license/cla',
             state: 'success',
-            description: 'All CLA requirements met.',
-            target_url: null
+            description: 'All CLA requirements met.'
         }
         return updateStatusIfNeeded(args, status, false)
     }
