@@ -138,7 +138,6 @@ class ClaService {
                 owner: owner,
                 repo: repo,
                 pull_number: number,
-                number: number,
                 noCache: noCache
             },
             token: token
