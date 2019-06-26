@@ -136,7 +136,7 @@ router.all('/count/stars', async (_req, res) => {
         logger.info(error)
     }
     res.send(JSON.stringify({
-        count: resp.stargazers_count
+        count: resp.data.stargazers_count
     }))
 })
 
