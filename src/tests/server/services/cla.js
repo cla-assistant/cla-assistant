@@ -1585,9 +1585,7 @@ describe('cla:isClaRequired', () => {
 
     it('should require a CLA when pull request exceed minimum file changes', async () => {
         testRes.repoServiceGet.minFileChanges = 2
-        testRes.getPR = {
-            changed_files: 2,
-        }
+        testRes.getPR = { data: { changed_files: 2 } }
 
         const claIsRequired = await cla.isClaRequired(args)
 
@@ -1602,8 +1600,10 @@ describe('cla:isClaRequired', () => {
     it('should require a CLA when pull request exceed minimum code changes', async () => {
         testRes.repoServiceGet.minCodeChanges = 15
         testRes.getPR = {
-            deletions: 10,
-            additions: 10,
+            data: {
+                deletions: 10,
+                additions: 10,
+            }
         }
 
         const claIsRequired = await cla.isClaRequired(args)
@@ -1620,9 +1620,11 @@ describe('cla:isClaRequired', () => {
         testRes.repoServiceGet.minFileChanges = 2
         testRes.repoServiceGet.minCodeChanges = 15
         testRes.getPR = {
-            changed_files: 1,
-            deletions: 7,
-            additions: 7
+            data: {
+                changed_files: 1,
+                deletions: 7,
+                additions: 7
+            }
         }
 
         const claIsRequired = await cla.isClaRequired(args)
@@ -1643,9 +1645,11 @@ describe('cla:isClaRequired', () => {
         delete args.token
         testRes.repoServiceGet.minCodeChanges = 15
         testRes.getPR = {
-            changed_files: 1,
-            additions: 14,
-            deletions: 1
+            data: {
+                changed_files: 1,
+                additions: 14,
+                deletions: 1
+            }
         }
 
         const claIsRequired = await cla.isClaRequired(args)
