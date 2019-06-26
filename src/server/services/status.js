@@ -12,7 +12,6 @@ const getPR = async (args) => {
                 owner: args.owner,
                 repo: args.repo,
                 pull_number: args.number,
-                number: args.number,
                 noCache: true
             },
             token: args.token

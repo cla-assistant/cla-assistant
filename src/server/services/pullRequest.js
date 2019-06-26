@@ -58,7 +58,7 @@ class PullRequestService {
             }
             if (!comment && !signed) {
                 fun = 'createComment'
-                arg.number = pullNumber
+                arg.issue_number = pullNumber
             } else if (comment && comment.id) {
                 fun = 'updateComment'
                 arg.comment_id = comment.id
@@ -87,7 +87,7 @@ class PullRequestService {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                number: args.number,
+                issue_number: args.number,
                 noCache: true
             },
             token: config.server.github.token
