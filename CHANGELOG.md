@@ -1,5 +1,17 @@
 # Change Log
 
+## [v2.0.0](https://github.com/cla-assistant/cla-assistant/tree/v2.0.0) (2019-06-26)
+
+**New features:**
+- refactored  the entire codebase from callback functions to Async-await 
+- Moved package used for GitHub REST API client from node-github to octokit
+- Increased Node version from 8 to 11
+- Upgraded node dependencies 
+
+**Fixed bugs:**
+- Fix: removing `public_repo` from Admin scope [#417](https://github.com/cla-assistant/cla-assistant/issues/417)
+
+
 ## [v1.10.1](https://github.com/cla-assistant/cla-assistant/tree/v1.10.1) (2019-06-17)
 
 **Fixed bugs:**
