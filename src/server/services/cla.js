@@ -249,10 +249,10 @@ class ClaService {
             }
             token = token || item.token // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
             const pullRequest = await this._getPR(owner, repo, number, token, true)
-            if (typeof item.minFileChanges === 'number' && pullRequest.changed_files >= item.minFileChanges) {
+            if (typeof item.minFileChanges === 'number' && pullRequest.data.changed_files >= item.minFileChanges) {
                 return true
             }
-            if (typeof item.minCodeChanges === 'number' && pullRequest.additions + pullRequest.deletions >= item.minCodeChanges) {
+            if (typeof item.minCodeChanges === 'number' && pullRequest.data.additions + pullRequest.data.deletions >= item.minCodeChanges) {
                 return true
             }
 
