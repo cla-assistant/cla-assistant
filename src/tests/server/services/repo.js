@@ -562,7 +562,7 @@ describe('repo:getUserRepos', () => {
             }]
         }
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (args.obj == 'repos' && args.fun == 'listAll') {
+            if (args.obj == 'repos' && args.fun == 'list') {
                 if (githubCallRes.err) {
                     throw new Error(githubCallRes.err)
                 }
