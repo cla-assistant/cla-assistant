@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.0.1](https://github.com/cla-assistant/cla-assistant/tree/v2.0.1) (2019-06-27)
+
+**New features:**
+- Added robot.txt to disallow bots on making API calls to GitHub
+
+**Fixed bugs:**
+- Fix: logging inside octokit-throttle plugin
+
 ## [v2.0.0](https://github.com/cla-assistant/cla-assistant/tree/v2.0.0) (2019-06-26)
 
 **New features:**
