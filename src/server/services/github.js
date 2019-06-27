@@ -42,17 +42,19 @@ function newOctokit(auth) {
         pathPrefix: config.server.github.enterprise ? '/api/v3' : null,
         throttle: {
             onRateLimit: (retryAfter, options) => {
-                Octokit.log.warn(`Request quota exhausted for request ${options.method} ${options.url}`)
+                // eslint-disable-next-line no-console
+                console.warn(`Request quota exhausted for request ${options.method} ${options.url}`)
 
                 if (options.request.retryCount === 0) { // only retries once
-                    Octokit.log.info(`Retrying after ${retryAfter} seconds!`)
-
+                    // eslint-disable-next-line no-console
+                    console.log(`Retrying after ${retryAfter} seconds!`)
                     return true
                 }
             },
             onAbuseLimit: (retryAfter, options) => {
                 // does not retry, only logs a warning
-                Octokit.log.warn(`Abuse detected for request ${options.method} ${options.url}`)
+                // eslint-disable-next-line no-console
+                console.warn(`Abuse detected for request ${options.method} ${options.url}`)
             }
         }
     })
