@@ -33,7 +33,12 @@ const compareAllRepos = (ghRepos, dbRepos) => {
 const extractUserFromCommit = (commit) => commit.author.user || commit.committer.user || commit.author || commit.committer
 
 const selection = args => {
-    return args.repoId ? { repoId: args.repoId } : { repo: args.repo, owner: args.owner }
+    return args.repoId ? {
+        repoId: args.repoId
+    } : {
+        repo: args.repo,
+        owner: args.owner
+    }
 }
 
 class RepoService {
@@ -78,7 +83,9 @@ class RepoService {
 
     async getAll(args) {
         const repoIds = []
-        args.set.forEach((repo) => repoIds.push({ repoId: repo.repoId }))
+        args.set.forEach((repo) => repoIds.push({
+            repoId: repo.repoId
+        }))
         // https://github.com/cla-assistant/cla-assistant/commit/1ed8b9d3a5af61c076aa0fa241fe67c3ed78441c
         // When query is too big, docuemntDB will send error 'The SQL query text exceeded the maximum limit of 30720 characters'. Chunk big query to small queries.
         const idChunk = _.chunk(repoIds, 100)
@@ -86,8 +93,10 @@ class RepoService {
         const parallelLimit = (limit) => {
             const promises = []
             for (let i = 0; i < limit; i++) {
-                promises.push(Repo.find({ $or: idChunk[startIndex] }))
-                ++startIndex
+                promises.push(Repo.find({
+                        $or: idChunk[startIndex]
+                    }))
+                    ++startIndex
             }
             return promises
         }
@@ -103,11 +112,16 @@ class RepoService {
     }
 
     async getByOwner(owner) {
-        return Repo.find({ owner })
+        return Repo.find({
+            owner
+        })
     }
 
     async getRepoWithSharedGist(gist) {
-        return Repo.find({ gist, sharedGist: true })
+        return Repo.find({
+            gist,
+            sharedGist: true
+        })
     }
 
     async update(args) {
@@ -170,8 +184,8 @@ class RepoService {
                             id: committer.databaseId || ''
                         }
                         if (committers.length === 0 || committers.map((c) => {
-                            return c.name
-                        }).indexOf(user.name) < 0) {
+                                return c.name
+                            }).indexOf(user.name) < 0) {
                             committers.push(user)
                         }
                     } catch (error) {
@@ -193,7 +207,11 @@ class RepoService {
                     let res
                     try {
                         res = await self.getGHRepo(args)
-                        if (res && res.id && compareRepoNameAndUpdate(linkedRepo, { repo: res.name, owner: res.owner.login, repoId: res.id })) {
+                        if (res && res.id && compareRepoNameAndUpdate(linkedRepo, {
+                                repo: res.name,
+                                owner: res.owner.login,
+                                repoId: res.id
+                            })) {
                             arg.arg.repo = res.name
                             arg.arg.owner = res.owner.login
                             return callGithub(arg)
@@ -228,7 +246,9 @@ class RepoService {
         try {
             linkedItem = await this.get(args)
             if (!linkedItem) {
-                linkedItem = await orgService.get({ orgId: args.orgId })
+                linkedItem = await orgService.get({
+                    orgId: args.orgId
+                })
             }
             if (!linkedItem) {
                 throw 'no linked item found'
@@ -243,7 +263,7 @@ class RepoService {
         const affiliation = args.affiliation ? args.affiliation : 'owner,organization_member'
         const ghRepos = await github.call({
             obj: 'repos',
-            fun: 'listAll',
+            fun: 'list',
             arg: {
                 affiliation: affiliation,
                 per_page: 100
