@@ -483,7 +483,7 @@ async function validatePR(args) {
 function removeToken(args) {
     let logArgs = Object.assign({}, args)
     logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined
-    return logArgs
+    return JSON.stringify(logArgs)
 }
 
 async function claNotRequired(args, updateMethod) {
@@ -603,8 +603,8 @@ async function getReposNeedToValidate(req) {
         const linkedRepos = await repoService.getByOwner(req.args.org)
         const linkedRepoSet = new Set(
             linkedRepos
-            .filter(repo => repo.repoId) //ignore old DB entries with no repoId
-            .map(linkedRepo => linkedRepo.repoId.toString())
+                .filter(repo => repo.repoId) //ignore old DB entries with no repoId
+                .map(linkedRepo => linkedRepo.repoId.toString())
         )
         repos = allRepos.data.filter(repo => {
             if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
