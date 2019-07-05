@@ -31,7 +31,7 @@ async function checkToken(item, accessToken) {
     }
 
     try {
-        const res = github.call(args)
+        const res = await github.call(args)
         if (!(res.data && res.data.scopes && res.data.scopes.indexOf('write:repo_hook') >= 0)) {
             updateToken(item, newToken)
         } else if (item.repo) {
