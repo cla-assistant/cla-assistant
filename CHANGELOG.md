@@ -1,9 +1,14 @@
 # Change Log
 
+## [v2.0.3](https://github.com/cla-assistant/cla-assistant/tree/v2.0.3) (2019-07-10)
+
+**Fixed bugs:**
+- deleteHook when unlinking an item, changed github call argument from id to hook_id
+
 ## [v2.0.2](https://github.com/cla-assistant/cla-assistant/tree/v2.0.2) (2019-07-05)
 
 **Fixed bugs:**
-- Fix: promise not resolved because there is no await for github call
+- promise not resolved because there is no await for github call
 
 ## [v2.0.1](https://github.com/cla-assistant/cla-assistant/tree/v2.0.1) (2019-07-02)
 
