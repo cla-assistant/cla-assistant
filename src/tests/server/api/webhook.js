@@ -37,11 +37,19 @@ describe('webhookApi', function () {
         resGetOrgHooks = [hook]
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.fun === 'listHooks') {
-                return args.obj === 'repos' ? { data: resGetRepoHooks } : { data: resGetOrgHooks }
+                return args.obj === 'repos' ? {
+                    data: resGetRepoHooks
+                } : {
+                    data: resGetOrgHooks
+                }
             } else if (args.fun === 'deleteHook') {
-                return { data: hook }
+                return {
+                    data: hook
+                }
             } else if (args.fun === 'createHook') {
-                return { data: hook }
+                return {
+                    data: hook
+                }
             }
         })
         sinon.stub(Repo, 'find').callsFake(async () => [repo])
@@ -197,7 +205,7 @@ describe('webhookApi', function () {
                 obj: 'repos',
                 fun: 'deleteHook',
                 arg: {
-                    id: 123,
+                    hook_id: 123,
                     repo: 'myRepo',
                     owner: 'login',
                     noCache: true
@@ -227,7 +235,7 @@ describe('webhookApi', function () {
                 obj: 'repos',
                 fun: 'deleteHook',
                 arg: {
-                    id: 123,
+                    hook_id: 123,
                     repo: 'myRepo',
                     owner: 'login',
                     noCache: true
@@ -320,7 +328,9 @@ describe('webhookApi', function () {
             github.call.restore()
             sinon.stub(github, 'call').callsFake(async (args) => {
                 if (args.obj === 'repos') {
-                    return { data: resGetRepoHooks }
+                    return {
+                        data: resGetRepoHooks
+                    }
                 }
                 const error = new Error()
                 error.status = 404
@@ -395,7 +405,7 @@ describe('webhookApi', function () {
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',
-                    id: 123
+                    hook_id: 123
                 },
                 token: 'abc'
             }
@@ -422,7 +432,7 @@ describe('webhookApi', function () {
                 fun: 'deleteHook',
                 arg: {
                     org: 'octocat',
-                    id: 123
+                    hook_id: 123
                 },
                 token: 'abc'
             }

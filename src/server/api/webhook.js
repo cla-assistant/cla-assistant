@@ -2,6 +2,7 @@
 const github = require('../services/github')
 const repoService = require('../services/repo')
 const url = require('../services/url')
+const logger = require('../services/logger')
 
 class WebhookApi {
     async _getHook(owner, repo, noCache, token) {
@@ -63,7 +64,9 @@ class WebhookApi {
             fun: 'createHook',
             arg: {
                 noCache: true,
-                config: { content_type: 'json' },
+                config: {
+                    content_type: 'json'
+                },
                 name: 'web',
                 events: ['pull_request'],
                 active: true
@@ -80,8 +83,13 @@ class WebhookApi {
             args.arg.org = owner
             args.arg.config.url = url.webhook(owner)
         }
-        const res = await github.call(args)
-        return res.data
+        try {
+            const res = await github.call(args)
+            return res.data
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
+
     }
 
     async _createRepoHook(owner, repo, token) {
@@ -108,7 +116,7 @@ class WebhookApi {
         let args = {
             fun: 'deleteHook',
             arg: {
-                id: hookId,
+                hook_id: hookId,
                 noCache: true
             },
             token: token
@@ -121,7 +129,12 @@ class WebhookApi {
             args.obj = 'orgs'
             args.arg.org = owner
         }
-        return github.call(args)
+        try {
+            await github.call(args)
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
+
     }
 
     async _removeRepoHook(owner, repo, token) {
