@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-   - 11
+   - 12.6
 cache:
   directories:
   - src/bower
