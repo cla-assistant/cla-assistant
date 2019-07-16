@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.1.0](https://github.com/cla-assistant/cla-assistant/tree/v2.1.0) (2019-09-16)
+
+**New feature:**
+- Increased Node version from 11 to 12.6
+
 ## [v2.0.3](https://github.com/cla-assistant/cla-assistant/tree/v2.0.3) (2019-07-10)
 
 **Fixed bugs:**
