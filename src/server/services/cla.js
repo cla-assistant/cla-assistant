@@ -33,12 +33,13 @@ class ClaService {
         return github.call(args)
     }
 
-    async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates) {
+    async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
         let promises = []
         const userMap = {
             signed: [],
             not_signed: [],
-            unknown: []
+            unknown: [],
+            hasExternalCommiter
         }
         if (!users) {
             throw new Error(`There are no users to check :( users: ${users}, repoId: ${repoId}, orgId: ${orgId}, sharedGist: ${sharedGist}, gist_url: ${gist_url}, gist_version: ${gist_version}, onDates: ${onDates}`)
@@ -93,10 +94,16 @@ class ClaService {
         }
         onDates.forEach(date => {
             dateConditions = dateConditions.concat([{
-                created_at: { $lte: date },
-                end_at: { $gt: date }
+                created_at: {
+                    $lte: date
+                },
+                end_at: {
+                    $gt: date
+                }
             }, {
-                created_at: { $lte: date },
+                created_at: {
+                    $lte: date
+                },
                 end_at: undefined
             }])
         })
@@ -108,7 +115,9 @@ class ClaService {
         const queries = [query]
         if (query.userId) {
             const queryForOldCLAs = _.clone(query)
-            queryForOldCLAs.userId = { $exists: false }
+            queryForOldCLAs.userId = {
+                $exists: false
+            }
             queries.push(queryForOldCLAs)
             delete query.user
         }
@@ -142,6 +151,32 @@ class ClaService {
             },
             token: token
         })
+    }
+
+    async _getGHOrgMembers(org) {
+        try {
+            const response = await (github.call({
+                obj: 'orgs',
+                fun: 'listMembers',
+                arg: {
+                    org: org
+                }
+
+            }))
+            const orgMembers = []
+            response.data.map((orgMember) => {
+                orgMembers.push({
+                    name: orgMember.login,
+                    id: orgMember.id
+                })
+            })
+
+            return orgMembers
+
+        } catch (error) {
+            logger.error(new Error(error).stack)
+        }
+
     }
 
     // let getOrg = function (args, done) {
@@ -178,7 +213,9 @@ class ClaService {
         token = token || config.server.github.token
 
         if (owner && !repo) {
-            return await orgService.get({ org: owner })
+            return await orgService.get({
+                org: owner
+            })
         }
 
         const ghRepo = await repoService.getGHRepo({
@@ -187,13 +224,17 @@ class ClaService {
             token: token
         })
         try {
-            const linkedRepo = await repoService.get({ repoId: ghRepo.id })
+            const linkedRepo = await repoService.get({
+                repoId: ghRepo.id
+            })
             if (linkedRepo) {
                 return linkedRepo
             }
             throw 'There is no linked repo'
         } catch (error) {
-            const linkedOrg = await orgService.get({ orgId: ghRepo.owner.id })
+            const linkedOrg = await orgService.get({
+                orgId: ghRepo.owner.id
+            })
             if (linkedOrg) {
                 return linkedOrg
             }
@@ -316,7 +357,9 @@ class ClaService {
      */
     async checkUserSignature(args) {
         const cla = await this.getLastSignature(args)
-        return { signed: !!cla }
+        return {
+            signed: !!cla
+        }
     }
 
     /**
@@ -333,6 +376,9 @@ class ClaService {
         const organizationOverrideEnabled = config.server.feature_flag.organization_override_enabled
         const item = await this._getLinkedItem(args.repo, args.owner, args.token)
         let signees = []
+        var hasExternalCommiter = {
+            check: false
+        }
 
         if (!item) {
             throw new Error('No linked item found')
@@ -344,7 +390,9 @@ class ClaService {
         args.onDates = [new Date()]
 
         if (!args.gist) {
-            return ({ signed: true })
+            return ({
+                signed: true
+            })
         }
 
         const gist = await this._getGistObject(args.gist, item.token)
@@ -359,23 +407,62 @@ class ClaService {
         }
         args.onDates.push(new Date(pullRequest.created_at))
 
-        const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
-        if (organizationOverrideEnabled && isOrgHead) {
-            const { owner: headOrg } = pullRequest.head.repo
-            if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
-                return ({ signed: true })
-            }
-            const { signed, userMap } = await this._checkAll(
-                [{ name: headOrg.login, id: headOrg.id }],
-                item.repoId,
-                item.orgId,
-                item.sharedGist,
-                item.gist,
-                args.gist_version,
-                args.onDates
-            )
-            if (signed && userMap.signed.includes(headOrg.login)) {
-                return ({ signed, userMap })
+        if (pullRequest && pullRequest.head && pullRequest.head.repo) {
+            const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
+            if (organizationOverrideEnabled && isOrgHead) {
+                const {
+                    owner: headOrg
+                } = pullRequest.head.repo
+                if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
+                    const orgMembers = await this._getGHOrgMembers(headOrg.login)
+                    const committers = await repoService.getPRCommitters(args)
+                    var externalCommitters = _.differenceBy(committers, orgMembers, 'id') // will return only if the id of the committer  is different to the orgMembers i.e. externalCommitters 
+                    if (externalCommitters === undefined || externalCommitters.length == 0) {
+                        return ({
+                            signed: true
+                        })
+
+                    } else if (externalCommitters.length > 0) {
+                        externalCommitters = externalCommitters.filter(externalCommitter =>
+                            externalCommitter && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(externalCommitter.name))
+                        )
+                        hasExternalCommiter.check = true
+                        hasExternalCommiter.orgName = headOrg.login
+                        return this._checkAll(
+                            externalCommitters,
+                            item.repoId,
+                            item.orgId,
+                            item.sharedGist,
+                            item.gist,
+                            args.gist_version,
+                            args.onDates,
+                            hasExternalCommiter
+                        )
+                    }
+
+                }
+                const {
+                    signed,
+                    userMap
+                } = await this._checkAll(
+                    [{
+                        name: headOrg.login,
+                        id: headOrg.id
+                    }],
+                    item.repoId,
+                    item.orgId,
+                    item.sharedGist,
+                    item.gist,
+                    args.gist_version,
+                    args.onDates,
+                    hasExternalCommiter
+                )
+                if (signed && userMap.signed.includes(headOrg.login)) {
+                    return ({
+                        signed,
+                        userMap
+                    })
+                }
             }
         }
 
@@ -402,7 +489,8 @@ class ClaService {
             item.sharedGist,
             item.gist,
             args.gist_version,
-            args.onDates
+            args.onDates,
+            hasExternalCommiter.check
         )
     }
 
@@ -469,7 +557,11 @@ class ClaService {
                 'created_at': '*',
                 'gist_url': '*',
                 'gist_version': '*'
-            }, { sort: { 'created_at': -1 } })
+            }, {
+                sort: {
+                    'created_at': -1
+                }
+            })
 
             clas.forEach((cla) => {
                 if (repoList.indexOf(cla.repo) < 0) {
@@ -494,12 +586,16 @@ class ClaService {
         const repoList = []
         const uniqueClaList = []
         try {
-            await findCla({ $or: selector }, repoList, uniqueClaList)
+            await findCla({
+                $or: selector
+            }, repoList, uniqueClaList)
         } catch (error) {
             logger.warn(new Error(error).stack)
         }
         try {
-            await findCla({ user: args.user }, repoList, uniqueClaList)
+            await findCla({
+                user: args.user
+            }, repoList, uniqueClaList)
         } catch (error) {
             logger.warn(new Error(error).stack)
         }
