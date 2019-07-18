@@ -81,8 +81,6 @@ module.exports = {
             login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, 'client', 'login.html')
         },
 
-        sentry_dsn: process.env.SENTRY_DSN,
-
         api_access: {
             free: ['/api/cla/get', '/api/cla/getLinkedItem'],
             external: ['/api/cla/getAll'],
