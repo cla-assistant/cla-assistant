@@ -130,7 +130,7 @@ class WebhookApi {
             args.arg.org = owner
         }
         try {
-            await github.call(args)
+            return github.call(args)
         } catch (error) {
             logger.info(new Error(error).stack)
         }
