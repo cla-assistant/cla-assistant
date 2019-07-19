@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.1.1](https://github.com/cla-assistant/cla-assistant/tree/v2.1.1) (2019-07-19)
+
+**Fixed bugs:**
+- Removed sentry logging 
+
 ## [v2.1.0](https://github.com/cla-assistant/cla-assistant/tree/v2.1.0) (2019-07-16)
 
 **New feature:**
