@@ -25,7 +25,7 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
         text += '<br/>'
     }
 
-    if (userMap.hasExternalCommiter.check === true) {
+    if (userMap.hasExternalCommiter.check == true) {
         text += ' <br/> **Note:** In case you are already a member of **' + userMap.hasExternalCommiter.orgName + '**, there is no need to sign the CLA again because **' + userMap.hasExternalCommiter.orgName + '** has already signed the CLA (Corporate), Hence just make sure that your membership is public. If you dont wish to make your membership public then you can also accept our CLA. <br/>'
     }
 

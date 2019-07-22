@@ -155,14 +155,13 @@ class ClaService {
 
     async _getGHOrgMembers(org) {
         try {
-            const response = await (github.call({
+            const response = await github.call({
                 obj: 'orgs',
                 fun: 'listMembers',
                 arg: {
                     org: org
                 }
-
-            }))
+            })
             const orgMembers = []
             response.data.map((orgMember) => {
                 orgMembers.push({
@@ -407,7 +406,7 @@ class ClaService {
         }
         args.onDates.push(new Date(pullRequest.created_at))
 
-        if (pullRequest && pullRequest.head && pullRequest.head.repo) {
+        if (pullRequest && pullRequest.head && pullRequest.head.repo && pullRequest.head.repo.owner) {
             const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
             if (organizationOverrideEnabled && isOrgHead) {
                 const {
@@ -416,8 +415,8 @@ class ClaService {
                 if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
                     const orgMembers = await this._getGHOrgMembers(headOrg.login)
                     const committers = await repoService.getPRCommitters(args)
-                    var externalCommitters = _.differenceBy(committers, orgMembers, 'id') // will return only if the id of the committer  is different to the orgMembers i.e. externalCommitters 
-                    if (externalCommitters === undefined || externalCommitters.length == 0) {
+                    var externalCommitters = _.differenceBy(committers, orgMembers, 'id') // will return only if the id of the committer  is different to the orgMembers i.e. externalCommitters
+                    if (externalCommitters === undefined || externalCommitters.length === 0) {
                         return ({
                             signed: true
                         })
