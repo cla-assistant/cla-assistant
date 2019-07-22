@@ -191,7 +191,11 @@ describe('pullRequest:badgeComment', () => {
             }
         }
 
-        await pullRequest.badgeComment('login', 'myRepo', 1)
+        await pullRequest.badgeComment('login', 'myRepo', 1, undefined, {
+            hasExternalCommiter: {
+                check: false
+            }
+        })
         assert(!logger.warn.called)
     })
 
@@ -204,7 +208,11 @@ describe('pullRequest:badgeComment', () => {
             return 'githubRes'
         }
 
-        await pullRequest.badgeComment('login', 'myRepo', 1)
+        await pullRequest.badgeComment('login', 'myRepo', 1, undefined, {
+            hasExternalCommiter: {
+                check: false
+            }
+        })
         assert(!logger.warn.called)
     })
 
@@ -220,7 +228,51 @@ describe('pullRequest:badgeComment', () => {
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1'],
-            unknown: ['user1']
+            unknown: ['user1'],
+            hasExternalCommiter: {
+                check: false
+            }
+        })
+        assert(!logger.warn.called)
+    })
+    it('should add 2 notes  to the comment if there is a external committer (corporate CLA) and he/she is not a GitHub User ', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'updateComment')
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert(args.arg.body.indexOf('In case you are already a member of') >= 0)
+            assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
+            return 'githubRes'
+        }
+
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: [],
+            not_signed: ['user1'],
+            unknown: ['user1'],
+            hasExternalCommiter: {
+                check: true
+            }
+        })
+        assert(!logger.warn.called)
+    })
+
+    it('should  add anly one note (not a Github user) to the comment if there is no external committer (corporate CLA)', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'updateComment')
+            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert(args.arg.body.indexOf('In case you are already a member of') < 0)
+            assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
+            return 'githubRes'
+        }
+
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: [],
+            not_signed: ['user1'],
+            unknown: ['user1'],
+            hasExternalCommiter: {
+                check: false
+            }
         })
         assert(!logger.warn.called)
     })
@@ -235,7 +287,10 @@ describe('pullRequest:badgeComment', () => {
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1'],
-            unknown: ['user1']
+            unknown: ['user1'],
+            hasExternalCommiter: {
+                check: false
+            }
         })
         assert(!logger.warn.called)
     })
@@ -250,7 +305,10 @@ describe('pullRequest:badgeComment', () => {
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user1', 'user2'],
-            unknown: ['user1', 'user2']
+            unknown: ['user1', 'user2'],
+            hasExternalCommiter: {
+                check: false
+            }
         })
         assert(!logger.warn.called)
     })
@@ -260,6 +318,7 @@ describe('pullRequest:badgeComment', () => {
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'createComment')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('In case you are already a member of') < 0)
             assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
             assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
             assert(args.arg.body.indexOf(':x: user2') >= 0)
@@ -268,7 +327,32 @@ describe('pullRequest:badgeComment', () => {
 
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
-            not_signed: ['user2']
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: false
+            }
+        })
+        assert(!logger.warn.called)
+    })
+
+    it('should add a note to the commment for Corporate CLA and  write a list of signed and not signed external committers  on create', async () => {
+        direct_call_data = []
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'createComment')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('In case you are already a member of') >= 0)
+            assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
+            assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
+            assert(args.arg.body.indexOf(':x: user2') >= 0)
+            return 'githubRes'
+        }
+
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: ['user1'],
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: true
+            }
         })
         assert(!logger.warn.called)
     })
@@ -278,6 +362,7 @@ describe('pullRequest:badgeComment', () => {
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'createComment')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('In case you are already a member of') < 0)
             assert(args.arg.body.indexOf('**0** out of **1**') < 0)
             assert(args.arg.body.indexOf(':x: user2') < 0)
             return 'githubRes'
@@ -285,7 +370,31 @@ describe('pullRequest:badgeComment', () => {
 
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
-            not_signed: ['user2']
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: false
+            }
+        })
+        assert(!logger.warn.called)
+    })
+
+    it('should add a note for Corporate CLA and should NOT write a list of signed and not signed users on create if there is only one external committer ', async () => {
+        direct_call_data = []
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'createComment')
+            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('In case you are already a member of') >= 0)
+            assert(args.arg.body.indexOf('**0** out of **1**') < 0)
+            assert(args.arg.body.indexOf(':x: user2') < 0)
+            return 'githubRes'
+        }
+
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: [],
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: true
+            }
         })
         assert(!logger.warn.called)
     })
@@ -295,6 +404,7 @@ describe('pullRequest:badgeComment', () => {
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
+            assert(args.arg.body.indexOf('In case you are already a member of') < 0)
             assert(args.arg.body.indexOf('**1** out of **2**') >= 0)
             assert(args.arg.body.indexOf(':white_check_mark: user1') >= 0)
             assert(args.arg.body.indexOf(':x: user2') >= 0)
@@ -303,7 +413,10 @@ describe('pullRequest:badgeComment', () => {
 
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
-            not_signed: ['user2']
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: false
+            }
         })
         assert(!logger.warn.called)
     })
@@ -403,7 +516,13 @@ describe('pullRequest:editComment', () => {
         const args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: 1,
+            userMap: {
+                hasExternalCommiter: {
+                    check: false
+                }
+            }
+
         }
 
         await pullRequest.editComment(args)
@@ -419,7 +538,10 @@ describe('pullRequest:editComment', () => {
             signed: false,
             userMap: {
                 signed: ['user1'],
-                not_signed: ['user2']
+                not_signed: ['user2'],
+                hasExternalCommiter: {
+                    check: false
+                }
             }
         }
 
