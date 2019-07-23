@@ -406,7 +406,7 @@ class ClaService {
         }
         args.onDates.push(new Date(pullRequest.created_at))
 
-        if (pullRequest && pullRequest.head && pullRequest.head.repo && pullRequest.head.repo.owner) {
+        if (pullRequest.head && pullRequest.head.repo && pullRequest.head.repo.owner) {
             const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
             if (organizationOverrideEnabled && isOrgHead) {
                 const {
