@@ -415,8 +415,8 @@ class ClaService {
                 if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
                     const orgMembers = await this._getGHOrgMembers(headOrg.login)
                     const committers = await repoService.getPRCommitters(args)
-                    var externalCommitters = _.differenceBy(committers, orgMembers, 'id') // will return only if the id of the committer  is different to the orgMembers i.e. externalCommitters
-                    if (externalCommitters === undefined || externalCommitters.length === 0) {
+                    var externalCommitters = _.differenceBy(committers, orgMembers, 'id')
+                    if (!externalCommitters || externalCommitters.length === 0) {
                         return ({
                             signed: true
                         })
