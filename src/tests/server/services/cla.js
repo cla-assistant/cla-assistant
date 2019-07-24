@@ -83,13 +83,17 @@ const stub = () => {
 
     sinon.stub(github, 'call').callsFake(async (args) => {
         if (args.obj === 'pulls' && args.fun === 'get') {
-            if (testErr.getPR) { throw testErr.getPR }
+            if (testErr.getPR) {
+                throw testErr.getPR
+            }
             return testRes.getPR
         } else if (args.obj === 'gists' && args.fun === 'get') {
             if (testErr.gistData) {
                 throw testErr.gistData
             }
             return testRes.gistData
+        } else if (args.obj === 'orgs' && args.fun === 'listMembers') {
+            return testRes.getOrgMembers
         }
     })
 }
@@ -145,33 +149,49 @@ describe('cla:getLastSignature', () => {
                 gist_version: 'xyz',
                 repoId: 123,
                 org_cla: false,
-                created_at: { $lte: now },
-                end_at: { $gt: now }
+                created_at: {
+                    $lte: now
+                },
+                end_at: {
+                    $gt: now
+                }
             }, {
                 userId: 'userId',
                 gist_url: 'url/gistId',
                 gist_version: 'xyz',
                 repoId: 123,
                 org_cla: false,
-                created_at: { $lte: now },
+                created_at: {
+                    $lte: now
+                },
                 end_at: undefined
             }, {
                 user: 'user',
-                userId: { $exists: false },
+                userId: {
+                    $exists: false
+                },
                 gist_url: 'url/gistId',
                 gist_version: 'xyz',
                 repoId: 123,
                 org_cla: false,
-                created_at: { $lte: now },
-                end_at: { $gt: now }
+                created_at: {
+                    $lte: now
+                },
+                end_at: {
+                    $gt: now
+                }
             }, {
                 user: 'user',
-                userId: { $exists: false },
+                userId: {
+                    $exists: false
+                },
                 gist_url: 'url/gistId',
                 gist_version: 'xyz',
                 repoId: 123,
                 org_cla: false,
-                created_at: { $lte: now },
+                created_at: {
+                    $lte: now
+                },
                 end_at: undefined
             }, {
                 userId: 'userId',
@@ -179,15 +199,21 @@ describe('cla:getLastSignature', () => {
                 gist_version: 'xyz',
                 owner: undefined,
                 repo: undefined,
-                created_at: { $lte: now },
-                end_at: { $gt: now }
+                created_at: {
+                    $lte: now
+                },
+                end_at: {
+                    $gt: now
+                }
             }, {
                 userId: 'userId',
                 gist_url: 'url/gistId',
                 gist_version: 'xyz',
                 owner: undefined,
                 repo: undefined,
-                created_at: { $lte: now },
+                created_at: {
+                    $lte: now
+                },
                 end_at: undefined
             }]
         }), true)
@@ -247,7 +273,9 @@ describe('cla:getLastSignature', () => {
             gist_url: 'url/gistId',
             created_at: '2012-06-20T11:34:15Z',
             gist_version: 'xyz',
-            save: async () => { throw 'Update error.' }
+            save: async () => {
+                throw 'Update error.'
+            }
         }
 
         CLA.findOne.restore()
@@ -300,12 +328,20 @@ describe('cla:getLastSignature', () => {
         const prCreateDateString = '1970-01-01T00:00:00.000Z'
         const prCreateDate = new Date(prCreateDateString)
         testErr.getPR = null
-        testRes.getPR = { data: { created_at: prCreateDate } }
+        testRes.getPR = {
+            data: {
+                created_at: prCreateDate
+            }
+        }
         CLA.findOne.restore()
         sinon.stub(CLA, 'findOne').callsFake(async (query) => {
             assert.equal(query.$or.length, 8)
-            assert.deepEqual(query.$or[0].created_at, { $lte: now })
-            assert.deepEqual(query.$or[2].created_at, { $lte: prCreateDate })
+            assert.deepEqual(query.$or[0].created_at, {
+                $lte: now
+            })
+            assert.deepEqual(query.$or[2].created_at, {
+                $lte: prCreateDate
+            })
             return testRes.claFindOne
         })
 
@@ -426,9 +462,15 @@ describe('cla:checkPullRequestSignatures', () => {
         testRes.gistData = {
             data: {
                 url: 'url',
-                files: { xyFile: { content: 'some content' } },
+                files: {
+                    xyFile: {
+                        content: 'some content'
+                    }
+                },
                 updated_at: '2011-06-20T11:34:15Z',
-                history: [{ version: 'xyz' }]
+                history: [{
+                    version: 'xyz'
+                }]
             }
         }
         testRes.repoServiceGet = {
@@ -545,8 +587,7 @@ describe('cla:checkPullRequestSignatures', () => {
         try {
             await cla.checkPullRequestSignatures(args)
             assert(false, 'should have thrown error')
-        }
-        catch (error) {
+        } catch (error) {
             assert(error, testErr.getPR)
         }
     })
@@ -720,7 +761,11 @@ describe('cla:checkPullRequestSignatures', () => {
         }
 
         try {
-            const { userMap: { not_signed } } = await cla.checkPullRequestSignatures(args)
+            const {
+                userMap: {
+                    not_signed
+                }
+            } = await cla.checkPullRequestSignatures(args)
             assert.equal(not_signed.length, 0)
         } finally {
             config.server.feature_flag.required_signees = ''
@@ -784,9 +829,25 @@ describe('cla:checkPullRequestSignatures', () => {
             })
         })
 
-        it('should call callback function immediately if organization is whitelisted', async () => {
+        it('should call callback function immediately if organization is whitelisted and there are no external committers ', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
             testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
+            testRes.repoServiceGetCommitters = [{
+                name: 'login1',
+                id: '123'
+            }, {
+                name: 'login2',
+                id: '321'
+            }]
+            testRes.getOrgMembers = {
+                data: [{
+                    login: 'login1',
+                    id: '123'
+                }, {
+                    login: 'login2',
+                    id: '321'
+                }]
+            }
             const args = {
                 repo: 'myRepo',
                 owner: 'owner',
@@ -795,9 +856,50 @@ describe('cla:checkPullRequestSignatures', () => {
 
             try {
                 const result = await cla.checkPullRequestSignatures(args)
-                const { signed } = result
+                const {
+                    signed
+                } = result
                 assert(signed)
                 sinon.assert.notCalled(CLA.findOne)
+            } finally {
+                config.server.feature_flag.required_signees = ''
+            }
+        })
+        it('should check if the external committer has signed the CLA, If the organization is whitelisted ', async () => {
+            config.server.feature_flag.required_signees = 'submitter committer'
+            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
+            testRes.repoServiceGetCommitters = [{
+                name: 'login1',
+                id: '123'
+            }, {
+                name: 'externallogin',
+                id: '555'
+            }, {
+                name: 'login2',
+                id: '321'
+            }]
+            testRes.getOrgMembers = {
+                data: [{
+                    login: 'login1',
+                    id: '123'
+                }, {
+                    login: 'login2',
+                    id: '321'
+                }]
+            }
+            const args = {
+                repo: 'myRepo',
+                owner: 'owner',
+                number: '1'
+            }
+
+            try {
+                const result = await cla.checkPullRequestSignatures(args)
+                const {
+                    signed
+                } = result
+                assert(signed)
+                sinon.assert.called(CLA.findOne)
             } finally {
                 config.server.feature_flag.required_signees = ''
             }
@@ -808,7 +910,10 @@ describe('cla:checkPullRequestSignatures', () => {
 describe('cla.check', () => {
     beforeEach(() => {
         sinon.stub(cla, 'checkUserSignature')
-        sinon.stub(cla, 'checkPullRequestSignatures').resolves({ signed: true, userMap: {} })
+        sinon.stub(cla, 'checkPullRequestSignatures').resolves({
+            signed: true,
+            userMap: {}
+        })
     })
 
     afterEach(() => {
@@ -893,9 +998,15 @@ describe('cla:sign', () => {
         testRes.gistData = {
             data: {
                 url: 'url',
-                files: { xyFile: { content: 'some content' } },
+                files: {
+                    xyFile: {
+                        content: 'some content'
+                    }
+                },
                 updated_at: '2011-06-20T11:34:15Z',
-                history: [{ version: 'xyz' }]
+                history: [{
+                    version: 'xyz'
+                }]
             }
         }
         testErr.orgServiceGet = null
@@ -1322,7 +1433,9 @@ describe('cla:getGist', () => {
     beforeEach(() => {
         sinon.stub(github, 'call').callsFake(async (args) => {
             assert.equal(args.arg.gist_id, 'gistId')
-            return { data: {} }
+            return {
+                data: {}
+            }
         })
     })
 
@@ -1366,7 +1479,7 @@ describe('cla:getLinkedItem', () => {
         testRes.repoServiceGet = {
             repoId: '1',
             repo: 'Hello-World',
-            owner: 'octocat',
+            owner: 'login0',
             gist: 'url/gistId',
             token: 'abc',
             isUserWhitelisted: function () {
@@ -1375,7 +1488,7 @@ describe('cla:getLinkedItem', () => {
         }
         testRes.orgServiceGet = {
             orgId: '1',
-            org: 'octocat',
+            org: 'login0',
             gist: 'url/gistId',
             token: 'abc'
         }
@@ -1408,7 +1521,7 @@ describe('cla:getLinkedItem', () => {
 
         const args = {
             repo: 'Hello-World',
-            owner: 'octocat'
+            owner: 'login0'
         }
 
         await cla.getLinkedItem(args)
@@ -1433,7 +1546,7 @@ describe('cla:getLinkedItem', () => {
     it('should return linked repo even corresponding org is also linked', async () => {
         const args = {
             repo: 'Hello-World',
-            owner: 'octocat',
+            owner: 'login0',
             token: 'test_token'
         }
 
@@ -1447,7 +1560,7 @@ describe('cla:getLinkedItem', () => {
     it('should return linked org when repo is not linked', async () => {
         const args = {
             repo: 'Hello-World',
-            owner: 'octocat',
+            owner: 'login0',
             token: 'test_token'
         }
         testRes.repoServiceGet = null
@@ -1461,7 +1574,7 @@ describe('cla:getLinkedItem', () => {
 
     it('should only check linked org if repo name is not provided', async () => {
         const args = {
-            owner: 'octocat'
+            owner: 'login0'
         }
 
         await cla.getLinkedItem(args)
@@ -1585,14 +1698,20 @@ describe('cla:isClaRequired', () => {
 
     it('should require a CLA when pull request exceed minimum file changes', async () => {
         testRes.repoServiceGet.minFileChanges = 2
-        testRes.getPR = { data: { changed_files: 2 } }
+        testRes.getPR = {
+            data: {
+                changed_files: 2
+            }
+        }
 
         const claIsRequired = await cla.isClaRequired(args)
 
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
             fun: 'get',
-            arg: { noCache: true }
+            arg: {
+                noCache: true
+            }
         })
         assert(claIsRequired)
     })
@@ -1611,7 +1730,9 @@ describe('cla:isClaRequired', () => {
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
             fun: 'get',
-            arg: { noCache: true }
+            arg: {
+                noCache: true
+            }
         })
         assert(claIsRequired)
     })
@@ -1654,7 +1775,9 @@ describe('cla:isClaRequired', () => {
 
         const claIsRequired = await cla.isClaRequired(args)
 
-        sinon.assert.calledWithMatch(github.call, { token: 'abc' })
+        sinon.assert.calledWithMatch(github.call, {
+            token: 'abc'
+        })
         assert(claIsRequired)
     })
 })
