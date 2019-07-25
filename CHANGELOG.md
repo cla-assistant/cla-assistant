@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.2.0](https://github.com/cla-assistant/cla-assistant/tree/v2.2.0) (2019-07-25)
+
+**New feature:**
+- Added Membership check for the committers when **Organization** itself is whitelisted [#410](https://github.com/cla-assistant/cla-assistant/pull/410) [#403](https://github.com/cla-assistant/cla-assistant/issues/403) [#414](https://github.com/cla-assistant/cla-assistant/issues/414)
+
 ## [v2.1.1](https://github.com/cla-assistant/cla-assistant/tree/v2.1.1) (2019-07-19)
 
 **Fixed bugs:**
