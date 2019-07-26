@@ -153,14 +153,15 @@ class ClaService {
         })
     }
 
-    async _getGHOrgMembers(org) {
+    async _getGHOrgMembers(org, token) {
         try {
             const response = await github.call({
                 obj: 'orgs',
                 fun: 'listMembers',
                 arg: {
                     org: org
-                }
+                },
+                token: token
             })
             const orgMembers = []
             response.data.map((orgMember) => {
@@ -401,6 +402,7 @@ class ClaService {
         args.gist_version = gist.data.history[0].version
 
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
+        //console.log(pullRequest)
         if (!pullRequest) {
             throw new Error('No pull request found')
         }
@@ -408,20 +410,24 @@ class ClaService {
 
         if (pullRequest.head && pullRequest.head.repo && pullRequest.head.repo.owner) {
             const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
+            const isForked = pullRequest.head.repo.fork
             if (organizationOverrideEnabled && isOrgHead) {
                 const {
                     owner: headOrg
                 } = pullRequest.head.repo
+                const {
+                    owner: baseOrg
+                } = pullRequest.base.repo
                 if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
-                    const orgMembers = await this._getGHOrgMembers(headOrg.login)
+                    const orgMembers = await this._getGHOrgMembers(headOrg.login, item.token)
                     const committers = await repoService.getPRCommitters(args)
                     var externalCommitters = _.differenceBy(committers, orgMembers, 'id')
-                    if (!externalCommitters || externalCommitters.length === 0) {
+                    if ((!externalCommitters || externalCommitters.length === 0) || (baseOrg.login === headOrg.login && isForked === false)) {
                         return ({
                             signed: true
                         })
 
-                    } else if (externalCommitters.length > 0) {
+                    } else if (externalCommitters.length > 0 && isForked && baseOrg.login !== headOrg.login) {
                         externalCommitters = externalCommitters.filter(externalCommitter =>
                             externalCommitter && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(externalCommitter.name))
                         )
