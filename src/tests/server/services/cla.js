@@ -816,6 +816,15 @@ describe('cla:checkPullRequestSignatures', () => {
                             }
                         }
                     },
+                    base: {
+                        repo: {
+                            owner: {
+                                login: 'orgLogin0',
+                                type: 'Organization',
+                                id: '37'
+                            }
+                        }
+                    },
                     user: {
                         login: 'login0',
                         id: '0'
@@ -831,6 +840,7 @@ describe('cla:checkPullRequestSignatures', () => {
 
         it('should call callback function immediately if organization is whitelisted and there are no external committers ', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
+            testRes.getPR.data.head.repo.fork = false
             testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
             testRes.repoServiceGetCommitters = [{
                 name: 'login1',
@@ -865,8 +875,10 @@ describe('cla:checkPullRequestSignatures', () => {
                 config.server.feature_flag.required_signees = ''
             }
         })
-        it('should check if the external committer has signed the CLA, If the organization is whitelisted ', async () => {
+        it('should check if the external committer has signed the CLA when the organization is whitelisted (external Organisation) ', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
+            testRes.getPR.data.head.repo.fork = true
+            testRes.getPR.data.head.repo.owner.login = 'orgLogin1'
             testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
             testRes.repoServiceGetCommitters = [{
                 name: 'login1',
