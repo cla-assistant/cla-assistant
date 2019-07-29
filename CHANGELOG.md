@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.2.1](https://github.com/cla-assistant/cla-assistant/tree/v2.2.1) (2019-07-29)
+
+**Fixed bugs:**
+- No membership check when the organization is whitelisted and the pull request is from a repository inside the same organization  
+
 ## [v2.2.0](https://github.com/cla-assistant/cla-assistant/tree/v2.2.0) (2019-07-25)
 
 **New feature:**
