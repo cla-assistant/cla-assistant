@@ -91,6 +91,7 @@
         "node": "12.6"
     },
     "scripts": {
+        "build": "node_modules/grunt/bin/grunt build",
         "start": "node app.js",
         "postinstall": "bower install",
         "test": "node_modules/grunt/bin/grunt test",
