@@ -23,10 +23,7 @@ async function callGithub(octokit, obj, fun, arg, cacheKey) {
     }
 
     if (res && config.server.cache_time > 0) {
-        cache.put(cacheKey, {
-            data: res,
-            headers: res && res.headers ? res.headers : undefined
-        }, 60000 * config.server.cache_time)
+        cache.put(cacheKey, res, 60000 * config.server.cache_time)
     }
 
     return res
