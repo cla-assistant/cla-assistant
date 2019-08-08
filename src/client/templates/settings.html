@@ -1,11 +1,13 @@
 <!-- <div class="row settings_background"> -->
 <td>
-    <div class="col-xs-12 col-sm-3 col-lg-2" style="padding-left:0">
+    <div class="col-xs-12 col-sm-3 col-lg-5" style="padding-left:0">
         <div class="text clickable">
             <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
-                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp; {{ item.owner }} / {{ item.repo }}
+                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp;
+                {{ item.owner }} / {{ item.repo }}
             </a>
-            <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space" tooltip-placement="bottom" tooltip="{{ item.excludePattern ? 'Excluded Repositories: ' + item.excludePattern : 'No Excluded Repositories'}}">
+            <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space" tooltip-placement="bottom"
+                tooltip="{{ item.excludePattern ? 'Excluded Repositories: ' + item.excludePattern : 'No Excluded Repositories'}}">
                 <img src="{{item.avatarUrl}}" alt="" class="org">&nbsp; {{ item.org }}
             </a>
         </div>
@@ -14,27 +16,39 @@
     <div class="col-xs-12 col-sm-3 col-lg-2">
         <div>
             <span ng-if="!loading && gist.id.length > 0">
-                <a ng-if="item.repo" ng-href="{{getSignURL()}}" target="space">{{getGistName()}}</a>
-                <div ng-if="!item.repo" tooltip-placement="bottom" tooltip="URL to the CLA would look like: {{getSignURL()}}/<repo name>">{{getGistName()}}</div>
+                <a ng-if="item.repo" ng-href="{{getSignURL()}}" target="space" tooltip-placement="bottom"
+                    tooltip="Last Updated: {{gist.updated_at | date:'longDate'}}">{{getGistName()}}</a>
+                <span ng-if="!item.repo" tooltip-placement="bottom"
+                    tooltip="URL to the CLA would look like: {{getSignURL()}}/<repo name>">{{getGistName()}}</span>
             </span>
             <span ng-if="!item.gist">Disabled</span>
         </div>
     </div>
 
-    <div class="col-xs-12 col-lg-2 hidden-xs hidden-sm hidden-md text">
-        <a ng-if="item.gist" ng-href="{{gist.html_url}}" target="space">{{gist.html_url}}</a>
-    </div>
+    <div class="col-xs-12 col-lg-1 hidden-xs hidden-sm hidden-md ">
 
-    <div class="col-xs-12 col-sm-2 col-lg-2 text">
-        <span ng-if="item.gist">{{gist.updated_at | date:'longDate'}}</span>
+        <a ng-if="item.gist" ng-href="{{gist.html_url}}" target="space">
+            <i class="fa fa-github fa-4x " style="font-size:18px" tooltip-placement="bottom"
+                tooltip="Last Updated: {{gist.updated_at | date:'longDate'}}">
+
+            </i>
     </div>
+    </a>
+    <!-- <div tooltip-placement="bottom" tooltip="{{gist.updated_at | date:'longDate'}}"></div> -->
+
+    <!-- <i class="fa fa-trash-o action-icon" style="font-size:18px" tooltip-placement="bottom" tooltip="Unlink"></i> -->
+
+    <!-- <div class="col-xs-12 col-sm-2 col-lg-2 text">
+        <span ng-if="item.gist">{{gist.updated_at | date:'longDate'}}</span>
+    </div> -->
 
     <div class="col-xs-12 col-sm-1 col-lg-1 text">
         <span ng-if="item.gist">{{ item.sharedGist ? 'Yes' : 'No' }}</span>
     </div>
 
     <div class="col-xs-4 col-sm-1 col-lg-1" style="text-align:center">
-        <a ng-if="item.gist" ng-click="getReport(item);" class="clickable" style="text-decoration: underline;">{{signatures.value.length}}</a>
+        <a ng-if="item.gist" ng-click="getReport(item);" class="clickable"
+            style="text-decoration: underline;">{{signatures.value.length}}</a>
     </div>
 
     <script type="text/ng-template" id="validateLink.html">
@@ -47,20 +61,25 @@
         </div>
     </script>
     <div class="col-xs-4 col-sm-1 col-lg-1 center-block">
-        <img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}" popover-placement="right" popover-template="'validateLink.html'"
-            popover-trigger="mouseenter" popover-popup-delay="300">
+        <img ng-src="/assets/images/{{isLinkActive() ? 'link_active.svg' : 'link_inactive.svg'}}"
+            popover-placement="right" popover-template="'validateLink.html'" popover-trigger="mouseenter"
+            popover-popup-delay="300">
     </div>
 
     <script type="text/ng-template" id="moreActions.html">
         <button class="btn btn-info" ng-click="upload(item)" ng-if='item.gist'>Import</button>
         <button class="btn btn-info" ng-click="recheck(item)">Recheck PRs</button>
         <button class="btn btn-info" ng-click="getBadge(item)" ng-show="item.repo && item.gist">Get Badge</button>
-        <button id="editLinkedItem" class="btn btn-info" ng-click="editLinkedItem(item, gist, gists)">Edit</button>
+        <!-- <button id="editLinkedItem" class="btn btn-info" ng-click="editLinkedItem(item, gist, gists)">Edit</button> -->
+        <button  class="btn btn-info" ng-click="$parent.$parent.confirmRemove(item)">Unlink</button>
     </script>
-    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false" ng-show="(item.org && user.value.org_admin) || item.repo">
-        <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..." popover-placement="right" popover-template="'moreActions.html'"
-            popover-is-open="popoverIsOpen"></i>
-        <i class="fa fa-trash-o action-icon" style="font-size:18px" ng-click="$parent.confirmRemove(item)" tooltip-placement="bottom"
-            tooltip="Unlink"></i>
+    <div class="col-xs-4 col-sm-1 action" ng-init="popoverIsOpen=false"
+        ng-show="(item.org && user.value.org_admin) || item.repo">
+        <i class="fa fa-ellipsis-h action-icon" tooltip-placement="bottom" tooltip="More..." popover-placement="right"
+            popover-template="'moreActions.html'" popover-is-open="popoverIsOpen"></i>
+        <div class='edit-icon clickable'>
+            <i class="octicon octicon-pencil" style="font-size:17px" ng-click="editLinkedItem(item, gist, gists)"
+                tooltip-placement="bottom" tooltip="Edit"></i>
+        </div>
     </div>
 </td>
