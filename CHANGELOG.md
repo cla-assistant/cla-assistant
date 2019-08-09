@@ -1,5 +1,14 @@
 # Change Log
 
+## [v2.3.0](https://github.com/cla-assistant/cla-assistant/tree/v2.3.0) (2019-08-09)
+
+**Merged pull requests:**
+- Added  build task so Heroku can build the Javascript bundle [#470](https://github.com/cla-assistant/cla-assistant/pull/470) ([amateurhuman](https://github.com/amateurhuman))
+- Store full response in cache instead of custom built response object [#469](https://github.com/cla-assistant/cla-assistant/pull/470) ([amateurhuman](https://github.com/amateurhuman))
+
+**New feature:**
+-  Enhancement of  UI look and feel [#452](https://github.com/cla-assistant/cla-assistant/issues/452) 
+
 ## [v2.2.1](https://github.com/cla-assistant/cla-assistant/tree/v2.2.1) (2019-07-29)
 
 **Fixed bugs:**
