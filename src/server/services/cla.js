@@ -278,12 +278,14 @@ class ClaService {
         return cla
     }
 
-    async _isSignificantPullRequest(repo, owner, number, token) {
+    async _isSignificantPullRequest(repo, owner, number, token, item) {
         if (!repo || !owner || !number) {
             throw new Error('There are NOT enough arguments for isSignificantPullRequest. Repo: ' + repo + ' Owner: ' + owner + ' Number: ' + number)
         }
         try {
-            const item = await this._getLinkedItem(repo, owner, token)
+            if (!item) {
+                item = await this._getLinkedItem(repo, owner, token)
+            }
             if (typeof item.minFileChanges !== 'number' && typeof item.minCodeChanges !== 'number') {
                 return true
             }
@@ -370,11 +372,14 @@ class ClaService {
      *   owner (mandatory)
      *   repo (optional)
      */
-    async checkPullRequestSignatures(args) {
+    async checkPullRequestSignatures(args, item) {
         const submitterSignatureRequired = config.server.feature_flag.required_signees.indexOf('submitter') > -1
         const committerSignatureRequired = !config.server.feature_flag.required_signees || config.server.feature_flag.required_signees.indexOf('committer') > -1
         const organizationOverrideEnabled = config.server.feature_flag.organization_override_enabled
-        const item = await this._getLinkedItem(args.repo, args.owner, args.token)
+        if (!item) {
+            item = await this._getLinkedItem(args.repo, args.owner, args.token)
+        }
+
         let signees = []
         var hasExternalCommiter = {
             check: false
@@ -499,11 +504,11 @@ class ClaService {
         )
     }
 
-    async check(args) {
+    async check(args, item) {
         if (args.user) {
             return this.checkUserSignature(args)
         } else if (args.number) {
-            return this.checkPullRequestSignatures(args)
+            return this.checkPullRequestSignatures(args, item)
         }
         throw new Error('A user or a pull request number is required.')
     }
@@ -715,8 +720,8 @@ class ClaService {
         return cla
     }
 
-    async isClaRequired(args) {
-        return this._isSignificantPullRequest(args.repo, args.owner, args.number, args.token)
+    async isClaRequired(args, item) {
+        return this._isSignificantPullRequest(args.repo, args.owner, args.number, args.token, item)
     }
 }
 
