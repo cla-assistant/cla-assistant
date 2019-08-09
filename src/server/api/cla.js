@@ -192,8 +192,8 @@ class ClaApi {
     // sharedGist (optional)
     // token (optional)
     // sha (optional)
-    async validatePullRequest(args) {
-        return validatePR(args)
+    async validatePullRequest(args, item) {
+        return validatePR(args, item)
     }
 
     async validateAllPullRequests(req) {
@@ -218,16 +218,23 @@ class ClaApi {
         }
 
         if (pullRequests.length > 0) {
+            const args = {
+                repo: req.args.repo,
+                owner: req.args.owner,
+                token: token
+            }
+            let item
+            try {
+                item = await cla.getLinkedItem(args)
+            } catch (error) {
+                throw new Error(`could not find linked item for owner ${args.owner} and repo ${args.repo}`)
+            }
             const promises = pullRequests.map((pullRequest) => {
-                const status_args = {
-                    repo: req.args.repo,
-                    owner: req.args.owner,
-                    sha: pullRequest.head.sha,
-                    token: token
-                }
+                const status_args = JSON.parse(JSON.stringify(args))
                 status_args.number = pullRequest.number
+                status_args.sha = pullRequest.head.sha
 
-                return this.validatePullRequest(status_args)
+                return this.validatePullRequest(status_args, item)
             })
             return Promise.all(promises)
         }
@@ -451,19 +458,21 @@ async function getLinkedItemsWithSharedGist(gist) {
     return linkedItems
 }
 
-async function validatePR(args) {
+async function validatePR(args, item) {
     args.token = args.token ? args.token : token
     try {
-        const item = await cla.getLinkedItem(args)
+        if (!item) {
+            item = await cla.getLinkedItem(args)
+        }
         args.token = item.token
         if (!item.gist) {
             return claNotRequired(args, 'updateForNullCla')
         }
-        const isClaRequired = await cla.isClaRequired(args)
+        const isClaRequired = await cla.isClaRequired(args, item)
         if (!isClaRequired) {
             return claNotRequired(args, 'updateForClaNotRequired')
         }
-        const checkResult = await cla.check(args)
+        const checkResult = await cla.check(args, item)
 
         args.signed = checkResult.signed
         const userMap = checkResult.userMap
@@ -473,7 +482,7 @@ async function validatePR(args) {
             (userMap.not_signed && userMap.not_signed.length > 0) ||
             (userMap.unknown && userMap.unknown.length > 0)) ? 'update' : 'updateForClaNotRequired'
 
-        await status[updateMethod](args)
+        status[updateMethod](args)
         prService.badgeComment(args.owner, args.repo, args.number, args.signed, userMap)
     } catch (e) {
         logger.error(e.stack, removeToken(args))
@@ -603,8 +612,8 @@ async function getReposNeedToValidate(req) {
         const linkedRepos = await repoService.getByOwner(req.args.org)
         const linkedRepoSet = new Set(
             linkedRepos
-                .filter(repo => repo.repoId) //ignore old DB entries with no repoId
-                .map(linkedRepo => linkedRepo.repoId.toString())
+            .filter(repo => repo.repoId) //ignore old DB entries with no repoId
+            .map(linkedRepo => linkedRepo.repoId.toString())
         )
         repos = allRepos.data.filter(repo => {
             if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {
