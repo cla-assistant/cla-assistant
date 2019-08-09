@@ -1,5 +1,9 @@
 # Change Log
 
+## [v2.3.1](https://github.com/cla-assistant/cla-assistant/tree/v2.3.1) (2019-08-09)
+**Fixed bugs:**
+- Optimised the code so that there is less db and Github Api calls during ValidateOrgPR 
+
 ## [v2.3.0](https://github.com/cla-assistant/cla-assistant/tree/v2.3.0) (2019-08-09)
 
 **Merged pull requests:**
