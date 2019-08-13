@@ -17,6 +17,7 @@ jobs:
       run: bower install
     - name: Grunt Install
       run: |
+        npm install
         grunt uglify
         grunt mocha_istanbul
         grunt coveralls
