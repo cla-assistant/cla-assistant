@@ -19,7 +19,7 @@ jobs:
       run: npm install
     - name: grunt Uglify
       run: grunt uglify
-    - name: Test
-      run: grunt mocha_istanbul
-      run: grunt coveralls
+    - name: Test |
+        grunt mocha_istanbul
+        grunt coveralls
 
