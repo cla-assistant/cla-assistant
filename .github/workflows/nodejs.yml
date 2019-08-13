@@ -19,5 +19,3 @@ jobs:
       run: |
         npm install
         grunt uglify
-        grunt mocha_istanbul
-        grunt coveralls
