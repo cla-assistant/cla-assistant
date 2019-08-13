@@ -24,4 +24,4 @@ jobs:
     - name: Coverralls
       run: grunt coveralls
     - name: Coveralls GitHub Action
-      run: coverallsapp/github-action@v1.0.1
+      uses: coverallsapp/github-action@v1.0.1
