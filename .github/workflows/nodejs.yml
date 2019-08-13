@@ -21,3 +21,5 @@ jobs:
       run: grunt uglify
     - name: Test
       run: grunt mocha_istanbul
+    - name: Coverralls
+      run: grunt coveralls
