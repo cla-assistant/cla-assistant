@@ -21,9 +21,10 @@ jobs:
       run: grunt uglify
     - name: Test
       run: grunt mocha_istanbul
-    - name: Coverralls
-      run: grunt coveralls
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
       with:
         github-token: ${{ secrets.github_token }}
+    - name: Coverralls
+      run: grunt coveralls
+
