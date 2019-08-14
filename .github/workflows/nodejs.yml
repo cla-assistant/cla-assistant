@@ -24,7 +24,7 @@ jobs:
       run: npm install
     - name: Test
       run: npm test
-    - name: grunt Uglify and Coverage
+    - name: grunt Coverage
       run: |
         grunt uglify
         grunt mocha_istanbul
