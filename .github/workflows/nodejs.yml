@@ -28,5 +28,11 @@ jobs:
       run: |
         grunt uglify
         grunt mocha_istanbul
+    - name: Coverage
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.token }}
+        path-to-lcov: .output/coverage/lcov.info
+
 
 
