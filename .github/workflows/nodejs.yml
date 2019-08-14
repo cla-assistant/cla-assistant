@@ -32,4 +32,5 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.coverage }}
+        path-to-lcov: .output/coverage/lcov.info
 
