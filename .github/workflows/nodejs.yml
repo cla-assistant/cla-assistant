@@ -24,10 +24,10 @@ jobs:
       run: npm install
     - name: Test
       run: npm test
-    - name: grunt Uglify
-      run: grunt uglify
-    - name: coverage
-      run: grunt mocha_istanbul
+    - name: grunt Uglify and Coverage
+      run: |
+        grunt uglify
+        grunt mocha_istanbul
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
