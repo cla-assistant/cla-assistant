@@ -26,9 +26,8 @@ jobs:
       run: npm test
     - name: grunt Uglify
       run: grunt uglify
-    - name: Test Coverage
-      run: grunt mocha_istanbul
     - name: Coveralls
+      run: grunt mocha_istanbul
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.coverage }}
