@@ -7,7 +7,6 @@ venv
 report
 npm-debug.log
 test
-coverage
 src/client/assets/styles/app.css
 src/client/assets/styles/app.css.map
 src/client/app.min.js
