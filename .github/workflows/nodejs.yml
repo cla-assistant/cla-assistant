@@ -22,9 +22,11 @@ jobs:
       run: bower install
     - name: npm Install
       run: npm install
+    - name: Test
+      run: npm test
     - name: grunt Uglify
       run: grunt uglify
-    - name: Test 
+    - name: Test Coverage
       run: |
         grunt mocha_istanbul
 
