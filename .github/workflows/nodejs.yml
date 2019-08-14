@@ -1,10 +1,11 @@
 name: Node CI
 
-on: [push]
-  branches:
-  - master
-  - release
-  - release-green
+on:
+  push:
+    branches:
+    - master
+    - release
+    - release-green
 
 jobs:
   build:
