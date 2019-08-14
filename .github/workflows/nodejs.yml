@@ -28,6 +28,7 @@ jobs:
       run: |
         grunt uglify
         grunt mocha_istanbul
+        grunt coveralls
     - name: Coverage
       uses: coverallsapp/github-action@master
       with:
