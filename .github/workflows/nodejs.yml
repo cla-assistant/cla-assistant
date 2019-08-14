@@ -1,6 +1,10 @@
 name: Node CI
 
-on: [push]
+on: [push, pull_request]
+  branches:
+  - master
+  - release
+  - release-green
 
 jobs:
   build:
@@ -22,5 +26,4 @@ jobs:
     - name: Test 
       run: |
         grunt mocha_istanbul
-        grunt coveralls
 
