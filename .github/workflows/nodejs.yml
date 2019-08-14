@@ -29,4 +29,5 @@ jobs:
     - name: Test Coverage
       run: |
         grunt mocha_istanbul
+        grunt coveralls
 
