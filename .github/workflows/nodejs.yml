@@ -20,6 +20,8 @@ jobs:
         version: 12.6
     - name: Bower
       run: bower install
+    - name: Install
+      run: npm install
     - name: Test
       run: npm test
     - name: grunt Uglify
