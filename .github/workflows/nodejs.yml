@@ -27,8 +27,8 @@ jobs:
     - name: grunt Uglify
       run: grunt uglify
     - name: Coveralls
-      run: grunt mocha_istanbul
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.coverage }}
+      run: grunt mocha_istanbul
 
