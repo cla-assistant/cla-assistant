@@ -23,7 +23,7 @@ module.exports = function (grunt) {
                 options: {
                     coverage: true,
                     mask: '**/*.js',
-                    coverageFolder: 'coverage'
+                    coverageFolder: 'output/coverage'
                 }
             }
         },
