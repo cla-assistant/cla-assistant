@@ -5,6 +5,7 @@ on:
     branches:
     - master
     - release
+    - release-green
 
 jobs:
   build:
