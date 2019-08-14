@@ -24,11 +24,11 @@ jobs:
       run: npm install
     - name: Test
       run: npm test
-    - name: grunt Coverage
+    - name: grunt build
       run: |
         grunt uglify
         grunt mocha_istanbul
-    - name: Coverage
+    - name: Test Coverage
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.github_token }}
