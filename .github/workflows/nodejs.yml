@@ -21,9 +21,7 @@ jobs:
     - name: Bower
       run: bower install
     - name: Install
-      run: |
-        npm install
-        make test-coverage
+      run: npm install
     - name: Test
       run: npm test
     - name: grunt Uglify
