@@ -25,8 +25,10 @@ jobs:
     - name: Test
       run: npm test
     - name: grunt Uglify
+      id: 15
       run: grunt uglify
     - name: coverage
+      if: job.steps.15.status == success
       run: grunt mocha_istanbul
     - name: Coveralls
       uses: coverallsapp/github-action@master
