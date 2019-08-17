@@ -94,7 +94,7 @@
         "build": "node_modules/grunt/bin/grunt build",
         "start": "node app.js",
         "postinstall": "bower install",
-        "test": "node_modules/grunt/bin/grunt test",
+        "test": "node ./node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
     }
 }
