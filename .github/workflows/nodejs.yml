@@ -20,7 +20,7 @@ jobs:
         - ubuntu-latest
 
     steps:
-   # - uses: actions/checkout@master
+    - uses: actions/checkout@master
     - name: Use Node.js 12.6
       uses: actions/setup-node@v1
       with:
