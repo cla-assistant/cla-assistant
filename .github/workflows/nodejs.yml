@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-
     runs-on:  ${{ matrix.os }}
     strategy:
       matrix: 
@@ -31,7 +30,7 @@ jobs:
       run: npm install
     - name: Test
       run: npm test
-    - name: grunt build
+    - name: grunt 
       run: |
         grunt uglify
         grunt mocha_istanbul
