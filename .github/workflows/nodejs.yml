@@ -15,6 +15,11 @@ jobs:
     runs-on:  ${{ matrix.os }}
     strategy:
       matrix: 
+        node_version: 
+        - 8
+        - 10
+        - 12
+        
         os: 
         - ubuntu-latest
 
@@ -23,7 +28,7 @@ jobs:
     - name: Use Node.js 12.6
       uses: actions/setup-node@v1
       with:
-        version: 12.6
+        version:  ${{ matrix.node_version }}
     - name: Bower
       run: bower install
     - name: Install
