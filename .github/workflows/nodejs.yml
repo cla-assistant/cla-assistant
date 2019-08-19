@@ -23,7 +23,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - name: Use Node.js 12.6
+    - name: Use Node ${{ matrix.node_version }}
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
