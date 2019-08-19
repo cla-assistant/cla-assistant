@@ -16,14 +16,15 @@ jobs:
     strategy:
       matrix: 
         node_version: 
-        - 12
+        - 12-6
         
         os: 
         - ubuntu-latest
+        - windows-latest
 
     steps:
     - uses: actions/checkout@master
-    - name: Use Node ${{ matrix.node_version }}
+    - name: Use Node version 12.6
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
@@ -36,11 +37,11 @@ jobs:
         grunt build
         grunt test
         grunt coverage
-    - name: Test Coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        path-to-lcov: ./output/coverage/lcov.info
+  #  - name: Test Coverage
+  #    uses: coverallsapp/github-action@master
+   #   with:
+   #     github-token: ${{ secrets.github_token }}
+ #       path-to-lcov: ./output/coverage/lcov.info
 
 
 
