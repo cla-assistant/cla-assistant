@@ -16,8 +16,6 @@ jobs:
     strategy:
       matrix: 
         node_version: 
-        - 8
-        - 10
         - 12
         
         os: 
@@ -33,11 +31,9 @@ jobs:
       run: bower install
     - name: Install
       run: npm install
-    - name: Test
-      run: npm test
     - name: grunt 
       run: |
-        grunt uglify
+        grunt test
         grunt mocha_istanbul
     - name: Test Coverage
       uses: coverallsapp/github-action@master
