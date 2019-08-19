@@ -28,9 +28,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
-    - name: Bower
+    - name: Bower Install
       run: bower install
-    - name: Install
+    - name: Npm Install
       run: npm install
     - name: grunt build and test
       run: |
