@@ -1217,9 +1217,8 @@ describe('', () => {
                 assert.equal(statusService.update.callCount, 3)
                 assert.equal(statusService.updateForClaNotRequired.callCount, 1)
                 resolve()
-            }))
+            }, 50))
         })
-
         // it('should update status of all repos of the org slowing down', async () => {
         //     this.timeout(600)
         //     req.args.org = 'octocat'

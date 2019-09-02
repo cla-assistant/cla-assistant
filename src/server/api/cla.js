@@ -164,8 +164,9 @@ class ClaApi {
     async validateOrgPullRequests(req) {
         try {
             const repos = await getReposNeedToValidate(req)
+            let time = config.server.github.timeToWait
 
-            repos.forEach(repo => {
+            repos.forEach((repo, index) => {
                 let validateRequest = {
                     args: {
                         owner: repo.owner.login,
@@ -174,8 +175,12 @@ class ClaApi {
                     },
                     user: req.user
                 }
-                this.validateAllPullRequests(validateRequest)
-                logger.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo)
+                //try to avoid raising githubs abuse rate limit:
+                //take 1 second per repo and wait 10 seconds after each 10th repo
+                setTimeout(() => {
+                    this.validateAllPullRequests(validateRequest)
+                    logger.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo)
+                }, time * (index + (Math.floor(index / 10) * 10)))
             })
         } catch (error) {
             logger.info(new Error(error).stack)
