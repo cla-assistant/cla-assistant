@@ -1,5 +1,9 @@
 # Change Log
 
+## [v2.3.2](https://github.com/cla-assistant/cla-assistant/tree/v2.3.2) (2019-09-03)
+**Fixed bugs:**
+- Slowed down the GitHub API requests to spread out the API calls  for staying within the GitHub API rate limit when doing ReCheckPR for organisation 
+
 ## [v2.3.1](https://github.com/cla-assistant/cla-assistant/tree/v2.3.1) (2019-08-09)
 **Fixed bugs:**
 - Optimised the code so that there is less db and Github Api calls during ValidateOrgPR 
