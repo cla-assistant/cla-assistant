@@ -43,7 +43,7 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./output/coverage/lcov.info
-    - name: publish to dockerhub
+    - name: build and publish to dockerhub
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: sapclaassistant/claassistant
