@@ -46,7 +46,7 @@ jobs:
     - name: publish to dockerhub
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: sapclassistant/claassistant
+        name: sapclaassistant/claassistant
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
