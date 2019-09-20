@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix: 
         node_version: 
-        - 12.6
+        - 12
         
         os: 
         - ubuntu-latest
@@ -42,7 +42,6 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.github_token }}
-        #path-to-lcov: ./output/coverage/lcov.info
         path-to-lcov: ./output/coverage/lcov.info
 
 
