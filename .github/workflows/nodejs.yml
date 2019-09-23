@@ -47,6 +47,7 @@ jobs:
         name: sapclaassistant/claassistant
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        snapshot: true
     - name: build and publish to gcp 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
@@ -54,6 +55,7 @@ jobs:
         username: _json_key
         password: ${{ secrets.GCP_PASSWORD }}
         registry: eu.gcr.io
+        snapshot: true
 
 
 
