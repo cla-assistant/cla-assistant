@@ -48,14 +48,36 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         snapshot: true
+    - name: Setup Google Cloud
+      uses: actions/gcloud/auth@master
+      env:
+        GCLOUD_AUTH: ${{ secrets.GCP_PASSWORD }}
     - name: build and publish to gcp 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: eu.gcr.io/sap-cla-assistant/cla-assistant
-        username: _json_key
-        password: ${{ secrets.GCP_PASSWORD }}
-        registry: eu.gcr.io
-        snapshot: true
+       name: eu.gcr.io/sap-cla-assistant/cla-assistant
+       username: _json_key
+       password: ${{ secrets.GCP_PASSWORD }}
+       registry: eu.gcr.io
+       snapshot: true
+       
+       
+    deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: buildAndPushImage
+    steps:
+      - name: Setup Google Cloud
+        uses: actions/gcloud/auth@master
+        env:
+          GCLOUD_AUTH: ${{ secrets.GCP_PASSWORD  }}
+      - name: Deploy Cloud Run Service
+        uses: actions/gcloud/cli@master
+        with:
+          entrypoint: sh
+          args: -c "gcloud components install beta && gcloud components update && gcloud --quiet --project sap-cla-assistant beta run deploy contrast --image gcr.io/sap-cla-assistant/cla-assistant:latest"
+        
+        
         
 
 
