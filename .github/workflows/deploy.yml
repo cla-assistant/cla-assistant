@@ -39,7 +39,9 @@ jobs:
     - name: push image to gcp
       uses: actions/gcloud/cli@master
       with:
+        entrypoint: sh
         args: -c "docker push eu.gcr.io/sap-cla-assistant/cla-assistant"
+        
       
         
         
