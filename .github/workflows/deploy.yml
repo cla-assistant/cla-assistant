@@ -35,7 +35,7 @@ jobs:
     - name: setup google cloud platform 
       uses: actions/gcloud/auth@master
       env:
-        GCLOUD_AUTH: ${{ secrets.GCP_PASSWORD }}
+        GCLOUD_AUTH: ${{ secrets.GCP_base64 }}
       
         
         
