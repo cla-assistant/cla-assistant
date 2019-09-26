@@ -26,20 +26,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
-    - name: Bower Install
-      run: bower install
-    - name: Npm Install
-      run: npm install
-    - name: grunt build and test
-      run: |
-        grunt build
-        grunt test
-        grunt coverage
-    - name: Test Coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        path-to-lcov: ./output/coverage/lcov.info
     - name: build the docker image
       run: docker build .
         
