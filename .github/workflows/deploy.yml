@@ -60,30 +60,6 @@ jobs:
        password: ${{ secrets.GCP_PASSWORD }}
        registry: eu.gcr.io
        snapshot: true
-       
-       
-    deploy:
-    name: Deploy
-      runs-on:  ${{ matrix.os }}
-      strategy:
-      matrix: 
-        node_version: 
-        - 12
-        
-        os: 
-        - ubuntu-latest
-        
-    needs: build
-    steps:
-      - name: Setup Google Cloud
-        uses: actions/gcloud/auth@master
-        env:
-          GCLOUD_AUTH: ${{ secrets.GCP_PASSWORD  }}
-      - name: Deploy Cloud Run Service
-        uses: actions/gcloud/cli@master
-        with:
-          entrypoint: sh
-          args: -c "gcloud components install beta && gcloud components update && gcloud --quiet --project sap-cla-assistant beta run deploy contrast --image gcr.io/sap-cla-assistant/cla-assistant:latest"
         
         
         
