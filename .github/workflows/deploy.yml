@@ -48,10 +48,6 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         snapshot: true
-    - name: Setup Google Cloud
-      uses: actions/gcloud/auth@master
-      env:
-        GCLOUD_AUTH: ${{ secrets.GCP_PASSWORD }}
     - name: build and publish to gcp 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
