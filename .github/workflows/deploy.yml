@@ -28,6 +28,10 @@ jobs:
         version:  ${{ matrix.node_version }}
     - name: build the docker image
       run: docker build -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:latest .
+    - name: push the image to dockerHub
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push
         
         
         
