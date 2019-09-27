@@ -204,5 +204,3 @@ Credits
 <p align="center">
 :heart: from the GitHub team @ SAP
 	
-.
-.
