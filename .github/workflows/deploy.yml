@@ -40,8 +40,8 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./output/coverage/lcov.info
-    - name: build the docker image
-      run: docker build -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:${GITHUB_SHA} .
+    - name: run hello world
+      run: echo akshay is good
 
         
 
