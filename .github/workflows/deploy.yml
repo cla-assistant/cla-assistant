@@ -6,6 +6,7 @@ on:
     - master
     - release
   pull_request:
+    types: [closed]
     branches:
     - master
 
@@ -35,6 +36,11 @@ jobs:
         grunt build
         grunt test
         grunt coverage
+    - name: Test Coverage
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        path-to-lcov: ./output/coverage/lcov.info
     - name: run hello world
       run: echo akshay is good
     - name: build the docker image
