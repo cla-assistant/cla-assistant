@@ -45,7 +45,6 @@ jobs:
         git checkout release
         git rebase master
         git push origin release
-        git checkout master
     - name: run hello world
       run: echo akshay is good
     - name: build the docker image
