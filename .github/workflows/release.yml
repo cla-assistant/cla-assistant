@@ -47,30 +47,19 @@ jobs:
         git push origin release
     - name: run hello world
       run: echo akshay is good
-    - name: build the docker image
-      run: docker build -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} -t sapclaassistant/claassistant:${GITHUB_SHA} .
-    - name: push image to dockerhub
-      run: | 
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker push sapclaassistant/claassistant
-    - name: setup google cloud platform 
-      uses: actions/gcloud/auth@master
+    - name: rebase release branch from master
       env:
-        GCLOUD_AUTH: ${{ secrets.GCP_base64 }}
-    - name: setup Credential helper for gcp
-      uses: actions/gcloud/cli@master
-      with:
-        args: auth configure-docker --quiet
-    - name: push image to gcp
-      uses: actions/gcloud/cli@master
-      with:
-        entrypoint: sh
-        args: -c "docker push eu.gcr.io/sap-cla-assistant/cla-assistant"
-    - name: deploy cloud run service
-      uses: actions/gcloud/cli@master
-      with:
-        entrypoint: sh
-        args: -c "gcloud components install beta && gcloud components update && gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant --platform managed --region us-central1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:latest "
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: |
+        git config --global user.name "$GITHUB_ACTOR"
+        git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        git checkout release
+        git fetch
+        git rebase $GITHUB_SHA
+        git push https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY
+        git fetch
+        git log -${1:-25} --all --graph --decorate --abbrev-commit --pretty=oneline
+
 
         
 
