@@ -44,6 +44,15 @@ jobs:
         path-to-lcov: ./output/coverage/lcov.info
     - name: run hello world
       run: echo akshay is good
+     - name: rebase release branch from master
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        git checkout release
+        git rebase master
+        git push origin release
     - name: build the docker image
       run: docker build -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} -t sapclaassistant/claassistant:${GITHUB_SHA} .
     - name: push image to dockerhub
