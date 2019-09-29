@@ -44,7 +44,7 @@ jobs:
         path-to-lcov: ./output/coverage/lcov.info
     - name: run hello world
       run: echo akshay is good
-     - name: rebase release branch from master
+    - name: rebase release branch from master
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       run: |
