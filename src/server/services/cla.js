@@ -427,7 +427,10 @@ module.exports = function () {
             }
             args.onDates.push(new Date(pullRequest.created_at));
 
-            const isOrgHead = pullRequest.head.repo.owner.type === 'Organization';
+            const isOrgHead = pullRequest.head
+                && pullRequest.head.repo
+                && pullRequest.head.repo.owner
+                && pullRequest.head.repo.owner.type === 'Organization';
             if (organizationOverrideEnabled && isOrgHead) {
                 const { owner: headOrg } = pullRequest.head.repo;
                 if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
