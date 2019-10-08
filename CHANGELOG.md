@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.4.0](https://github.com/cla-assistant/cla-assistant/tree/v2.4.0) (2019-10-09)
+**New Features:**
+- Introduced GitHub Action for CI/CD Pipeline
+- Moving the infrastructure of this project to Google Cloud Run Serverless Container  Platform 
+
 ## [v2.3.2](https://github.com/cla-assistant/cla-assistant/tree/v2.3.2) (2019-09-03)
 **Fixed bugs:**
 - Slowed down the GitHub API requests to spread out the API calls  for staying within the GitHub API rate limit when doing ReCheckPR for organisation 
