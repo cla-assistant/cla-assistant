@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.4.1](https://github.com/cla-assistant/cla-assistant/tree/v2.4.0) (2019-10-09)
+**Fixed Bugs:**
+- removed duplicated method function call to linkeditem when there is a request from webhook
+- quick response to the incoming webhook instead of waiting for the whole flow to finish
+- introduced additional logging for debugging 
+
 ## [v2.4.0](https://github.com/cla-assistant/cla-assistant/tree/v2.4.0) (2019-10-09)
 **New Features:**
 - Introduced GitHub Action for CI/CD Pipeline
