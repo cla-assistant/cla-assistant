@@ -65,6 +65,8 @@ async function updateStatusAndComment(args, item) {
             let checkResult
             try {
                 checkResult = await cla.check(args, item)
+                // eslint-disable-next-line no-console
+                console.log("DEBUG: updateStatusAndComment ")
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -107,6 +109,8 @@ async function handleWebHook(args, item) {
     try {
         const claRequired = await cla.isClaRequired(args, item)
         if (claRequired) {
+            // eslint-disable-next-line no-console
+            console.log("DEBUG: handleWebHook ")
             return updateStatusAndComment(args, item)
         }
 
