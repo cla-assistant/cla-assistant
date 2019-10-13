@@ -657,20 +657,25 @@ class ClaService {
         if (!args.gist.gist_version) {
             return CLA.find(selection, {}, options)
         }
-
-        const clas = await CLA.find(selection, {}, options)
-        if (!clas) {
-            throw new Error('no clas found')
-        }
-        const foundSigners = []
-        const distinctClas = clas.filter((cla) => {
-            if (foundSigners.indexOf(cla.userId) < 0) {
-                foundSigners.push(cla.userId)
-                return true
+        try {
+            const clas = await CLA.find(selection, {}, options)
+            if (!clas) {
+                throw new Error('no clas found')
             }
-            return false
-        })
-        return distinctClas
+            const foundSigners = []
+            const distinctClas = clas.filter((cla) => {
+                if (foundSigners.indexOf(cla.userId) < 0) {
+                    foundSigners.push(cla.userId)
+                    return true
+                }
+                return false
+            })
+            return distinctClas
+        } catch (error) {
+            logger.warn('Error occured when getting all signed CLAs for given repo ' + error)
+        }
+
+
     }
 
     async create(args) {
