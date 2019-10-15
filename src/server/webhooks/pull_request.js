@@ -130,7 +130,7 @@ async function handleWebHook(args, item) {
 }
 
 module.exports = async function (req, res) {
-    res.status(200).send('OK')
+
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
 
 
@@ -161,11 +161,12 @@ module.exports = async function (req, res) {
                 args.orgId = undefined
             }
 
-            return handleWebHook(args, item)
+            await handleWebHook(args, item)
         } catch (e) {
             logger.warn(e)
 
         }
+        res.status(200).send('OK')
         // }, config.server.github.enforceDelay)
 
     }
