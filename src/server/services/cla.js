@@ -399,13 +399,16 @@ class ClaService {
                 signed: true
             })
         }
-
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->getGistObject')
         const gist = await this._getGistObject(args.gist, item.token)
         if (!gist) {
             throw new Error('No gist found for item')
         }
         args.gist_version = gist.data.history[0].version
 
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->getPR')
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
         //console.log(pullRequest)
         if (!pullRequest) {
@@ -484,6 +487,8 @@ class ClaService {
         }
 
         if (committerSignatureRequired) {
+            // eslint-disable-next-line no-console
+            console.log('DEBUG: checkPullRequestSignatures-->getPRCommitters')
             const committers = await repoService.getPRCommitters(args)
             signees = _.uniqWith([...signees, ...committers], (object, other) => object.id == other.id)
         }
@@ -491,7 +496,8 @@ class ClaService {
         signees = signees.filter(signee =>
             signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name))
         )
-
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->return _checkAll')
         return this._checkAll(
             signees,
             item.repoId,
