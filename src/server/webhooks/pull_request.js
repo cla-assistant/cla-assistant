@@ -130,10 +130,9 @@ async function handleWebHook(args, item) {
 }
 
 module.exports = async function (req, res) {
-    // eslint-disable-next-line no-console
-    console.log(JSON.stringify(req.args.action))
+    res.status(200).send('OK')
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
-        res.status(200).send('OK')
+
 
         if (req.args.pull_request && req.args.pull_request.html_url) {
             // eslint-disable-next-line no-console
