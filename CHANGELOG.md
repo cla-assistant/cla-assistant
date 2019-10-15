@@ -1,6 +1,11 @@
 # Change Log
 
-## [v2.4.1](https://github.com/cla-assistant/cla-assistant/tree/v2.4.0) (2019-10-09)
+## [v2.4.2](https://github.com/cla-assistant/cla-assistant/tree/v2.4.2) (2019-10-15)
+**Fixed Bugs:**
+- sending response to webhook after PR comment and status logic
+- added console statements for debugging
+
+## [v2.4.1](https://github.com/cla-assistant/cla-assistant/tree/v2.4.1) (2019-10-09)
 **Fixed Bugs:**
 - removed duplicated method function call to linkeditem when there is a request from webhook
 - quick response to the incoming webhook instead of waiting for the whole flow to finish
