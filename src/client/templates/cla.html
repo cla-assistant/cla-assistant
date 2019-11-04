@@ -8,7 +8,7 @@
         </div>
 
         <form class="row" ng-hide="!!redirect || noLinkedItemError">
-            <h4>{{titleMsg()}}</h4>
+            <h1>{{titleMsg()}}</h1>
             <p>Version: {{updatedAt}}</p>
             <div class="cla-box well">
                 <div ng-bind-html="cla"></div>
@@ -36,8 +36,8 @@
         </form>
 
         <div class="row center-block" ng-show="signed && !!redirect">
-            <h3>Thank you {{user.value.login}}</h3>
-            <h4>for signing the CLA!</h4>
+            <h2>Thank you {{user.value.login}}</h2>
+            <p>Thanks for signing the CLA.</p>
             </br>
             <h4 ng-show="!!redirect">we are now taking you back to GitHub</h4>
             <p ng-repeat="n in [1,2,3]" class="fa fa-circle dots" ng-class="'counter'+n"></p>
