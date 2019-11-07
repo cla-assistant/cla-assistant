@@ -170,10 +170,10 @@ module.exports = async function (req, res) {
             logger.warn(e)
 
         }
-        res.status(200).send('OK')
         // }, config.server.github.enforceDelay)
 
     }
+    res.status(200).send('OK')
 
 
 }
