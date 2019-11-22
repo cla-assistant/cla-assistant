@@ -22,7 +22,7 @@
         "@octokit/plugin-retry": "^2.2.0",
         "@octokit/plugin-throttling": "^2.4.0",
         "@octokit/rest": "^16.18.1",
-        "angular": "^1.7.8",
+        "angular": "^1.7.9",
         "array-sugar": "^1.2.2",
         "async": "^2.6.2",
         "body-parser": "^1.18.3",
