@@ -41,7 +41,9 @@ app.use((req, res, next) => {
 });
 
 app.use(require('x-frame-options')());
-app.use(require('body-parser').json({ limit: '5mb' }));
+app.use(require('body-parser').json({
+    limit: '5mb'
+}));
 app.use(require('cookie-parser')());
 app.use(noSniff());
 app.enable('trust proxy');
@@ -168,21 +170,19 @@ async.series([
 
         global.models = {}
     },
+    (callback) => {
+        bootstrap('webhooks', callback)
+    },
 
     (callback) => {
         bootstrap('passport', callback)
     },
-
     (callback) => {
         bootstrap('graphQueries', callback)
     },
 
     (callback) => {
         bootstrap('api', callback)
-    },
-
-    (callback) => {
-        bootstrap('webhooks', callback)
     },
 
     (callback) => {
@@ -238,6 +238,7 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
+
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event')
         }

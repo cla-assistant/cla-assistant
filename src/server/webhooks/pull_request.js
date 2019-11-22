@@ -61,16 +61,16 @@ function storeRequest(committers, repo, owner, number) {
 async function updateStatusAndComment(args, item) {
     try {
         // eslint-disable-next-line no-console
-        console.log('DEBUG: reposService.gerPRCommitters')
+        //console.log('DEBUG: reposService.gerPRCommitters')
         const committers = await repoService.getPRCommitters(args)
         if (committers && committers.length > 0) {
             let checkResult
             try {
                 // eslint-disable-next-line no-console
-                console.log('DEBUG: check cla')
+                //console.log('DEBUG: check cla')
                 checkResult = await cla.check(args, item)
                 // eslint-disable-next-line no-console
-                console.log('DEBUG: updateStatusAndComment ')
+                console.log('DEBUG: updateStatusAndComment for the repo ' + JSON.stringify(args.repo))
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -114,7 +114,7 @@ async function handleWebHook(args, item) {
         const claRequired = await cla.isClaRequired(args, item)
         if (claRequired) {
             // eslint-disable-next-line no-console
-            console.log("DEBUG: handleWebHook ")
+            console.log("DEBUG: handleWebHook for the repo" + JSON.stringify(args.repo))
             return updateStatusAndComment(args, item)
         }
 
@@ -132,10 +132,6 @@ async function handleWebHook(args, item) {
 module.exports = async function (req, res) {
 
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
-        // eslint-disable-next-line no-console
-        console.time('webhook')
-
-
         if (req.args.pull_request && req.args.pull_request.html_url) {
             // eslint-disable-next-line no-console
             console.log(`pull request ${req.args.action} ${req.args.pull_request.html_url}`)
@@ -163,15 +159,11 @@ module.exports = async function (req, res) {
                 args.orgId = undefined
             }
 
-            await handleWebHook(args, item)
-            // eslint-disable-next-line no-console
-            console.timeEnd('webhook')
+            handleWebHook(args, item)
         } catch (e) {
             logger.warn(e)
 
         }
-        // }, config.server.github.enforceDelay)
-
     }
     res.status(200).send('OK')
 
