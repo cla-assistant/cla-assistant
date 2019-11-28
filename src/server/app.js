@@ -238,7 +238,10 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
-
+        // eslint-disable-next-line no-console
+        console.log("webhook object ---> ")
+        // eslint-disable-next-line no-console
+        console.log(webhooks)
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event')
         }
