@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.4.3](https://github.com/cla-assistant/cla-assistant/tree/v2.4.3) (2019-11-28)
+**Fixed Bugs:**
+- Added additional logging for trouble shooting the failing webhooks with status code 400
+- Bootstrapping webhook file in the beginning 
+- **classistant** GitHub account is blocked and So, using the **claassistantio** GitHub Account and it's token for 
+  commenting on the Pull Request (temporary workaround)
+
 ## [v2.4.2](https://github.com/cla-assistant/cla-assistant/tree/v2.4.2) (2019-10-15)
 **Fixed Bugs:**
 - sending response to webhook after PR comment and status logic
