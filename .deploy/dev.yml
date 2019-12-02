@@ -61,11 +61,6 @@ spec:
             secretKeyRef:
               name: msftclas-app-insights-dev
               key: value
-        - name: GITHUB_ADMIN_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-msftgits-super-token-dev
-              key: value
         - name: EXTERNAL_QUEUE_URL
           valueFrom:
             secretKeyRef:
