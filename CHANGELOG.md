@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.4.4](https://github.com/cla-assistant/cla-assistant/tree/v2.4.4) (2019-12-02)
+**Fixed Bugs:**
+- App will listen to the HTTP requests only after all the files are bootstrapped 
+- Moved the App starting from ./app.js to ./server/app.js (temporary workaround)
+
 ## [v2.4.3](https://github.com/cla-assistant/cla-assistant/tree/v2.4.3) (2019-11-28)
 **Fixed Bugs:**
 - Added additional logging for trouble shooting the failing webhooks with status code 400
