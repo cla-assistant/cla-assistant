@@ -1,3 +1,6 @@
+let http = require('http')
+
+
 /* eslint no-console: "off"*/
 require('colors')
 const async = require('async')
@@ -196,6 +199,15 @@ async.series([
 
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
+    // eslint-disable-next-line no-console
+    console.log("App is initialized")
+    let server = http.createServer(app)
+    // eslint-disable-next-line no-console
+    console.log("Server is created")
+    const listener = server.listen(config.server.localport, function () {
+        // eslint-disable-next-line no-console
+        console.log('Listening on port ' + listener.address().port)
+    });
 });
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
