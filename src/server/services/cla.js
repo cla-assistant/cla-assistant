@@ -661,7 +661,14 @@ class ClaService {
         selection = this._updateQuery(selection, args.sharedGist)
 
         if (!args.gist.gist_version) {
-            return CLA.find(selection, {}, options)
+            try {
+                return CLA.find(selection, {}, options)
+            } catch (error) {
+                logger.warn('Error occured when getting all signed CLAs for given repo without gist version' + error)
+                logger.warn('Api cla.getAll failed with selection ' + selection)
+                // eslint-disable-next-line no-console
+                console.log('Api cla.getAll failed with selection from console log ' + selection)
+            }
         }
         try {
             const clas = await CLA.find(selection, {}, options)
