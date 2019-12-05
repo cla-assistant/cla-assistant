@@ -17,14 +17,23 @@ function storeRequest(committers, repo, owner, number) {
     committers.forEach(async committer => {
         let user
         try {
-            user = await User.findOne({ name: committer })
+            user = await User.findOne({
+                name: committer
+            })
         } catch (error) {
             logger.warn(new Error(error).stack)
         }
-        const pullRequest = { repo: repo, owner: owner, numbers: [number] }
+        const pullRequest = {
+            repo: repo,
+            owner: owner,
+            numbers: [number]
+        }
         if (!user) {
             try {
-                User.create({ name: committer, requests: [pullRequest] })
+                User.create({
+                    name: committer,
+                    requests: [pullRequest]
+                })
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -49,13 +58,19 @@ function storeRequest(committers, repo, owner, number) {
     })
 }
 
-async function updateStatusAndComment(args) {
+async function updateStatusAndComment(args, item) {
     try {
+        // eslint-disable-next-line no-console
+        //console.log('DEBUG: reposService.gerPRCommitters')
         const committers = await repoService.getPRCommitters(args)
         if (committers && committers.length > 0) {
             let checkResult
             try {
-                checkResult = await cla.check(args)
+                // eslint-disable-next-line no-console
+                //console.log('DEBUG: check cla')
+                checkResult = await cla.check(args, item)
+                // eslint-disable-next-line no-console
+                console.log('DEBUG: updateStatusAndComment for the repo ' + JSON.stringify(args.repo))
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -94,11 +109,13 @@ async function updateStatusAndComment(args) {
     }
 }
 
-async function handleWebHook(args) {
+async function handleWebHook(args, item) {
     try {
-        const claRequired = await cla.isClaRequired(args)
+        const claRequired = await cla.isClaRequired(args, item)
         if (claRequired) {
-            return updateStatusAndComment(args)
+            // eslint-disable-next-line no-console
+            console.log("DEBUG: handleWebHook for the repo" + JSON.stringify(args.repo))
+            return updateStatusAndComment(args, item)
         }
 
         status.updateForClaNotRequired(args)
@@ -113,6 +130,7 @@ async function handleWebHook(args) {
 }
 
 module.exports = async function (req, res) {
+
     if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
         if (req.args.pull_request && req.args.pull_request.html_url) {
             // eslint-disable-next-line no-console
@@ -141,13 +159,13 @@ module.exports = async function (req, res) {
                 args.orgId = undefined
             }
 
-            return handleWebHook(args)
+            handleWebHook(args, item)
         } catch (e) {
             logger.warn(e)
 
         }
-        // }, config.server.github.enforceDelay)
     }
-
     res.status(200).send('OK')
+
+
 }

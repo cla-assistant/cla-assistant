@@ -399,13 +399,16 @@ class ClaService {
                 signed: true
             })
         }
-
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->getGistObject for the repo' + JSON.stringify(args.repo))
         const gist = await this._getGistObject(args.gist, item.token)
         if (!gist) {
             throw new Error('No gist found for item')
         }
         args.gist_version = gist.data.history[0].version
 
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->getPR for the repo' + JSON.stringify(args.repo))
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
         //console.log(pullRequest)
         if (!pullRequest) {
@@ -484,6 +487,8 @@ class ClaService {
         }
 
         if (committerSignatureRequired) {
+            // eslint-disable-next-line no-console
+            console.log('DEBUG: checkPullRequestSignatures-->getPRCommitters for the repo ' + JSON.stringify(args.repo))
             const committers = await repoService.getPRCommitters(args)
             signees = _.uniqWith([...signees, ...committers], (object, other) => object.id == other.id)
         }
@@ -491,7 +496,8 @@ class ClaService {
         signees = signees.filter(signee =>
             signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name))
         )
-
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures-->return _checkAll for the repo ' + JSON.stringify(args.repo))
         return this._checkAll(
             signees,
             item.repoId,
@@ -655,22 +661,34 @@ class ClaService {
         selection = this._updateQuery(selection, args.sharedGist)
 
         if (!args.gist.gist_version) {
-            return CLA.find(selection, {}, options)
+            try {
+                return CLA.find(selection, {}, options)
+            } catch (error) {
+                logger.warn('Error occured when getting all signed CLAs for given repo without gist version' + error)
+                logger.warn('Api cla.getAll failed with selection ' + selection)
+                // eslint-disable-next-line no-console
+                console.log('Api cla.getAll failed with selection from console log ' + selection)
+            }
+        }
+        try {
+            const clas = await CLA.find(selection, {}, options)
+            if (!clas) {
+                throw new Error('no clas found')
+            }
+            const foundSigners = []
+            const distinctClas = clas.filter((cla) => {
+                if (foundSigners.indexOf(cla.userId) < 0) {
+                    foundSigners.push(cla.userId)
+                    return true
+                }
+                return false
+            })
+            return distinctClas
+        } catch (error) {
+            logger.warn('Error occured when getting all signed CLAs for given repo ' + error)
         }
 
-        const clas = await CLA.find(selection, {}, options)
-        if (!clas) {
-            throw new Error('no clas found')
-        }
-        const foundSigners = []
-        const distinctClas = clas.filter((cla) => {
-            if (foundSigners.indexOf(cla.userId) < 0) {
-                foundSigners.push(cla.userId)
-                return true
-            }
-            return false
-        })
-        return distinctClas
+
     }
 
     async create(args) {

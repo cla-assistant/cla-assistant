@@ -1,5 +1,37 @@
 # Change Log
 
+## [v2.4.5](https://github.com/cla-assistant/cla-assistant/tree/v2.4.5) (2019-12-04)
+**Fixed Bugs:**
+- Added extra logging for debugging the http 403 forbidden error
+
+## [v2.4.4](https://github.com/cla-assistant/cla-assistant/tree/v2.4.4) (2019-12-02)
+**Fixed Bugs:**
+- App will listen to the HTTP requests only after all the files are bootstrapped [issue #512](https://github.com/cla-assistant/cla-assistant/issues/512)
+- Moved the App starting from ./app.js to ./server/app.js (temporary workaround)
+
+## [v2.4.3](https://github.com/cla-assistant/cla-assistant/tree/v2.4.3) (2019-11-28)
+**Fixed Bugs:**
+- Added additional logging for trouble shooting the failing webhooks with status code 400
+- Bootstrapping webhook file in the beginning 
+- **classistant** GitHub account is blocked and So, using the **claassistantio** GitHub Account and it's token for 
+  commenting on the Pull Request (temporary workaround)
+
+## [v2.4.2](https://github.com/cla-assistant/cla-assistant/tree/v2.4.2) (2019-10-15)
+**Fixed Bugs:**
+- sending response to webhook after PR comment and status logic
+- added console statements for debugging
+
+## [v2.4.1](https://github.com/cla-assistant/cla-assistant/tree/v2.4.1) (2019-10-09)
+**Fixed Bugs:**
+- removed duplicated method function call to linkeditem when there is a request from webhook
+- quick response to the incoming webhook instead of waiting for the whole flow to finish
+- introduced additional logging for debugging 
+
+## [v2.4.0](https://github.com/cla-assistant/cla-assistant/tree/v2.4.0) (2019-10-09)
+**New Features:**
+- Introduced GitHub Action for CI/CD Pipeline
+- Moving the infrastructure of this project to Google Cloud Run Serverless Container  Platform 
+
 ## [v2.3.2](https://github.com/cla-assistant/cla-assistant/tree/v2.3.2) (2019-09-03)
 **Fixed bugs:**
 - Slowed down the GitHub API requests to spread out the API calls  for staying within the GitHub API rate limit when doing ReCheckPR for organisation 

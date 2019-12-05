@@ -64,6 +64,8 @@ const getCombinedStatus = async (args) => {
 
 const createStatus = async (args, context, description, state, target_url) => {
     try {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: createstatus --->' + JSON.stringify(args.repo))
         return github.call({
             obj: 'repos',
             fun: 'createStatus',
@@ -148,6 +150,8 @@ const findClaStatus = async (args) => {
 const updateStatus = async (args) => {
     try {
         const status = await findStatusToBeChanged(args)
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: updateStatus --->' + JSON.stringify(args.repo))
 
         if (!status) {
             return

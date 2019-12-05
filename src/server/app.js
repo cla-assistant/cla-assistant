@@ -1,3 +1,6 @@
+let http = require('http')
+
+
 /* eslint no-console: "off"*/
 require('colors')
 const async = require('async')
@@ -41,7 +44,9 @@ app.use((req, res, next) => {
 });
 
 app.use(require('x-frame-options')());
-app.use(require('body-parser').json({ limit: '5mb' }));
+app.use(require('body-parser').json({
+    limit: '5mb'
+}));
 app.use(require('cookie-parser')());
 app.use(noSniff());
 app.enable('trust proxy');
@@ -168,21 +173,19 @@ async.series([
 
         global.models = {}
     },
+    (callback) => {
+        bootstrap('webhooks', callback)
+    },
 
     (callback) => {
         bootstrap('passport', callback)
     },
-
     (callback) => {
         bootstrap('graphQueries', callback)
     },
 
     (callback) => {
         bootstrap('api', callback)
-    },
-
-    (callback) => {
-        bootstrap('webhooks', callback)
     },
 
     (callback) => {
@@ -196,6 +199,15 @@ async.series([
 
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
+    // eslint-disable-next-line no-console
+    console.log("App is initialized")
+    let server = http.createServer(app)
+    // eslint-disable-next-line no-console
+    console.log("Server is created")
+    const listener = server.listen(config.server.localport, function () {
+        // eslint-disable-next-line no-console
+        console.log('Listening on port ' + listener.address().port)
+    });
 });
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,6 +250,10 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
+        // eslint-disable-next-line no-console
+        console.log("webhook object ---> ")
+        // eslint-disable-next-line no-console
+        console.log(webhooks)
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event')
         }
