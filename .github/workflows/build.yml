@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD-Pipeline
 
 on:
   push:
@@ -26,8 +26,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
-    - name: Bower Install
-      run: bower install
     - name: Npm Install
       run: npm install
     - name: grunt build and test
