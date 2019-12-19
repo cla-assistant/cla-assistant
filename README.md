@@ -150,7 +150,7 @@ The following are the environment variables you have to configure to run a priva
 > http://docs.mongodb.org/manual/reference/method/db.createUser
 
 > **Hint:** For further reading on setting up CouchDB, go to
-> http://docs.couchdb.org/en/stable/intro/tour.html
+> http://docs.couchdb.org/en/stable/intro/tour.html.
 > After successful installation of CouchDb you can start Fauxton, a build-in administration interface to create users and admins. The database is created automatically on startup of the application.
 
 Run grunt in order to build the application.
