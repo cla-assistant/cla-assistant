@@ -7,7 +7,7 @@ class UserService {
         if(global.config.server.useCouch) {
             await global.cladb.find({selector: {type: 'entity', table: 'user', name: profile.usernme}, limit:1}).then(function(users){
                 if(users.docs.length == 0) {
-                    var result = global.cladb.insert({
+                    global.cladb.insert({
                         type: 'entity',
                         table: 'user',
                         uuid: profile.uuid,
@@ -30,11 +30,13 @@ class UserService {
                     name: profile.username
                 })
         
-                if (user && !user.uuid) {
-                    user.uuid = profile.id
+                if (user) {
+                    if(!user.uuid) {
+                        user.uuid = profile.id
+                    }
+                    user.token = accessToken
+                    user.save()
                 }
-                user.token = accessToken
-                user.save()
             } catch (error) {
                 logger.warn(error.stack)
             }
