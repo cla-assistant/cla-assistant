@@ -6,55 +6,81 @@ const status = require('../services/status')
 const cla = require('../services/cla')
 const repoService = require('../services/repo')
 const logger = require('../services/logger')
-const User = require('mongoose').model('User')
-
+const userService = require('../services/user')
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // GitHub Pull Request Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 function storeRequest(committers, repo, owner, number) {
+    const pullRequest = {
+        repo: repo,
+        owner: owner,
+        numbers: [number]
+    }
     committers.forEach(async committer => {
-        let user
-        try {
-            user = await User.findOne({
-                name: committer
-            })
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
-        const pullRequest = {
-            repo: repo,
-            owner: owner,
-            numbers: [number]
-        }
-        if (!user) {
-            try {
-                User.create({
-                    name: committer,
-                    requests: [pullRequest]
-                })
-            } catch (error) {
-                logger.warn(new Error(error).stack)
-            }
-            return
-        }
+        let user = await userService.byUserName(committer)
         if (!user.requests || user.requests.length < 1) {
             user.requests = user.requests ? user.requests : []
             user.requests.push(pullRequest)
-            await user.save()
-
+            await userService.save(user, function(error){
+                if(error) {
+                    console.log(error.stack)
+                }
+                else console.log("user requests initialized")
+            })
             return
         }
         const repoPullRequests = user.requests.find(request => request.repo === repo && request.owner === owner)
         if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
             repoPullRequests.numbers.push(number)
-            user.save()
+            await save(user)
         }
         if (!repoPullRequests) {
             user.requests.push(pullRequest)
-            user.save()
+            await userService.save(user, function(error){
+                if(error) console.log(error.stack)
+                else console.log("user pull requests updated")
+            })
         }
+    // } else {
+    //     committers.forEach(async committer => {
+    //         let user
+    //         try {
+    //             user = await User.findOne({
+    //                 name: committer
+    //             })
+    //         } catch (error) {
+    //             logger.warn(new Error(error).stack)
+    //         }
+    //         if (!user) {
+    //             try {
+    //                 User.create({
+    //                     name: committer,
+    //                     requests: [pullRequest]
+    //                 })
+    //             } catch (error) {
+    //                 logger.warn(new Error(error).stack)
+    //             }
+    //             return
+    //         }
+    //         if (!user.requests || user.requests.length < 1) {
+    //             user.requests = user.requests ? user.requests : []
+    //             user.requests.push(pullRequest)
+    //             await user.save()
+
+    //             return
+    //         }
+    //         const repoPullRequests = user.requests.find(request => request.repo === repo && request.owner === owner)
+    //         if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
+    //             repoPullRequests.numbers.push(number)
+    //             user.save()
+    //         }
+    //         if (!repoPullRequests) {
+    //             user.requests.push(pullRequest)
+    //             user.save()
+    //         }
+    //     })
     })
 }
 

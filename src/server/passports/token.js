@@ -2,7 +2,7 @@ const github = require('../services/github')
 const passport = require('passport')
 const Strategy = require('passport-accesstoken').Strategy
 const merge = require('merge')
-const User = require('mongoose').model('User')
+const userService = require('../services/user')
 
 function getGHUser(accessToken) {
     const args = {
@@ -41,7 +41,25 @@ passport.use(new Strategy(
             if (!res || !res.data) {
                 throw new Error('Could not find GitHub user for given token')
             }
-            const dbUser = await User.findOne({ uuid: res.data.id, name: res.data.login })
+            const dbUser = await userService.byUUIDAndName(res.data.id, res.data.login)
+            // async function(res) {
+            //     if(global.config.server.useCouch) {
+            //         User.find({ uuid: res.data.id, username: res.data.login }, function(error, users) {
+            //             if(error) {
+            //                 console.log(error.stack)
+            //             } else {
+            //                 if(users.length == 0) {
+            //                     console.log(new Error(`no dbUser found for ${res}`))
+            //                 } else {
+            //                     console.log("user found")
+            //                     return users[0]
+            //                 }
+            //             }
+            //         })
+            //     } else {
+            //         return await User.findOne({ uuid: res.data.id, name: res.data.login })
+            //     }
+            // }
             if (!dbUser) {
                 throw new Error(`Could not find user ${res.data.login} in the database`)
             }

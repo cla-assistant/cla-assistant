@@ -6,11 +6,24 @@ const logger = require('../services/logger')
 const passport = require('passport')
 const Strategy = require('passport-github').Strategy
 const merge = require('merge')
-const User = require('mongoose').model('User')
+const userService = require('../services/user')
 
 function updateToken(item, newToken) {
     item.token = newToken
-    item.save()
+    if(global.config.server.useCouch) {
+        item.type = 'entity'
+        if(item.repo) {
+            item.table = 'repo'
+        } else {
+            item.table = 'org'
+        }
+        global.cladb.insert(item, error=> {
+            if(error) console.log(error.stack)
+            else console.log("item updated")
+        })
+    } else {
+        item.save()
+    }
     logger.debug('Update access token for repo / org', item.repo || item.org)
 }
 
@@ -54,42 +67,7 @@ passport.use(new Strategy({
     tokenURL: url.githubToken,
     userProfileURL: url.githubProfile()
 }, async (accessToken, _refreshToken, params, profile, done) => {
-    let user
-    try {
-        user = await User.findOne({
-            name: profile.username
-        })
-
-        if (user && !user.uuid) {
-            user.uuid = profile.id
-        }
-        user.token = accessToken
-        user.save()
-    } catch (error) {
-        logger.warn(error.stack)
-    }
-
-    if (!user) {
-        try {
-            await User.create({
-                uuid: profile.id,
-                name: profile.username,
-                token: accessToken
-            })
-        } catch (error) {
-            logger.warn(new Error(`Could not create new user ${error}`).stack)
-        }
-    }
-    // User.update({
-    //     uuid: profile.id
-    // }, {
-    //     name: profile.username,
-    //     email: '', // needs fix
-    //     token: accessToken
-    // }, {
-    //     upsert: true
-    // }, function () {})
-
+    await userService.findUser(profile, accessToken)
     if (params.scope.indexOf('write:repo_hook') >= 0) {
         try {
             const repoRes = await repoService.getUserRepos({
@@ -121,8 +99,10 @@ passport.use(new Strategy({
         token: accessToken,
         scope: params.scope
     }))
-}))
+ }))
 
-passport.serializeUser((user, done) => done(null, user))
+passport.serializeUser((user, done) => 
+    done(null, user))
 
-passport.deserializeUser((user, done) => done(null, user))
+passport.deserializeUser((user, done) => 
+    done(null, user))

@@ -13,7 +13,7 @@ log = bunyan.createLogger({
     name: config.server.http.host,
     streams: [{
         name: 'stdout',
-        level: process.env.ENV == 'debug' ? 'info' : 'debug',
+        level: process.env.ENV == 'debug' ? bunyan.DEBUG : bunyan.INFO,
         stream: process.stdout
     }]
 });
@@ -21,7 +21,7 @@ log = bunyan.createLogger({
 try {
     log.addStream({
         name: 'slack',
-        level: 'error',
+        level: process.env.ENV == 'debug' ? 'info' : 'debug',
         stream: new BunyanSlack({
             webhook_url: config.server.slack.url,
             channel: config.server.slack.channel,
