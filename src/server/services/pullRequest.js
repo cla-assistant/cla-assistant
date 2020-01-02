@@ -4,7 +4,7 @@ const logger = require('../services/logger')
 
 const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
     if (signed) {
-        return `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>All committers have signed the CLA.`
+        return `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>All committers have signed the terms and conditions.`
     }
 
     let committersCount = 1
@@ -13,9 +13,9 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
     }
 
     let youAll = (committersCount > 1 ? 'you all' : 'you')
-    let text = `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that ${youAll} sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution.<br/>`
+    let text = `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>Thank you for your submission, we really appreciate it. We ask that ${youAll} sign our [Terms and Conditions](${claUrl}) before we can accept your contribution.<br/>`
     if (committersCount > 1) {
-        text += '**' + userMap.signed.length + '** out of **' + (userMap.signed.length + userMap.not_signed.length) + '** committers have signed the CLA.<br/>'
+        text += '**' + userMap.signed.length + '** out of **' + (userMap.signed.length + userMap.not_signed.length) + '** committers have signed the T&C.<br/>'
         userMap.signed.forEach(function (signee) {
             text += '<br/>:white_check_mark: ' + signee
         })
@@ -26,15 +26,15 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
     }
 
     if (userMap && userMap.hasExternalCommiter && userMap.hasExternalCommiter.check == true) {
-        text += ` <br/> **Note:** In case you are already a member of **${userMap.hasExternalCommiter.orgName}**, there is no need to sign the CLA again because **${userMap.hasExternalCommiter.orgName}** has already signed the (Corporate) CLA, hence just make sure that your membership is public. If you are not a member of **${userMap.hasExternalCommiter.orgName}** then you need to accept our CLA. <br/>`
+        text += ` <br/> **Note:** In case you are already a member of **${userMap.hasExternalCommiter.orgName}**, there is no need to sign the T&C again because **${userMap.hasExternalCommiter.orgName}** has already signed the T&C, hence just make sure that your membership is public. If you are not a member of **${userMap.hasExternalCommiter.orgName}** then you need to accept our T&C. <br/>`
     }
 
     if (userMap && userMap.unknown && userMap.unknown.length > 0) {
         let seem = (userMap.unknown.length > 1 ? 'seem' : 'seems')
         text += `<hr/>**${userMap.unknown.join(', ')}** ${seem} not to be a GitHub user.`
-        text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).<br/>'
+        text += ' You need a GitHub account to be able to sign the T&C. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).<br/>'
     }
-    text += `<sub>You have signed the CLA already but the status is still pending? Let us [recheck](${recheckUrl}) it.</sub>`
+    text += `<sub>You have signed the T&C already but the status is still pending? Let us [recheck](${recheckUrl}) it.</sub>`
 
     return text
 }

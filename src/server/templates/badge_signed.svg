@@ -12,8 +12,8 @@
     <path fill="#4c1" d="M33 0h4v18h-4z" />
     <rect rx="4" width="80" height="18" fill="url(#a)" />
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-        <text x="17.5" y="14" fill="#010101" fill-opacity=".3">CLA</text>
-        <text x="17.5" y="13">CLA</text>
+        <text x="17.5" y="14" fill="#010101" fill-opacity=".3">T&C</text>
+        <text x="17.5" y="13">T&C</text>
         <text x="55.5" y="14" fill="#010101" fill-opacity=".3">signed</text>
         <text x="55.5" y="13">signed</text>
     </g>
