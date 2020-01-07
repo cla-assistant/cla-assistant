@@ -1,0 +1,13 @@
+environment: production
+namespace: default
+image:
+  repo: web3f/cla-assistant
+  tag: latest
+
+serviceMonitor:
+  labels:
+    release: cla-assistant
+
+prometheusRules:
+  labels:
+    app: w3f

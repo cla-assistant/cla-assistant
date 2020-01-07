@@ -1,0 +1,107 @@
+version: 2
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/node:10.15
+    steps:
+      - checkout
+      - run: yarn
+      - run: yarn lint
+
+  buildImage:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            /scripts/build-image.sh web3f/cla-assistant .
+
+  integrationTests:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          description: run integration tests
+          command: |
+            /scripts/integration-tests.sh
+
+  publishImage:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            /scripts/publish-image.sh web3f/cla-assistant
+
+  publishChart:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - run:
+          command: |
+            /scripts/publish-chart.sh
+
+  deploy:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - run:
+          environment:
+            GCP_REGION: europe-west3
+          command: |
+            ./scripts/deploy.sh
+
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - lint:
+          filters:
+            tags:
+              only: /.*/
+      - buildImage:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - lint
+      - integrationTests:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - buildImage
+      - publishImage:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - integrationTests
+      - publishChart:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - integrationTests
+      - deploy:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
+          requires:
+            - publishImage
+            - publishChart
