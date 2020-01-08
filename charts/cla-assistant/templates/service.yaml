@@ -1,7 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cla-assistant
-  namespace: {{ .Values.namespace }}
+  name: {{ include "cla-assistant.fullname" . }}
   labels:
-    app: cla-assistant
+    {{- include "cla-assistant.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "cla-assistant.selectorLabels" . | nindent 4 }}

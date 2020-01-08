@@ -3,7 +3,7 @@ version: 2
 jobs:
   lint:
     docker:
-      - image: circleci/node:10.15
+      - image: circleci/node:12
     steps:
       - checkout
       - run: yarn
@@ -16,19 +16,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          command: |
-            /scripts/build-image.sh web3f/cla-assistant .
-
-  integrationTests:
-    docker:
-      - image: web3f/ci-commons:v1.7.1
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          description: run integration tests
-          command: |
-            /scripts/integration-tests.sh
+          command: docker build -t web3f/cla-assistant .
 
   publishImage:
     docker:
@@ -37,8 +25,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          command: |
-            /scripts/publish-image.sh web3f/cla-assistant
+          command: /scripts/publish-image.sh web3f/cla-assistant
 
   publishChart:
     docker:
@@ -69,39 +56,7 @@ workflows:
             tags:
               only: /.*/
       - buildImage:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - lint
-      - integrationTests:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - buildImage
       - publishImage:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-          requires:
-            - integrationTests
+        requires:
+          - buildImage
       - publishChart:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-          requires:
-            - integrationTests
-      - deploy:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*/
-          requires:
-            - publishImage
-            - publishChart

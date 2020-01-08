@@ -1,33 +1,89 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cla-assistant
-  namespace: {{ .Values.namespace }}
+  name: {{ include "cla-assistant.fullname" . }}
   labels:
-    app: polkadot-watcher
+    {{- include "cla-assistant.labels" . | nindent 4 }}
 spec:
-  replicas: 1
-  revisionHistoryLimit: 3
-  strategy:
-    type: RollingUpdate
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: cla-assistant
+      {{- include "cla-assistant.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: cla-assistant
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "cla-assistant.selectorLabels" . | nindent 8 }}
     spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "cla-assistant.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: pcla-assistant
-        image: {{ .Values.image.repo }}:{{ .Values.image.tag }}
-        imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            cpu: 100m
-            memory: 500Mi
-          requests:
-            cpu: 100m
-            memory: 500Mi
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: HOST
+            value: "Hello from the environment"
+          - name: PORT
+            value: "Such a sweet sorrow"
+          - name: HOST_PORT
+            value: "Hello from the environment"
+          - name: PROTOCOL
+            value: "Such a sweet sorrow"
+          - name: GITHUB_CLIENT
+            value: "Hello from the environment"
+          - name: GITHUB_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: secret
+          - name: GITHUB_USER
+            value: "Hello from the environment"
+          - name: GITHUB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: pass
+          - name: GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github
+                key: token
+          - name: GITHUB_ADMIN_USERS
+            value: "Such a sweet sorrow"
+          - name: MONGODB
+            #  "mongodb://<user>:<password>@<host>:<port>/<dbname>"
+            valueFrom:
+              secretKeyRef:
+                name: mongodb
+                key: uri
+
+
+
+
+
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
