@@ -29,46 +29,39 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: HOST
-            value: "Hello from the environment"
+            value: {{ .Values.host }}
           - name: PORT
-            value: "Such a sweet sorrow"
+            value: {{ .Values.port | default 80 }}
           - name: HOST_PORT
-            value: "Hello from the environment"
+            value: {{ .Values.hostPort | default 8080 }}
           - name: PROTOCOL
-            value: "Such a sweet sorrow"
+            value: {{ .Values.protocol | default "http" }}
           - name: GITHUB_CLIENT
-            value: "Hello from the environment"
+            value: {{ .Values.githubClient | default "CLIENT" }}
           - name: GITHUB_SECRET
             valueFrom:
               secretKeyRef:
-                name: github
+                name: github credentials
                 key: secret
           - name: GITHUB_USER
             value: "Hello from the environment"
           - name: GITHUB_PASS
             valueFrom:
               secretKeyRef:
-                name: github
+                name: github credentials
                 key: pass
           - name: GITHUB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github
+                name: github credentials
                 key: token
           - name: GITHUB_ADMIN_USERS
             value: "Such a sweet sorrow"
           - name: MONGODB
-            #  "mongodb://<user>:<password>@<host>:<port>/<dbname>"
             valueFrom:
               secretKeyRef:
-                name: mongodb
+                name: mongodb credentials
                 key: uri
-
-
-
-
-
-
           ports:
             - name: http
               containerPort: 80
