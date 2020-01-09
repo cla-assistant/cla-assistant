@@ -2,11 +2,11 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-host:
-port:
-hostPort:
-protocol:
-
+claAssistant:
+  host:
+  port:
+  hostPort:
+  protocol:
 
 github:
   secret: "a3da5d4a65ds"
@@ -22,13 +22,9 @@ mongodb:
   mongodbDatabase: cla
   replicaSet:
     enabled: true
-  resourcesArbiter:
-    limits:
-      cpu: 500m
-      memory: 512Mi
-    requests:
-      cpu: 100m
-      memory: 256Mi
+    replicas:
+      secondary: 1
+      arbiter: 1
     pdb:
       enabled: true
       minAvailable:
@@ -38,20 +34,36 @@ mongodb:
         secondary: 1
         arbiter: 1
 
+  resourcesArbiter:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
 replicaCount: 2
 
-host:
-port:
-hostPort:
-protocol:
+prometheus-mongodb-exporter:
+  mongodb:
+    uri: "mongodb://mongol:password@mongo:56985/cla"
+
+  resources:
+   limits:
+     cpu: 250m
+     memory: 192Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
+
+   serviceMonitor:
+     namespace: default
 
 image:
   repository: web3f
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created

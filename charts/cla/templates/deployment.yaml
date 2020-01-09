@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "cla-assistant.fullname" . }}
+  name: {{ include "cla.fullname" . }}
   labels:
-    {{- include "cla-assistant.labels" . | nindent 4 }}
+    {{- include "cla.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "cla-assistant.selectorLabels" . | nindent 6 }}
+      {{- include "cla.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "cla-assistant.selectorLabels" . | nindent 8 }}
+        {{- include "cla.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "cla-assistant.serviceAccountName" . }}
+      serviceAccountName: {{ include "cla.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -29,13 +29,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: HOST
-            value: {{ .Values.host }}
+            value: {{ .Values.claAssistant.host }}
           - name: PORT
-            value: {{ .Values.port | default 80 }}
+            value: {{ .Values.claAssistant.port | default 80 }}
           - name: HOST_PORT
-            value: {{ .Values.hostPort | default 8080 }}
+            value: {{ .Values.claAssistant.hostPort | default 8080 }}
           - name: PROTOCOL
-            value: {{ .Values.protocol | default "http" }}
+            value: {{ .Values.claAssistant.protocol | default "http" }}
           - name: GITHUB_CLIENT
             value: {{ .Values.githubClient | default "CLIENT" }}
           - name: GITHUB_SECRET
