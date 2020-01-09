@@ -37,7 +37,7 @@ image:
 
 ## String to partially override mongodb.fullname template (will maintain the release name)
 ##
-# nameOverride:
+#nameOverride: mongodb_backend
 
 ## String to fully override mongodb.fullname template
 ##
@@ -123,7 +123,7 @@ service:
   annotations: {}
   type: ClusterIP
   # clusterIP: None
-  port: 27017
+  port:
 
   ## Specify the nodePort value for the LoadBalancer and NodePort service types.
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport

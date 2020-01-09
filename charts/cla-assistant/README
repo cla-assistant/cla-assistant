@@ -1,0 +1,1 @@
+helm template -n cla --set github.secret="ABCDE" cla .
