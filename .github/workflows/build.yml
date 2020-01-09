@@ -3,83 +3,70 @@ name: CI/CDPipeline
 on:
   push:
     branches:
-    - '*'
+      - "*"
     tags:
-    - '*'
+      - "*"
   pull_request:
-    branches:
     - master
 
 jobs:
   build:
-    runs-on:  ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
-      matrix: 
-        node_version: 
-        - 12    
-        os: 
-        - ubuntu-latest
+      matrix:
+        node_version:
+          - 12
+        os:
+          - ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node version 12
-      uses: actions/setup-node@v1
-      with:
-        version:  ${{ matrix.node_version }}
-    - name: Npm Install
-      run: npm install
-    - name: grunt build and test
-      run: |
-        grunt build
-        grunt test
-        grunt coverage
-    - name: Test Coverage
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        path-to-lcov: ./output/coverage/lcov.info
-    - name: build the docker image with committ SHA for staging
-      if: github.ref == 'refs/heads/master'
-      run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} .
-    - name: build the docker images with tag name and latest for production
-      if: startsWith(github.ref, 'refs/tags')
-      run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}  -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:latest -t sapclaassistant/claassistant:${GITHUB_REF:10} .
-    - name: push the latest and release images to dockerhub only for releases
-      if: startsWith(github.ref, 'refs/tags')
-      run: | 
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker push sapclaassistant/claassistant
-    - name: setup google cloud platform
-      if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')
-      uses: actions/gcloud/auth@master
-      env:
-        GCLOUD_AUTH: ${{ secrets.GCP_base64 }}
-    - name: setup Credential helper for gcp 
-      if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')
-      uses: actions/gcloud/cli@master
-      with:
-        args: auth configure-docker --quiet
-    - name: push images to gcp 
-      if: github.ref == 'refs/heads/master'  || startsWith(github.ref, 'refs/tags')
-      uses: actions/gcloud/cli@master
-      with:
-        entrypoint: sh
-        args: -c "docker push eu.gcr.io/sap-cla-assistant/cla-assistant"
-    - name: deploy to staging cloud run service
-      if: github.ref == 'refs/heads/master' 
-      uses: actions/gcloud/cli@master
-      with:
-        entrypoint: sh
-        args: -c "gcloud components install beta && gcloud components update && gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} "
-
-        
-
-  
-        
-      
-        
-        
-        
-
-
-
+      - uses: actions/checkout@v2.0.0
+      - name: Use Node version ${{ matrix.node_version }}
+        uses: actions/setup-node@v1.3.0
+        with:
+          version: ${{ matrix.node_version }}
+      - name: Npm Install
+        run: npm install
+      - name: grunt build and test
+        run: |
+          grunt build
+          grunt test
+          grunt coverage
+      - name: Test Coverage
+        uses: coverallsapp/github-action@v1.0.1
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./output/coverage/lcov.info
+      - name: build the docker image with committ SHA for staging
+        if: github.ref == 'refs/heads/master'
+        run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} .
+      - name: build the docker images with tag name and latest for production
+        if: startsWith(github.ref, 'refs/tags')
+        run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}  -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:latest -t sapclaassistant/claassistant:${GITHUB_REF:10} .
+      - name: push the latest and release images to dockerhub only for releases
+        if: startsWith(github.ref, 'refs/tags')
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push sapclaassistant/claassistant
+      - name: setup google cloud platform
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')
+        uses: actions/gcloud/auth@master
+        env:
+          GCLOUD_AUTH: ${{ secrets.GCP_base64 }}
+      - name: setup Credential helper for gcp
+        if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')
+        uses: actions/gcloud/cli@master
+        with:
+          args: auth configure-docker --quiet
+      - name: push images to gcp
+        if: github.ref == 'refs/heads/master'  || startsWith(github.ref, 'refs/tags')
+        uses: actions/gcloud/cli@master
+        with:
+          entrypoint: sh
+          args: -c "docker push eu.gcr.io/sap-cla-assistant/cla-assistant"
+      - name: deploy to staging cloud run service
+        if: github.ref == 'refs/heads/master'
+        uses: actions/gcloud/cli@master
+        with:
+          entrypoint: sh
+          args: -c "gcloud components install beta && gcloud components update && gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} "
