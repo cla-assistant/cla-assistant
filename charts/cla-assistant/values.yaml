@@ -2,14 +2,26 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2
 namespace: cla-assistant
+
+github:
+  secret: "a3da5d4a65ds"
+  password: "a3da5d4a65ds"
+  token: "a3da5d4a65ds"
+
+mongodb:
+  namespace: cla-assistant
+  username: cla-assistant
+  password: "KLSJKLSDJLKJDLKDJSJDKS"
+  dbname: cla-assistant
+  uri: mongodb://cla-assistant:"KLSJKLSDJLKJDLKDJSJDKS"@mongodb:27017/cla-assistant
+
+replicaCount: 2
+
 host:
 port:
-hostPort: 
+hostPort:
 protocol:
-githubClient:
-
 
 image:
   repository: web3f

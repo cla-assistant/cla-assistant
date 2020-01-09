@@ -41,19 +41,19 @@ spec:
           - name: GITHUB_SECRET
             valueFrom:
               secretKeyRef:
-                name: github credentials
+                name: github-credentials
                 key: secret
           - name: GITHUB_USER
             value: "Hello from the environment"
           - name: GITHUB_PASS
             valueFrom:
               secretKeyRef:
-                name: github credentials
+                name: github-credentials
                 key: pass
           - name: GITHUB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: github credentials
+                name: github-credentials
                 key: token
           - name: GITHUB_ADMIN_USERS
             value: "Such a sweet sorrow"
@@ -64,7 +64,7 @@ spec:
                 key: uri
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.port | default 80 }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

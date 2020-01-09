@@ -27,15 +27,29 @@ jobs:
       - run:
           command: /scripts/publish-image.sh web3f/cla-assistant
 
-  publishChart:
+  testChart:
     docker:
       - image: web3f/ci-commons:v1.7.1
     steps:
       - checkout
       - run:
           command: |
-            /scripts/publish-chart.sh
+            helm template ./charts/cla-assistant/.
 
+  integrationTests:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+
+  publishChart:
+    docker:
+      - image: web3f/ci-commons:v1.7.1
+    steps:
+      - checkout
+      - run:
+           command: |
+             /scripts/publish-chart.sh
   deploy:
     docker:
       - image: web3f/ci-commons:v1.7.1
@@ -59,4 +73,12 @@ workflows:
       - publishImage:
         requires:
           - buildImage
+      - testChart:
+        requires:
+          - publishImage
+      - integrationTests:
+        requires:
+          - testChart
       - publishChart:
+        requires:
+          - integrationTests
