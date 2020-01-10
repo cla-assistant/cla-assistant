@@ -33,7 +33,6 @@ mongodb:
       maxUnavailable:
         secondary: 1
         arbiter: 1
-
   resourcesArbiter:
     limits:
       cpu: 500m
@@ -41,23 +40,54 @@ mongodb:
     requests:
       cpu: 100m
       memory: 256Mi
+  securityContext:
+    enabled: true
+    fsGroup: 1001
+    runAsUser: 1001
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  metrics:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: bitnami/mongodb-exporter
+      tag: 0.10.0-debian-9-r77
+      pullPolicy: IfNotPresent
+    livenessProbe:
+      enabled: true
+      initialDelaySeconds: 15
+      periodSeconds: 5
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 1
+      failureThreshold: 3
+      successThreshold: 1
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9216"
+    serviceMonitor:
+      enabled: true
+
 
 replicaCount: 2
-
-prometheus-mongodb-exporter:
-  mongodb:
-    uri: "mongodb://mongol:password@mongo:56985/cla"
-
-  resources:
-   limits:
-     cpu: 250m
-     memory: 192Mi
-   requests:
-     cpu: 100m
-     memory: 128Mi
-
-   serviceMonitor:
-     namespace: default
 
 image:
   repository: web3f
