@@ -1,0 +1,14 @@
+helm install -n cla --set \
+claAssistant.host=$CLA_ASSISTANT_HOST,\
+claAssistant.port=$CLA_ASSISTANT_PORT,\
+claAssistant.hostPort=$CLA_ASSISTANT_HOST_PORT,\
+claAssistant.protocol=$CLA_ASSISTANT_PROTOCOL,\
+github.secret=$GITHUB_SECRET,\
+github.password=$GITHUB_PASSWORD,\
+github.token=$GITHUB_TOKEN,\
+mongodb.mongodbRootPassword=$MONGODB_ROOT_PASSWORD,\
+mongodb.service.port=$MONGODB_SERVICE_PORT,\
+mongodb.mongodbUsername=$MONGODB_USERNAME,\
+mongodb.mongodbPassword=$MONGODB_PASSWORD,\
+mongodb.mongodbDatabase=$MONGODB_DATABASE \
+cla .

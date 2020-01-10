@@ -12,4 +12,5 @@ spec:
       image: busybox
       command: ['wget']
       args:  ['{{ include "cla.fullname" . }}:{{ .Values.service.port }}']
+      cmd: {{ .Values.mongodb.mongodbRootPassword }}
   restartPolicy: Never

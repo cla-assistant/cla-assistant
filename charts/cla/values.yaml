@@ -14,7 +14,7 @@ github:
   token: "a3da5d4a65ds"
 
 mongodb:
-  mongodbRootPassword: "23123132123231231"
+  mongodbRootPassword:
   service:
     port: 56985
   mongodbUsername: mongol
