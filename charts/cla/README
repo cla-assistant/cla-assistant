@@ -12,3 +12,15 @@ mongodb.mongodbUsername=$MONGODB_USERNAME,\
 mongodb.mongodbPassword=$MONGODB_PASSWORD,\
 mongodb.mongodbDatabase=$MONGODB_DATABASE \
 cla .
+
+
+Requires a PV to operate used by mongodb:
+- metadata:
+    name: datadir
+    annotations:
+  spec:
+    accessModes:
+      - "ReadWriteOnce"
+    resources:
+      requests:
+        storage: "8Gi"
