@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.4.6](https://github.com/cla-assistant/cla-assistant/tree/v2.4.6) (2020-01-22)
+**Fixed Bugs:**
+- Added extra logging for debugging
+-  Replaced basicauth claassistantio credentials with token
+
 ## [v2.4.5](https://github.com/cla-assistant/cla-assistant/tree/v2.4.5) (2019-12-04)
 **Fixed Bugs:**
 - Added extra logging for debugging the http 403 forbidden error
