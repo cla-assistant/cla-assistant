@@ -34,6 +34,8 @@ class ClaService {
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: checkPullRequestSignatures--> _checkAll for the repo ' + JSON.stringify(repoId))
         let promises = []
         const userMap = {
             signed: [],
@@ -410,7 +412,6 @@ class ClaService {
         // eslint-disable-next-line no-console
         console.log('DEBUG: checkPullRequestSignatures-->getPR for the repo' + JSON.stringify(args.repo))
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
-        //console.log(pullRequest)
         if (!pullRequest) {
             throw new Error('No pull request found')
         }
@@ -496,8 +497,6 @@ class ClaService {
         signees = signees.filter(signee =>
             signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name))
         )
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures-->return _checkAll for the repo ' + JSON.stringify(args.repo))
         return this._checkAll(
             signees,
             item.repoId,

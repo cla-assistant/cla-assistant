@@ -88,6 +88,8 @@ const createStatus = async (args, context, description, state, target_url) => {
 
 const findStatusToBeChanged = async (args) => {
     try {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: findStatusToBeChanged for the repo ' + JSON.stringify(args.repo))
         const response = await getStatuses(args)
         // let statuses = ''
         const description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.'
@@ -149,9 +151,9 @@ const findClaStatus = async (args) => {
 
 const updateStatus = async (args) => {
     try {
-        const status = await findStatusToBeChanged(args)
         // eslint-disable-next-line no-console
         console.log('DEBUG: updateStatus --->' + JSON.stringify(args.repo))
+        const status = await findStatusToBeChanged(args)
 
         if (!status) {
             return
@@ -177,6 +179,8 @@ const getPullRequestHeadShaIfNeeded = async (args) => {
 }
 
 const updateStatusIfNeeded = async (args, status, allowAbsent) => {
+    // eslint-disable-next-line no-console
+    console.log('DEBUG: updateStatusIfNeeded for the repo ' + JSON.stringify(args.repo))
 
     if (!status) {
         return new Error('Status is required for updateStatusIfNeeded.')
@@ -199,6 +203,8 @@ const updateStatusIfNeeded = async (args, status, allowAbsent) => {
 
 class StatusService {
     async update(args) {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: StatusService-->update for the repo ' + JSON.stringify(args.repo))
         if (args && !args.sha) {
             try {
                 const resp = (await getPR(args)).data
@@ -230,6 +236,8 @@ class StatusService {
     }
 
     async updateForClaNotRequired(args) {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: updateForClaNotRequired for the repo ' + JSON.stringify(args.repo))
         let status = {
             context: 'license/cla',
             state: 'success',
