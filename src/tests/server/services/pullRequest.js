@@ -153,6 +153,7 @@ describe('pullRequest:badgeComment', () => {
     let direct_call_data, assertionFunction
     cla_config.server.github.user = 'cla-assistant'
     cla_config.server.github.pass = 'secret_pass'
+    cla_config.server.github.token = 'xyz'
 
     beforeEach(() => {
         cla_config.server.github.token = 'xyz'
@@ -182,9 +183,8 @@ describe('pullRequest:badgeComment', () => {
         direct_call_data = []
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'createComment')
-            assert(!args.token)
-            assert.equal(args.basicAuth.user, 'cla-assistant')
-            assert.equal(args.basicAuth.pass, 'secret_pass')
+            assert(args.token)
+            assert.equal(args.token, 'xyz')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
             return {
                 data: 'githubRes'
@@ -199,11 +199,11 @@ describe('pullRequest:badgeComment', () => {
         assert(!logger.warn.called)
     })
 
-    it('should edit comment with cla-assistant user', async () => {
+    it('should edit comment with cla-assistantio user token', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
-            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.token, 'xyz')
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0)
             return 'githubRes'
         }
@@ -220,7 +220,7 @@ describe('pullRequest:badgeComment', () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
-            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.token, 'xyz')
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
             return 'githubRes'
         }
@@ -239,7 +239,7 @@ describe('pullRequest:badgeComment', () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
-            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.token, 'xyz')
             assert(args.arg.body.indexOf('In case you are already a member of') >= 0)
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
             return 'githubRes'
@@ -260,7 +260,7 @@ describe('pullRequest:badgeComment', () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
-            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.token, 'xyz')
             assert(args.arg.body.indexOf('In case you are already a member of') < 0)
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0)
             return 'githubRes'
@@ -424,6 +424,7 @@ describe('pullRequest:badgeComment', () => {
 
 describe('pullRequest:getComment', () => {
     beforeEach(() => {
+        //CLAAssistantio token
         cla_config.server.github.token = 'xyz'
 
         sinon.stub(github, 'call').callsFake(async (args) => {
@@ -497,7 +498,7 @@ describe('pullRequest:editComment', () => {
             if (assertionFunction) {
                 return assertionFunction(args)
             }
-            assert.equal(args.basicAuth.user, 'cla-assistant')
+            assert.equal(args.token, 'xyz')
             assert(args.arg.comment_id)
             return 'res'
         })

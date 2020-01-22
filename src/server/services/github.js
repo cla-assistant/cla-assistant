@@ -17,7 +17,9 @@ async function callGithub(octokit, obj, fun, arg, cacheKey) {
     let res
     if (fun.match(/list.*/g)) {
         const options = octokit[obj][fun].endpoint.merge(arg)
-        res = { data: await octokit.paginate(options) }
+        res = {
+            data: await octokit.paginate(options)
+        }
     } else {
         res = await octokit[obj][fun](arg)
     }
@@ -100,7 +102,6 @@ const githubService = {
         if (token) {
             auth = `token ${token}`
         }
-
         if (basicAuth) {
             auth = {
                 username: basicAuth.user,

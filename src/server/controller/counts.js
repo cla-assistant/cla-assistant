@@ -60,7 +60,9 @@ router.all('/count/orgs', async (req, res) => {
 router.all('/count/clas', async (req, res) => {
     if (req.query.last) {
         try {
-            const cla = await CLA.find().sort({ 'created_at': -1 }).limit(1)
+            const cla = await CLA.find().sort({
+                'created_at': -1
+            }).limit(1)
             res.set('Content-Type', 'application/json')
             let fullName = `${cla[0].owner}/${cla[0].repo}`
 
@@ -90,7 +92,9 @@ router.all('/count/clas', async (req, res) => {
             data = []
         }
         res.set('Content-Type', 'application/json')
-        let text = { text: `There are ${data.length} signed CLAs!` }
+        let text = {
+            text: `There are ${data.length} signed CLAs!`
+        }
         text.attachments = []
         let list = {}
         if (req.query.detailed) {
@@ -127,10 +131,7 @@ router.all('/count/stars', async (_req, res) => {
                 owner: 'cla-assistant',
                 repo: 'cla-assistant'
             },
-            basicAuth: {
-                user: config.server.github.user,
-                pass: config.server.github.pass
-            }
+            token: config.server.github.token
         })
     } catch (error) {
         logger.info(error)

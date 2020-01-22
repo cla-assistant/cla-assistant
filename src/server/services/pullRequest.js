@@ -73,10 +73,7 @@ class PullRequestService {
                 obj: 'issues',
                 fun,
                 arg,
-                basicAuth: {
-                    user: config.server.github.user,
-                    pass: config.server.github.pass
-                }
+                token: config.server.github.token,
             })
         } catch (error) {
             logger.warn(new Error(error).stack)
@@ -126,10 +123,7 @@ class PullRequestService {
                     body: body,
                     noCache: true
                 },
-                basicAuth: {
-                    user: config.server.github.user,
-                    pass: config.server.github.pass
-                }
+                token: config.server.github.token
             })
         } catch (error) {
             logger.warn(new Error(`${error} with args: ${args}`).stack)
@@ -154,10 +148,7 @@ class PullRequestService {
                     repo: args.repo,
                     comment_id: comment.id
                 },
-                basicAuth: {
-                    user: config.server.github.user,
-                    pass: config.server.github.pass
-                }
+                token: config.server.github.token
             })
         } catch (error) {
             logger.warn(error, 'with args:', args.repo, args.owner, args.number)

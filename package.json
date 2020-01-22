@@ -21,7 +21,7 @@
     "dependencies": {
         "@octokit/plugin-retry": "^2.2.0",
         "@octokit/plugin-throttling": "^2.4.0",
-        "@octokit/rest": "^16.18.1",
+        "@octokit/rest": "^16.37.0",
         "angular": "^1.7.9",
         "array-sugar": "^1.2.2",
         "async": "^2.6.2",
