@@ -97,9 +97,8 @@ class RepoService {
     async all() {
         if(global.config.server.useCouch) {
             return (await global.cladb.find({selector: {type: 'entity', table: 'repo',}})).docs
-        } else {
-            return await Repo.find({})    
         }
+        return await Repo.find({})    
     }
 
     async check(args) {
@@ -118,18 +117,16 @@ class RepoService {
             var init =  initializationCouch(args)
             global.cladb.insert(init)
             return init
-        } else {
-            return Repo.create(initialization(args))
         }
+        return Repo.create(initialization(args))
     }
 
     async get(args) {
         if(global.config.server.useCouch) {
             var sel = {selector: selectionCouch(args), limit:1}
             return (await global.cladb.find(sel)).docs[0]
-        } else {
-            return await Repo.findOne(selection(args))
         }
+        return await Repo.findOne(selection(args))
     }
 
     async getAll(args) {
@@ -176,20 +173,18 @@ class RepoService {
     async getByOwner(owner) {
         if(global.config.server.useCouch) {
             return (await global.cladb.find({selector:{type: 'entity', table: 'repo', owner: owner}})).docs
-        } else {
-            return await Repo.find({owner})
         }
+        return await Repo.find({owner})
     }
 
     async getRepoWithSharedGist(gist) {
         if(global.config.server.useCouch) {
             return (await global.cladb.find({selector:{type: 'entity', table: 'repo', gist: gist, sharedGist: true}})).docs
-        } else {
-            return await Repo.find({
-                gist,
-                sharedGist: true
-            })
         }
+        return await Repo.find({
+            gist,
+            sharedGist: true
+        })
     }
 
     async update(args) {
@@ -222,9 +217,8 @@ class RepoService {
         if(global.config.server.useCouch) {
             await global.cladb.insert(repo)
             return repo
-        } else {
-            return await repo.save()
         }
+        return await repo.save()
     }
 
     async remove(args) {
@@ -234,7 +228,7 @@ class RepoService {
                     global.cladb.destroy(repo._id, repo._rev).then(function(repo) {
                         return repo
                     }, function(error) {
-                        console.log(new Error(error).stack)
+                        logger.error(new Error(error).stack)
                     })
                 )
             })

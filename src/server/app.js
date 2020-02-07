@@ -127,8 +127,7 @@ async.series([
         console.log('Host:        ' + url.baseUrl)
         console.log('GitHub:      ' + url.githubBase)
         console.log('GitHub-Api:  ' + url.githubApiBase)
-        console.log('Database:    ' + (config.server.useCouch?"CouchDB":"MongoDB"))
-        
+        console.log('Database:    ' + (config.server.useCouch ? 'CouchDB':'MongoDB'))
         callback();
     },
 
@@ -191,7 +190,7 @@ async.series([
                 },
                 dbName: config.server.couchdb.db,
                 collectionName: 'cookieSession',
-                timeout: 10000             
+                timeout: 10000
             })
             :
             new MongoStore({
@@ -203,7 +202,6 @@ async.series([
         app.use(expressSession(session))
         app.use(passport.initialize())
         app.use(passport.session())
-        
         global.models = {}
     },
     (callback) => {
@@ -233,10 +231,10 @@ async.series([
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
     // eslint-disable-next-line no-console
-    console.log("App is initialized")
+    console.log('App is initialized')
     let server = http.createServer(app)
     // eslint-disable-next-line no-console
-    console.log("Server is created")
+    console.log('Server is created')
 
     const listener = server.listen(config.server.localport, function () {
         // eslint-disable-next-line no-console

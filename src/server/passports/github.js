@@ -18,8 +18,8 @@ function updateToken(item, newToken) {
             item.table = 'org'
         }
         global.cladb.insert(item, error=> {
-            if(error) console.log(error.stack)
-            else console.log("item updated")
+            if(error) logger.error(error.stack)
+            else loggger.debug('item updated')
         })
     } else {
         item.save()

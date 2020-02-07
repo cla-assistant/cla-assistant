@@ -580,7 +580,6 @@ async function prepareForValidation(item, user) {
         user.requests.splice(needRemove[i], 1)
     }
     await userService.save(user);
-    //user.save()
     if (!foundPR) {
         throw new Error('No user PRs found for the linked item')
     }
