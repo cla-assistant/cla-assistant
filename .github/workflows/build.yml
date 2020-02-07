@@ -64,17 +64,3 @@ jobs:
     - name: deploy to staging cloud run service
       if: github.ref == 'refs/heads/master' 
       run: gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
-
-
-
-        
-
-  
-        
-      
-        
-        
-        
-
-
-
