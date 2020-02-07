@@ -19,7 +19,7 @@ function updateToken(item, newToken) {
         }
         global.cladb.insert(item, error=> {
             if(error) logger.error(error.stack)
-            else loggger.debug('item updated')
+            else logger.debug('item updated')
         })
     } else {
         item.save()
