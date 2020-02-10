@@ -320,6 +320,9 @@ class ClaService {
 
     async getGist(args) {
         let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined
+        if(gist_url == undefined) {
+            return null
+        }
         // let gist_version = args.gist ? args.gist.gist_version : undefined
         const gistRes = await this._getGistObject(gist_url, args.token)
         return gistRes.data
