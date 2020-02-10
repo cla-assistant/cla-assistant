@@ -345,7 +345,7 @@ module.exports = function () {
     };
 
     let triggerClaNotificationWebhook = function(argsToCreate) {
-        // TODO: fill in logic for async call to webhook, with sth like:
+        // TODO: fill in logic for async call to webhook, like:
         // var request = require('request');
         // if (config.notification.http_method === "POST"){
         //
