@@ -28,6 +28,8 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 
 Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.
 
+We also developed a [lite version](https://github.com/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/cla-assistant/github-action). 
+
 Try
 ====
 CLA assistant is provided by SAP as a free hosted offering under: https://cla-assistant.io/. Please leave us a GitHub issue if you have feedback.
