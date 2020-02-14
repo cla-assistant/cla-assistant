@@ -23,8 +23,6 @@ module.exports = {
             secret: process.env.GITHUB_SECRET,
 
             // required
-            user: process.env.GITHUB_USER,
-            pass: process.env.GITHUB_PASS,
             admin_users: process.env.GITHUB_ADMIN_USERS ? process.env.GITHUB_ADMIN_USERS.split(/\s*,\s*/) : [],
 
             // required

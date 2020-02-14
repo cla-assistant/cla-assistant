@@ -151,8 +151,6 @@ const testDataComments_withoutCLA = [{
 
 describe('pullRequest:badgeComment', () => {
     let direct_call_data, assertionFunction
-    cla_config.server.github.user = 'cla-assistant'
-    cla_config.server.github.pass = 'secret_pass'
     cla_config.server.github.token = 'xyz'
 
     beforeEach(() => {
