@@ -28,6 +28,7 @@ global.config = require('./../config')
 const app = express()
 const api = {}
 const webhooks = {}
+let runningWebhooks = []
 
 // redirect from http to https
 app.use((req, res, next) => {
@@ -250,18 +251,28 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
-        // eslint-disable-next-line no-console
-        console.log("webhook object ---> ")
-        // eslint-disable-next-line no-console
-        console.log(webhooks)
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event')
         }
-        webhooks[event](req, res)
+        if (!isRudundantWebhook(req)) {
+            webhooks[event](req, res)
+        }
     } catch (err) {
         res.status(500).send('Internal Server Error')
     }
 })
+
+function isRudundantWebhook(req) {
+    if (req.args.pull_request && req.args.pull_request.html_url) {
+        if (runningWebhooks.indexOf(req.args.pull_request.html_url) >= 0) {
+            return true
+        }
+        runningWebhooks.push(req.args.pull_request.html_url)
+        setTimeout(() => {
+            runningWebhooks = runningWebhooks.filter(e => e !== req.args.pull_request.html_url)
+        }, 2000)
+    }
+}
 
 function retryInitializeMongoose(uri, options, callback) {
     const defaultInterval = 1000;
