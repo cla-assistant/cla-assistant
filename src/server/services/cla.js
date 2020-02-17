@@ -211,7 +211,7 @@ class ClaService {
     //     return deferred.promise
     // }
 
-    async _getLinkedItem(repo, owner, token) {
+    async _getLinkedItem(repo, owner, token, repoId, orgId) {
         token = token || config.server.github.token
 
         if (owner && !repo) {
@@ -220,23 +220,23 @@ class ClaService {
             })
         }
 
-        const ghRepo = await repoService.getGHRepo({
-            owner: owner,
-            repo: repo,
-            token: token
-        })
-        try {
-            const linkedRepo = await repoService.get({
-                repoId: ghRepo.id
+        if (!orgId && !repoId) {
+            const ghRepo = await repoService.getGHRepo({
+                owner: owner,
+                repo: repo,
+                token: token
             })
+            repoId = ghRepo.id
+            orgId = ghRepo.owner.id
+        }
+        try {
+            const linkedRepo = await repoService.get({ repoId: repoId })
             if (linkedRepo) {
                 return linkedRepo
             }
             throw 'There is no linked repo'
         } catch (error) {
-            const linkedOrg = await orgService.get({
-                orgId: ghRepo.owner.id
-            })
+            const linkedOrg = await orgService.get({ orgId: orgId })
             if (linkedOrg) {
                 return linkedOrg
             }
@@ -622,8 +622,10 @@ class ClaService {
     // repo (mandatory)
     // owner (mandatory)
     // token (optional)
+    // repoId (optional)
+    // orgId (optional)
     async getLinkedItem(args) {
-        return this._getLinkedItem(args.repo, args.owner, args.token)
+        return this._getLinkedItem(args.repo, args.owner, args.token, args.repoId, args.orgId)
     }
 
     //Get all signed CLAs for given repo and gist url and/or a given gist version

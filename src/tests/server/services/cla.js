@@ -1595,6 +1595,22 @@ describe('cla:getLinkedItem', () => {
         assert(!repo_service.get.called)
         assert(!repo_service.getGHRepo.called)
     })
+
+    it('should not call github if repoId and orgId provided', async () => {
+        const args = {
+            repo: 'Hello-World',
+            owner: 'login0',
+            token: 'test_token',
+            repoId: '1',
+            orgId: '1'
+        }
+
+        await cla.getLinkedItem(args)
+
+        assert(repo_service.get.called)
+        assert(!repo_service.getGHRepo.called)
+        assert(!org_service.get.called)
+    })
 })
 
 describe('cla:terminate', () => {
