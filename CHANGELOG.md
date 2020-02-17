@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.5](https://github.com/cla-assistant/cla-assistant/tree/v2.5) (2020-02-17)
+**Fixed Bugs:**
+- avoid double comments by ignoring zombee webhooks [issue #521](https://github.com/cla-assistant/cla-assistant/issues/521)
+- get rid of obsolete github basic auth credentials [issue #525](https://github.com/cla-assistant/cla-assistant/issues/525)
+
 ## [v2.4.6](https://github.com/cla-assistant/cla-assistant/tree/v2.4.6) (2020-01-22)
 **Fixed Bugs:**
 - Added extra logging for debugging
