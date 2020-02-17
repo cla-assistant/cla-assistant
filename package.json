@@ -46,7 +46,7 @@
         "lodash": "^4.17.13",
         "memory-cache": "^0.2.0",
         "merge": ">=1.2.1",
-        "mongoose": "^5.4.19",
+        "mongoose": "^5.7.5",
         "node-fetch": "^2.6.0",
         "node-sass-middleware": "^0.11.0",
         "passport": "^0.4.0",
