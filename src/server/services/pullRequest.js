@@ -13,7 +13,7 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
     }
 
     let youAll = (committersCount > 1 ? 'you all' : 'you')
-    let text = `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>Thank you for your submission, we really appreciate it. Like many open source projects, we ask that ${youAll} sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution.<br/>`
+    let text = `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>Thank you for your submission! We really appreciate it. Like many open source projects, we ask that ${youAll} sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution.<br/>`
     if (committersCount > 1) {
         text += '**' + userMap.signed.length + '** out of **' + (userMap.signed.length + userMap.not_signed.length) + '** committers have signed the CLA.<br/>'
         userMap.signed.forEach(function (signee) {
