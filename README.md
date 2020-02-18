@@ -14,6 +14,20 @@ Table of Contents
 - [License](#license)
 - [Credits](#credits)
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
+
+Table of Contents
+===
+- [Contributor License Agreement assistant](#contributor-license-agreement-assistant)
+- [Try](#try)
+- [Request more information from the CLA signer](#request-more-information-from-the-cla-signer)
+- [FAQ](#faq)
+- [Setup your own instance of CLA assistant](#setup-your-own-instance-of-cla-assistant)
+- [Supported environment variables](#supported-environment-variables)
+- [Run the CLA assistant instance with Docker](#run-the-cla-assistant-instance-with-docker)
+- [License](#license)
+- [Credits](#credits)
+
 Contributor License Agreement assistant
 ===
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
@@ -141,12 +155,17 @@ The following are the environment variables you have to configure to run a priva
 - `GITHUB_TOKEN`: Use GitHub token of CLA assistant's user for API calls of not authenticated users. It can be generated here https://github.com/settings/tokens/new. The Only scope required is `public_repo`.
 - `GITHUB_ADMIN_USERS`: (optional, comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.
 - `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
+- `COUCHDB`: This has to be in form of a couchdb url, e.g. `http://<user>:<password>@<host>:<port>/<dbname>`. The default couchdb port is 5984. If a couchdb url is given, couchdb is used instead of mongodb thus ignoring the mongodb url.
 - `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
 - `SLACK_TOKEN`: Optional.
 
 > **Hint:** For further reading on setting up MongoDB, go to
 > http://docs.mongodb.org/manual/tutorial/getting-started/
 > http://docs.mongodb.org/manual/reference/method/db.createUser
+
+> **Hint:** For further reading on setting up CouchDB, go to
+> http://docs.couchdb.org/en/stable/intro/tour.html.
+> After successful installation of CouchDb you can start Fauxton, a build-in administration interface to create users and admins. The database is created automatically on startup of the application.
 
 Run grunt in order to build the application.
 

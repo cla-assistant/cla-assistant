@@ -10,8 +10,7 @@ const orgService = require('../services/org')
 const prService = require('../services/pullRequest')
 const logger = require('../services/logger')
 const utils = require('../middleware/utils')
-
-const User = require('mongoose').model('User')
+const userService = require('../services/user')
 
 let token
 
@@ -524,9 +523,7 @@ async function claNotRequired(args, updateMethod) {
 // token (mandatory)
 async function updateUsersPullRequests(args) {
     try {
-        const user = await User.findOne({
-            name: args.user
-        })
+        const user = await userService.byUserName(args.name)
         if (!user || !user.requests || user.requests.length < 1) {
             throw 'user or PRs not found'
         }
@@ -582,7 +579,7 @@ async function prepareForValidation(item, user) {
     for (let i = needRemove.length - 1; i >= 0; --i) {
         user.requests.splice(needRemove[i], 1)
     }
-    user.save()
+    await userService.save(user);
     if (!foundPR) {
         throw new Error('No user PRs found for the linked item')
     }
@@ -617,8 +614,8 @@ async function getReposNeedToValidate(req) {
         const linkedRepos = await repoService.getByOwner(req.args.org)
         const linkedRepoSet = new Set(
             linkedRepos
-            .filter(repo => repo.repoId) //ignore old DB entries with no repoId
-            .map(linkedRepo => linkedRepo.repoId.toString())
+                .filter(repo => repo.repoId) //ignore old DB entries with no repoId
+                .map(linkedRepo => linkedRepo.repoId.toString())
         )
         repos = allRepos.data.filter(repo => {
             if (linkedOrg.isRepoExcluded !== undefined && linkedOrg.isRepoExcluded(repo.name)) {

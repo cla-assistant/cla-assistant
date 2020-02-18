@@ -6,7 +6,14 @@
  */
 let path = require('path');
 
+function parseProtocol(url) {
+    return /^(?<protocol>.+?\/\/)(?<username>.+?):(?<password>.+?)@(?<address>.+)\/(?<db>.*)$/g.exec(url);
+}
+
+let parsedCouch = parseProtocol(process.env.COUCHDB)
+
 module.exports = {
+
     server: {
         github: {
             // optional
@@ -73,6 +80,16 @@ module.exports = {
             uri: process.env.MONGODB || process.env.MONGOLAB_URI
         },
 
+        useCouch: process.env.COUCHDB ? process.env.COUCHDB.length > 0 : false,
+
+        couchdb: {
+            uri: parsedCouch ? parsedCouch.groups.protocol + parsedCouch.groups.username + ':' + parsedCouch.groups.password + '@' + parsedCouch.groups.address : null,
+            host: parsedCouch ? parsedCouch.groups.protocol + parsedCouch.groups.address : null,
+            db: parsedCouch ? parsedCouch.groups.db : null,
+            username: parsedCouch ? parsedCouch.groups.username : null,
+            password: parsedCouch ? parsedCouch.groups.password : null
+        },
+
         slack: {
             url: process.env.SLACK_URL,
             channel: process.env.SLACK_CHANNEL
@@ -118,6 +135,10 @@ module.exports = {
 
         documents: [
             path.join(__dirname, 'server', 'documents', '*.js')
+        ],
+
+        models: [
+            path.join(__dirname, 'server', 'models', '*.js')
         ],
 
         controller: [

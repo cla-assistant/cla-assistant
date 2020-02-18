@@ -88,8 +88,6 @@ const createStatus = async (args, context, description, state, target_url) => {
 
 const findStatusToBeChanged = async (args) => {
     try {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: findStatusToBeChanged for the repo ' + JSON.stringify(args.repo))
         const response = await getStatuses(args)
         // let statuses = ''
         const description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.'
@@ -100,24 +98,24 @@ const findStatusToBeChanged = async (args) => {
             target_url: url.claURL(args.owner, args.repo, args.number)
         }
 
-        //statuses = JSON.parse(response)
-
-        const statString = JSON.stringify(response.data)
-
-        if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
-            let shouldBeChanged = false
-            response.data.some(function findClaStatusToChange(s) {
-                if (s.context.match(/licence\/cla/g)) {
-                    shouldBeChanged = s.state === 'pending'
-                    return true
-                }
-            })
-
-            if (shouldBeChanged) {
-                return status
-            }
-        }
         if (response && response.data) {
+            //statuses = JSON.parse(response)
+
+            const statString = JSON.stringify(response.data)
+
+            if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
+                let shouldBeChanged = false
+                response.data.some(function findClaStatusToChange(s) {
+                    if (s.context.match(/licence\/cla/g)) {
+                        shouldBeChanged = s.state === 'pending'
+                        return true
+                    }
+                })
+
+                if (shouldBeChanged) {
+                    return status
+                }
+            }
             response.data.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
                     status = s.state !== status.state ? status : undefined
@@ -151,8 +149,7 @@ const findClaStatus = async (args) => {
 
 const updateStatus = async (args) => {
     try {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: updateStatus --->' + JSON.stringify(args.repo))
+        logger.info('DEBUG: updateStatus --->' + JSON.stringify(args.repo))
         const status = await findStatusToBeChanged(args)
 
         if (!status) {
@@ -179,8 +176,7 @@ const getPullRequestHeadShaIfNeeded = async (args) => {
 }
 
 const updateStatusIfNeeded = async (args, status, allowAbsent) => {
-    // eslint-disable-next-line no-console
-    console.log('DEBUG: updateStatusIfNeeded for the repo ' + JSON.stringify(args.repo))
+    logger.info('DEBUG: updateStatusIfNeeded for the repo ' + JSON.stringify(args.repo))
 
     if (!status) {
         return new Error('Status is required for updateStatusIfNeeded.')
@@ -193,7 +189,7 @@ const updateStatusIfNeeded = async (args, status, allowAbsent) => {
         if (!claStatus || allowAbsent) {
             return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url)
         }
-        if (!claStatus || claStatus.state !== status.state || claStatus.description !== status.description || claStatus.target_url !== status.target_url) {
+        if (claStatus.state !== status.state || claStatus.description !== status.description || claStatus.target_url !== status.target_url) {
             return createStatus(argsWithSha, status.context, status.description, status.state, status.target_url)
         }
     } catch (error) {
@@ -203,26 +199,25 @@ const updateStatusIfNeeded = async (args, status, allowAbsent) => {
 
 class StatusService {
     async update(args) {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: StatusService-->update for the repo ' + JSON.stringify(args.repo))
-        if (args && !args.sha) {
-            try {
-                const resp = (await getPR(args)).data
-                if (!resp || resp.message == 'Not found') {
-                    return
+        if (args) {
+            if (!args.sha) {
+                try {
+                    const resp = (await getPR(args)).data
+                    if (!resp || resp.message == 'Not found') {
+                        return
+                    }
+                    if (resp.head) {
+                        args.sha = resp.head.sha
+                        return updateStatus(args)
+                    } else {
+                        return updateStatus(args)
+                    }
+                } catch (error) {
+                    logger.warn(new Error(`${error} with args: ${args}`).stack)
                 }
-                if (resp && resp.head) {
-                    args.sha = resp.head.sha
-                    return updateStatus(args)
-                } else if (args) {
-                    return updateStatus(args)
-                }
-            } catch (error) {
-                logger.warn(new Error(`${error} with args: ${args}`).stack)
+            } else {
+                return updateStatus(args)
             }
-        }
-        if (args.sha) {
-            return updateStatus(args)
         }
     }
 
@@ -236,8 +231,7 @@ class StatusService {
     }
 
     async updateForClaNotRequired(args) {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: updateForClaNotRequired for the repo ' + JSON.stringify(args.repo))
+        logger.info('DEBUG: updateForClaNotRequired for the repo ' + JSON.stringify(args.repo))
         let status = {
             context: 'license/cla',
             state: 'success',

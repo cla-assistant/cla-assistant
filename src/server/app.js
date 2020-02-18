@@ -13,6 +13,8 @@ const sass_middleware = require('node-sass-middleware')
 const cleanup = require('./middleware/cleanup')
 const noSniff = require('dont-sniff-mimetype')
 const mongoose = require('mongoose')
+const { uuid } = require('uuidv4')
+const sessionstore = require('sessionstore');
 // var sass_middleware = require('node-sass-middleware');
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,8 +53,9 @@ app.use(require('body-parser').json({
 app.use(require('cookie-parser')());
 app.use(noSniff());
 app.enable('trust proxy');
-let expressSession = require('express-session');
-let MongoStore = require('connect-mongo')(expressSession);
+let expressSession = require('express-session')
+
+let MongoStore = require('connect-mongo')(expressSession)
 
 // custom mrepodleware
 app.use('/api', require('./middleware/param'))
@@ -125,6 +128,7 @@ async.series([
         console.log('Host:        ' + url.baseUrl)
         console.log('GitHub:      ' + url.githubBase)
         console.log('GitHub-Api:  ' + url.githubApiBase)
+        console.log('Database:    ' + (config.server.useCouch ? 'CouchDB' : 'MongoDB'))
         callback();
     },
 
@@ -148,12 +152,21 @@ async.series([
     // ////////////////////////////////////////////////////////////////////////////////////////////
 
     (callback) => {
-        retryInitializeMongoose(config.server.mongodb.uri, {
-            useNewUrlParser: true,
-            keepAlive: true
-        }, () => {
-            bootstrap('documents', callback);
-        })
+        if (global.config.server.useCouch) {
+            retryInitializeCouchDB(config.server.couchdb.uri, {
+                useNewUrlParser: true,
+                keepAlive: true
+            }, () => {
+                bootstrap('documents', callback);
+            })
+        } else {
+            retryInitializeMongoose(config.server.mongodb.uri, {
+                useNewUrlParser: true,
+                keepAlive: true
+            }, () => {
+                bootstrap('documents', callback);
+            })
+        }
         const session = {
             secret: config.server.security.sessionSecret,
             saveUninitialized: true,
@@ -161,17 +174,35 @@ async.series([
             cookie: {
                 maxAge: config.server.security.cookieMaxAge
             },
-            store: new MongoStore({
-                mongooseConnection: mongoose.connection,
-                collection: 'cookieSession'
-            })
+            genid: function (req) {
+                'use strict';
+                return uuid(); // use UUIDs for session IDs
+            },
+            store: config.server.useCouch
+                ?
+                sessionstore.createSessionStore({
+                    type: 'couchdb',
+                    host: config.server.couchdb.host,
+                    options: {
+                        auth: {
+                            username: config.server.couchdb.username,
+                            password: config.server.couchdb.password
+                        }
+                    },
+                    dbName: config.server.couchdb.db,
+                    collectionName: 'cookieSession',
+                    timeout: 10000
+                })
+                :
+                new MongoStore({
+                    mongooseConnection: mongoose.connection,
+                    collection: 'cookieSession'
+                })
         }
         session.cookie.secure = app.get('env') === 'production'
-
         app.use(expressSession(session))
         app.use(passport.initialize())
         app.use(passport.session())
-
         global.models = {}
     },
     (callback) => {
@@ -201,10 +232,11 @@ async.series([
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
     // eslint-disable-next-line no-console
-    console.log("App is initialized")
+    console.log('App is initialized')
     let server = http.createServer(app)
     // eslint-disable-next-line no-console
-    console.log("Server is created")
+    console.log('Server is created')
+
     const listener = server.listen(config.server.localport, function () {
         // eslint-disable-next-line no-console
         console.log('Listening on port ' + listener.address().port)
@@ -215,7 +247,6 @@ async.series([
 // Handle api calls
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 app.use('/api', require('./middleware/authenticated'))
-
 
 app.all('/api/:obj/:fun', async (req, res) => {
     res.set('Content-Type', 'application/json');
@@ -251,6 +282,10 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
+        // eslint-disable-next-line no-console
+        console.log("webhook object ---> ")
+        // eslint-disable-next-line no-console
+        console.log(webhooks)
         if (!webhooks[event]) {
             return res.status(400).send('Unsupported event')
         }
@@ -274,31 +309,41 @@ function isRudundantWebhook(req) {
     }
 }
 
-function retryInitializeMongoose(uri, options, callback) {
-    const defaultInterval = 1000;
-    mongoose.connect(uri, options, err => {
-        if (err) {
-            console.log(err, `Retry initialize mongoose in ${options.retryInitializeInterval || defaultInterval} milliseconds`);
-            setTimeout(() => {
-                retryInitializeMongoose(uri, options);
-            }, options.retryInitializeInterval || defaultInterval);
-        }
-        if (typeof callback === 'function') {
-            callback()
-        }
-    })
+function retryInitializeCouchDB(uri, options, callback) {
+    const defaultInterval = 1000
+    try {
+        global.nano = require('nano')(uri)
+        global.nano.db.create(config.server.couchdb.db).then((data) => {
+            console.log("database created")
+            // create indices
+            const indexDef1 = {
+                index: { fields: [{ created_at: 'desc' }] },
+                name: 'index1', type: 'json'
+            };
+            global.cladb.createIndex(indexDef1).then((result) => {
+                console.log(result);
+            });
+            const indexDef2 = {
+                index: { fields: [{ table: 'asc' }, { name: 'asc' }, { uuid: 'asc' }, { repo: 'asc' }, { repoId: 'asc' }, { owner: 'asc' }, { user: 'asc' }, { userId: 'asc' }, { type: 'asc' }] },
+                name: 'index2', type: 'json'
+            };
+            global.cladb.createIndex(indexDef2).then((result) => {
+                console.log(result);
+            });
+        }).catch((err) => {
+            // if db already exists - no crying
+        })
+        global.cladb = nano.db.use(config.server.couchdb.db)
+    } catch (err) {
+        console.log(err, `Retry initialize nano in ${options.retryInitializeInterval || defaultInterval} milliseconds`)
+        setTimeout(() => {
+            retryInitializeCouchDB(uri, options)
+        }, options.retryInitializeInterval || defaultInterval)
+
+    }
+    if (typeof callback === 'function') {
+        callback()
+    }
 }
 
 module.exports = app
-// async function retryInitializeMongoose(uri, options) {
-//     const defaultInterval = 1000
-//     try {
-//         await mongoose.connect(uri, options);
-//     } catch (err) {
-//         console.log(err, `Retry initialize mongoose in ${options.retryInitializeInterval || defaultInterval} milliseconds`)
-//         setTimeout(() => {
-//             retryInitializeMongoose(uri, options)
-//         }, options.retryInitializeInterval || defaultInterval)
-
-//     }
-// }

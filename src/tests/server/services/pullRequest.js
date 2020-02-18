@@ -422,7 +422,6 @@ describe('pullRequest:badgeComment', () => {
 
 describe('pullRequest:getComment', () => {
     beforeEach(() => {
-        //CLAAssistantio token
         cla_config.server.github.token = 'xyz'
 
         sinon.stub(github, 'call').callsFake(async (args) => {

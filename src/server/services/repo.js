@@ -1,6 +1,5 @@
 require('../documents/repo')
-const mongoose = require('mongoose')
-const Repo = mongoose.model('Repo')
+const Repo = require('mongoose').model('Repo')
 const _ = require('lodash')
 
 //services
@@ -20,7 +19,8 @@ const compareRepoNameAndUpdate = (dbRepo, ghRepo) => {
     if (isTransferredRenamed(dbRepo, ghRepo)) {
         dbRepo.owner = ghRepo.owner
         dbRepo.repo = ghRepo.repo
-        dbRepo.save()
+        this.update(dbRepo)
+        // dbRepo.save()
         return true
     }
     return false
@@ -36,8 +36,55 @@ const selection = args => {
     return args.repoId ? {
         repoId: args.repoId
     } : {
+            repo: args.repo,
+            owner: args.owner
+        }
+}
+
+const selectionCouch = args => {
+    return args.repoId ? {
+        type: 'entity',
+        table: 'repo',
+        repoId: args.repoId
+    } : {
+            type: 'entity',
+            table: 'repo',
+            repo: args.repo,
+            owner: args.owner
+        }
+}
+
+const initialization = args => {
+    return {
         repo: args.repo,
-        owner: args.owner
+        owner: args.owner,
+        repoId: args.repoId,
+        gist: args.gist,
+        token: args.token,
+        sharedGist: !!args.sharedGist,
+        minFileChanges: args.minFileChanges,
+        minCodeChanges: args.minCodeChanges,
+        whiteListPattern: args.whiteListPattern,
+        privacyPolicy: args.privacyPolicy,
+        updatedAt: new Date()
+    }
+}
+
+const initializationCouch = args => {
+    return {
+        type: 'entity',
+        table: 'repo',
+        repo: args.repo,
+        owner: args.owner,
+        repoId: args.repoId,
+        gist: args.gist,
+        token: args.token,
+        sharedGist: !!args.sharedGist,
+        minFileChanges: args.minFileChanges,
+        minCodeChanges: args.minCodeChanges,
+        whiteListPattern: args.whiteListPattern,
+        privacyPolicy: args.privacyPolicy,
+        updatedAt: new Date()
     }
 }
 
@@ -48,37 +95,38 @@ class RepoService {
     }
 
     async all() {
-        return Repo.find({})
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'repo', } })).docs
+        }
+        return await Repo.find({})
     }
 
     async check(args) {
-        const repo = await Repo.findOne(selection(args))
+        let repo
+        if (global.config.server.useCouch) {
+            var sel = { selector: selectionCouch(args), limit: 1 }
+            repo = (await global.cladb.find(sel)).docs
+        } else {
+            repo = await Repo.findOne(selection(args))
+        }
         return !!repo
     }
 
     async create(args) {
-        return Repo.create({
-            repo: args.repo,
-            owner: args.owner,
-            repoId: args.repoId,
-            gist: args.gist,
-            token: args.token,
-            sharedGist: !!args.sharedGist,
-            minFileChanges: args.minFileChanges,
-            minCodeChanges: args.minCodeChanges,
-            whiteListPattern: args.whiteListPattern,
-            privacyPolicy: args.privacyPolicy,
-            updatedAt: new Date()
-        })
+        if (global.config.server.useCouch) {
+            var init = initializationCouch(args)
+            global.cladb.insert(init)
+            return init
+        }
+        return Repo.create(initialization(args))
     }
 
     async get(args) {
-        return Repo.findOne(selection(args))
-        // const repo = await Repo.findOne(selection(args))
-        // if (repo) {
-        //     return repo
-        // }
-        // throw new Error('Repository not found in Database')
+        if (global.config.server.useCouch) {
+            var sel = { selector: selectionCouch(args), limit: 1 }
+            return (await global.cladb.find(sel)).docs[0]
+        }
+        return await Repo.findOne(selection(args))
     }
 
     async getAll(args) {
@@ -87,23 +135,36 @@ class RepoService {
             repoId: repo.repoId
         }))
         // https://github.com/cla-assistant/cla-assistant/commit/1ed8b9d3a5af61c076aa0fa241fe67c3ed78441c
-        // When query is too big, docuemntDB will send error 'The SQL query text exceeded the maximum limit of 30720 characters'. Chunk big query to small queries.
+        // When query is too big, documentDB will send error 'The SQL query text exceeded the maximum limit of 30720 characters'. Chunk big query to small queries.
         const idChunk = _.chunk(repoIds, 100)
         let startIndex = 0
-        const parallelLimit = (limit) => {
+        const parallelLimit = async (limit) => {
             const promises = []
             for (let i = 0; i < limit; i++) {
-                promises.push(Repo.find({
+                if (global.config.server.useCouch) {
+                    await global.cladb.find({
+                        selector: {
+                            type: 'entity',
+                            table: 'repo',
+                            $or: idChunk[startIndex]
+                        }
+                    }).then(function (repos) {
+                        promises.push(repos.docs)
+                    })
+                    ++startIndex
+                } else {
+                    promises.push(Repo.find({
                         $or: idChunk[startIndex]
                     }))
                     ++startIndex
+                }
             }
             return promises
         }
 
         let allRepos = []
         while (startIndex < idChunk.length) {
-            const repos = await Promise.all(parallelLimit(Math.min(idChunk.length - startIndex, 3)))
+            const repos = await Promise.all(await parallelLimit(Math.min(idChunk.length - startIndex, 3)))
             for (const set of repos) {
                 allRepos = allRepos.concat(set)
             }
@@ -112,13 +173,17 @@ class RepoService {
     }
 
     async getByOwner(owner) {
-        return Repo.find({
-            owner
-        })
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'repo', owner: owner } })).docs
+        }
+        return await Repo.find({ owner })
     }
 
     async getRepoWithSharedGist(gist) {
-        return Repo.find({
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'repo', gist: gist, sharedGist: true } })).docs
+        }
+        return await Repo.find({
             gist,
             sharedGist: true
         })
@@ -129,8 +194,21 @@ class RepoService {
             repo: args.repo,
             owner: args.owner
         }
-        const repo = await Repo.findOne(repoArgs)
+        const repoArgsCouch = {
+            selector: {
+                type: 'entity',
+                table: 'repo',
+                repo: args.repo,
+                owner: args.owner
+            }, limit: 1
+        }
 
+        let repo
+        if (global.config.server.useCouch) {
+            repo = (await global.cladb.find(repoArgsCouch)).docs[0]
+        } else {
+            repo = await Repo.findOne(repoArgs)
+        }
         repo.repoId = repo.repoId ? repo.repoId : args.repoId
         repo.gist = args.gist
         repo.token = args.token ? args.token : repo.token
@@ -140,12 +218,27 @@ class RepoService {
         repo.whiteListPattern = args.whiteListPattern
         repo.privacyPolicy = args.privacyPolicy
         repo.updatedAt = new Date()
-
-        return repo.save()
+        if (global.config.server.useCouch) {
+            await global.cladb.insert(repo)
+            return repo
+        }
+        return await repo.save()
     }
 
     async remove(args) {
-        return Repo.findOneAndRemove(selection(args))
+        if (global.config.server.useCouch) {
+            await global.cladb.find({ selector: selectionCouch(args), limit: 1 }).then(function (repos) {
+                repos.docs.forEach((repo) =>
+                    global.cladb.destroy(repo._id, repo._rev).then(function (repo) {
+                        return repo
+                    }, function (error) {
+                        logger.error(new Error(error).stack)
+                    })
+                )
+            })
+        } else {
+            return await Repo.findOneAndRemove(selection(args))
+        }
     }
 
     async getPRCommitters(args) {
@@ -184,8 +277,8 @@ class RepoService {
                             id: committer.databaseId || ''
                         }
                         if (committers.length === 0 || committers.map((c) => {
-                                return c.name
-                            }).indexOf(user.name) < 0) {
+                            return c.name
+                        }).indexOf(user.name) < 0) {
                             committers.push(user)
                         }
                     } catch (error) {
@@ -208,10 +301,10 @@ class RepoService {
                     try {
                         res = await self.getGHRepo(args)
                         if (res && res.id && compareRepoNameAndUpdate(linkedRepo, {
-                                repo: res.name,
-                                owner: res.owner.login,
-                                repoId: res.id
-                            })) {
+                            repo: res.name,
+                            owner: res.owner.login,
+                            repoId: res.id
+                        })) {
                             arg.arg.repo = res.name
                             arg.arg.owner = res.owner.login
                             return callGithub(arg)

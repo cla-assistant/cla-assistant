@@ -8,25 +8,55 @@ const selection = function (args) {
     return selectArguments;
 };
 
+const selectionCouch = function (args) {
+    const selectArguments = args.orgId ?
+        { type: 'entity', table: 'org', orgId: args.orgId } :
+        { type: 'entity', table: 'org', org: args.org };
+    return selectArguments;
+};
+
 class OrgService {
     async create(args) {
-        return Org.create({
-            orgId: args.orgId,
-            org: args.org,
-            gist: args.gist,
-            token: args.token,
-            excludePattern: args.excludePattern,
-            sharedGist: !!args.sharedGist,
-            minFileChanges: args.minFileChanges,
-            minCodeChanges: args.minCodeChanges,
-            whiteListPattern: args.whiteListPattern,
-            privacyPolicy: args.privacyPolicy,
-            updatedAt: new Date()
-        })
+        if (global.config.server.useCouch) {
+            var result = await global.cladb.insert({
+                type: 'entity',
+                table: 'org',
+                orgId: args.orgId,
+                org: args.org,
+                gist: args.gist,
+                token: args.token,
+                excludePattern: args.excludePattern,
+                sharedGist: !!args.sharedGist,
+                minFileChanges: args.minFileChanges,
+                minCodeChanges: args.minCodeChanges,
+                whiteListPattern: args.whiteListPattern,
+                privacyPolicy: args.privacyPolicy,
+                updatedAt: new Date()
+            })
+            return await global.cladb.get(result.id)
+        } else {
+            return await Org.create({
+                orgId: args.orgId,
+                org: args.org,
+                gist: args.gist,
+                token: args.token,
+                excludePattern: args.excludePattern,
+                sharedGist: !!args.sharedGist,
+                minFileChanges: args.minFileChanges,
+                minCodeChanges: args.minCodeChanges,
+                whiteListPattern: args.whiteListPattern,
+                privacyPolicy: args.privacyPolicy,
+                updatedAt: new Date()
+            })
+        }
     }
 
     async get(args) {
-        return Org.findOne(selection(args))
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'org', ...args }, limit: 1 })).docs
+        } else {
+            return Org.findOne(selection(args))
+        }
     }
 
     async update(args) {
@@ -40,20 +70,40 @@ class OrgService {
         org.whiteListPattern = args.whiteListPattern
         org.privacyPolicy = args.privacyPolicy
         org.updatedAt = new Date()
-
-        return org.save()
+        if (global.config.server.useCouch) {
+            var result = await global.cladb.insert({ type: 'entity', table: 'org', org })
+            await global.cladb.get(result.id).then(function (org) {
+                return org
+            })
+        } else {
+            return await org.save()
+        }
     }
 
     async getMultiple(args) {
-        return Org.find({ orgId: { $in: args.orgId } })
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'org', orgId: { $in: args.orgId } } })).docs
+        } else {
+            return await Org.find({ orgId: { $in: args.orgId } })
+        }
     }
 
     async getOrgWithSharedGist(gist) {
-        return Org.find({ gist: gist, sharedGist: true })
+        if (global.config.server.useCouch) {
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'org', gist: gist, sharedGist: true } })).docs
+        } else {
+            return Org.find({ gist: gist, sharedGist: true })
+        }
     }
 
-    remove(args) {
-        return Org.findOneAndRemove(selection(args))
+    async remove(args) {
+        if (global.config.server.useCouch) {
+            await global.cladb.find({ selector: selectionCouch(args), limit: 1 }).then(function (repos) {
+                repos.docs.forEach((repo) => global.cladb.remove(repo._id, repo._rev))
+            })
+        } else {
+            return Org.findOneAndRemove(selection(args))
+        }
     }
 }
 

@@ -34,8 +34,6 @@ class ClaService {
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures--> _checkAll for the repo ' + JSON.stringify(repoId))
         let promises = []
         const userMap = {
             signed: [],
@@ -137,6 +135,9 @@ class ClaService {
             queries.forEach(query => {
                 dateConditions.forEach((date) => newQuery.$or.push(Object.assign({}, query, date)))
             })
+        }
+        if (global.config.server.useCouch) {
+            return { selector: { type: 'entity', table: 'cla', ...newQuery }, limit: 1, sort: [{ created_at: 'desc' }] }
         }
         return newQuery
     }
@@ -267,15 +268,24 @@ class ClaService {
         query.user = user
 
         query = this._updateQuery(query, sharedGist, date)
-        let cla = await CLA.findOne(query, {}, {
-            sort: {
-                'created_at': -1
-            }
-        })
+        let cla
+        if (global.config.server.useCouch) {
+            cla = (await global.cladb.find(query)).docs[0]
+        } else {
+            cla = await CLA.findOne(query, {}, {
+                sort: {
+                    'created_at': -1
+                }
+            })
+        }
 
         if (cla && cla.user !== user) {
             cla.user = user
-            await cla.save()
+            if (global.config.server.useCouch) {
+                await global.cladb.insert(cla)
+            } else {
+                await cla.save()
+            }
         }
         return cla
     }
@@ -566,17 +576,28 @@ class ClaService {
     async getSignedCLA(args) {
         const selector = []
         const findCla = async function (query, repoList, claList) {
-            const clas = await CLA.find(query, {
-                'repo': '*',
-                'owner': '*',
-                'created_at': '*',
-                'gist_url': '*',
-                'gist_version': '*'
-            }, {
-                sort: {
-                    'created_at': -1
-                }
-            })
+            let clas
+            if (global.config.server.useCouch) {
+                clas = (await global.cladb.find({
+                    selector: { type: 'entity', table: 'cla', ...query },
+                    fields: [
+                        'repo', 'owner', 'created_at', 'gist_url', 'gist_version'
+                    ],
+                    sort: [{ created_at: 'desc' }]
+                })).docs
+            } else {
+                clas = await CLA.find(query, {
+                    'repo': '*',
+                    'owner': '*',
+                    'created_at': '*',
+                    'gist_url': '*',
+                    'gist_version': '*'
+                }, {
+                    sort: {
+                        'created_at': -1
+                    }
+                })
+            }
 
             clas.forEach((cla) => {
                 if (repoList.indexOf(cla.repo) < 0) {
@@ -653,6 +674,14 @@ class ClaService {
                 'created_at': -1
             }
         }
+
+        const optionsCouch = {
+            sort: [user, userId]
+        }
+        if (args.gist.gist_version) {
+            selection.gist_version = args.gist.gist_version
+            optionsCouch.sort = [created_at]
+        }
         if (args.repoId) {
             selection.repoId = args.repoId
         }
@@ -663,7 +692,11 @@ class ClaService {
 
         if (!args.gist.gist_version) {
             try {
-                return CLA.find(selection, {}, options)
+                if (global.config.server.useCouch) {
+                    return (await global.cladb.find({ selector: { type: 'entity', table: 'cla', ...selection }, optionsCouch })).docs
+                } else {
+                    return CLA.find(selection, {}, options)
+                }
             } catch (error) {
                 logger.warn('Error occured when getting all signed CLAs for given repo without gist version' + error)
                 logger.warn('Api cla.getAll failed with selection ' + selection)
@@ -672,7 +705,12 @@ class ClaService {
             }
         }
         try {
-            const clas = await CLA.find(selection, {}, options)
+            let clas
+            if (global.config.server.useCouch) {
+                clas = (await global.cladb.find({ selector: { type: 'entity', table: 'cla', selection }, optionsCouch })).docs
+            } else {
+                clas = await CLA.find(selection, {}, options)
+            }
             if (!clas) {
                 throw new Error('no clas found')
             }
@@ -688,29 +726,48 @@ class ClaService {
         } catch (error) {
             logger.warn('Error occured when getting all signed CLAs for given repo ' + error)
         }
-
-
     }
 
     async create(args) {
         const now = new Date()
-
-        return CLA.create({
-            repo: args.repo,
-            repoId: args.repoId,
-            owner: args.owner,
-            ownerId: args.ownerId,
-            user: args.user,
-            userId: args.userId,
-            gist_url: args.gist,
-            gist_version: args.gist_version,
-            created_at: args.created_at || now,
-            end_at: undefined,
-            org_cla: args.org_cla,
-            custom_fields: args.custom_fields,
-            updated_at: now,
-            origin: args.origin
-        })
+        if (global.config.server.useCouch) {
+            var result = await global.cladb.insert({
+                type: 'entity',
+                table: 'cla',
+                repo: args.repo,
+                repoId: args.repoId,
+                owner: args.owner,
+                ownerId: args.ownerId,
+                user: args.user,
+                userId: args.userId,
+                gist_url: args.gist,
+                gist_version: args.gist_version,
+                created_at: args.created_at || now,
+                end_at: undefined,
+                org_cla: args.org_cla,
+                custom_fields: args.custom_fields,
+                updated_at: now,
+                origin: args.origin
+            })
+            return await global.cladb.get(result.id)
+        } else {
+            return await CLA.create({
+                repo: args.repo,
+                repoId: args.repoId,
+                owner: args.owner,
+                ownerId: args.ownerId,
+                user: args.user,
+                userId: args.userId,
+                gist_url: args.gist,
+                gist_version: args.gist_version,
+                created_at: args.created_at || now,
+                end_at: undefined,
+                org_cla: args.org_cla,
+                custom_fields: args.custom_fields,
+                updated_at: now,
+                origin: args.origin
+            })
+        }
     }
 
     async terminate(args) {
@@ -734,8 +791,11 @@ class ClaService {
             throw noRecordErr
         }
         cla.end_at = endDate
-
-        await cla.save()
+        if (global.config.server.useCouch) {
+            await global.cladb.insert(cla)
+        } else {
+            await cla.save()
+        }
         return cla
     }
 
