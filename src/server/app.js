@@ -257,7 +257,7 @@ app.all('/github/webhook/:repo', (req, res) => {
         if (!isRudundantWebhook(req)) {
             webhooks[event](req, res)
         } else {
-            console.log(`Skip redundand webhook for the PR ${req.args.pull_request.html_url}`)
+            console.log(`Skip redundand webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
             res.status(202).send('This seems to be a redundand webhook. Probably there are two webhooks registered: org- and repo-webhook')
         }
     } catch (err) {
