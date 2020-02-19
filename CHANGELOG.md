@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.5.1](https://github.com/cla-assistant/cla-assistant/tree/v2.5) (2020-02-17)
+
+**Merged pull requests:**
+- Reword run-on sentence in CLA signing request [#533](https://github.com/cla-assistant/cla-assistant/pull/533) ([benesch](https://github.com/benesch))
+
+**Fixed Bugs:**
+- respond to redundand webhooks
+
 ## [v2.5](https://github.com/cla-assistant/cla-assistant/tree/v2.5) (2020-02-17)
 **Fixed Bugs:**
 - avoid double comments by ignoring zombee webhooks [issue #521](https://github.com/cla-assistant/cla-assistant/issues/521)

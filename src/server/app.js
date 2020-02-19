@@ -258,7 +258,7 @@ app.all('/github/webhook/:repo', (req, res) => {
             webhooks[event](req, res)
         } else {
             console.log(`Skip redundand webhook for the PR ${req.args.pull_request.html_url}`)
-            res.status(202)
+            res.status(202).send('This seems to be a redundand webhook. Probably there are two webhooks registered: org- and repo-webhook')
         }
     } catch (err) {
         res.status(500).send('Internal Server Error')
