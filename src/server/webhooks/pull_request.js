@@ -145,22 +145,18 @@ module.exports = async function (req, res) {
             const item = await cla.getLinkedItem(args)
             let nullCla = !item.gist
             let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo)
-            if (nullCla || isExcluded) {
-                return
-            }
-            args.token = item.token
-            args.gist = item.gist
-            if (item.repoId) {
-                args.orgId = undefined
-            }
+            if (!nullCla && !isExcluded) {
+                args.token = item.token
+                args.gist = item.gist
+                if (item.repoId) {
+                    args.orgId = undefined
+                }
 
-            handleWebHook(args, item)
+                handleWebHook(args, item)
+            }
         } catch (e) {
             logger.warn(e)
-
         }
     }
     res.status(200).send('OK')
-
-
 }
