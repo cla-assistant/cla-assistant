@@ -1,6 +1,11 @@
 # Change Log
 
-## [v2.5.1](https://github.com/cla-assistant/cla-assistant/tree/v2.5) (2020-02-17)
+## [v2.5.2](https://github.com/cla-assistant/cla-assistant/tree/v2.5.2) (2020-02-18)
+
+**Fixed Bugs:**
+- respond to org webhooks for PRs of excluded repos
+
+## [v2.5.1](https://github.com/cla-assistant/cla-assistant/tree/v2.5.1) (2020-02-18)
 
 **Merged pull requests:**
 - Reword run-on sentence in CLA signing request [#533](https://github.com/cla-assistant/cla-assistant/pull/533) ([benesch](https://github.com/benesch))
