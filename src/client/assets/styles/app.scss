@@ -1,8 +1,7 @@
 // overwrite bootstrap styles
 
 // fonts
-$font-family-sans-serif: 'Source Sans Pro',
-sans-serif;
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;
 
 // colours
 $gray-darkest: #2c3e50;
@@ -478,57 +477,69 @@ a.anchor .octicon-link {
 
 @keyframes eye-move {
   0% {
-    left: 19px;
+    left: 5px;
+    right: -5px;
   }
 
   80% {
-    left: 24px;
+    left: 10px;
+    right: -10px;
   }
 
   100% {
-    left: 19px;
+    left: 5px;
+    right: -5px;
   }
 }
 
 @-webkit-keyframes eye-move {
   0% {
-    left: 19px;
+    left: 5px;
+    right: -5px;
   }
 
   80% {
-    left: 24px;
+    left: 10px;
+    right: -10px;
   }
 
   100% {
-    left: 19px;
+    left: 5px;
+    right: -5px;
   }
 }
 
 @keyframes eye-move2 {
   0% {
-    left: 17px;
+    left: -2px;
+    right: 2px;
   }
 
   80% {
-    left: 24px;
+    left: 4px;
+    right: -4px;
   }
 
   100% {
-    left: 17px;
+    left: -2px;
+    right: 2px;
   }
 }
 
 @-webkit-keyframes eye-move2 {
   0% {
-    left: 17px;
+    left: -2px;
+    right: 2px;
   }
 
   80% {
-    left: 24px;
+    left: 4px;
+    right: -4px;
   }
 
   100% {
-    left: 17px;
+    left: -2px;
+    right: 2px;
   }
 }
 
@@ -555,29 +566,24 @@ a.anchor .octicon-link {
   padding-right: 40px;
   -webkit-animation: fall 0.7s linear infinite;
   animation: fall 0.7s linear infinite;
-
 }
 
 .eye-move {
   position: absolute;
-  left: 0px;
-  right: 33px;
-  top: 2px;
-  margin-right: 32px;
-  margin-top: 13px;
-  // -webkit-animation: eye-move 0.7s ease-in infinite;
-  // animation: eye-move 0.7s ease-in infinite;
-  -webkit-animation: eye-move2 0.7s ease-in 0.1s infinite;
-  animation: eye-move2 0.7s ease-in 0.1s infinite;
+  top: 8px;
+  left: 5px;
+  right: -5px;
+  -webkit-animation: eye-move 0.7s ease-in infinite;
+  animation: eye-move 0.7s ease-in infinite;
 }
 
 .eye-move2 {
   position: absolute;
-  left: 18px;
-  top: 19px;
-  margin-right: 38px;
-  -webkit-animation: eye-move2 0.7s ease-in 0.1s infinite;
-  animation: eye-move2 0.7s ease-in 0.1s infinite;
+  left: -2px;
+  right: 2px;
+  top: 10px;
+  -webkit-animation: eye-move2 0.7s ease-in infinite;
+  animation: eye-move2 0.7s ease-in infinite;
 }
 
 // _report
