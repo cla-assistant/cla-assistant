@@ -523,7 +523,7 @@ async function claNotRequired(args, updateMethod) {
 // token (mandatory)
 async function updateUsersPullRequests(args) {
     try {
-        const user = await userService.byUserName(args.name)
+        const user = await userService.byUserName(args.user)
         if (!user || !user.requests || user.requests.length < 1) {
             throw 'user or PRs not found'
         }
@@ -579,7 +579,7 @@ async function prepareForValidation(item, user) {
     for (let i = needRemove.length - 1; i >= 0; --i) {
         user.requests.splice(needRemove[i], 1)
     }
-    await userService.save(user);
+    userService.save(user);
     if (!foundPR) {
         throw new Error('No user PRs found for the linked item')
     }
