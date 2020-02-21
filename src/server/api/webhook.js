@@ -2,7 +2,7 @@
 const webhookService = require('../services/webhook')
 class WebhookApi {
     async get(req) {
-        return req.args && req.args.org ? webhookService.getOrgHook(req.args.org, req.args.noCache, req.user.token) : webhookService.getRepoHook(req.args.owner, req.args.repo, req.args.noCache, req.user.token)
+        return req.args && req.args.org ? webhookService.getOrgHook(req.args.org, req.user.token) : webhookService.getRepoHook(req.args.owner, req.args.repo, req.user.token)
 
         // now we will have to check two things:
         // 1) webhook user still has push access to this repo

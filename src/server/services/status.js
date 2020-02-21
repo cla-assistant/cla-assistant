@@ -11,8 +11,7 @@ const getPR = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                pull_number: args.number,
-                noCache: true
+                pull_number: args.number
             },
             token: args.token
         })
@@ -30,8 +29,7 @@ const getStatuses = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                ref: args.sha,
-                noCache: true
+                ref: args.sha
             },
             token: args.token
         })
@@ -50,8 +48,7 @@ const getCombinedStatus = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                ref: args.sha,
-                noCache: true
+                ref: args.sha
             },
             token: args.token
         })
@@ -76,8 +73,7 @@ const createStatus = async (args, context, description, state, target_url) => {
                 state: state,
                 description: description,
                 target_url: target_url,
-                context: context,
-                noCache: true
+                context: context
             },
             token: args.token
         })

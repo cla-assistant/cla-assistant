@@ -40,8 +40,8 @@ describe('webhookApi', function () {
                 return args.obj === 'repos' ? {
                     data: resGetRepoHooks
                 } : {
-                    data: resGetOrgHooks
-                }
+                        data: resGetOrgHooks
+                    }
             } else if (args.fun === 'deleteHook') {
                 return {
                     data: hook
@@ -207,8 +207,7 @@ describe('webhookApi', function () {
                 arg: {
                     hook_id: 123,
                     repo: 'myRepo',
-                    owner: 'login',
-                    noCache: true
+                    owner: 'login'
                 },
                 token: 'abc'
             }
@@ -237,8 +236,7 @@ describe('webhookApi', function () {
                 arg: {
                     hook_id: 123,
                     repo: 'myRepo',
-                    owner: 'login',
-                    noCache: true
+                    owner: 'login'
                 },
                 token: 'abc'
             }

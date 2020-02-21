@@ -56,8 +56,7 @@ class PullRequestService {
             const arg = {
                 owner: owner,
                 repo: repo,
-                body: body,
-                noCache: true
+                body: body
             }
             if (!comment && !signed) {
                 fun = 'createComment'
@@ -87,8 +86,7 @@ class PullRequestService {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                issue_number: args.number,
-                noCache: true
+                issue_number: args.number
             },
             token: config.server.github.token
         })
@@ -120,8 +118,7 @@ class PullRequestService {
                     owner: args.owner,
                     repo: args.repo,
                     comment_id: comment.id,
-                    body: body,
-                    noCache: true
+                    body: body
                 },
                 token: config.server.github.token
             })

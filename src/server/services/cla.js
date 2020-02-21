@@ -25,7 +25,8 @@ class ClaService {
             obj: 'gists',
             fun: 'get',
             arg: {
-                gist_id: id
+                gist_id: id,
+                cacheTime: 60 //seconds
             },
             token: token
         }
@@ -141,15 +142,14 @@ class ClaService {
         return newQuery
     }
 
-    async _getPR(owner, repo, number, token, noCache) {
+    async _getPR(owner, repo, number, token) {
         return github.call({
             obj: 'pulls',
             fun: 'get',
             arg: {
                 owner: owner,
                 repo: repo,
-                pull_number: number,
-                noCache: noCache
+                pull_number: number
             },
             token: token
         })

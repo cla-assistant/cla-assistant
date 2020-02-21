@@ -1736,10 +1736,7 @@ describe('cla:isClaRequired', () => {
 
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
-            fun: 'get',
-            arg: {
-                noCache: true
-            }
+            fun: 'get'
         })
         assert(claIsRequired)
     })
@@ -1757,10 +1754,7 @@ describe('cla:isClaRequired', () => {
 
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
-            fun: 'get',
-            arg: {
-                noCache: true
-            }
+            fun: 'get'
         })
         assert(claIsRequired)
     })
