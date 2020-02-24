@@ -90,7 +90,7 @@ class WebhookService {
     }
 
     async createRepoHook(owner, repo, token) {
-        const hook = await this.getRepoHook(owner, repo, true, token)
+        const hook = await this.getRepoHook(owner, repo, token)
         if (hook) {
             return hook
         }
@@ -98,7 +98,7 @@ class WebhookService {
     }
 
     async createOrgHook(org, token) {
-        let hook = await this.getOrgHook(org, true, token)
+        let hook = await this.getOrgHook(org, token)
         if (hook) {
             throw new Error('Webhook already exist with base url ' + url.baseWebhook)
         }
@@ -134,7 +134,7 @@ class WebhookService {
     }
 
     async removeRepoHook(owner, repo, token) {
-        const hook = await this.getRepoHook(owner, repo, true, token)
+        const hook = await this.getRepoHook(owner, repo, token)
         if (!hook) {
             throw 'No webhook found with base url ' + url.baseWebhook
         }
@@ -145,7 +145,7 @@ class WebhookService {
     }
 
     async removeOrgHook(org, token) {
-        const hook = await this.getOrgHook(org, true, token)
+        const hook = await this.getOrgHook(org, token)
         if (!hook) {
             throw 'No webhook found with base url ' + url.baseWebhook
         }
