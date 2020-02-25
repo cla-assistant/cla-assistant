@@ -323,8 +323,10 @@ class ClaService {
      *   repo (optional)
      *   number (optional)
      */
-    async getLastSignature(args) {
-        const item = await this._getLinkedItem(args.repo, args.owner)
+    async getLastSignature(args, item) {
+        if (!item) {
+            item = await this._getLinkedItem(args.repo, args.owner)
+        }
         args.gist = item.gist
         if (!item.gist) {
             return 'null-cla'
@@ -359,8 +361,8 @@ class ClaService {
      *   repo (optional)
      *   number (optional)
      */
-    async checkUserSignature(args) {
-        const cla = await this.getLastSignature(args)
+    async checkUserSignature(args, item) {
+        const cla = await this.getLastSignature(args, item)
         return {
             signed: !!cla
         }
@@ -511,7 +513,7 @@ class ClaService {
 
     async check(args, item) {
         if (args.user) {
-            return this.checkUserSignature(args)
+            return this.checkUserSignature(args, item)
         } else if (args.number) {
             return this.checkPullRequestSignatures(args, item)
         }
