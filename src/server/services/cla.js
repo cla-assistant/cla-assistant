@@ -520,8 +520,10 @@ class ClaService {
         throw new Error('A user or a pull request number is required.')
     }
 
-    async sign(args) {
-        const item = await this._getLinkedItem(args.repo, args.owner, args.token)
+    async sign(args, item) {
+        if (!item) {
+            item = await this._getLinkedItem(args.repo, args.owner, args.token)
+        }
         if (!item.gist) {
             const nullClaErr = new Error('The repository doesn\'t need to sign a CLA because it has a null CLA.')
             nullClaErr.code = 200
