@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.6.1](https://github.com/cla-assistant/cla-assistant/tree/v2.6.1) (2020-02-26)
+
+**Fixed Bugs:**
+- update depricated octokit method call
+
 ## [v2.6.0](https://github.com/cla-assistant/cla-assistant/tree/v2.6.0) (2020-02-26)
 
 **New Features:**
