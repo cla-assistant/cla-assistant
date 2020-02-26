@@ -1,5 +1,14 @@
 # Change Log
 
+## [v2.6.0](https://github.com/cla-assistant/cla-assistant/tree/v2.6.0) (2020-02-26)
+
+**New Features:**
+- refactoring: reduce github api calls, pass linked item where possible; avoid await if not needed
+- change caching mechanism
+
+**Fixed Bugs:**
+- fix unlink animation
+
 ## [v2.5.2](https://github.com/cla-assistant/cla-assistant/tree/v2.5.2) (2020-02-18)
 
 **Fixed Bugs:**
