@@ -1,5 +1,8 @@
 let http = require('http')
 
+if (process.env.NODE_ENV === 'production') {
+    require('@google-cloud/trace-agent').start();
+}
 
 /* eslint no-console: "off"*/
 require('colors')
