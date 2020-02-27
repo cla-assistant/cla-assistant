@@ -233,7 +233,7 @@ describe('pullRequest:badgeComment', () => {
         })
         assert(!logger.warn.called)
     })
-    it('should add 2 notes  to the comment if there is a external committer (corporate CLA) and he/she is not a GitHub User ', async () => {
+    it('should add 2 notes  to the comment if there is an external committer (corporate CLA) and he/she is not a GitHub User ', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
@@ -254,7 +254,7 @@ describe('pullRequest:badgeComment', () => {
         assert(!logger.warn.called)
     })
 
-    it('should  add anly one note (not a Github user) to the comment if there is no external committer (corporate CLA)', async () => {
+    it('should add only one note (not a Github user) to the comment if there is no external committer (corporate CLA)', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'updateComment')
@@ -293,7 +293,7 @@ describe('pullRequest:badgeComment', () => {
         assert(!logger.warn.called)
     })
 
-    it('should add a note to the comment with names of MULTIPLE committers who has no github account', async () => {
+    it('should add a note to the comment with names of MULTIPLE committers who do not have a github account', async () => {
         direct_call_data = testDataComments_withCLAComment
         assertionFunction = async (args) => {
             assert(args.arg.body.indexOf('**user1, user2** seem not to be a GitHub user. You need a GitHub account to be able to sign the CLA. ') >= 0)
@@ -333,7 +333,7 @@ describe('pullRequest:badgeComment', () => {
         assert(!logger.warn.called)
     })
 
-    it('should add a note to the commment for Corporate CLA and  write a list of signed and not signed external committers  on create', async () => {
+    it('should add a note to the commment for Corporate CLA and write a list of signed and not signed external committers on create', async () => {
         direct_call_data = []
         assertionFunction = async (args) => {
             assert.equal(args.fun, 'createComment')
@@ -409,6 +409,35 @@ describe('pullRequest:badgeComment', () => {
             return 'githubRes'
         }
 
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: ['user1'],
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: false
+            }
+        })
+        assert(!logger.warn.called)
+    })
+
+    it('should not update comment if there are no changes', async () => {
+        direct_call_data = testDataComments_withCLAComment
+        assertionFunction = async (args) => {
+            assert.equal(args.fun, 'updateComment')
+            direct_call_data[1].body = args.arg.body
+            return 'githubRes'
+        }
+
+        await pullRequest.badgeComment('login', 'myRepo', 1, false, {
+            signed: ['user1'],
+            not_signed: ['user2'],
+            hasExternalCommiter: {
+                check: false
+            }
+        })
+        assertionFunction = async (args) => {
+            assert.notEqual(args.fun, 'updateComment')
+            return 'githubRes'
+        }
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2'],

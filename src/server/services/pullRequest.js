@@ -62,6 +62,10 @@ class PullRequestService {
                 fun = 'createComment'
                 arg.issue_number = pullNumber
             } else if (comment && comment.id) {
+                if (body === comment.body) {
+                    logger.debug(`Skip updateComment for the PR ${url.githubPullRequest(owner, repo, pullNumber)} as there are no text changes`)
+                    return
+                }
                 fun = 'updateComment'
                 arg.comment_id = comment.id
             } else {
