@@ -44,8 +44,6 @@ module.exports = {
 
         always_recompile_sass: process.env.NODE_ENV === 'production' ? false : true,
 
-        cache_time: process.env.CACHE_TIME || 5,
-
         http: {
             protocol: process.env.PROTOCOL || 'http',
             host: process.env.HOST || 'cla-assistant.io',
