@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.6.2](https://github.com/cla-assistant/cla-assistant/tree/v2.6.2) (2020-02-28)
+
+**Fixed Bugs:**
+- do not update comment of a PR if there are no text changes - reduce GitHub api calls
+
 ## [v2.6.1](https://github.com/cla-assistant/cla-assistant/tree/v2.6.1) (2020-02-26)
 
 **Fixed Bugs:**
