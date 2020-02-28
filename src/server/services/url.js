@@ -49,7 +49,8 @@ module.exports = function () {
 
             return _url
         },
-        githubPullRequest: (owner, repo, number) => url.resolve(githubApiBase, '/repos/' + owner + '/' + repo + '/pulls/' + number),
+        githubHttpPullRequest: (owner, repo, number) => url.resolve(githubBase, `/${owner}/${repo}/pull/${number}`),
+        githubPullRequest: (owner, repo, number) => url.resolve(githubApiBase, `/repos/${owner}/${repo}/pulls/${number}`),
         githubPullRequestCommits: (owner, repo, number) => {
             return module.exports.githubPullRequest(owner, repo, number) + '/commits'
         },
@@ -70,5 +71,5 @@ module.exports = function () {
             return checkUrl
         },
         webhook: (repo) => url.resolve(baseUrl, `/github/webhook/${repo}`)
-    }
+    };
 }()

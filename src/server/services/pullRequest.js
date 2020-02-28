@@ -41,6 +41,7 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
 class PullRequestService {
     async badgeComment(owner, repo, pullNumber, signed, userMap) {
         let badgeUrl = url.pullRequestBadge(signed)
+        let fun
         try {
             const comment = await this.getComment({
                 repo: repo,
@@ -52,7 +53,6 @@ class PullRequestService {
             const recheckUrl = url.recheckPrUrl(owner, repo, pullNumber)
             const body = commentText(signed, badgeUrl, claUrl, userMap, recheckUrl)
 
-            let fun
             const arg = {
                 owner: owner,
                 repo: repo,
@@ -63,7 +63,7 @@ class PullRequestService {
                 arg.issue_number = pullNumber
             } else if (comment && comment.id) {
                 if (body === comment.body) {
-                    logger.debug(`Skip updateComment for the PR ${url.githubPullRequest(owner, repo, pullNumber)} as there are no text changes`)
+                    logger.debug(`Skip updateComment for the PR ${url.githubHttpPullRequest(owner, repo, pullNumber)} as there are no text changes`)
                     return
                 }
                 fun = 'updateComment'
@@ -79,6 +79,7 @@ class PullRequestService {
                 token: config.server.github.token,
             })
         } catch (error) {
+            logger.debug(`Failed on api call issues/${fun} for PR ${url.githubHttpPullRequest(owner, repo, pullNumber)}`)
             logger.warn(new Error(error).stack)
         }
     }
