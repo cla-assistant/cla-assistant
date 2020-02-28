@@ -52,6 +52,11 @@ describe('url:githubPullRequest', () => it('should by default be https://api.git
         'https://api.github.com/repos/owner/repo/pulls/1')
 }))
 
+describe('url:githubHttpPullRequest', () => it('should by default be https://github.com/:owner/:repo/pull/:number', async () => {
+    assert.equal(url.githubHttpPullRequest('owner', 'repo', 1),
+        'https://github.com/owner/repo/pull/1')
+}))
+
 describe('url:githubPullRequestCommits', () => it('should by default be https://api.github.com/repos/:owner/:repo/pulls/:number', async () => {
     assert.equal(url.githubPullRequestCommits('owner', 'repo', 1),
         'https://api.github.com/repos/owner/repo/pulls/1/commits')

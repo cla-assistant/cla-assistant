@@ -95,28 +95,28 @@ router.all('/count/clas', async (req, res) => {
         let text = {
             text: `There are ${data.length} signed CLAs!`
         }
-        text.attachments = []
-        let list = {}
-        if (req.query.detailed) {
-            data.forEach((cla) => {
-                list[`${cla._id.owner}/${cla._id.repo}`] = list[`${cla._id.owner}/${cla._id.repo}`] ? list[`${cla._id.owner}/${cla._id.repo}`] : []
-                list[`${cla._id.owner}/${cla._id.repo}`].push(cla._id.user)
-            })
-            for (let repository in list) {
-                let users = list[repository]
-                text.attachments.push({
-                    title: repository,
-                    // pretext: Pretext _supports_ mrkdwn,
-                    text: `CLA is signed by ${users.length} committer(s): ${JSON.stringify(users)}`,
-                    mrkdwn_in: ['title']
-                })
-            }
-        }
+        // text.attachments = []
+        // let list = {}
+        // if (req.query.detailed) {
+        //     data.forEach((cla) => {
+        //         list[`${cla._id.owner}/${cla._id.repo}`] = list[`${cla._id.owner}/${cla._id.repo}`] ? list[`${cla._id.owner}/${cla._id.repo}`] : []
+        //         list[`${cla._id.owner}/${cla._id.repo}`].push(cla._id.user)
+        //     })
+        //     for (let repository in list) {
+        //         let users = list[repository]
+        //         text.attachments.push({
+        //             title: repository,
+        //             // pretext: Pretext _supports_ mrkdwn,
+        //             text: `CLA is signed by ${users.length} committer(s): ${JSON.stringify(users)}`,
+        //             mrkdwn_in: ['title']
+        //         })
+        //     }
+        // }
         // text = list ? text + list : text
         res.send(JSON.stringify({
             count: data.length,
-            text: text.text,
-            attachments: text.attachments
+            text: text.text
+            // attachments: text.attachments
         }))
     }
 })
