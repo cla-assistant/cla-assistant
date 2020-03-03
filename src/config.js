@@ -28,6 +28,9 @@ module.exports = {
             // required
             token: process.env.GITHUB_TOKEN,
 
+            //temporary, not required
+            token_old: process.env.GITHUB_TOKEN_OLD,
+
             user_scope: ['user:email'],
             admin_scope: ['user:email', 'repo:status', 'read:repo_hook', 'write:repo_hook', 'read:org', 'gist'],
 

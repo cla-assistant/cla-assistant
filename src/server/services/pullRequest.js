@@ -42,6 +42,10 @@ class PullRequestService {
     async badgeComment(owner, repo, pullNumber, signed, userMap) {
         let badgeUrl = url.pullRequestBadge(signed)
         let fun
+        const arg = {
+            owner: owner,
+            repo: repo
+        }
         try {
             const comment = await this.getComment({
                 repo: repo,
@@ -51,18 +55,18 @@ class PullRequestService {
 
             const claUrl = url.claURL(owner, repo, pullNumber)
             const recheckUrl = url.recheckPrUrl(owner, repo, pullNumber)
-            const body = commentText(signed, badgeUrl, claUrl, userMap, recheckUrl)
+            arg.body = commentText(signed, badgeUrl, claUrl, userMap, recheckUrl)
 
-            const arg = {
-                owner: owner,
-                repo: repo,
-                body: body
-            }
+
             if (!comment && !signed) {
                 fun = 'createComment'
                 arg.issue_number = pullNumber
             } else if (comment && comment.id) {
-                if (body === comment.body) {
+                //Temporary fix of comments from outdated user
+                if (comment.user && comment.user.login === 'claassistantio' && config.server.github.token_old) {
+                    arg.comment_id = comment.id
+                    return updateCommentOfDeprecatedUser(arg, pullNumber, owner, repo)
+                } else if (arg.body === comment.body) {
                     logger.debug(`Skip updateComment for the PR ${url.githubHttpPullRequest(owner, repo, pullNumber)} as there are no text changes`)
                     return
                 }
@@ -72,14 +76,16 @@ class PullRequestService {
                 return
             }
 
-            await github.call({
+            github.call({
                 obj: 'issues',
                 fun,
                 arg,
                 token: config.server.github.token,
+            }).catch((error) => {
+                logger.debug(`Failed on api call issues/${fun} for PR ${url.githubHttpPullRequest(owner, repo, pullNumber)}`)
+                logger.warn(new Error(error).stack)
             })
         } catch (error) {
-            logger.debug(`Failed on api call issues/${fun} for PR ${url.githubHttpPullRequest(owner, repo, pullNumber)}`)
             logger.warn(new Error(error).stack)
         }
     }
@@ -160,3 +166,25 @@ class PullRequestService {
 
 
 module.exports = new PullRequestService()
+
+//Temporary fix of comments from outdated user -- remove later
+function updateCommentOfDeprecatedUser(arg, pullNumber, owner, repo) {
+    github.call({
+        obj: 'issues',
+        fun: 'deleteComment',
+        arg,
+        token: config.server.github.token_old,
+    }).catch(() => {
+        logger.debug('Failed on deleting comment from the old user')
+    })
+    arg.issue_number = pullNumber
+    github.call({
+        obj: 'issues',
+        fun: 'createComment',
+        arg,
+        token: config.server.github.token,
+    }).catch(() => {
+        logger.debug('Failed on creating comment for CLAassistant user')
+    })
+    logger.debug(`Changing comment user for PR ${url.githubHttpPullRequest(owner, repo, pullNumber)}`)
+}
