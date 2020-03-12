@@ -35,8 +35,7 @@ class ClaService {
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures--> _checkAll for the repo ' + JSON.stringify(repoId))
+        logger.debug(`checkPullRequestSignatures--> _checkAll for the repoId ${repoId} and orgId ${orgId}`)
         let promises = []
         const userMap = {
             signed: [],
@@ -403,16 +402,14 @@ class ClaService {
                 signed: true
             })
         }
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures-->getGistObject for the repo' + JSON.stringify(args.repo))
+        // logger.debug(`checkPullRequestSignatures-->getGistObject for the repo ${args.owner}/${args.repo}`)
         const gist = await this._getGistObject(args.gist, item.token)
         if (!gist) {
             throw new Error('No gist found for item')
         }
         args.gist_version = gist.data.history[0].version
 
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures-->getPR for the repo' + JSON.stringify(args.repo))
+        // logger.debug(`checkPullRequestSignatures-->getPR for the repo ${args.owner}/${args.repo}`)
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
         if (!pullRequest) {
             throw new Error('No pull request found')
@@ -490,8 +487,7 @@ class ClaService {
         }
 
         if (committerSignatureRequired) {
-            // eslint-disable-next-line no-console
-            console.log('DEBUG: checkPullRequestSignatures-->getPRCommitters for the repo ' + JSON.stringify(args.repo))
+            // logger.debug(`checkPullRequestSignatures-->getPRCommitters for the repo ${args.owner}/${args.repo}`)
             const committers = await repoService.getPRCommitters(args)
             signees = _.uniqWith([...signees, ...committers], (object, other) => object.id == other.id)
         }

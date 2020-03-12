@@ -236,7 +236,7 @@ app.all('/api/:obj/:fun', async (req, res) => {
         if (err && typeof err === 'string') {
             res.status(500).send(err)
         } else if (err) {
-            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err.message || err))
+            return res.status(err.status > 0 ? err.status : 500).send(JSON.stringify(err.text || err.message || err))
         }
     }
     try {

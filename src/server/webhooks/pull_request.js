@@ -60,17 +60,13 @@ function storeRequest(committers, repo, owner, number) {
 
 async function updateStatusAndComment(args, item) {
     try {
-        // eslint-disable-next-line no-console
-        //console.log('DEBUG: reposService.gerPRCommitters')
         const committers = await repoService.getPRCommitters(args)
         if (committers && committers.length > 0) {
+            const promises = []
             let checkResult
             try {
-                // eslint-disable-next-line no-console
-                //console.log('DEBUG: check cla')
                 checkResult = await cla.check(args, item)
-                // eslint-disable-next-line no-console
-                console.log('DEBUG: updateStatusAndComment for the repo ' + JSON.stringify(args.repo))
+                logger.debug(`pullRequestWebhook-->updateStatusAndComment for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -80,19 +76,24 @@ async function updateStatusAndComment(args, item) {
                 (checkResult.userMap.not_signed && checkResult.userMap.not_signed.length > 0) ||
                 (checkResult.userMap.unknown && checkResult.userMap.unknown.length > 0)
             ) {
-                status.update(args)
+                promises.push(status.update(args))
             } else {
-                status.updateForClaNotRequired(args)
+                promises.push(status.updateForClaNotRequired(args))
             }
-            pullRequest.badgeComment(
+            promises.push(pullRequest.badgeComment(
                 args.owner,
                 args.repo,
                 args.number,
                 checkResult.signed,
                 checkResult.userMap
-            )
+            ))
             if (checkResult.userMap && checkResult.userMap.not_signed) {
                 storeRequest(checkResult.userMap.not_signed, args.repo, args.owner, args.number)
+            }
+            try {
+                await Promise.all(promises)
+            } catch (error) {
+                logger.warn(new Error(`Could not update status and/or comment on PR. Args: ${args}`).stack)
             }
         } else {
             logger.warn(new Error(`No committers found for the PR. Args: ${args}`).stack)
@@ -152,7 +153,7 @@ module.exports = async function (req, res) {
                     args.orgId = undefined
                 }
 
-                handleWebHook(args, item)
+                await handleWebHook(args, item)
             }
         } catch (e) {
             logger.warn(e)
