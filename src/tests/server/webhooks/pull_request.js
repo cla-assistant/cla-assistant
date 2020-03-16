@@ -16,7 +16,13 @@ const config = require('../../../config')
 const User = require('../../../server/documents/user').User
 
 // webhook under test
-const pull_request = require('../../../server/webhooks/pull_request')
+const webhook = require('../../../server/webhooks/pull_request')
+
+function pull_request(req, res) {
+    if (webhook.accepts(req)) {
+        return webhook.handle(req, res)
+    }
+}
 
 const testData = {
     'id': 1,
