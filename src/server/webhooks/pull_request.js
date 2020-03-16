@@ -130,9 +130,11 @@ async function handleWebHook(args, item) {
     }
 }
 
-module.exports = async function (req, res) {
-
-    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
+module.exports = {
+    accepts: function (req) {
+        return ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)
+    },
+    handle: async function (req, res) {
         const args = {
             owner: req.args.repository.owner.login,
             repoId: req.args.repository.id,
@@ -158,6 +160,6 @@ module.exports = async function (req, res) {
         } catch (e) {
             logger.warn(e)
         }
+        res.status(200).send('OK')
     }
-    res.status(200).send('OK')
 }

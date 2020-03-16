@@ -254,15 +254,18 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
-        if (!webhooks[event]) {
+        let hook = webhooks[event]
+        if (!hook) {
             return res.status(400).send('Unsupported event')
         }
-        if (!isRudundantWebhook(req)) {
-            webhooks[event](req, res)
-        } else {
-            console.log(`Skip redundand webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
-            res.status(202).send('This seems to be a redundand webhook. Probably there are two webhooks registered: org- and repo-webhook')
+        if (hook.accepts(req)) {
+            if (isRudundantWebhook(req)) {
+                console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
+                return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
+            }
+            return hook.handle(req, res)
         }
+        return res.status(204).send('This webhook performed no action')
     } catch (err) {
         res.status(500).send('Internal Server Error')
     }
