@@ -1,5 +1,14 @@
 # Change Log
 
+## [v2.7.0](https://github.com/cla-assistant/cla-assistant/tree/v2.7.0) (2020-03-17)
+
+**Merged pull requests:**
+- Fix race for out-of-order webhooks. [#546](https://github.com/cla-assistant/cla-assistant/pull/546) ([bobvawter](https://github.com/bobvawter))
+
+**Fixed Bugs:**
+- update logging and catch some exceptions
+- reduce logic on count/clas
+
 ## [v2.6.2](https://github.com/cla-assistant/cla-assistant/tree/v2.6.2) (2020-02-28)
 
 **Fixed Bugs:**
