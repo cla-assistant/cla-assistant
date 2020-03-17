@@ -16,19 +16,11 @@ router.post('/count/*', (_req, _res, next) => next())
 
 router.all('/count/repos', async (req, res) => {
     try {
-        const repos = await Repo.find({})
+        const repoCount = await Repo.count({})
         res.set('Content-Type', 'application/json')
-        let list = ''
-        if (req.query.last && repos.length > 0) {
-            let fullName = `${repos[repos.length - 1].owner}/${repos[repos.length - 1].repo}`
-            list = `\n Newest repo is https://github.com/${fullName}`
-        } else if (repos.length > 0) {
-            repos.forEach((repo, i) => list += `\n ${++i}. ${repo.owner}/${repo.repo}`)
-        }
         res.send(JSON.stringify({
-            count: repos.length,
-            text: `There are ${repos.length} registered repositories!${list}`,
-            mrkdwn_in: ['text']
+            count: repoCount,
+            text: `There are ${repoCount} registered repositories!`
         }))
     } catch (error) {
         logger.info(error)
@@ -37,19 +29,11 @@ router.all('/count/repos', async (req, res) => {
 
 router.all('/count/orgs', async (req, res) => {
     try {
-        const orgs = await Org.find({})
+        const orgsCount = await Org.count({})
         res.set('Content-Type', 'application/json')
-        let list = ''
-        if (req.query.last && orgs.length > 0) {
-            let orgName = orgs[orgs.length - 1].org
-            list = `\n Newest org is https://github.com/${orgName}`
-        } else if (orgs.length > 0) {
-            orgs.forEach((org, i) => list += `\n ${++i}. ${org.org}`)
-        }
         res.send(JSON.stringify({
-            count: orgs.length,
-            text: `There are ${orgs.length} registered organizations!${list}`,
-            mrkdwn_in: ['text']
+            count: orgsCount,
+            text: `There are ${orgsCount} registered organizations!`
         }))
     } catch (error) {
         res.status(500).send(error)
@@ -58,67 +42,33 @@ router.all('/count/orgs', async (req, res) => {
 })
 
 router.all('/count/clas', async (req, res) => {
-    if (req.query.last) {
-        try {
-            const cla = await CLA.find().sort({
-                'created_at': -1
-            }).limit(1)
-            res.set('Content-Type', 'application/json')
-            let fullName = `${cla[0].owner}/${cla[0].repo}`
-
-            res.send(JSON.stringify({
-                text: `${cla[0].user} signed a CLA for https://github.com/${fullName}`
-            }))
-        } catch (error) {
-            res.status(500).send(error)
-            logger.info(error)
-        }
-    } else {
-        let data
-        try {
-            data = await CLA.aggregate([{
-                '$group': {
-                    '_id': {
-                        repo: '$repo',
-                        owner: '$owner',
-                        user: '$user'
-                    }
+    let data
+    try {
+        data = await CLA.aggregate([{
+            '$group': {
+                '_id': {
+                    'repo': '$repo',
+                    'owner': '$owner',
+                    'user': '$user'
                 }
-            }])
-        } catch (error) {
-            logger.info(error)
-        }
-        if (!Array.isArray(data)) {
-            data = []
-        }
-        res.set('Content-Type', 'application/json')
-        let text = {
-            text: `There are ${data.length} signed CLAs!`
-        }
-        // text.attachments = []
-        // let list = {}
-        // if (req.query.detailed) {
-        //     data.forEach((cla) => {
-        //         list[`${cla._id.owner}/${cla._id.repo}`] = list[`${cla._id.owner}/${cla._id.repo}`] ? list[`${cla._id.owner}/${cla._id.repo}`] : []
-        //         list[`${cla._id.owner}/${cla._id.repo}`].push(cla._id.user)
-        //     })
-        //     for (let repository in list) {
-        //         let users = list[repository]
-        //         text.attachments.push({
-        //             title: repository,
-        //             // pretext: Pretext _supports_ mrkdwn,
-        //             text: `CLA is signed by ${users.length} committer(s): ${JSON.stringify(users)}`,
-        //             mrkdwn_in: ['title']
-        //         })
-        //     }
-        // }
-        // text = list ? text + list : text
-        res.send(JSON.stringify({
-            count: data.length,
-            text: text.text
-            // attachments: text.attachments
-        }))
+            }
+        }, {
+            '$count': 'count'
+        }])
+    } catch (error) {
+        logger.info(error)
     }
+    if (!Array.isArray(data) || data[0].count === undefined) {
+        data = [{ count: 0 }]
+    }
+    res.set('Content-Type', 'application/json')
+    let text = {
+        text: `There are ${data[0].count} signed CLAs!`
+    }
+    res.send(JSON.stringify({
+        count: data[0].count,
+        text: text.text
+    }))
 })
 
 router.all('/count/stars', async (_req, res) => {
