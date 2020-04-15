@@ -1,5 +1,46 @@
 # Change Log
 
+## [v2.7.0](https://github.com/cla-assistant/cla-assistant/tree/v2.7.0) (2020-03-17)
+
+**Merged pull requests:**
+- Fix race for out-of-order webhooks. [#546](https://github.com/cla-assistant/cla-assistant/pull/546) ([bobvawter](https://github.com/bobvawter))
+
+**Fixed Bugs:**
+- update logging and catch some exceptions
+- reduce logic on count/clas
+
+## [v2.6.2](https://github.com/cla-assistant/cla-assistant/tree/v2.6.2) (2020-02-28)
+
+**Fixed Bugs:**
+- do not update comment of a PR if there are no text changes - reduce GitHub api calls
+
+## [v2.6.1](https://github.com/cla-assistant/cla-assistant/tree/v2.6.1) (2020-02-26)
+
+**Fixed Bugs:**
+- update depricated octokit method call
+
+## [v2.6.0](https://github.com/cla-assistant/cla-assistant/tree/v2.6.0) (2020-02-26)
+
+**New Features:**
+- refactoring: reduce github api calls, pass linked item where possible; avoid await if not needed
+- change caching mechanism
+
+**Fixed Bugs:**
+- fix unlink animation
+
+## [v2.5.2](https://github.com/cla-assistant/cla-assistant/tree/v2.5.2) (2020-02-18)
+
+**Fixed Bugs:**
+- respond to org webhooks for PRs of excluded repos
+
+## [v2.5.1](https://github.com/cla-assistant/cla-assistant/tree/v2.5.1) (2020-02-18)
+
+**Merged pull requests:**
+- Reword run-on sentence in CLA signing request [#533](https://github.com/cla-assistant/cla-assistant/pull/533) ([benesch](https://github.com/benesch))
+
+**Fixed Bugs:**
+- respond to redundand webhooks
+
 ## [v2.5](https://github.com/cla-assistant/cla-assistant/tree/v2.5) (2020-02-17)
 **Fixed Bugs:**
 - avoid double comments by ignoring zombee webhooks [issue #521](https://github.com/cla-assistant/cla-assistant/issues/521)

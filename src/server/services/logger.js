@@ -19,16 +19,18 @@ log = bunyan.createLogger({
 });
 
 try {
-    log.addStream({
-        name: 'slack',
-        level: process.env.ENV == 'debug' ? 'info' : 'debug',
-        stream: new BunyanSlack({
-            webhook_url: config.server.slack.url,
-            channel: config.server.slack.channel,
-            username: 'CLA Assistant',
-            customFormatter: formatter
+    if (config.server.slack.url) {
+        log.addStream({
+            name: 'slack',
+            level: 'error',
+            stream: new BunyanSlack({
+                webhook_url: config.server.slack.url,
+                channel: config.server.slack.channel,
+                username: 'CLA Assistant',
+                customFormatter: formatter
+            })
         })
-    })
+    }
 } catch (e) {
     log.info(e)
 }

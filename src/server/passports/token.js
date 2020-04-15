@@ -16,8 +16,8 @@ function getGHUser(accessToken) {
 
 async function checkToken(accessToken) {
     const args = {
-        obj: 'oauthAuthorizations',
-        fun: 'checkAuthorization',
+        obj: 'apps',
+        fun: 'checkToken',
         arg: {
             access_token: accessToken,
             client_id: config.server.github.client

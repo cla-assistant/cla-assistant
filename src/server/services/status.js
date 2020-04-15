@@ -11,8 +11,7 @@ const getPR = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                pull_number: args.number,
-                noCache: true
+                pull_number: args.number
             },
             token: args.token
         })
@@ -30,8 +29,7 @@ const getStatuses = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                ref: args.sha,
-                noCache: true
+                ref: args.sha
             },
             token: args.token
         })
@@ -50,8 +48,7 @@ const getCombinedStatus = async (args) => {
             arg: {
                 owner: args.owner,
                 repo: args.repo,
-                ref: args.sha,
-                noCache: true
+                ref: args.sha
             },
             token: args.token
         })
@@ -64,8 +61,7 @@ const getCombinedStatus = async (args) => {
 
 const createStatus = async (args, context, description, state, target_url) => {
     try {
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: createstatus --->' + JSON.stringify(args.repo))
+        logger.debug(`StatusService-->createStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         return github.call({
             obj: 'repos',
             fun: 'createStatus',
@@ -76,8 +72,7 @@ const createStatus = async (args, context, description, state, target_url) => {
                 state: state,
                 description: description,
                 target_url: target_url,
-                context: context,
-                noCache: true
+                context: context
             },
             token: args.token
         })
@@ -88,6 +83,7 @@ const createStatus = async (args, context, description, state, target_url) => {
 
 const findStatusToBeChanged = async (args) => {
     try {
+        logger.debug(`StatusService-->findStatusToBeChanged for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         const response = await getStatuses(args)
         // let statuses = ''
         const description = args.signed ? 'Contributor License Agreement is signed.' : 'Contributor License Agreement is not signed yet.'
@@ -99,23 +95,6 @@ const findStatusToBeChanged = async (args) => {
         }
 
         if (response && response.data) {
-            //statuses = JSON.parse(response)
-
-            const statString = JSON.stringify(response.data)
-
-            if (statString.includes('licence/cla') && status.state == 'success') { // temporary fix if both contexts are there
-                let shouldBeChanged = false
-                response.data.some(function findClaStatusToChange(s) {
-                    if (s.context.match(/licence\/cla/g)) {
-                        shouldBeChanged = s.state === 'pending'
-                        return true
-                    }
-                })
-
-                if (shouldBeChanged) {
-                    return status
-                }
-            }
             response.data.some(function findClaStatusToChange(s) {
                 if (s.context.match(/license\/cla/g)) {
                     status = s.state !== status.state ? status : undefined
@@ -149,15 +128,17 @@ const findClaStatus = async (args) => {
 
 const updateStatus = async (args) => {
     try {
-        logger.info('DEBUG: updateStatus --->' + JSON.stringify(args.repo))
+        logger.debug(`StatusService-->updateStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         const status = await findStatusToBeChanged(args)
 
         if (!status) {
+            logger.debug(`StatusService-->updateStatus status remains the same - no need to update ${args.owner}/${args.repo}/pull/${args.number}`)
             return
         }
         return createStatus(args, status.context, status.description, status.state, status.target_url)
 
     } catch (error) {
+        logger.debug(`StatusService-->failed on updateStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         logger.warn(new Error(`${error} with args: ${args}`).stack)
     }
 }
@@ -176,7 +157,7 @@ const getPullRequestHeadShaIfNeeded = async (args) => {
 }
 
 const updateStatusIfNeeded = async (args, status, allowAbsent) => {
-    logger.info('DEBUG: updateStatusIfNeeded for the repo ' + JSON.stringify(args.repo))
+    logger.debug(`StatusService-->updateStatusIfNeeded for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
 
     if (!status) {
         return new Error('Status is required for updateStatusIfNeeded.')
@@ -199,21 +180,18 @@ const updateStatusIfNeeded = async (args, status, allowAbsent) => {
 
 class StatusService {
     async update(args) {
-        if (args) {
-            if (!args.sha) {
-                try {
-                    const resp = (await getPR(args)).data
-                    if (!resp || resp.message == 'Not found') {
-                        return
-                    }
-                    if (resp.head) {
-                        args.sha = resp.head.sha
-                        return updateStatus(args)
-                    } else {
-                        return updateStatus(args)
-                    }
-                } catch (error) {
-                    logger.warn(new Error(`${error} with args: ${args}`).stack)
+        logger.debug(`StatusService-->update for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
+        if (args && !args.sha) {
+            try {
+                const resp = (await getPR(args)).data
+                if (!resp || resp.message == 'Not found') {
+                    return
+                }
+                if (resp && resp.head) {
+                    args.sha = resp.head.sha
+                    return updateStatus(args)
+                } else if (args) {
+                    return updateStatus(args)
                 }
             } else {
                 return updateStatus(args)
@@ -231,7 +209,7 @@ class StatusService {
     }
 
     async updateForClaNotRequired(args) {
-        logger.info('DEBUG: updateForClaNotRequired for the repo ' + JSON.stringify(args.repo))
+        logger.debug(`StatusService-->updateForClaNotRequired for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         let status = {
             context: 'license/cla',
             state: 'success',

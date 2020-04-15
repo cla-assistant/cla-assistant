@@ -5,15 +5,13 @@ const url = require('./url')
 const logger = require('./logger')
 
 class WebhookService {
-    async _getHook(owner, repo, noCache, token) {
+    async _getHook(owner, repo, token) {
         if (!owner || !token) {
             throw 'Owner/org and token is required.'
         }
         let args = {
             fun: 'listHooks',
-            arg: {
-                noCache: noCache
-            },
+            arg: {},
             token: token
         }
         if (repo) {
@@ -37,11 +35,11 @@ class WebhookService {
         return hook
     }
 
-    async getRepoHook(owner, repo, noCache, token) {
-        let hook = await this._getHook(owner, repo, noCache, token)
+    async getRepoHook(owner, repo, token) {
+        let hook = await this._getHook(owner, repo, token)
         if (!hook) {
             try {
-                hook = await this._getHook(owner, undefined, noCache, token)
+                hook = await this._getHook(owner, undefined, token)
             } catch (error) {
                 if (error && error.status !== 404) {
                     // When the owner is not an org, github returns 404.
@@ -52,8 +50,8 @@ class WebhookService {
         return hook
     }
 
-    getOrgHook(org, noCache, token) {
-        return this._getHook(org, undefined, noCache, token)
+    getOrgHook(org, token) {
+        return this._getHook(org, undefined, token)
     }
 
     async _createHook(owner, repo, token) {
@@ -63,7 +61,6 @@ class WebhookService {
         let args = {
             fun: 'createHook',
             arg: {
-                noCache: true,
                 config: {
                     content_type: 'json'
                 },
@@ -93,7 +90,7 @@ class WebhookService {
     }
 
     async createRepoHook(owner, repo, token) {
-        const hook = await this.getRepoHook(owner, repo, true, token)
+        const hook = await this.getRepoHook(owner, repo, token)
         if (hook) {
             return hook
         }
@@ -101,7 +98,7 @@ class WebhookService {
     }
 
     async createOrgHook(org, token) {
-        let hook = await this.getOrgHook(org, true, token)
+        let hook = await this.getOrgHook(org, token)
         if (hook) {
             throw new Error('Webhook already exist with base url ' + url.baseWebhook)
         }
@@ -116,8 +113,7 @@ class WebhookService {
         let args = {
             fun: 'deleteHook',
             arg: {
-                hook_id: hookId,
-                noCache: true
+                hook_id: hookId
             },
             token: token
         }
@@ -138,7 +134,7 @@ class WebhookService {
     }
 
     async removeRepoHook(owner, repo, token) {
-        const hook = await this.getRepoHook(owner, repo, true, token)
+        const hook = await this.getRepoHook(owner, repo, token)
         if (!hook) {
             throw 'No webhook found with base url ' + url.baseWebhook
         }
@@ -149,7 +145,7 @@ class WebhookService {
     }
 
     async removeOrgHook(org, token) {
-        const hook = await this.getOrgHook(org, true, token)
+        const hook = await this.getOrgHook(org, token)
         if (!hook) {
             throw 'No webhook found with base url ' + url.baseWebhook
         }

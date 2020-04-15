@@ -25,7 +25,8 @@ class ClaService {
             obj: 'gists',
             fun: 'get',
             arg: {
-                gist_id: id
+                gist_id: id,
+                cacheTime: 60 //seconds
             },
             token: token
         }
@@ -34,6 +35,7 @@ class ClaService {
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
+        logger.debug(`checkPullRequestSignatures--> _checkAll for the repoId ${repoId} and orgId ${orgId}`)
         let promises = []
         const userMap = {
             signed: [],
@@ -142,15 +144,14 @@ class ClaService {
         return newQuery
     }
 
-    async _getPR(owner, repo, number, token, noCache) {
+    async _getPR(owner, repo, number, token) {
         return github.call({
             obj: 'pulls',
             fun: 'get',
             arg: {
                 owner: owner,
                 repo: repo,
-                pull_number: number,
-                noCache: noCache
+                pull_number: number
             },
             token: token
         })
@@ -333,8 +334,10 @@ class ClaService {
      *   repo (optional)
      *   number (optional)
      */
-    async getLastSignature(args) {
-        const item = await this._getLinkedItem(args.repo, args.owner)
+    async getLastSignature(args, item) {
+        if (!item) {
+            item = await this._getLinkedItem(args.repo, args.owner)
+        }
         args.gist = item.gist
         if (!item.gist) {
             return 'null-cla'
@@ -369,8 +372,8 @@ class ClaService {
      *   repo (optional)
      *   number (optional)
      */
-    async checkUserSignature(args) {
-        const cla = await this.getLastSignature(args)
+    async checkUserSignature(args, item) {
+        const cla = await this.getLastSignature(args, item)
         return {
             signed: !!cla
         }
@@ -411,16 +414,14 @@ class ClaService {
                 signed: true
             })
         }
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures-->getGistObject for the repo' + JSON.stringify(args.repo))
+        // logger.debug(`checkPullRequestSignatures-->getGistObject for the repo ${args.owner}/${args.repo}`)
         const gist = await this._getGistObject(args.gist, item.token)
         if (!gist) {
             throw new Error('No gist found for item')
         }
         args.gist_version = gist.data.history[0].version
 
-        // eslint-disable-next-line no-console
-        console.log('DEBUG: checkPullRequestSignatures-->getPR for the repo' + JSON.stringify(args.repo))
+        // logger.debug(`checkPullRequestSignatures-->getPR for the repo ${args.owner}/${args.repo}`)
         const pullRequest = (await this._getPR(args.owner, args.repo, args.number, item.token)).data
         if (!pullRequest) {
             throw new Error('No pull request found')
@@ -498,8 +499,7 @@ class ClaService {
         }
 
         if (committerSignatureRequired) {
-            // eslint-disable-next-line no-console
-            console.log('DEBUG: checkPullRequestSignatures-->getPRCommitters for the repo ' + JSON.stringify(args.repo))
+            // logger.debug(`checkPullRequestSignatures-->getPRCommitters for the repo ${args.owner}/${args.repo}`)
             const committers = await repoService.getPRCommitters(args)
             signees = _.uniqWith([...signees, ...committers], (object, other) => object.id == other.id)
         }
@@ -521,15 +521,17 @@ class ClaService {
 
     async check(args, item) {
         if (args.user) {
-            return this.checkUserSignature(args)
+            return this.checkUserSignature(args, item)
         } else if (args.number) {
             return this.checkPullRequestSignatures(args, item)
         }
         throw new Error('A user or a pull request number is required.')
     }
 
-    async sign(args) {
-        const item = await this._getLinkedItem(args.repo, args.owner, args.token)
+    async sign(args, item) {
+        if (!item) {
+            item = await this._getLinkedItem(args.repo, args.owner, args.token)
+        }
         if (!item.gist) {
             const nullClaErr = new Error('The repository doesn\'t need to sign a CLA because it has a null CLA.')
             nullClaErr.code = 200

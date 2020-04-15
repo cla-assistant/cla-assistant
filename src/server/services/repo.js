@@ -96,9 +96,9 @@ class RepoService {
 
     async all() {
         if (global.config.server.useCouch) {
-            return (await global.cladb.find({ selector: { type: 'entity', table: 'repo', } })).docs
+            return (await global.cladb.find({ selector: { type: 'entity', table: 'repo', } })).docs.length
         }
-        return await Repo.find({})
+        return await Repo.count({})
     }
 
     async check(args) {

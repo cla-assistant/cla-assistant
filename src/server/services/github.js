@@ -8,11 +8,14 @@ let Octokit = require('@octokit/rest')
 const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
 
-async function callGithub(octokit, obj, fun, arg, cacheKey) {
-    const cachedRes = arg.noCache ? null : cache.get(cacheKey)
-    delete arg.noCache
-    if (cachedRes && config.server.cache_time > 0) {
-        return cachedRes
+async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
+
+    if (cacheKey && !config.server.nocache) {
+        const cachedRes = cache.get(cacheKey)
+        if (cachedRes) {
+            logger.info(`Result returned from cache for ${obj}.${fun}`)
+            return cachedRes
+        }
     }
     let res
     if (fun.match(/list.*/g)) {
@@ -24,8 +27,8 @@ async function callGithub(octokit, obj, fun, arg, cacheKey) {
         res = await octokit[obj][fun](arg)
     }
 
-    if (res && config.server.cache_time > 0) {
-        cache.put(cacheKey, res, 60000 * config.server.cache_time)
+    if (res && cacheTime) {
+        cache.put(cacheKey, res, 1000 * cacheTime)
     }
 
     return res
@@ -87,16 +90,7 @@ const githubService = {
         const fun = call.fun
         const obj = call.obj
         const token = call.token
-
-        const argWithoutNoCache = Object.assign({}, arg)
-        delete argWithoutNoCache.noCache
-
-        const stringArgs = stringify({
-            obj: call.obj,
-            fun: call.fun,
-            arg: argWithoutNoCache,
-            token: call.token
-        })
+        const cacheKey = generateCacheKey(arg, obj, fun, token)
 
         let auth
         if (token) {
@@ -118,7 +112,7 @@ const githubService = {
             throw new Error('fun required/fun not found')
         }
         try {
-            return callGithub(octokit, obj, fun, arg, stringArgs)
+            return callGithub(octokit, obj, fun, arg, cacheKey, arg.cacheTime)
         } catch (error) {
             logger.info(`${error} - Error on callGithub.${obj}.${fun} with args ${arg}.`)
             throw new Error(error)
@@ -138,3 +132,14 @@ const githubService = {
 }
 
 module.exports = githubService
+
+function generateCacheKey(arg, obj, fun, token) {
+    const argWithoutCacheParams = Object.assign({}, arg)
+    delete argWithoutCacheParams.cacheTime
+    return stringify({
+        obj,
+        fun,
+        arg: argWithoutCacheParams,
+        token
+    })
+}

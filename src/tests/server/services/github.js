@@ -105,7 +105,7 @@ describe('github:call', () => {
         })
     })
 
-    it('should call the appropriate function on the github api', async () => {
+    it('should call appropriate function on the github api', async () => {
         const testHeaders = {
             link: null,
             'x-oauth-scopes': []
@@ -129,5 +129,17 @@ describe('github:call', () => {
         } catch (error) {
             assert.equal(error, 'github error')
         }
+    })
+
+    it('should cache github call results if cacheTime provided', async () => {
+        callStub.resolves({ data: {}, headers: {} })
+        for (let i = 0; i < 3; i++) {
+            await github.call({
+                obj: 'obj',
+                fun: 'fun',
+                arg: { cacheTime: 1 }
+            })
+        }
+        sinon.assert.calledOnce(callStub)
     })
 })

@@ -2,6 +2,11 @@
 // GitHub Ping Webhook Handler
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = function (req, res) {
-    res.status(200).send('OK');
-};
+module.exports = {
+    accepts: function () {
+        return true
+    },
+    handle: function (req, res) {
+        res.status(200).send('OK');
+    }
+}

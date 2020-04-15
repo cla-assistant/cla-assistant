@@ -1,5 +1,8 @@
 let http = require('http')
 
+if (process.env.NODE_ENV === 'production') {
+    require('@google-cloud/trace-agent').start();
+}
 
 /* eslint no-console: "off"*/
 require('colors')
@@ -264,7 +267,7 @@ app.all('/api/:obj/:fun', async (req, res) => {
         if (err && typeof err === 'string') {
             res.status(500).send(err)
         } else if (err) {
-            return res.status(err.code > 0 ? err.code : 500).send(JSON.stringify(err.text || err.message || err))
+            return res.status(err.status > 0 ? err.status : 500).send(JSON.stringify(err.text || err.message || err))
         }
     }
     try {
@@ -282,16 +285,18 @@ app.all('/api/:obj/:fun', async (req, res) => {
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']
     try {
-        // eslint-disable-next-line no-console
-        console.log("webhook object ---> ")
-        // eslint-disable-next-line no-console
-        console.log(webhooks)
-        if (!webhooks[event]) {
+        let hook = webhooks[event]
+        if (!hook) {
             return res.status(400).send('Unsupported event')
         }
-        if (!isRudundantWebhook(req)) {
-            webhooks[event](req, res)
+        if (hook.accepts(req)) {
+            if (isRudundantWebhook(req)) {
+                console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
+                return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
+            }
+            return hook.handle(req, res)
         }
+        return res.status(204).send('This webhook performed no action')
     } catch (err) {
         res.status(500).send('Internal Server Error')
     }

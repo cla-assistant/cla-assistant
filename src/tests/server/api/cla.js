@@ -392,7 +392,7 @@ describe('', () => {
                 }
             }
             testUser = {
-                save: () => {},
+                save: () => { },
                 name: 'testUser',
                 requests: [{
                     repo: 'Hello-World',
@@ -494,19 +494,16 @@ describe('', () => {
             this.timeout(200)
             const res = await cla_api.sign(req)
 
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    assert.ok(res)
-                    sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
-                    assert(github.call.calledWithMatch({
-                        obj: 'pulls',
-                        fun: 'list'
-                    }))
-                    assert(prService.badgeComment.called)
-                    assert.equal(statusService.update.callCount, 2)
-                    resolve()
-                }, 150)
-            })
+            await delayAssertion(() => {
+                assert.ok(res)
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
+                assert(github.call.calledWithMatch({
+                    obj: 'pulls',
+                    fun: 'list'
+                }))
+                assert(prService.badgeComment.called)
+                assert.equal(statusService.update.callCount, 2)
+            }, 350)
         })
 
         it('should update status of all open pull requests for the repo if user model has requests for other repos', async () => {
@@ -519,19 +516,16 @@ describe('', () => {
             this.timeout(200)
             const res = await cla_api.sign(req)
 
-            await new Promise((resolve) => {
-                setTimeout(() => {
-                    assert.ok(res)
-                    sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
-                    assert(github.call.calledWithMatch({
-                        obj: 'pulls',
-                        fun: 'list'
-                    }))
-                    assert(prService.badgeComment.called)
-                    assert.equal(statusService.update.callCount, 2)
-                    resolve()
-                }, 150)
-            })
+            await delayAssertion(() => {
+                assert.ok(res)
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
+                assert(github.call.calledWithMatch({
+                    obj: 'pulls',
+                    fun: 'list'
+                }))
+                assert(prService.badgeComment.called)
+                assert.equal(statusService.update.callCount, 2)
+            }, 350)
         })
 
         it('should update status of all open pull requests for the repos and orgs that shared the same gist if user model has no requests stored', async () => {
@@ -539,24 +533,26 @@ describe('', () => {
             resp.cla.getLinkedItem = Object({
                 sharedGist: true
             }, resp.cla.getLinkedItem)
-            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => {})
+            sinon.stub(cla_api, 'validateSharedGistItems').callsFake(() => { })
 
             await cla_api.sign(req)
-
-            assert(cla_api.validateSharedGistItems.called)
-            cla_api.validateSharedGistItems.restore()
+            await delayAssertion(() => {
+                assert(cla_api.validateSharedGistItems.called)
+                cla_api.validateSharedGistItems.restore()
+            }, 50)
         })
 
         it('should update status of all open pull requests for the org that when linked an org if user model has no requests stored', async () => {
             testUser.requests = undefined
             resp.cla.getLinkedItem = testData.org_from_db
-            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => {})
+            sinon.stub(cla_api, 'validateOrgPullRequests').callsFake(() => { })
 
             try {
                 await cla_api.sign(req)
-
-                assert(cla_api.validateOrgPullRequests.called)
-                cla_api.validateOrgPullRequests.restore()
+                await delayAssertion(() => {
+                    assert(cla_api.validateOrgPullRequests.called)
+                    cla_api.validateOrgPullRequests.restore()
+                }, 50)
             } catch (e) {
                 assert.ifError(e)
             }
@@ -603,10 +599,12 @@ describe('', () => {
         it('should update users stored pull requests', async () => {
             testUser.requests[0].numbers = [1, 2]
             const res = await cla_api.sign(req)
-            assert.ok(res)
-            sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
-            sinon.assert.called(User.findOne)
-            sinon.assert.calledTwice(cla.check)
+            await delayAssertion(() => {
+                assert.ok(res)
+                sinon.assert.calledWithMatch(cla.sign, expArgs.claSign)
+                sinon.assert.called(User.findOne)
+                sinon.assert.calledTwice(cla.check)
+            }, 50)
         })
 
         it('should call update status of all PRs of the user in repos and orgs with the same shared gist', async () => {
@@ -627,12 +625,14 @@ describe('', () => {
                 /*do nothing*/
             })
             await cla_api.sign(req)
-            sinon.assert.notCalled(cla_api.validateSharedGistItems)
-            sinon.assert.calledTwice(cla.check)
+            await delayAssertion(() => {
+                sinon.assert.notCalled(cla_api.validateSharedGistItems)
+                sinon.assert.calledTwice(cla.check)
 
-            cla_api.validateSharedGistItems.restore()
-            repo_service.getRepoWithSharedGist.restore()
-            org_service.getOrgWithSharedGist.restore()
+                cla_api.validateSharedGistItems.restore()
+                repo_service.getRepoWithSharedGist.restore()
+                org_service.getOrgWithSharedGist.restore()
+            }, 50)
         })
 
         it('should delete stored pull requests from unlinked org or repo', async () => {
@@ -653,8 +653,10 @@ describe('', () => {
 
             try {
                 await cla_api.sign(req)
-                assert(!testUser.requests.length)
-                sinon.assert.calledOnce(cla.check)
+                await delayAssertion(() => {
+                    assert(!testUser.requests.length)
+                    sinon.assert.calledOnce(cla.check)
+                }, 50)
             } catch (e) {
                 assert.ifError(e)
             }
@@ -1096,6 +1098,7 @@ describe('', () => {
             resp.cla.getLinkedItem = Object.assign({}, testData.repo_from_db)
             expError.cla.isClaRequired = null
             resp.cla.isClaRequired = true
+            global.config.server.github.timeToWait = 10
 
             sinon.stub(statusService, 'update').callsFake(async (args) => {
                 assert(args.signed)
@@ -1163,12 +1166,15 @@ describe('', () => {
                 token: 'user_token'
             }
             await cla_api.validateAllPullRequests(req)
-            assert.equal(statusService.update.callCount, 2)
-            assert(github.call.calledWithMatch({
-                obj: 'pulls',
-                fun: 'list'
-            }))
-            assert(prService.badgeComment.called)
+            await new Promise(resolve => setTimeout(() => {
+                assert.equal(statusService.update.callCount, 2)
+                assert(github.call.calledWithMatch({
+                    obj: 'pulls',
+                    fun: 'list'
+                }))
+                assert(prService.badgeComment.called)
+                resolve()
+            }, 50))
         })
 
         it('should update status of all repos of the org', async () => {
@@ -1257,8 +1263,11 @@ describe('', () => {
         it('should delete comments when rechecking PRs of a repo with a null CLA', async () => {
             resp.cla.getLinkedItem.gist = undefined
             await cla_api.validateAllPullRequests(req)
-            assert(prService.deleteComment.called)
-            assert(statusService.updateForNullCla.called)
+            await new Promise(resolve => setTimeout(() => {
+                assert(prService.deleteComment.called)
+                assert(statusService.updateForNullCla.called)
+                resolve()
+            }, 50))
         })
     })
 
@@ -1299,7 +1308,7 @@ describe('', () => {
             }))
         })
 
-        it('should NOT validate repos with overridden cla', async () => {
+        it('should NOT validate repos with overwritten cla', async () => {
             resp.orgService.get.isRepoExcluded = () => false
             await cla_api.validateOrgPullRequests(req)
             await new Promise(resolve => setTimeout(() => {
@@ -1308,7 +1317,7 @@ describe('', () => {
             }))
         })
 
-        it('should validate repos with overridden cla if linked repo doesn\'t have valid repoId', async () => {
+        it('should validate repos with overwritten cla if linked repo doesn\'t have valid repoId', async () => {
             resp.orgService.get.isRepoExcluded = () => false
             resp.repoService.getByOwner[0].repoId = undefined
 
@@ -1319,7 +1328,7 @@ describe('', () => {
             }))
         })
 
-        it('should validate repos that is not in the excluded list and don\'t have overridden cla', async () => {
+        it('should validate repos that is not in the excluded list and don\'t have overwritten cla', async () => {
             resp.orgService.get.isRepoExcluded = () => false
             resp.repoService.getByOwner = []
 
@@ -1339,6 +1348,19 @@ describe('', () => {
                 assert(!!error)
                 assert(!cla_api.validateAllPullRequests.called)
             }
+        })
+
+        it('should get linked org and provide it to the validateAllPR method', async () => {
+            resp.cla.getLinkedItem = resp.orgService.get
+            resp.orgService.get.isRepoExcluded = () => false
+            resp.repoService.getByOwner = []
+
+            await cla_api.validateOrgPullRequests(req)
+            await new Promise(resolve => setTimeout(() => {
+                assert(cla_api.validateAllPullRequests.called)
+                resolve()
+            }))
+            assert(cla.getLinkedItem.called)
         })
     })
 
@@ -1586,7 +1608,7 @@ describe('', () => {
             }
             expError.cla.sign = null
             testUser = {
-                save: function () {},
+                save: function () { },
                 name: 'testUser',
                 requests: [{
                     repo: 'Hello-World',
@@ -1753,3 +1775,12 @@ describe('', () => {
         })
     })
 })
+
+async function delayAssertion(assertFunction, time) {
+    await new Promise((resolve) => {
+        setTimeout(() => {
+            assertFunction()
+            resolve()
+        }, time)
+    })
+}

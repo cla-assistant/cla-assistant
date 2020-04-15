@@ -35,6 +35,9 @@ module.exports = {
             // required
             token: process.env.GITHUB_TOKEN,
 
+            //temporary, not required
+            token_old: process.env.GITHUB_TOKEN_OLD,
+
             user_scope: ['user:email'],
             admin_scope: ['user:email', 'repo:status', 'read:repo_hook', 'write:repo_hook', 'read:org', 'gist'],
 
@@ -50,8 +53,6 @@ module.exports = {
         localport: process.env.PORT || 5000,
 
         always_recompile_sass: process.env.NODE_ENV === 'production' ? false : true,
-
-        cache_time: process.env.CACHE_TIME || 5,
 
         http: {
             protocol: process.env.PROTOCOL || 'http',

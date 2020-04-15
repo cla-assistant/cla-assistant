@@ -160,10 +160,17 @@ class ClaApi {
         return clas.length
     }
 
-    async validateOrgPullRequests(req) {
+    async validateOrgPullRequests(req, linkedOrg) {
         try {
             const repos = await getReposNeedToValidate(req)
             let time = config.server.github.timeToWait
+            try {
+                if (!linkedOrg) {
+                    linkedOrg = await cla.getLinkedItem(req.args)
+                }
+            } catch (e) {
+                logger.info(`could not find linked item for org ${req.args.owner}`)
+            }
 
             repos.forEach((repo, index) => {
                 let validateRequest = {
@@ -177,7 +184,7 @@ class ClaApi {
                 //try to avoid raising githubs abuse rate limit:
                 //take 1 second per repo and wait 10 seconds after each 10th repo
                 setTimeout(() => {
-                    this.validateAllPullRequests(validateRequest)
+                    this.validateAllPullRequests(validateRequest, linkedOrg)
                     logger.info('validateOrgPRs for ' + validateRequest.args.owner + '/' + validateRequest.args.repo)
                 }, time * (index + (Math.floor(index / 10) * 10)))
             })
@@ -200,7 +207,7 @@ class ClaApi {
         return validatePR(args, item)
     }
 
-    async validateAllPullRequests(req) {
+    async validateAllPullRequests(req, item) {
         let pullRequests = []
         const token = req.args.token ? req.args.token : req.user.token
 
@@ -227,20 +234,25 @@ class ClaApi {
                 owner: req.args.owner,
                 token: token
             }
-            let item
             try {
-                item = await cla.getLinkedItem(args)
+                if (!item) {
+                    item = await cla.getLinkedItem(args)
+                }
             } catch (error) {
                 throw new Error(`could not find linked item for owner ${args.owner} and repo ${args.repo}`)
             }
-            const promises = pullRequests.map((pullRequest) => {
+            // const promises = pullRequests.map((pullRequest, index) => {
+            pullRequests.map((pullRequest, index) => {
                 const status_args = JSON.parse(JSON.stringify(args))
                 status_args.number = pullRequest.number
                 status_args.sha = pullRequest.head.sha
 
-                return this.validatePullRequest(status_args, item)
+                setTimeout(() => {
+                    this.validatePullRequest(status_args, item)
+                    logger.info('validateRepoPRs for ' + status_args.owner + '/' + status_args.repo)
+                }, global.config.server.github.timeToWait * (index + (Math.floor(index / 10) * 10)))
             })
-            return Promise.all(promises)
+            // return Promise.all(promises)
         }
         return []
     }
@@ -289,8 +301,8 @@ class ClaApi {
             args.token = item.token
             args.origin = `sign|${req.user.login}`
 
-            const signed = await cla.sign(args)
-            await updateUsersPullRequests(args)
+            const signed = await cla.sign(args, item)
+            updateUsersPullRequests(args, item)
 
             return signed
         } catch (e) {
@@ -541,13 +553,13 @@ async function updateUsersPullRequests(args) {
         } else if (args.item.org) {
             req.args.org = args.item.org
 
-            return claApi.validateOrgPullRequests(req)
+            return claApi.validateOrgPullRequests(req, args.item)
         }
 
         req.args.repo = args.repo
         req.args.owner = args.owner
 
-        return claApi.validateAllPullRequests(req)
+        return claApi.validateAllPullRequests(req, args.item)
     }
 }
 
@@ -564,7 +576,7 @@ async function prepareForValidation(item, user) {
             if ((linkedItem.owner === item.owner && linkedItem.repo === item.repo) || (item.org && linkedItem.org === item.org) || (linkedItem.gist === item.gist && item.sharedGist === true && linkedItem.sharedGist === true)) {
                 foundPR = true
                 needRemove.push(index)
-                validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token)
+                validateUserPRs(pullRequests.repo, pullRequests.owner, linkedItem.gist, linkedItem.sharedGist, pullRequests.numbers, linkedItem.token, linkedItem)
             }
             return linkedItem
         } catch (e) {
@@ -585,7 +597,7 @@ async function prepareForValidation(item, user) {
     }
 }
 
-function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
+function validateUserPRs(repo, owner, gist, sharedGist, numbers, token, item) {
     numbers.forEach((prNumber) => {
         validatePR({
             repo: repo,
@@ -594,7 +606,7 @@ function validateUserPRs(repo, owner, gist, sharedGist, numbers, token) {
             gist: gist,
             sharedGist: sharedGist,
             token: token
-        })
+        }, item)
     })
 }
 

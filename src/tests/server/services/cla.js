@@ -429,6 +429,19 @@ describe('cla:getLastSignature', () => {
             assert(!signature)
         }
     })
+
+    it('should not get linked item if item allready provided', async () => {
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner'
+        }
+        try {
+            await cla.getLastSignature(args, testData.repo)
+        } catch (error) {
+            assert(!repo_service.getGHRepo.called)
+            assert(CLA.findOne.called)
+        }
+    })
 })
 
 describe('cla:checkUserSignature', () => {
@@ -1736,10 +1749,7 @@ describe('cla:isClaRequired', () => {
 
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
-            fun: 'get',
-            arg: {
-                noCache: true
-            }
+            fun: 'get'
         })
         assert(claIsRequired)
     })
@@ -1757,10 +1767,7 @@ describe('cla:isClaRequired', () => {
 
         sinon.assert.calledWithMatch(github.call, {
             obj: 'pulls',
-            fun: 'get',
-            arg: {
-                noCache: true
-            }
+            fun: 'get'
         })
         assert(claIsRequired)
     })

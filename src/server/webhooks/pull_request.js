@@ -86,17 +86,13 @@ function storeRequest(committers, repo, owner, number) {
 
 async function updateStatusAndComment(args, item) {
     try {
-        // eslint-disable-next-line no-console
-        //console.log('DEBUG: reposService.gerPRCommitters')
         const committers = await repoService.getPRCommitters(args)
         if (committers && committers.length > 0) {
+            const promises = []
             let checkResult
             try {
-                // eslint-disable-next-line no-console
-                //console.log('DEBUG: check cla')
                 checkResult = await cla.check(args, item)
-                // eslint-disable-next-line no-console
-                console.log('DEBUG: updateStatusAndComment for the repo ' + JSON.stringify(args.repo))
+                logger.debug(`pullRequestWebhook-->updateStatusAndComment for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
             } catch (error) {
                 logger.warn(new Error(error).stack)
             }
@@ -106,19 +102,24 @@ async function updateStatusAndComment(args, item) {
                 (checkResult.userMap.not_signed && checkResult.userMap.not_signed.length > 0) ||
                 (checkResult.userMap.unknown && checkResult.userMap.unknown.length > 0)
             ) {
-                status.update(args)
+                promises.push(status.update(args))
             } else {
-                status.updateForClaNotRequired(args)
+                promises.push(status.updateForClaNotRequired(args))
             }
-            pullRequest.badgeComment(
+            promises.push(pullRequest.badgeComment(
                 args.owner,
                 args.repo,
                 args.number,
                 checkResult.signed,
                 checkResult.userMap
-            )
+            ))
             if (checkResult.userMap && checkResult.userMap.not_signed) {
                 storeRequest(checkResult.userMap.not_signed, args.repo, args.owner, args.number)
+            }
+            try {
+                await Promise.all(promises)
+            } catch (error) {
+                logger.warn(new Error(`Could not update status and/or comment on PR. Args: ${args}`).stack)
             }
         } else {
             logger.warn(new Error(`No committers found for the PR. Args: ${args}`).stack)
@@ -155,9 +156,11 @@ async function handleWebHook(args, item) {
     }
 }
 
-module.exports = async function (req, res) {
-
-    if (['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)) {
+module.exports = {
+    accepts: function (req) {
+        return ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)
+    },
+    handle: async function (req, res) {
         const args = {
             owner: req.args.repository.owner.login,
             repoId: req.args.repository.id,
@@ -171,22 +174,18 @@ module.exports = async function (req, res) {
             const item = await cla.getLinkedItem(args)
             let nullCla = !item.gist
             let isExcluded = item.orgId && item.isRepoExcluded && item.isRepoExcluded(args.repo)
-            if (nullCla || isExcluded) {
-                return
-            }
-            args.token = item.token
-            args.gist = item.gist
-            if (item.repoId) {
-                args.orgId = undefined
-            }
+            if (!nullCla && !isExcluded) {
+                args.token = item.token
+                args.gist = item.gist
+                if (item.repoId) {
+                    args.orgId = undefined
+                }
 
-            handleWebHook(args, item)
+                await handleWebHook(args, item)
+            }
         } catch (e) {
             logger.warn(e)
-
         }
+        res.status(200).send('OK')
     }
-    res.status(200).send('OK')
-
-
 }
