@@ -1,4 +1,4 @@
-module.exports = {
+{
     "env": {
         "browser": true,
         "es6": true,
@@ -8,7 +8,12 @@ module.exports = {
     "extends": "eslint:recommended",
     "parserOptions": {
         "sourceType": "module",
-        "ecmaVersion": 2017
+        "ecmaVersion": 2018,
+        "ecmaFeatures": {
+            "jsx": true,
+            "generators": true,
+            "allowConstructorFlags": true
+        }
     },
     "globals": {
         "$": false,
@@ -64,5 +69,15 @@ module.exports = {
             "error",
             "never"
         ]
-    }
-};
+    },
+    "overrides": [
+        {
+            "files": [
+                "src/tests/**/*.js"
+            ],
+            "rules": {
+                "no-redeclare": "off"
+            }
+        }
+    ]
+}

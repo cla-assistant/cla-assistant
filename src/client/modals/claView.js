@@ -41,7 +41,7 @@ module.controller('ClaViewCtrl', function ($scope, $modalInstance, $window, cla,
                     if (content) {
                         var linkIcons = element[0].getElementsByClassName('octicon octicon-link');
                         for (var index in linkIcons) {
-                            if (linkIcons.hasOwnProperty(index)) {
+                            if (Object.prototype.hasOwnProperty.call(linkIcons, 'index')) {
                                 angular.element(linkIcons[index]).removeClass('octicon octicon-link');
                             }
                         }

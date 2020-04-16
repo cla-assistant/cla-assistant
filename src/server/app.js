@@ -177,7 +177,7 @@ async.series([
             cookie: {
                 maxAge: config.server.security.cookieMaxAge
             },
-            genid: function (req) {
+            genid: function () {
                 'use strict';
                 return uuid(); // use UUIDs for session IDs
             },
@@ -314,12 +314,27 @@ function isRudundantWebhook(req) {
     }
 }
 
+function retryInitializeMongoose(uri, options, callback) {
+    const defaultInterval = 1000;
+    mongoose.connect(uri, options, err => {
+        if (err) {
+            console.log(err, `Retry initialize mongoose in ${options.retryInitializeInterval || defaultInterval} milliseconds`);
+            setTimeout(() => {
+                retryInitializeMongoose(uri, options);
+            }, options.retryInitializeInterval || defaultInterval);
+        }
+        if (typeof callback === 'function') {
+            callback()
+        }
+    })
+}
+
 function retryInitializeCouchDB(uri, options, callback) {
     const defaultInterval = 1000
     try {
         global.nano = require('nano')(uri)
-        global.nano.db.create(config.server.couchdb.db).then((data) => {
-            console.log("database created")
+        global.nano.db.create(config.server.couchdb.db).then(() => {
+            console.log('database created')
             // create indices
             const indexDef1 = {
                 index: { fields: [{ created_at: 'desc' }] },
@@ -335,10 +350,11 @@ function retryInitializeCouchDB(uri, options, callback) {
             global.cladb.createIndex(indexDef2).then((result) => {
                 console.log(result);
             });
-        }).catch((err) => {
+            // eslint-disable-next-line handle-callback-err
+        }).catch(() => {
             // if db already exists - no crying
         })
-        global.cladb = nano.db.use(config.server.couchdb.db)
+        global.cladb = global.nano.db.use(config.server.couchdb.db)
     } catch (err) {
         console.log(err, `Retry initialize nano in ${options.retryInitializeInterval || defaultInterval} milliseconds`)
         setTimeout(() => {

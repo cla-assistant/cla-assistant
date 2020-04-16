@@ -193,11 +193,14 @@ class StatusService {
                 } else if (args) {
                     return updateStatus(args)
                 }
-            } else {
-                return updateStatus(args)
+            } catch (error) {
+                logger.warn(new Error(`${error} with args: ${args}`).stack)
             }
+        } else if (args) {
+            return updateStatus(args)
         }
     }
+
 
     async updateForNullCla(args) {
         let status = {

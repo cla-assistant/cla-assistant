@@ -19,29 +19,27 @@ function storeRequest(committers, repo, owner, number) {
         numbers: [number]
     }
     committers.forEach(async committer => {
-        let user = await userService.byUserName(committer)
-        if (!user.requests || user.requests.length < 1) {
-            user.requests = user.requests ? user.requests : []
-            user.requests.push(pullRequest)
-            await userService.save(user, function (error) {
-                if (error) {
-                    console.log(error.stack)
-                }
-                else console.log("user requests initialized")
-            })
-            return
-        }
-        const repoPullRequests = user.requests.find(request => request.repo === repo && request.owner === owner)
-        if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
-            repoPullRequests.numbers.push(number)
-            await save(user)
-        }
-        if (!repoPullRequests) {
-            user.requests.push(pullRequest)
-            await userService.save(user, function (error) {
-                if (error) console.log(error.stack)
-                else console.log("user pull requests updated")
-            })
+        try {
+            let user = await userService.byUserName(committer)
+            if (!user.requests || user.requests.length < 1) {
+                user.requests = user.requests ? user.requests : []
+                user.requests.push(pullRequest)
+                await userService.save(user)
+                logger.info('user requests initialized')
+                return
+            }
+            const repoPullRequests = user.requests.find(request => request.repo === repo && request.owner === owner)
+            if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
+                repoPullRequests.numbers.push(number)
+                await userService.save(user)
+            }
+            if (!repoPullRequests) {
+                user.requests.push(pullRequest)
+                await userService.save(user)
+            }
+            logger.info('user pull requests updated')
+        } catch (e) {
+            logger.error(e.stack)
         }
         // } else {
         //     committers.forEach(async committer => {
@@ -141,7 +139,7 @@ async function handleWebHook(args, item) {
         const claRequired = await cla.isClaRequired(args, item)
         if (claRequired) {
             // eslint-disable-next-line no-console
-            console.log("DEBUG: handleWebHook for the repo" + JSON.stringify(args.repo))
+            console.log('DEBUG: handleWebHook for the repo' + JSON.stringify(args.repo))
             return updateStatusAndComment(args, item)
         }
 

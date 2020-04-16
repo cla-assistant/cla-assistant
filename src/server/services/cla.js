@@ -678,11 +678,11 @@ class ClaService {
         }
 
         const optionsCouch = {
-            sort: [user, userId]
+            sort: ['user', 'userId']
         }
         if (args.gist.gist_version) {
             selection.gist_version = args.gist.gist_version
-            optionsCouch.sort = [created_at]
+            optionsCouch.sort = ['created_at']
         }
         if (args.repoId) {
             selection.repoId = args.repoId
@@ -696,14 +696,11 @@ class ClaService {
             try {
                 if (global.config.server.useCouch) {
                     return (await global.cladb.find({ selector: { type: 'entity', table: 'cla', ...selection }, optionsCouch })).docs
-                } else {
-                    return CLA.find(selection, {}, options)
                 }
+                return CLA.find(selection, {}, options)
             } catch (error) {
                 logger.warn('Error occured when getting all signed CLAs for given repo without gist version' + error)
                 logger.warn('Api cla.getAll failed with selection ' + selection)
-                // eslint-disable-next-line no-console
-                console.log('Api cla.getAll failed with selection from console log ' + selection)
             }
         }
         try {
@@ -732,44 +729,29 @@ class ClaService {
 
     async create(args) {
         const now = new Date()
-        if (global.config.server.useCouch) {
-            var result = await global.cladb.insert({
-                type: 'entity',
-                table: 'cla',
-                repo: args.repo,
-                repoId: args.repoId,
-                owner: args.owner,
-                ownerId: args.ownerId,
-                user: args.user,
-                userId: args.userId,
-                gist_url: args.gist,
-                gist_version: args.gist_version,
-                created_at: args.created_at || now,
-                end_at: undefined,
-                org_cla: args.org_cla,
-                custom_fields: args.custom_fields,
-                updated_at: now,
-                origin: args.origin
-            })
-            return await global.cladb.get(result.id)
-        } else {
-            return await CLA.create({
-                repo: args.repo,
-                repoId: args.repoId,
-                owner: args.owner,
-                ownerId: args.ownerId,
-                user: args.user,
-                userId: args.userId,
-                gist_url: args.gist,
-                gist_version: args.gist_version,
-                created_at: args.created_at || now,
-                end_at: undefined,
-                org_cla: args.org_cla,
-                custom_fields: args.custom_fields,
-                updated_at: now,
-                origin: args.origin
-            })
+        const newSignature = {
+            repo: args.repo,
+            repoId: args.repoId,
+            owner: args.owner,
+            ownerId: args.ownerId,
+            user: args.user,
+            userId: args.userId,
+            gist_url: args.gist,
+            gist_version: args.gist_version,
+            created_at: args.created_at || now,
+            end_at: undefined,
+            org_cla: args.org_cla,
+            custom_fields: args.custom_fields,
+            updated_at: now,
+            origin: args.origin
         }
+        if (global.config.server.useCouch) {
+            newSignature.type = 'entity'
+            newSignature.table = 'cla'
+            var result = await global.cladb.insert(newSignature)
+            return await global.cladb.get(result.id)
+        }
+        return await CLA.create(newSignature)
     }
 
     async terminate(args) {

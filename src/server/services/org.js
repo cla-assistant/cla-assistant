@@ -17,46 +17,33 @@ const selectionCouch = function (args) {
 
 class OrgService {
     async create(args) {
-        if (global.config.server.useCouch) {
-            var result = await global.cladb.insert({
-                type: 'entity',
-                table: 'org',
-                orgId: args.orgId,
-                org: args.org,
-                gist: args.gist,
-                token: args.token,
-                excludePattern: args.excludePattern,
-                sharedGist: !!args.sharedGist,
-                minFileChanges: args.minFileChanges,
-                minCodeChanges: args.minCodeChanges,
-                whiteListPattern: args.whiteListPattern,
-                privacyPolicy: args.privacyPolicy,
-                updatedAt: new Date()
-            })
-            return await global.cladb.get(result.id)
-        } else {
-            return await Org.create({
-                orgId: args.orgId,
-                org: args.org,
-                gist: args.gist,
-                token: args.token,
-                excludePattern: args.excludePattern,
-                sharedGist: !!args.sharedGist,
-                minFileChanges: args.minFileChanges,
-                minCodeChanges: args.minCodeChanges,
-                whiteListPattern: args.whiteListPattern,
-                privacyPolicy: args.privacyPolicy,
-                updatedAt: new Date()
-            })
+        const newOrg = {
+            orgId: args.orgId,
+            org: args.org,
+            gist: args.gist,
+            token: args.token,
+            excludePattern: args.excludePattern,
+            sharedGist: !!args.sharedGist,
+            minFileChanges: args.minFileChanges,
+            minCodeChanges: args.minCodeChanges,
+            whiteListPattern: args.whiteListPattern,
+            privacyPolicy: args.privacyPolicy,
+            updatedAt: new Date()
         }
+        if (global.config.server.useCouch) {
+            newOrg.type = 'entity'
+            newOrg.table = 'org'
+            var result = await global.cladb.insert(newOrg)
+            return await global.cladb.get(result.id)
+        }
+        return await Org.create(newOrg)
     }
 
     async get(args) {
         if (global.config.server.useCouch) {
             return (await global.cladb.find({ selector: { type: 'entity', table: 'org', ...args }, limit: 1 })).docs
-        } else {
-            return Org.findOne(selection(args))
         }
+        return Org.findOne(selection(args))
     }
 
     async update(args) {
@@ -83,17 +70,15 @@ class OrgService {
     async getMultiple(args) {
         if (global.config.server.useCouch) {
             return (await global.cladb.find({ selector: { type: 'entity', table: 'org', orgId: { $in: args.orgId } } })).docs
-        } else {
-            return await Org.find({ orgId: { $in: args.orgId } })
         }
+        return await Org.find({ orgId: { $in: args.orgId } })
     }
 
     async getOrgWithSharedGist(gist) {
         if (global.config.server.useCouch) {
             return (await global.cladb.find({ selector: { type: 'entity', table: 'org', gist: gist, sharedGist: true } })).docs
-        } else {
-            return Org.find({ gist: gist, sharedGist: true })
         }
+        return Org.find({ gist: gist, sharedGist: true })
     }
 
     async remove(args) {
