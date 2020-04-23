@@ -25,6 +25,7 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
         }
     } else {
         res = await octokit[obj][fun](arg)
+        // logger.info(`Result for ${obj}.${fun}`)
     }
 
     if (res && cacheTime) {
@@ -103,6 +104,10 @@ const githubService = {
             }
         }
         const octokit = newOctokit(auth)
+
+        octokit.hook.after('request', async (response, options) => {
+            logger.info(`${options.method} ${options.url}: ${response.status} || Rate Limit: ${response.headers['x-ratelimit-remaining']}/${response.headers['x-ratelimit-limit']} reset at ${new Date(Number(response.headers['x-ratelimit-reset']) * 1000).toTimeString()}`)
+        })
 
         if (!obj || !octokit[obj]) {
             throw new Error('obj required/obj not found')
