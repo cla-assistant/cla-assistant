@@ -1,5 +1,13 @@
 # Change Log
 
+
+
+## [v2.8.0](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-04-28)
+
+**New features:**
+- update count api- stop posting last entries and listing details. ([KharitonOff](https://github.com/KharitonOff))
+- Related issue: https://github.com/cla-assistant/cla-assistant/issues/520
+
 ## [v2.7.0](https://github.com/cla-assistant/cla-assistant/tree/v2.7.0) (2020-03-17)
 
 **Merged pull requests:**
