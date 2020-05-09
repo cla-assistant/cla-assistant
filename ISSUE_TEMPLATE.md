@@ -2,7 +2,10 @@
 
 Thank you for considering to contribute to CLA Assistant. 
 
+Please kindly look into the "most common issues and solutions flow chart" provided [here](https://github.com/cla-assistant/cla-assistant/issues/567#issuecomment-626237815) before creating the issue. 
+
 ## Required
+
 -->
 
 URL to the linked Repo/Org:
