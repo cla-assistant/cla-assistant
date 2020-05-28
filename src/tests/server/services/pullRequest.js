@@ -147,6 +147,8 @@ let testDataComments_withoutCLA = [{
     }
 }];
 
+const installationToken = 'cla-assistant Github app token';
+
 
 describe('pullRequest:badgeComment', function () {
     let direct_call_data, assertionCallBack;
@@ -174,39 +176,23 @@ describe('pullRequest:badgeComment', function () {
         github.call.restore();
     });
 
-    it('should create comment with cla-assistant user', function (it_done) {
+    it('should create comment with cla-assistant Github app token', function (it_done) {
         direct_call_data = [];
         assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'createComment');
-            assert(!args.token);
-            assert.equal(args.basicAuth.user, 'cla-assistant');
-            assert.equal(args.basicAuth.pass, 'secret_pass');
+            assert.equal(args.token, installationToken);
             assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
             git_done(null, 'res', 'meta');
             it_done();
         };
-
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {}, noopCallback);
-    });
-
-    it('should edit comment with cla-assistant user', function (it_done) {
-        direct_call_data = testDataComments_withCLAComment;
-        assertionCallBack = function (args, git_done) {
-            assert.equal(args.fun, 'editComment');
-            assert.equal(args.basicAuth.user, 'cla-assistant');
-            assert(args.arg.body.indexOf('sign our [Contributor License Agreement]') >= 0);
-            git_done(null, 'res', 'meta');
-            it_done();
-        };
-
-        pullRequest.badgeComment('login', 'myRepo', 1, false, {}, noopCallback);
+        pullRequest.badgeComment('login', 'myRepo', 1, false, {}, installationToken, noopCallback);
     });
 
     it('should add a note to the comment if there is a committer who is not a github user', function (it_done) {
         direct_call_data = testDataComments_withCLAComment;
         assertionCallBack = function (args, git_done) {
             assert.equal(args.fun, 'editComment');
-            assert.equal(args.basicAuth.user, 'cla-assistant');
+            assert.equal(args.token, installationToken);
             assert(args.arg.body.indexOf('If you have already a GitHub account, please [add the email address used for this commit to your account]') >= 0);
             git_done(null, 'res', 'meta');
             it_done();
@@ -216,7 +202,7 @@ describe('pullRequest:badgeComment', function () {
             signed: [],
             not_signed: ['user1'],
             unknown: ['user1']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     it('should add a note to the comment with name of ONE committer who has no github account', function (it_done) {
@@ -231,7 +217,7 @@ describe('pullRequest:badgeComment', function () {
             signed: [],
             not_signed: ['user1'],
             unknown: ['user1']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     it('should add a note to the comment with names of MULTIPLE committers who has no github account', function (it_done) {
@@ -246,7 +232,7 @@ describe('pullRequest:badgeComment', function () {
             signed: [],
             not_signed: ['user1', 'user2'],
             unknown: ['user1', 'user2']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     it('should write a list of signed and not signed users on create', function (it_done) {
@@ -264,7 +250,7 @@ describe('pullRequest:badgeComment', function () {
         pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     it('should NOT write a list of signed and not signed users on create if there is only one committer', function (it_done) {
@@ -281,7 +267,7 @@ describe('pullRequest:badgeComment', function () {
         pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: [],
             not_signed: ['user2']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     it('should write a list of signed and not signed users on edit', function (it_done) {
@@ -299,7 +285,7 @@ describe('pullRequest:badgeComment', function () {
         pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2']
-        }, noopCallback);
+        }, installationToken, noopCallback);
     });
 
     //     it('should NOT comment if there are only white-listed committers', function (it_done) {
@@ -339,11 +325,9 @@ describe('pullRequest:badgeComment', function () {
 
 describe('pullRequest:getComment', function () {
     beforeEach(function () {
-        cla_config.server.github.token = 'xyz';
-
         sinon.stub(github, 'call').callsFake(function (args, cb) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
-                assert.equal(args.token, 'xyz');
+                assert.equal(args.token, installationToken);
                 cb(null, testDataComments_withCLAComment);
             }
         });
@@ -358,7 +342,8 @@ describe('pullRequest:getComment', function () {
         let args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: 1,
+            token: installationToken
         };
         pullRequest.getComment(args, function (err, comment) {
             assert.ifError(err);
@@ -376,7 +361,8 @@ describe('pullRequest:getComment', function () {
         let args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: 1,
+            token: installationToken
         };
         pullRequest.getComment(args, function (err, comment) {
             assert.ifError(err);
@@ -396,7 +382,8 @@ describe('pullRequest:getComment', function () {
         let args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: 1,
+            token: installationToken
         };
         pullRequest.getComment(args, function (err, comment) {
             assert(err);
@@ -410,11 +397,9 @@ describe('pullRequest:getComment', function () {
 describe('pullRequest:editComment', function () {
     let assertionCallBack;
     beforeEach(function () {
-        cla_config.server.github.token = 'xyz';
-
         sinon.stub(github, 'call').callsFake(function (args, cb) {
             if (args.obj === 'issues' && args.fun === 'getComments') {
-                assert.equal(args.token, 'xyz');
+                assert.equal(args.token, installationToken);
                 cb(null, testDataComments_withCLAComment);
 
                 return;
@@ -422,7 +407,7 @@ describe('pullRequest:editComment', function () {
             if (assertionCallBack) {
                 assertionCallBack(args, cb);
             } else {
-                assert.equal(args.basicAuth.user, 'cla-assistant');
+                assert.equal(args.token, installationToken);
                 assert(args.arg.id);
                 cb(null, 'res', 'meta');
             }
@@ -438,7 +423,8 @@ describe('pullRequest:editComment', function () {
         let args = {
             repo: 'myRepo',
             owner: 'owner',
-            number: 1
+            number: 1,
+            token: installationToken
         };
 
         pullRequest.editComment(args, function () {
@@ -457,7 +443,8 @@ describe('pullRequest:editComment', function () {
             user_map: {
                 signed: ['user1'],
                 not_signed: ['user2']
-            }
+            },
+            token: installationToken
         };
 
         assertionCallBack = function (params, git_done) {
@@ -481,7 +468,8 @@ describe('pullRequest:editComment', function () {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
-            signed: true
+            signed: true,
+            token: installationToken
         };
 
         pullRequest.editComment(args, function () {
@@ -497,7 +485,8 @@ describe('pullRequest:editComment', function () {
             repo: 'myRepo',
             owner: 'owner',
             number: 1,
-            signed: true
+            signed: true,
+            token: installationToken
         };
 
         pullRequest.editComment(args);

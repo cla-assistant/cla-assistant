@@ -50,7 +50,7 @@ let commentText = function (signed, badgeUrl, claUrl, user_map, recheckUrl) {
 // };
 
 module.exports = {
-    badgeComment: function (owner, repo, pullNumber, signed, user_map, done) {
+    badgeComment: function (owner, repo, pullNumber, signed, user_map, token, done) {
         let badgeUrl = url.pullRequestBadge(signed);
 
         // if (user_map && !commentNeeded(user_map)) {
@@ -60,7 +60,8 @@ module.exports = {
         this.getComment({
             repo: repo,
             owner: owner,
-            number: pullNumber
+            number: pullNumber,
+            token
         }, function (error, comment) {
             let claUrl = url.claURL(owner, repo, pullNumber);
             let recheckUrl = url.recheckPrUrl(owner, repo, pullNumber);
@@ -77,10 +78,7 @@ module.exports = {
                         body: body,
                         noCache: true
                     },
-                    basicAuth: {
-                        user: config.server.github.user,
-                        pass: config.server.github.pass
-                    }
+                    token,
                 }, function (e) {
                     if (e) {
                         log.error(new Error(e).stack);
@@ -98,10 +96,7 @@ module.exports = {
                         body: body,
                         noCache: true
                     },
-                    basicAuth: {
-                        user: config.server.github.user,
-                        pass: config.server.github.pass
-                    }
+                    token,
                 }, function (e) {
                     if (e) {
                         log.error(new Error(e).stack);
@@ -123,7 +118,7 @@ module.exports = {
                 number: args.number,
                 noCache: true
             },
-            token: config.server.github.token
+            token: args.token
         }, function (e, res) {
             let CLAAssistantComment;
             if (!e && res && !res.message) {
@@ -147,7 +142,8 @@ module.exports = {
         this.getComment({
             repo: args.repo,
             owner: args.owner,
-            number: args.number
+            number: args.number,
+            token: args.token
         }, function (error, comment) {
             if (error || !comment) {
                 return;
@@ -166,10 +162,7 @@ module.exports = {
                     body: body,
                     noCache: true
                 },
-                basicAuth: {
-                    user: config.server.github.user,
-                    pass: config.server.github.pass
-                }
+                token: args.token
             }, function (e) {
                 if (e) {
                     log.warn(new Error(e).stack);
@@ -186,7 +179,8 @@ module.exports = {
         this.getComment({
             repo: args.repo,
             owner: args.owner,
-            number: args.number
+            number: args.number,
+            token: args.token
         }, function (error, comment) {
             if (error) {
                 return log.warn(error, 'with args:', args.repo, args.owner, args.number);
@@ -202,10 +196,7 @@ module.exports = {
                     repo: args.repo,
                     id: comment.id
                 },
-                basicAuth: {
-                    user: config.server.github.user,
-                    pass: config.server.github.pass
-                }
+                token: args.token
             }, function (error) {
                 if (error) {
                     log.warn(error, 'with args:', { owner: args.owner, repo: args.repo, number: args.number, id: comment.id }, 'and commentId: ', comment.id);

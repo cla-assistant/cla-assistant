@@ -10,6 +10,7 @@ let repoService = require('../services/repo');
 let github = require('./github');
 let config = require('../../config');
 let _ = require('lodash');
+const installation = require('./installation');
 
 module.exports = function () {
     let claService;
@@ -32,7 +33,7 @@ module.exports = function () {
             arg: {
                 id: id
             },
-            token: token
+            token: token || config.server.github.token
         };
 
         return github.call(args, done);
@@ -199,10 +200,9 @@ module.exports = function () {
     //     return deferred.promise;
     // };
 
-    let getLinkedItem = function (repo, owner, token) {
+    let getLinkedItem = async function (repo, owner, token) {
         let deferred = q.defer();
-        token = token || config.server.github.token;
-
+        token = token || await installation.getInstallationAccessToken(repo, owner) || config.server.github.token;
         if (owner && !repo) {
             orgService.get({
                 org: owner
@@ -214,22 +214,21 @@ module.exports = function () {
                 }
             });
         } else {
-            repoService.getGHRepo({
-                owner: owner,
-                repo: repo,
-                token: token
-            }, function (e, ghRepo) {
+            repoService.getGHRepo({ owner, repo, token }, function (e, ghRepo) {
                 if (e) {
                     // could not find the GH Repo
                     deferred.reject(e);
                 } else {
                     repoService.get({
+                        owner,
+                        repo,
                         repoId: ghRepo.id
                     }, function (error, linkedRepo) {
                         if (linkedRepo) {
                             deferred.resolve(linkedRepo);
                         } else {
                             orgService.get({
+                                org: owner,
                                 orgId: ghRepo.owner.id
                             }, function (err, linkedOrg) {
                                 if (linkedOrg) {
@@ -342,7 +341,7 @@ module.exports = function () {
                     return 'null-cla';
                 }
 
-                return getGistObject(args.gist, item.token).then(function (gist) {
+                return getGistObject(args.gist).then(function (gist) {
                     args.gist_version = gist.data.history[0].version;
                     args.onDates = [new Date()];
                     if (args.number) {
@@ -415,7 +414,7 @@ module.exports = function () {
                 return ({ signed: true });
             }
 
-            const gist = await getGistObject(args.gist, item.token);
+            const gist = await getGistObject(args.gist);
             if (!gist) {
                 throw new Error('No gist found for item');
             }
@@ -521,7 +520,7 @@ module.exports = function () {
                     throw nullClaErr;
                 }
 
-                const gist = await getGistObject(item.gist, item.token);
+                const gist = await getGistObject(item.gist);
                 let onDates = [new Date()];
                 let currentVersion = gist.data.history[0].version;
 
@@ -711,7 +710,7 @@ module.exports = function () {
                     throw nullClaErr;
                 }
 
-                return getGistObject(item.gist, item.token).then(function (gist) {
+                return getGistObject(item.gist).then(function (gist) {
                     let endDate = new Date(args.endDate);
                     let onDates = [endDate];
                     let currentVersion = gist.data.history[0].version;

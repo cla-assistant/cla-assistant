@@ -19,6 +19,8 @@
     "bugs": "https://github.com/cla-assistant/cla-assistant/issues",
     "contributors": [],
     "dependencies": {
+        "@octokit/app": "^4.2.0",
+        "@octokit/request": "^5.4.4",
         "angular": "^1.7.0",
         "applicationinsights": "^1.0.0",
         "array-sugar": "^1.2.2",

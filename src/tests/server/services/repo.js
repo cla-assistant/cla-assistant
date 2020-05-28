@@ -501,6 +501,7 @@ describe('repo:getPRCommitters', function () {
             assert.equal(data.length, 2);
             assert.equal(data[0].name, 'octocat');
             assert.equal(orgService.get.calledWith({
+                org: arg.owner,
                 orgId: 1
             }), true);
             assert(Repo.findOne.called);

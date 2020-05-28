@@ -118,22 +118,14 @@ async function validatePR(args) {
         args.token = item.token;
         if (!item.gist) {
             await promisify(status.updateForNullCla.bind(status))(args);
-            await promisify(prService.deleteComment.bind(prService))({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number
-            });
+            await promisify(prService.deleteComment.bind(prService))(args);
 
             return;
         }
         const isClaRequired = await cla.isClaRequired(args);
         if (!isClaRequired) {
             await promisify(status.updateForClaNotRequired.bind(status))(args);
-            await promisify(prService.deleteComment.bind(prService))({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number
-            });
+            await promisify(prService.deleteComment.bind(prService))(args);
 
             return;
         }
@@ -154,7 +146,8 @@ async function validatePR(args) {
             owner: args.owner,
             number: args.number,
             signed: args.signed,
-            user_map: user_map
+            user_map: user_map,
+            token: args.token
         });
     } catch (e) {
         let logArgs = Object.assign({}, args, { user: undefined, userId: undefined, token: args.token && `${args.token.slice(0, 4)}***` });

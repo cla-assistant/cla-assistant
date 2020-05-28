@@ -14,6 +14,7 @@ let queries = require('../graphQueries/github');
 
 //services
 let url = require('../services/url');
+const installation = require('./installation');
 
 let isTransferredRenamed = function (dbRepo, ghRepo) {
     return ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner);
@@ -86,9 +87,13 @@ module.exports = {
         });
     },
     get: function (args, done) {
-        this._findOne(selection(args), function (err, repo) {
+        this._findOne(selection(args), async function (err, repo) {
             if (!err && !repo) {
                 err = 'Repository not found in Database';
+            }
+            if (repo) {
+                const installationToken = await installation.getInstallationAccessToken(args.repo, args.owner);
+                repo.token = installationToken || repo.token;
             }
             done(err, repo);
         });
@@ -268,6 +273,7 @@ module.exports = {
         self.get(args, function (error, repo) {
             if (!repo) {
                 orgService.get({
+                    org: args.owner,
                     orgId: args.orgId
                 }, function (err, org) {
                     if (!org) {

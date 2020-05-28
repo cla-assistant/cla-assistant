@@ -2,6 +2,7 @@ require('../documents/org');
 let mongoose = require('mongoose');
 let Org = mongoose.model('Org');
 let config = require('../../config');
+const installation = require('./installation');
 
 let selection = function (args) {
     let selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
@@ -56,12 +57,13 @@ module.exports = {
     },
 
     get: function (args, done) {
-        Org.findOne(selection(args), function (err, org) {
+        Org.findOne(selection(args), async function (err, org) {
             if (!err && !org) {
                 err = 'Organization not found in Database';
             }
-            if (org && config.server.github.adminToken) {
-                org.token = config.server.github.adminToken;
+            if (org) {
+                const installationToken = await installation.getInstallationAccessToken(args.repo, args.org);
+                org.token = installationToken || config.server.github.adminToken || org.token;
             }
             done(err, org);
         });

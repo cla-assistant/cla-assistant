@@ -70,7 +70,8 @@ async function updateStatusAndComment(args) {
             args.repo,
             args.number,
             signed,
-            user_map
+            user_map,
+            args.token
         );
         logger.trackEvent('CLAAssistantPullRequestCommentUpdateSuccess', { deliveryId: args.deliveryId });
     }
@@ -106,11 +107,7 @@ async function handleWebHook(args) {
         } else {
             logger.trackEvent('CLAAssistantPullRequestUpdateForClaNotRequiredStart', { deliveryId: args.deliveryId, isClaRequired });
             await promisify(status.updateForClaNotRequired.bind(status))(args);
-            await promisify(pullRequest.deleteComment.bind(pullRequest))({
-                repo: args.repo,
-                owner: args.owner,
-                number: args.number
-            });
+            await promisify(pullRequest.deleteComment.bind(pullRequest))(args);
             logger.trackEvent('CLAAssistantPullRequestDeleteCommentSuccess', { deliveryId: args.deliveryId });
         }
         collectMetrics(args.owner, args.repo, args.number, args.userId, startTime, args.signed, args.action, isClaRequired, args.deliveryId);
