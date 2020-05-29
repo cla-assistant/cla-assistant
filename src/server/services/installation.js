@@ -12,14 +12,16 @@ class Installation {
         this.cache = cache;
         this.app = app || new App({
             id: config.server.github.appId,
-            privateKey: config.server.github.appPrivateKey
+            privateKey: (config.server.github.appPrivateKey || '').replace(/\\n/g, '\n')
         });
     }
 
     async getInstallationAccessToken(repo, owner) {
         try {
             const installationId = repo ? await this.getRepoInstallationId(repo, owner) : await this.getOrgInstallationId(owner);
-            return await this.app.getInstallationAccessToken({ installationId });
+            const token = await this.app.getInstallationAccessToken({ installationId });
+            logger.trackEvent('Installation.getInstallationAccessToken.Success', { repo, owner });
+            return token;
         } catch (err) {
             logger.trackEvent('Installation.getInstallationAccessToken.Failed', { repo, owner, msg: err.message });
         }
