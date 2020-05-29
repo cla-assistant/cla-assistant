@@ -69,12 +69,12 @@ spec:
         - name: GITHUB_APP_ID
           valueFrom:
             secretKeyRef:
-              name: cla-assistant-github-app-private-key-dev
+              name: cla-github-app-private-key-dev
               key: appId
         - name: GITHUB_APP_PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              name: cla-assistant-github-app-private-key-dev
+              name: cla-github-app-private-key-dev
               key: value
         - name: GITHUB_ADMIN_USERS
           value: 'jeffmcaffer, willbar, jeffwilcox, geneh, notlaforge, arnom-ms, capfei, MichaelTsengLZ, MichaelTsengZL'
