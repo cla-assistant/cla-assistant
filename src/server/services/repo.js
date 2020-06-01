@@ -210,7 +210,7 @@ module.exports = {
                                 committers.push(user);
                             }
                         } catch (error) {
-                            let msg = 'Problem on PR ' + url.githubPullRequest(arg.owner, arg.repo, arg.number) + 'commit info seems to be wrong; ' + error;
+                            let msg = `Problem on PR ${url.githubPullRequest(arg.arg.owner, arg.arg.repo, arg.arg.number)} commit info seems to be wrong; ${error}`;
                             handleError(new Error(msg).stack, msg, { owner: arg.arg.owner, repo: arg.arg.repo, number: arg.arg.number });
                         }
                     });
