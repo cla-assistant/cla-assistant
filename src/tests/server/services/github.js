@@ -10,6 +10,8 @@ global.config = require('../../../config')
 
 // service
 const github = rewire('../../../server/services/github')
+const enabeOctokitNetworkInterceptor = require('../../../server/services/octokit-network-interceptor')
+
 const cache = require('memory-cache')
 
 const callStub = sinon.stub()
@@ -48,7 +50,12 @@ describe('github:call', () => {
         callStub.reset()
         cache.clear()
         expectedAuth = undefined
+        sinon.stub(enabeOctokitNetworkInterceptor, "afterRequest").returns('mocked return')
         authenticateStub.reset()
+    })
+
+    afterEach(() => {
+        enabeOctokitNetworkInterceptor.afterRequest.restore()
     })
 
     it('should return an error if obj is not set', async () => {

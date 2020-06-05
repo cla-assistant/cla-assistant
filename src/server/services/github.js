@@ -7,6 +7,7 @@ let Octokit = require('@octokit/rest')
     .plugin(require('@octokit/plugin-retry'))
 const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
+const enabeOctokitNetworkInterceptor = require('./octokit-network-interceptor')
 
 async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
 
@@ -45,19 +46,15 @@ function newOctokit(auth) {
         pathPrefix: config.server.github.enterprise ? '/api/v3' : null,
         throttle: {
             onRateLimit: (retryAfter, options) => {
-                // eslint-disable-next-line no-console
-                console.warn(`Request quota exhausted for request ${options.method} ${options.url}`)
-
+                logger.info(`Request quota exhausted for request ${options.method} ${options.url}`)
                 if (options.request.retryCount === 0) { // only retries once
-                    // eslint-disable-next-line no-console
-                    console.log(`Retrying after ${retryAfter} seconds!`)
+                    logger.info(`Retrying after ${retryAfter} seconds!`)
                     return true
                 }
             },
             onAbuseLimit: (retryAfter, options) => {
                 // does not retry, only logs a warning
-                // eslint-disable-next-line no-console
-                console.warn(`Abuse detected for request ${options.method} ${options.url}`)
+                logger.info(`Abuse detected for request ${options.method} ${options.url}`)
             }
         }
     })
@@ -105,10 +102,8 @@ const githubService = {
         }
         const octokit = newOctokit(auth)
 
-        octokit.hook.after('request', async (response, options) => {
-            logger.info(`${options.method} ${options.url}: ${response.status} || Rate Limit: ${response.headers['x-ratelimit-remaining']}/${response.headers['x-ratelimit-limit']} reset at ${new Date(Number(response.headers['x-ratelimit-reset']) * 1000).toTimeString()}`)
-        })
-
+        const response = enabeOctokitNetworkInterceptor.afterRequest(octokit)
+        logger.info(response)
         if (!obj || !octokit[obj]) {
             throw new Error('obj required/obj not found')
         }
