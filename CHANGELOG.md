@@ -1,6 +1,10 @@
 # Change Log
 
+## [v2.8.1](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-06-06)
 
+**Improvements:**
+- updated ISSUE_TEMPLATE 
+- Introduced logging of all github responses with rate-limits
 
 ## [v2.8.0](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-04-28)
 
