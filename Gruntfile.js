@@ -98,7 +98,24 @@ module.exports = function (grunt) {
                     'src/client/app.min.js': appJsFiles
                 }
             }
-        }
+        },
+        copy: {
+          dist: {
+              files: [{
+                  expand: true,
+                  dot: true,
+                  cwd: 'node_modules/font-awesome/css',
+                  src: ['font-awesome.min.css', 'font-awesome.css.map'],
+                  dest: 'src/client/assets/styles/'
+              },{
+                  expand: true,
+                  dot: true,
+                  cwd: 'node_modules/font-awesome',
+                  src: ['fonts/*.*'],
+                  dest: 'src/client/assets/'
+              }]
+          }
+      }
     };
 
     // Initialize configuration
@@ -106,10 +123,10 @@ module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('build', ['uglify']);
+    grunt.registerTask('build', ['uglify', 'copy']);
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul']);
-    grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'karma', 'watch']);
+    grunt.registerTask('default', ['uglify', 'copy', 'eslint', 'mochaTest:server', 'karma', 'watch']);
     grunt.registerTask('test', ['eslint', 'mochaTest:server', 'karma']);
     grunt.registerTask('debug_test', ['mochaTest:debugServer']);
 };
