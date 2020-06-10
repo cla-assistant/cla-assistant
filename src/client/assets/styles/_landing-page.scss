@@ -4,7 +4,7 @@
   bottom: 0;
   height: 100vH;
   width: 100%;
-  background-image: url('/assets/images/background.jpg');
+  // background-image: url('/assets/images/background.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -21,7 +21,7 @@
   height: 75px;
   border: 1px;
   border-bottom-style: solid;
-  color: white;
+  color: $text-color;
   position: relative;
 
   .navbar-brand {
@@ -39,11 +39,11 @@
 
 .lp-start-view {
   position: relative;
-  height: 100vH;
+  // height: 100vH;
 }
 
 .lp-premium {
-  color: $text-invert;
+  color: $text-color;
 }
 
 .lp-premium-darker {
@@ -91,7 +91,7 @@ img.step-icon{
 // }
 //
 a.lp-signin:hover, a.lp-signin:focus {
-  color: $text-invert;
+  // color: $text-invert;
   cursor: pointer;
 }
 

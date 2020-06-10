@@ -142,6 +142,10 @@ The following are the environment variables you have to configure to run a priva
 - `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
 - `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
 - `SLACK_TOKEN`: Optional.
+- `HTTP_PROXY`: Optional. You can use it in case your are behind a corporate proxy.
+- `HTTPS_PROXY`: Optional. Same as above for https calls.
+
+
 
 > **Hint:** For further reading on setting up MongoDB, go to
 > http://docs.mongodb.org/manual/tutorial/getting-started/
