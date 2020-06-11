@@ -1,0 +1,35 @@
+# docker run -it --rm -p 5002:5000 -e HOST=0.0.0.0 -e MONGODB="mongodb://localhost/cla" cla-assistant
+
+version: '3.3'
+
+services:
+
+  # CLA Assistant
+  cla-assistant:
+    container_name: cla-assistant
+    image: teamdigitale/cla-assistant
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - cla-mongo
+    ports:
+      - "5000:5000"
+    stdin_open: true
+    tty: true
+    networks:
+      - overlay
+
+  # Database
+  cla-mongo:
+    container_name: cla-mongo
+    image: mongo
+    env_file:
+      - .env
+    networks:
+      - overlay
+
+networks:
+  overlay:
