@@ -76,6 +76,11 @@ spec:
             secretKeyRef:
               name: cla-assistant-github-app-private-key-dev
               key: value
+        - name: GITHUB_ADMIN_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-msftgits-super-token-dev
+              key: value
         - name: GITHUB_ADMIN_USERS
           value: 'jeffmcaffer, willbar, jeffwilcox, geneh, notlaforge, arnom-ms, capfei, MichaelTsengLZ, MichaelTsengZL'
         - name: CLOSE_COMMENT
