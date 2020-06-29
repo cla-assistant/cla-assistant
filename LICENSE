@@ -235,9 +235,9 @@ Licensor: npm, Inc. and Contributors
 Website: https://github.com/npm/npm
 License: Artistic License 2.0 + additional terms (see below)
 
-Component: ReviewNinja
+Component: CLAAssistant
 Licensor: SAP SE
-Website: https://github.com/reviewninja/review.ninja
+Website: https://github.com/cla-assistant/cla-assistant
 License: Apache License 2.0
 
 
