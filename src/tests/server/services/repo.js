@@ -761,14 +761,14 @@ describe('repo:update', () => {
             gist: 'updated gist',
             minFileChanges: 1,
             minCodeChanges: 20,
-            whiteListPattern: 'whitelist-user',
+            allowListPattern: 'allowlist-user',
             privacyPolicy: 'http://privacy-policy',
         })
         const updatedRepo = await repo.update(args)
         assert.equal(updatedRepo.gist, args.gist)
         assert.equal(updatedRepo.minFileChanges, args.minFileChanges)
         assert.equal(updatedRepo.minCodeChanges, args.minCodeChanges)
-        assert.equal(updatedRepo.whiteListPattern, args.whiteListPattern)
+        assert.equal(updatedRepo.allowListPattern, args.allowListPattern)
         assert.equal(updatedRepo.privacyPolicy, args.privacyPolicy)
         assert(response.findOne.repo.save.calledOnce)
     })

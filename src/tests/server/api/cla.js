@@ -1193,7 +1193,7 @@ describe('', () => {
             }, 100))
         })
 
-        it('should update status with differentiation between whitelisted and other committers', async () => {
+        it('should update status with differentiation between people on allowlist and other committers', async () => {
             cla.check.restore()
             sinon.stub(cla, 'check').callsFake(async (args) => {
                 const res = {

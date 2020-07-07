@@ -16,7 +16,7 @@ const newOrgSchema = Joi.object().keys({
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
     minCodeChanges: Joi.number(),
-    whiteListPattern: Joi.string().allow(''),
+    allowListPattern: Joi.string().allow(''),
     privacyPolicy: Joi.string().allow('')
 })
 const removeOrgSchema = Joi.object().keys({

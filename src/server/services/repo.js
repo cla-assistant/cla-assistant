@@ -66,7 +66,7 @@ class RepoService {
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
-            whiteListPattern: args.whiteListPattern,
+            allowListPattern: args.allowListPattern,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
         })
@@ -137,7 +137,7 @@ class RepoService {
         repo.sharedGist = !!args.sharedGist
         repo.minFileChanges = args.minFileChanges
         repo.minCodeChanges = args.minCodeChanges
-        repo.whiteListPattern = args.whiteListPattern
+        repo.allowListPattern = args.allowListPattern
         repo.privacyPolicy = args.privacyPolicy
         repo.updatedAt = new Date()
 

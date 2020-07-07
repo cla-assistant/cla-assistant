@@ -37,9 +37,9 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
         });
     };
 
-    $scope.whitelistInfo = function () {
+    $scope.allowlistInfo = function () {
         $modal.open({
-            templateUrl: '/modals/templates/whitelist_info.html',
+            templateUrl: '/modals/templates/allowlist_info.html',
             controller: 'InfoCtrl',
             windowClass: 'howto'
         });

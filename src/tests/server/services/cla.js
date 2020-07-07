@@ -44,7 +44,7 @@ const stub = () => {
         gist: 'url/gistId',
         token: 'abc',
         sharedGist: false,
-        isUserWhitelisted: function () {
+        isUserOnAllowlist: function () {
             return false
         }
     }
@@ -493,7 +493,7 @@ describe('cla:checkPullRequestSignatures', () => {
             gist: 'url/gistId',
             sharedGist: false,
             token: 'abc',
-            isUserWhitelisted: function () {
+            isUserOnAllowlist: function () {
                 return false
             }
         }
@@ -755,8 +755,8 @@ describe('cla:checkPullRequestSignatures', () => {
         }
     })
 
-    it('should not check submitter if he/she is whitelisted', async () => {
-        testRes.repoServiceGet.isUserWhitelisted = user => user === 'login0'
+    it('should not check submitters on the allowlist', async () => {
+        testRes.repoServiceGet.isUserOnAllowlist = user => user === 'login0'
         config.server.feature_flag.required_signees = 'submitter'
         testRes.claFindOne = null
         testRes.repoServiceGetCommitters = [{
@@ -785,8 +785,8 @@ describe('cla:checkPullRequestSignatures', () => {
         }
     })
 
-    it('should exclude whitelisted committers from the map', async () => {
-        testRes.repoServiceGet.isUserWhitelisted = (user) => user === 'login1'
+    it('should exclude committers on allowlist from the map', async () => {
+        testRes.repoServiceGet.isUserOnAllowlist = (user) => user === 'login1'
         testRes.repoServiceGetCommitters = [{
             name: 'login1',
             id: '123'
@@ -851,10 +851,10 @@ describe('cla:checkPullRequestSignatures', () => {
             })
         })
 
-        it('should call callback function immediately if organization is whitelisted and there are no external committers ', async () => {
+        it('should call callback function immediately if organization is on allowlist and there are no external committers ', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
             testRes.getPR.data.head.repo.fork = false
-            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
+            testRes.repoServiceGet.isUserOnAllowlist = login => login === testRes.getPR.data.head.repo.owner.login
             testRes.repoServiceGetCommitters = [{
                 name: 'login1',
                 id: '123'
@@ -888,11 +888,11 @@ describe('cla:checkPullRequestSignatures', () => {
                 config.server.feature_flag.required_signees = ''
             }
         })
-        it('should check if the external committer has signed the CLA when the organization is whitelisted (external Organisation) ', async () => {
+        it('should check if the external committer has signed the CLA when the organization is on allowlist (external Organisation) ', async () => {
             config.server.feature_flag.required_signees = 'submitter committer'
             testRes.getPR.data.head.repo.fork = true
             testRes.getPR.data.head.repo.owner.login = 'orgLogin1'
-            testRes.repoServiceGet.isUserWhitelisted = login => login === testRes.getPR.data.head.repo.owner.login
+            testRes.repoServiceGet.isUserOnAllowlist = login => login === testRes.getPR.data.head.repo.owner.login
             testRes.repoServiceGetCommitters = [{
                 name: 'login1',
                 id: '123'
@@ -1006,7 +1006,7 @@ describe('cla:sign', () => {
             gist: 'url/gistId',
             sharedGist: false,
             token: 'abc',
-            isUserWhitelisted: function () {
+            isUserOnAllowlist: function () {
                 return false
             }
         }
@@ -1507,7 +1507,7 @@ describe('cla:getLinkedItem', () => {
             owner: 'login0',
             gist: 'url/gistId',
             token: 'abc',
-            isUserWhitelisted: function () {
+            isUserOnAllowlist: function () {
                 return false
             }
         }
@@ -1636,7 +1636,7 @@ describe('cla:terminate', () => {
             gist: 'url/gistId',
             sharedGist: false,
             token: 'abc',
-            isUserWhitelisted: function () {
+            isUserOnAllowlist: function () {
                 return false
             }
         }
@@ -1725,7 +1725,7 @@ describe('cla:isClaRequired', () => {
             owner: 'owner',
             gist: 'url/gistId',
             token: 'abc',
-            isUserWhitelisted: () => false
+            isUserOnAllowlist: () => false
         }
     })
 

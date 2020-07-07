@@ -17,7 +17,7 @@ Scenario(`link repo2`, (I) => {
     cla.linkRepo(I, testUserName, `repo2`)
 })
 
-Scenario(`Add whitelisted user for repo2`, (I) => {
+Scenario(`Add user on allowlist for repo2`, (I) => {
     I.amOnPage(`https://preview.cla-assistant.io/`)
     I.waitForVisible(`//button[contains(., "Configure CLA")]`, 5)
     I.waitForInvisible(`.loading-indicator`, 5)
@@ -28,13 +28,13 @@ Scenario(`Add whitelisted user for repo2`, (I) => {
     I.moveCursorTo(`//tr[contains(., "${testUserName} / repo2")]//i[contains(@class,"fa-ellipsis-h")]`)
     I.click(`//tr[contains(., "${testUserName} / repo2")]//i[contains(@class,"fa-ellipsis-h")]`)
     I.click(`Edit`)
-    I.waitForEnabled(`#whiteListPattern`, 2)
-    I.fillField(`#whiteListPattern`, testContributorName)
+    I.waitForEnabled(`#allowListPattern`, 2)
+    I.fillField(`#allowListPattern`, testContributorName)
     I.wait(2)
     I.waitForElement(`//button[contains(.,"Save")]`)
     I.moveCursorTo(`//button[contains(.,"Save")]`)
     I.click(`//button[contains(.,"Save")]`)
-    I.waitForInvisible(`#whiteListPattern`, 5)
+    I.waitForInvisible(`#allowListPattern`, 5)
 })
 
 Feature(`Pull Request`)

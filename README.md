@@ -28,7 +28,7 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 
 Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.
 
-We also developed a [lite version](https://github.com/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/cla-assistant/github-action). 
+We also developed a [lite version](https://github.com/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/cla-assistant/github-action).
 
 Try
 ====
@@ -105,8 +105,8 @@ In case of problems or any further questions, please check our [general trouble 
 #### How can I contribute?
 You want to contribute to CLA Assistant? Welcome! Please read [here](https://github.com/cla-assistant/cla-assistant/blob/master/CONTRIBUTING.md).
 
-#### Can I whitelist bot users?
-Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a CLA, you may want to whitelist them. You can do so by importing their names (in this case `dependabot[bot]` and `greenkeeper[bot]`) in the CLA assistant dashboard.
+#### Can I allow bot user contributions?
+Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a CLA, you may want to allow their contributions without it. You can do so by importing their names (in this case `dependabot[bot]` and `greenkeeper[bot]`) in the CLA assistant dashboard.
 
 Setup your own instance of CLA assistant
 ==============================

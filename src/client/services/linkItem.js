@@ -10,7 +10,7 @@ module.factory('linkItemService', ['$RPCService',
             var newItem = {
                 gist: options.gist.url,
                 sharedGist: options.sharedGist,
-                whiteListPattern: options.whiteListPattern,
+                allowListPattern: options.allowListPattern,
                 minFileChanges: options.minFileChanges,
                 minCodeChanges: options.minCodeChanges,
                 privacyPolicy: options.privacyPolicy
