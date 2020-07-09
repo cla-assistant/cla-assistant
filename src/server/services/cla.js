@@ -426,7 +426,7 @@ class ClaService {
                 const {
                     owner: baseOrg
                 } = pullRequest.base.repo
-                if (item.isUserWhitelisted !== undefined && item.isUserWhitelisted(headOrg.login)) {
+                if (item.isUserOnAllowlist !== undefined && item.isUserOnAllowlist(headOrg.login)) {
                     const orgMembers = await this._getGHOrgMembers(headOrg.login, item.token)
                     const committers = await repoService.getPRCommitters(args)
                     var externalCommitters = _.differenceBy(committers, orgMembers, 'id')
@@ -437,7 +437,7 @@ class ClaService {
 
                     } else if (externalCommitters.length > 0 && isForked && baseOrg.login !== headOrg.login) {
                         externalCommitters = externalCommitters.filter(externalCommitter =>
-                            externalCommitter && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(externalCommitter.name))
+                            externalCommitter && !(item.isUserOnAllowlist !== undefined && item.isUserOnAllowlist(externalCommitter.name))
                         )
                         hasExternalCommiter.check = true
                         hasExternalCommiter.orgName = headOrg.login
@@ -493,7 +493,7 @@ class ClaService {
         }
 
         signees = signees.filter(signee =>
-            signee && !(item.isUserWhitelisted !== undefined && item.isUserWhitelisted(signee.name))
+            signee && !(item.isUserOnAllowlist !== undefined && item.isUserOnAllowlist(signee.name))
         )
         return this._checkAll(
             signees,

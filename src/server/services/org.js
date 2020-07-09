@@ -19,7 +19,7 @@ class OrgService {
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
-            whiteListPattern: args.whiteListPattern,
+            allowListPattern: args.allowListPattern,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
         })
@@ -37,7 +37,7 @@ class OrgService {
         org.excludePattern = args.excludePattern
         org.minFileChanges = args.minFileChanges
         org.minCodeChanges = args.minCodeChanges
-        org.whiteListPattern = args.whiteListPattern
+        org.allowListPattern = args.allowListPattern
         org.privacyPolicy = args.privacyPolicy
         org.updatedAt = new Date()
 

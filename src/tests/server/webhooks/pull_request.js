@@ -507,10 +507,9 @@ describe('webhook pull request', () => {
         await new Promise((resolve) => setTimeout(resolve, 40))
         assert(!cla.check.called)
         assert(logger.warn.called)
-
     })
 
-    it('should set ClaNotRequired status if the pull request has only whitelisted committers', async () => {
+    it('should set ClaNotRequired status if the pull request has only committers on allowlist', async () => {
         cla.check.restore()
 
         sinon.stub(cla, 'check').resolves({
@@ -529,7 +528,6 @@ describe('webhook pull request', () => {
         await new Promise((resolve) => setTimeout(resolve, 40))
         assert(!status.update.called)
         assert(status.updateForClaNotRequired.called)
-
     })
 
     // it('should update status of PR even if repo is unknown but from known org', function() {

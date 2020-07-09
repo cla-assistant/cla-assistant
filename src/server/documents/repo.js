@@ -11,7 +11,7 @@ const RepoSchema = mongoose.Schema({
     sharedGist: Boolean,
     minFileChanges: Number,
     minCodeChanges: Number,
-    whiteListPattern: String,
+    allowListPattern: String,
     privacyPolicy: String,
     updated_at: Date
 })
@@ -25,8 +25,8 @@ const indexOptions = {
     unique: true
 }
 
-RepoSchema.methods.isUserWhitelisted = function (user) {
-    return utils.checkPatternWildcard(this.whiteListPattern, user)
+RepoSchema.methods.isUserOnAllowlist = function (user) {
+    return utils.checkPatternWildcard(this.allowListPattern, user)
 }
 
 const Repo = mongoose.model('Repo', RepoSchema)

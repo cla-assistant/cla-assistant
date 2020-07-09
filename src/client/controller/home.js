@@ -406,7 +406,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
                 minFileChanges: $scope.selected.minFileChanges,
                 minCodeChanges: $scope.selected.minCodeChanges,
                 excludePattern: $scope.selected.item.excludePattern,
-                whiteListPattern: $scope.selected.whiteListPattern
+                allowListPattern: $scope.selected.allowListPattern
             };
             var promise = linkItemService.createLink($scope.selected.item, options);
 

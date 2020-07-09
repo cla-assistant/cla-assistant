@@ -76,14 +76,14 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="form-group">
-                <div style="margin-bottom: 5px; margin-top: 5px;">Specify usernames to be whitelisted
-                    <span class="clickable" ng-click="whitelistInfo()"
+                <div style="margin-bottom: 5px; margin-top: 5px;">Specify usernames to be always allowed
+                    <span class="clickable" ng-click="allowlistInfo()"
                         style="font-size:12px; text-decoration:underline">(how does this work?)</span>
                     <br />
                     <span class="side-note">(you can also use wildcard
                         <span class="wildcard">*</span>)</span>
                 </div>
-                <input id="whiteListPattern" class="form-control" ng-model="selected.item.whiteListPattern"
+                <input id="allowListPattern" class="form-control" ng-model="selected.item.allowListPattern"
                     placeholder="user1,user2,*[bot]"></input>
             </div>
         </div>

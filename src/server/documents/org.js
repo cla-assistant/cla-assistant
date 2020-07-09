@@ -10,7 +10,7 @@ const OrgSchema = mongoose.Schema({
     sharedGist: Boolean,
     minFileChanges: Number,
     minCodeChanges: Number,
-    whiteListPattern: String,
+    allowListPattern: String,
     privacyPolicy: String,
     updated_at: Date
 })
@@ -19,8 +19,8 @@ OrgSchema.methods.isRepoExcluded = function (repo) {
     return utils.checkPattern(this.excludePattern, repo)
 }
 
-OrgSchema.methods.isUserWhitelisted = function (user) {
-    return utils.checkPatternWildcard(this.whiteListPattern, user)
+OrgSchema.methods.isUserOnAllowlist = function (user) {
+    return utils.checkPatternWildcard(this.allowListPattern, user)
 }
 
 OrgSchema.index({
