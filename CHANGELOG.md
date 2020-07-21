@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.8.2](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-07-21)
+
+**Improvements:**
+- updated License 
+- Changed from using Whitelist to allow list Credits: [Marko Schulz](https://github.com/datenreisender) [PR594](https://github.com/cla-assistant/cla-assistant/pull/594)
+
 ## [v2.8.1](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-06-06)
 
 **Improvements:**
