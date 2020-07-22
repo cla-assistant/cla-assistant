@@ -505,7 +505,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
         };
 
         $scope.showTOS = function () {
-            return !$state.current.name.includes('repo');
+            // return !$state.current.name.includes('repo');
+            return true; // show our TOS everywhere again
         };
     }
 ])
