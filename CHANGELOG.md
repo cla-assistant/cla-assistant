@@ -1,6 +1,11 @@
 # Change Log
 
-## [v2.8.2](https://github.com/cla-assistant/cla-assistant/tree/v2.8.0) (2020-07-21)
+## [v2.8.3](https://github.com/cla-assistant/cla-assistant/tree/v2.8.3) (2020-07-23)
+
+**Improvements:**
+- present our terms of use and privacy policy on all pages
+
+## [v2.8.2](https://github.com/cla-assistant/cla-assistant/tree/v2.8.2) (2020-07-21)
 
 **Improvements:**
 - updated License 
