@@ -153,6 +153,7 @@ async.series([
     (callback) => {
         retryInitializeMongoose(config.server.mongodb.uri, {
             useNewUrlParser: true,
+            useUnifiedTopology: true,
             keepAlive: true
         }, () => {
             bootstrap('documents', callback);
