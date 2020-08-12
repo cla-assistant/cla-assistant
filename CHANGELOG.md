@@ -1,5 +1,10 @@
 # Change Log
 
+## [v2.8.4](https://github.com/cla-assistant/cla-assistant/tree/v2.8.4) (2020-08-12)
+
+**Improvements:**
+- fix deprecated mongodb connection style
+
 ## [v2.8.3](https://github.com/cla-assistant/cla-assistant/tree/v2.8.3) (2020-07-23)
 
 **Improvements:**
