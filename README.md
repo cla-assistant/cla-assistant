@@ -201,4 +201,4 @@ Credits
 <p align="center">
     <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
 <p align="center">
-:heart: from the GitHub team @ SAP
+:heart: from the GitHub team @ SAP 2020
