@@ -177,8 +177,14 @@ label,
   font-weight: 100;
 }
 
+.radio label {
+  margin-top: 0px;
+  font-weight: 100;
+}
+
 label.required:after,
-.checkbox label.required:after {
+.checkbox label.required:after,
+.radio label.required:after {
   content: " *";
 }
 

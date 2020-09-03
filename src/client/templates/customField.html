@@ -1,27 +1,30 @@
 <div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum && type !== 'readonly'" title="{{description}}">
     <label ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
     <div ng-show="description && type !== 'hidden'" class="description">({{description}})</div>
-    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}" type="{{type}}"
-        min="{{min}}" max="{{max}}"></input>
+    <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}"
+        type="{{type}}" min="{{min}}" max="{{max}}"></input>
 </div>
 <div ng-if="type == 'textarea'" title="{{description}}">
     <label ng-class="{'required': required}" title="{{description}}">{{title || name}}
     </label>
-    <textarea ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}" rows="5">
+    <textarea ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}"
+        rows="5">
         <p ng-if="signed">{{value[name]}}</p>
     </textarea>
 </div>
 <div ng-if="type == 'checkbox'" class="checkbox" title="{{description}}">
     <label ng-class="{'required': required}" title="{{description}}">
-        <input ng-disabled="!logged || signed" ng-model="value[name]" title="{{description}}" type="{{type}}"/>
+        <input ng-disabled="!logged || signed" ng-model="value[name]" title="{{description}}" type="{{type}}" />
         {{title || name}}
     </label>
 </div>
 <div ng-if="type.enum" title="{{description}}">
     <label ng-class="{'required': required}" title="{{description}}">{{title || name}}</label>
-    <div class="checkbox" ng-repeat="prop in type.enum">
-        <input ng-disabled="!logged || signed" ng-model="value[name]" name="{{name}}" title="{{description}}" type="radio" value="{{prop}}"
-        /> {{prop}}
+    <div class="radio" ng-repeat="prop in type.enum">
+        <label>
+            <input ng-disabled="!logged || signed" ng-model="value[name]" name="{{name}}" title="{{description}}"
+                type="radio" value="{{prop}}" /> {{prop}}
+        </label>
     </div>
 </div>
 <div ng-if="type === 'readonly'">
