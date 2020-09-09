@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === 'production') {
 
 /* eslint no-console: "off"*/
 require('colors')
+require('./middleware/setupProxy')
 const async = require('async')
 const express = require('express')
 const glob = require('glob')

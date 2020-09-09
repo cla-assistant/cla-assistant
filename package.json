@@ -59,6 +59,7 @@
         "request": "^2.88.0",
         "request-promise-native": "^1.0.7",
         "socket.io": "^2.2.0",
+        "tunnel": "0.0.6",
         "valid-url": "^1.0.9",
         "x-frame-options": "^1.0.0"
     },
