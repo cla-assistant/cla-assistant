@@ -4,6 +4,7 @@ exemptLabels:
   - greenkeeper
   - bug
   - feature
+  - FAQ
 staleLabel: wontfix
 markComment: >
   This issue has been automatically marked as stale because it has not had
