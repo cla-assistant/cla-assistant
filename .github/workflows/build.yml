@@ -72,5 +72,5 @@ jobs:
       id: setcontext
 
     - name: Update to new image
-      if: github.ref == 'gardner-pipeline'
+      if: github.ref == 'refs/heads/master'
       run: kubectl -n andrey set image pod/cla-assistant-stage cla-assistant-stage=eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
