@@ -14,28 +14,28 @@ jobs:
   build:
     runs-on:  ${{ matrix.os }}
     strategy:
-      matrix: 
-        node_version: 
-        - 12    
-        os: 
+      matrix:
+        node_version:
+        - 12
+        os:
         - ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: setup gcloud CLI
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with: 
+      with:
         version: '275.0.0'
-        service_account_key: ${{ secrets.GCP_base64 }}   
+        service_account_key: ${{ secrets.GCP_base64 }}
     # Configure docker to use the gcloud command-line tool as a credential helper
-    - run: gcloud auth configure-docker  
+    - run: gcloud auth configure-docker
     - name: Use Node version 12.6
       uses: actions/setup-node@v1
       with:
         version:  ${{ matrix.node_version }}
     - name: Npm Install
-      run: | 
-        npm install  
+      run: |
+        npm install
 
     - name: grunt build and test
       run: |
@@ -55,12 +55,22 @@ jobs:
       run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}  -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:latest -t sapclaassistant/claassistant:${GITHUB_REF:10} .
     - name: push the latest and release images to dockerhub only for releases
       if: startsWith(github.ref, 'refs/tags')
-      run: | 
+      run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker push sapclaassistant/claassistant
-    - name: push images to gcp 
+    - name: push images to gcp
       if: github.ref == 'refs/heads/master'  || startsWith(github.ref, 'refs/tags')
       run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant
     - name: deploy to staging cloud run service
-      if: github.ref == 'refs/heads/master' 
+      if: github.ref == 'refs/heads/master'
       run: gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
+
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.GARDNER_PANOV_KUBECTL_CONFIG }}
+      id: setcontext
+
+    - name: Update to new image
+      if: github.ref == 'refs/heads/master'
+      run: kubectl -n andrey set image pod/cla-assistant-stage cla-assistant-stage=eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
