@@ -20,7 +20,7 @@ jobs:
         
       - run: ls $GITHUB_WORKSPACE/
 
-      # - run: cp -r $GITHUB_WORKSPACE/.actions/gardener/ansible-playbook $GITHUB_WORKSPACE/.actions/gardener/actions/ansible-playbook
+      - run: cp -r $GITHUB_WORKSPACE/.actions/gardener/ansible-playbook $GITHUB_WORKSPACE/.actions/gardener/actions/ansible-playbook
      
       - name: Ansible Playbook syntax-check
         uses: ansible/ansible-lint-action@master
