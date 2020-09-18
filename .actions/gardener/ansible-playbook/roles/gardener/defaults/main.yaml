@@ -1,0 +1,165 @@
+# Required vars
+######################################
+gardener_kubeconfig_path: # The path to your KUBECONFIG use a local file to use --check and --diff of use {{ lookup('env', 'GARDENER_KUBECONFIG_PATH') }}
+
+gardener_kubeconfig_raw: # The raw content of a KUBECONFIG
+
+gardener_name: # Name to be used for all resources created by this module.
+
+gardener_namespace: # Namespace where to deploy the Shoot.
+
+gardener_k8s_version: 1.18.4 # Version of Kubernetes to deploy.
+
+gardener_shoot_name:
+
+gardener_shoot_purpose: # The purpose of the Gardener Shoot cluster (evaluation|development|production).
+
+gardener_resource_name: 
+
+gardener_user: "{{ gardener_resource_name }}"
+
+role_arn: # The ARN to use for your AWS account.
+
+gardener_seed_name: aws
+
+gardener_aws_region: us-east-1 # The AWS region to create a Gardener shoot in.
+
+# Optional vars
+######################################
+
+gardener_secret_name: trial-secret-aws # Name for the Gardener service account secret. If none is provided, an AWS SA will be created by this module and pushed to the Gardener seed.
+
+gardener_deploy_shoot: true # Set to false for when you want to destroy a shoot but keep the other resources (secret, AWS IAM key, etc)
+
+gardener_cloudprofile: aws # Which cloudprovider to deploy to. Only aws is currently supported.
+
+gardener_tags: {} # A map of tags to add to all resources.
+
+gardener_config_output_path: "."
+
+# Hibernation vars
+######################################
+
+gardener_enable_hibernation: false # Set to true if you would like to hibernate your Shoot, false otherwise.
+
+gardener_hibernation_start: # Start is a Cron spec at which time a Shoot will be hibernated."
+
+gardener_hibernation_end: #  End is a Cron spec at which time a Shoot will be woken up.
+
+gardener_hibernation_location: # Location is the time location in which both start and end times shall be evaluated.
+
+# Maintenance vars
+##########################################
+gardener_auto_update_kubernetes_version: true # Whether the patch Kubernetes version may be automatically updated.
+
+gardener_auto_update_machine_version: true # Whether the machine image version may be automatically updated.
+
+gardener_maintenance_begin: 120000+0000 # The beginning of the time window in the format HHMMSS+ZONE, e.g. '220000+0100'.
+
+gardener_maintenance_end: 130000+0000 # The end of the time window in the format HHMMSS+ZONE, e.g. '220000+0100'.
+
+# Gardener shoot vars
+##########################################
+gardener_shoot_allow_delete: # This enables/disables the `confirmation.gardener.cloud/deletion` annotation
+
+gardener_shoot_enable_dashboard: true # Whether to deploy the Kubernetes Dashboard to the shoot
+
+gardener_shoot_enable_nginx_ingress: true # Whether to deploy the Nginx Ingress to the shoot
+
+gardener_shoot_lb_source_ranges: [] # list of source ranges for loadBalancerSourceRanges
+
+gardener_shoot_external_traffic_policy: Cluster # value for externalTrafficPolicy
+
+gardener_shoot_monitoring_email_receivers: [] # list of email address receiving monitoring alerts
+
+gardener_shoot_allow_privileged_containers: false # Whether to allow all authenticated users to use the gardener.privileged PodSecurityPolicy, allowing full unrestricted access to Pod features.
+
+gardener_shoot_dns:
+
+gardener_shoot_dns_providers: [] # list of external dns providers
+
+gardener_shoot_cert_service_providerconfig: [] # Provider config for the shoot cert service
+
+gardener_shoot_annotations: {}
+
+gardener_shoot_azs: # A list of availability zones in the region
+  - us-east-1a 
+  - us-east-1b
+  - us-east-1c 
+
+gardener_shoot_machine_image_name: coreos # The name of the machine image to use for all workers.
+
+gardener_shoot_machine_image_version: "2512.3.0" # The version of the machine image to use for all workers.
+
+gardener_shoot_network_type: calico
+
+gardener_shoot_kubeproxy_mode: IPTables # The mode to use for kube_proxy. Only IPTables (default) or IPVS are supported.
+
+gardener_shoot_audit_subaccount_id: # The subaccount ID to use for Audit Logging. See https://github.wdf.sap.corp/pages/kubernetes/gardener/documentation/015-tutorials/audit-kube-apiserver/
+
+gardener_shoot_auditpolicy_name: test-audit-policy
+
+# OIDC config
+######################################
+gardener_shoot_oidc_config:
+  clientid: 
+  groupsClaim: groups
+  issuerURL: 
+  usernameClaim: email
+
+gardener_shoot_oidc_caBundle: 
+
+# VPC vars
+######################################
+gardener_shoot_vpc_id: # The ID of an exiting VPC. Gardener will create one if left empty (default).
+
+gardener_shoot_vpc_cidr: "10.250.0.0/16" # The CIDR range for the nodes.
+
+gardener_shoot_vpc_cidr_mask:  # The size of the CIDR mask to use for nodes.
+
+gardener_shoot_vpc_nodes_cidr:  # The CIDR range for the nodes.
+
+gardener_shoot_nodeCIDRMaskSize: 16
+
+gardener_shoot_vpc_pods_cidr: "100.96.0.0/11" # The CIDR range for a new VPC.
+
+gardener_shoot_vpc_services_cidr: "100.64.0.0/13" # The CIDR range for a new VPC.
+
+gardener_shoot_vpc_zones: # The zones and ranges to be created in the VPC.
+  - name: us-east-1a
+    internal_cidr: 10.250.128.0/22
+    public_cidr: 10.250.132.0/22
+    workers_cidr: 10.250.0.0/19
+  - name: us-east-1b
+    internal_cidr: 10.250.136.0/22
+    public_cidr: 10.250.140.0/22
+    workers_cidr: 10.250.32.0/19
+  - name: us-east-1c
+    internal_cidr: 10.250.144.0/22
+    public_cidr: 10.250.148.0/22
+    workers_cidr: 10.250.64.0/19
+
+# Worker pools
+######################################
+gardener_shoot_workers: 
+  - name: gardener-node
+    auto_scaler_min: 1
+    auto_scaler_max: 2
+    machine_type: "m5.large"
+    max_surge: 1
+    max_unavailable: 0
+    volume_type: gp2
+    volume_size: 50Gi
+    annotations: {}
+    labels: {}
+    zones: 
+      - us-east-1a
+      - us-east-1b
+      - us-east-1c
+    taints: []
+
+# Extra variables to delete deployed ressource
+######################################
+gardener_secret_state: present # Define if the gardener secret should be "present" or "absent"
+gardener_auditpolicy_state: present # Define if the gardener  auditpolicy should be "present" or "absent"
+gardener_shoot_state: present # Define if the gardener shoot should be "present" or "absent"

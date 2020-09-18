@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  environment:
+    AWS_REGION: "us-east-1"
+
+  vars_files:
+  - "dynamic_vars/cla_assistant_stage-us-east-1.yml"
+  - "group_vars/cla_assistant_stage-us-east-1.yml"
+  
+  vars:
+    dynvars_file_name: "cla_assistant_stage-us-east-1"
+# ██  █████  ███    ███
+# ██ ██   ██ ████  ████
+# ██ ███████ ██ ████ ██
+# ██ ██   ██ ██  ██  ██
+# ██ ██   ██ ██      ██
+
+  roles:
+  - { role: gardener, when: gardener_kubeconfig_path is defined }
