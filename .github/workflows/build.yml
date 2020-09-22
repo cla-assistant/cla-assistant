@@ -74,15 +74,3 @@ jobs:
     - name: Update to new image
       if: github.ref == 'refs/heads/master'
       run: kubectl -n andrey set image pod/cla-assistant-stage cla-assistant-stage=eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
-
-    - name: Save current stage image url
-      if: github.ref == 'refs/heads/master'
-      run: echo "eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}" > image-on-stage.txt
-    - name: Commit report
-      if: github.ref == 'refs/heads/master'
-      run: |
-        git config --global user.name 'Github action user'
-        git config --global user.email 'no@mail.com'
-        git add image-on-stage.txt
-        git commit -am "save last image name for stage"
-        git push
