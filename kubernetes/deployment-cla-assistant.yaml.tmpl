@@ -15,7 +15,7 @@ spec:
         app: cla-assistant-stage
     spec:
       containers:
-        - image: eu.gcr.io/sap-cla-assistant/cla-assistant@sha256:${GITHUB_SHA}
+        - image: eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
           name: cla-assistant-stage
           envFrom:
             - secretRef:
