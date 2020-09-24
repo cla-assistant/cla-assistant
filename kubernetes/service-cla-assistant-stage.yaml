@@ -4,7 +4,7 @@ metadata:
   name: cla-assistant-stage-service
 spec:
   selector:
-    run: cla-assistant-stage
+    app: cla-assistant-stage
   ports:
     - protocol: TCP
       port: 5000
