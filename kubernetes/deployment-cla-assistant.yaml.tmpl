@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cla-assistant-stage-deployment
+  labels:
+    app: cla-assistant-stage
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cla-assistant-stage
+  template:
+    metadata:
+      labels:
+        app: cla-assistant-stage
+    spec:
+      containers:
+        - image: eu.gcr.io/sap-cla-assistant/cla-assistant@sha256:${GITHUB_SHA}
+          name: cla-assistant-stage
+          envFrom:
+            - secretRef:
+                name: cla-assistance-stage-secrets
+          ports:
+            - containerPort: 5000

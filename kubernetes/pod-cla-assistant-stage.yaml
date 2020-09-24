@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: cla-assistant-stage
+  name: cla-assistant-stage
+spec:
+  containers:
+    - image: eu.gcr.io/sap-cla-assistant/cla-assistant@sha256:27560dc2fd9b4a55441174c39493bc39c4684f94def452bafa1fb5108c08ad86
+      name: cla-assistant-stage
+      envFrom:
+        - secretRef:
+            name: cla-assistance-stage-secrets
+      ports:
+        - containerPort: 5000
