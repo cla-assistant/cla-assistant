@@ -1,0 +1,26 @@
+name: 'Execute Ansible Playbook action'
+author: 'cla-assistant team'
+description: 'Executes an Ansible Playbook as Github Action'
+inputs:
+  playbookName:
+    description: 'Name of the playbook in your workspace.'
+    required: true
+  inventoryFile:
+    description: 'Name of the inventory file to use.'
+    required: false
+  rolesPath:
+    description: 'If inventoryFile is set you can also specify a custom roles path to install your required roles in.'
+    required: false
+  verbosity:
+    description: 'Choose one of 4 verbosity levels. See Ansible documentation for details.'
+    required: false
+  extraVars:
+    description: 'String containing all extraVars which you want to be injected into the run.'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.playbookName }}
+    - ${{ inputs.verbosity }}
+    - ${{ inputs.extraVars }}

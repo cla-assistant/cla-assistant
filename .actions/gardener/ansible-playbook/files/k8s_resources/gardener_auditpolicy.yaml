@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ gardener_shoot_auditpolicy_name }}
+  namespace: {{ gardener_namespace }}
+data:
+  policy: |-
+{{ gardener_auditpolicy | indent(4, true) }}
