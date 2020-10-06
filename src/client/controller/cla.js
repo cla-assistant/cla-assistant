@@ -205,7 +205,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
         };
 
         $scope.titleMsg = function () {
-            var msg = $scope.signed ? 'You have signed the CLA for ' : 'Please sign the CLA for ';
+            var msg = $scope.signed ? 'You have agreed to the CLA for ' : 'Please agree to the CLA for ';
             msg += showSharedGistMsg() ? 'multiple repositories or organizations' : $scope.params.user + '/' + $scope.params.repo;
 
             return msg;
