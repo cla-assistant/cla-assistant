@@ -85,13 +85,23 @@ describe('', () => {
                         login: 'two'
                     }
                 },
-                callRepos: testData.orgRepos.concat({
-                    id: 2,
-                    name: 'testRepo',
-                    owner: {
-                        login: 'org'
+                callRepos: testData.orgRepos.concat(
+                    {
+                        id: 2,
+                        name: 'testRepo',
+                        owner: {
+                            login: 'org'
+                        },
+                    },
+                    {
+                        id: 3,
+                        name: 'testArchivedRepo',
+                        owner: {
+                            login: 'org'
+                        },
+                        archived: true,
                     }
-                })
+                )
             },
             repoService: {
                 get: JSON.parse(JSON.stringify(testData.repo_from_db)), //clone object
