@@ -151,7 +151,7 @@ async.series([
 
         app.use(expressSession({
             secret: config.server.security.sessionSecret,
-            saveUninitialized: true,
+            saveUninitialized: false,
             resave: false,
             cookie: {
                 secure: config.server.security.cookieSecurity,
