@@ -642,6 +642,11 @@ async function getReposNeedToValidate(req) {
                 return false
             }
 
+            if (repo.archived) {
+                // Archived repos can not receive commit status updates, etc.
+                return false
+            }
+
             return true
         })
     } catch (error) {
