@@ -1,28 +1,26 @@
-var env = process.env;
+const env = process.env;
 
-console.log("setup proxy to: ", env["http_proxy"], env["HTTP_PROXY"]);
+if (!env["HTTP_PROXY"]) return;
 
-if (!env["http_proxy"] && !env["HTTP_PROXY"]) return;
+const localUrls = ["http://some-internal-url.mycompany.local"];
 
-var localUrls = ["http://some-internal-url.mycompany.local"];
+const url = require("url");
+const tunnel = require("tunnel");
 
-var url = require("url");
-var tunnel = require("tunnel");
-var proxy = url.parse(env["http_proxy"] || env["HTTP_PROXY"]);
+const proxy = url.parse(env["HTTP_PROXY"]);
+const proxySSL = url.parse(env["HTTPS_PROXY"]);
 
 console.log("proxy set to:", proxy);
 
-var tunnelingAgent = tunnel.httpsOverHttp({
+// https tunnel
+const https = require("https");
+const oldhttpsreq = https.request;
+const tunnelingAgentSSL = tunnel.httpsOverHttps({
   proxy: {
-    host: proxy.hostname,
-    port: proxy.port,
+    host: proxySSL.hostname,
+    port: proxySSL.port,
   },
 });
-
-var https = require("https");
-var http = require("http");
-
-var oldhttpsreq = https.request;
 https.request = function (options, callback) {
   if (
     localUrls.some(function (u) {
@@ -32,11 +30,19 @@ https.request = function (options, callback) {
     return oldhttpsreq.apply(https, arguments);
   }
 
-  options.agent = tunnelingAgent;
+  options.agent = tunnelingAgentSSL;
   return oldhttpsreq.call(null, options, callback);
 };
 
-var oldhttpreq = http.request;
+// http tunnel
+const http = require("http");
+const oldhttpreq = http.request;
+const tunnelingAgent = tunnel.httpsOverHttp({
+  proxy: {
+    host: proxy.hostname,
+    port: proxy.port,
+  },
+});
 http.request = function (options, callback) {
   if (
     localUrls.some(function (u) {
