@@ -1,0 +1,35 @@
+# Trigger builds only when a commit gets
+# merged to master. Do not trigger PR
+# validation builds
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+pr: none
+
+resources:
+- repo: self
+
+variables:
+  commitId: '$(Build.SourceVersion)'
+
+stages:
+- stage: Build
+  displayName: Build image
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Build image and push it to DockerHub
+      inputs:
+        containerRegistry: 'dockerhub.com_teamdigitale-sa'
+        repository: 'teamdigitale/cla-assistant'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(commitId)
+          latest

@@ -3,13 +3,16 @@ node_modules
 src/bower
 output
 venv
-.env
+.env**
 report
 npm-debug.log
 test
 coverage
 src/client/assets/styles/app.css
 src/client/assets/styles/app.css.map
+src/client/assets/styles/font-awesome*
+src/client/assets/fonts/FontAwesome*
+src/client/assets/fonts/fontawesome*
 src/client/app.min.js
 src/client/app.min.js.map
 .sass-cache
