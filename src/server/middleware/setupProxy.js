@@ -2,7 +2,7 @@ const env = process.env;
 
 if (!env["HTTP_PROXY"]) return;
 
-const localUrls = ["http://some-internal-url.mycompany.local"];
+const localUrls = env["NO_PROXY"] && env["NO_PROXY"].split(/,/) || [];
 
 const url = require("url");
 const tunnel = require("tunnel");
