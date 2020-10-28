@@ -163,6 +163,7 @@ async.series([
             saveUninitialized: true,
             resave: false,
             cookie: {
+                secure: true,
                 maxAge: config.server.security.cookieMaxAge
             },
             store: new MongoStore({
