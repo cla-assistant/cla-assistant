@@ -13,7 +13,7 @@
             <div class="cla-box well">
                 <div ng-bind-html="cla"></div>
             </div>
-            <label tabindex="0" ng-class="required" ng-show="linkedItem.privacyPolicy">
+            <label ng-class="required" ng-show="linkedItem.privacyPolicy">
                 <input ng-disabled="signed" ng-model="privacyPolicyAccepted" type="checkbox" /> I accept, that the information I provide to sign this CLA will be maintained in accordance with project
                 owner's
                 <a class="highlighted-link" ng-href="{{linkedItem.privacyPolicy}}" target="space">privacy policy</a> *
