@@ -1,30 +1,30 @@
 <div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum && type !== 'readonly'" title="{{description}}">
-    <label ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
+    <label tabindex="0" aria-label="{{title || name}}" ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
     <div ng-show="description && type !== 'hidden'" class="description">({{description}})</div>
     <!-- TODO: Add 'type="{{type}}"' back when CLA gist is able to change -->
     <input ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}"
         min="{{min}}" max="{{max}}"></input>
 </div>
 <div ng-if="type == 'textarea'" title="{{description}}">
-    <label ng-class="{'required': required}" title="{{description}}">{{title || name}}
+    <label tabindex="0" aria-label="{{title || name}}" ng-class="{'required': required}" title="{{description}}">{{title || name}}
     </label>
     <textarea ng-disabled="!logged || signed" class="form-control" ng-model="value[name]" title="{{description}}" rows="5">
         <p ng-if="signed">{{value[name]}}</p>
     </textarea>
 </div>
 <div ng-if="type == 'checkbox'" class="checkbox" title="{{description}}">
-    <label ng-class="{'required': required}" title="{{description}}">
+    <label tabindex="0" aria-label="{{title || name}}" ng-class="{'required': required}" title="{{description}}">
         <input ng-disabled="!logged || signed" ng-model="value[name]" title="{{description}}" type="{{type}}"/>
         {{title || name}}
     </label>
 </div>
 <div ng-if="type.enum" title="{{description}}">
-    <label ng-class="{'required': required}" title="{{description}}">{{title || name}}</label>
+    <label tabindex="0" aria-label="{{title || name}}" ng-class="{'required': required}" title="{{description}}">{{title || name}}</label>
     <div class="checkbox" ng-repeat="prop in type.enum">
         <input ng-disabled="!logged || signed" ng-model="value[name]" name="{{name}}" title="{{description}}" type="radio" value="{{prop}}"
         /> {{prop}}
     </div>
 </div>
 <div ng-if="type === 'readonly'">
-    <label ng-show="value[name]">{{value[name]}}<label>
+    <label tabindex="0" aria-label="{{value[name]}}" ng-show="value[name]">{{value[name]}}<label>
 </div>

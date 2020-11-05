@@ -143,7 +143,6 @@ async.series([
 
     function (callback) {
         retryInitializeMongoose(config.server.mongodb.uri, {
-            useMongoClient: true,
             keepAlive: true
         }, () => {
             bootstrap('documents', callback);
