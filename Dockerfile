@@ -15,4 +15,4 @@ RUN \
   apk del git curl bzip2 patch make g++
 
 USER cla-assistant
-CMD npm start
+CMD ["npm", "start"]
