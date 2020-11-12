@@ -87,13 +87,8 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
             });
         };
 
-        var testFunction = function (args, cb) {
-
-        }
-
         $scope.getContributors = function (gist_version, cb) {
             var customKeys;
-            var promises = [];
             getCustomFields($scope.item, gist_version, function (err, keys) {
                 if (err) {
                     $log.info(err);
