@@ -24,7 +24,8 @@
                 </ui-select-choices>
             </ui-select>
         </div>
-        <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv">Export list</button>
+        <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv" style="margin-bottom: 10px;">Export as CSV</button>
+        <a download="signatures.json" ng-href="{{ jsonUrl }}" type="button" class="btn btn-info col-xs-4">Export as JSON</a>
     </div>
 
     <div class="well report" style="max-height: 500px; overflow-y:scroll">

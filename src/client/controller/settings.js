@@ -17,6 +17,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         $scope.valid = {};
         $scope.signatures = {};
         $scope.contributors = [];
+        $scope.jsonUrl = undefined
 
         var webhook = {};
 
@@ -86,8 +87,13 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
             });
         };
 
+        var testFunction = function (args, cb) {
+
+        }
+
         $scope.getContributors = function (gist_version, cb) {
             var customKeys;
+            var promises = [];
             getCustomFields($scope.item, gist_version, function (err, keys) {
                 if (err) {
                     $log.info(err);
@@ -119,6 +125,9 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                             $scope.contributors.push(contributor);
                         });
                     }
+                    var jsonData = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify($scope.contributors));
+                    $scope.jsonUrl = 'data:' + jsonData;
+
                     if (typeof cb == 'function') {
                         cb();
                     }

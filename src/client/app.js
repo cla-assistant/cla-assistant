@@ -24,8 +24,8 @@ angular.element(document).ready(function () {
 // States
 // *************************************************************
 
-module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
-    function ($stateProvider, $urlRouterProvider, $locationProvider) {
+module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$compileProvider', '$qProvider',
+    function ($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $qProvider) {
 
         $stateProvider
             //
@@ -101,5 +101,6 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
             enabled: true,
             requireBase: false
         });
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob|chrome-extension|data):/);
     }
 ]);
