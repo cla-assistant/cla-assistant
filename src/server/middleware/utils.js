@@ -10,19 +10,10 @@ class Utils {
 
     async checkRepoPushPermissionByName(repo, owner, repoId, token) {
         try {
-            let res
+            let res, repoData
             if (!repo || !owner) {
-                const header = {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                    }
-                }
-                const url = `https://api.github.com/repositories/${repoId}`
-                res = await fetch(url, header)
-                const resJSON = await res.json()
-                owner = resJSON.owner.login
-                repo = resJSON.name
-            }
+                repoData = await this.checkRepoPushPermissionById(repoId, token)
+            } else {
             res = await githubService.call({
                 obj: 'repos',
                 fun: 'get',
@@ -31,14 +22,16 @@ class Utils {
                     owner: owner
                 },
                 token: token
-                })
-                if (!res.data) {
+            })
+                repoData = res.data
+            }
+            if (!repoData) {
                     throw new Error('No data returned')
                 }
-                if (!res.data.permissions || !res.data.permissions.push) {
+            if (!repoData.permissions || !repoData.permissions.push) {
                     throw new Error('User has no push permission for this repo')
                 }
-            return res.data
+            return repoData
         } catch (error) {
             if (error.status === 404) {
                 log.info('User has no authorization for ' + repo + ' repository.')
@@ -57,7 +50,8 @@ class Utils {
             },
             token: token
         })
-        return res.data.permissions.push
+        // return res.data.permissions.push
+        return res.data
     }
 
     async checkOrgAdminPermission(org, username, token) {
