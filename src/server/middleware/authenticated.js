@@ -8,6 +8,12 @@ function authenticateForExternalApi(req, res, next) {
             return next(err)
         }
 
+        try {
+            user = user ? user : req.user
+        } catch (error) {
+            console.log(error)
+        }
+
         if (!user) {
             res.status(401).json({ message: 'Incorrect token credentials' })
 
@@ -40,6 +46,12 @@ function authenticateForAdminOnlyApi(req, res, next) {
         if (err) {
             return next(err)
         }
+        try {
+            user = user ? user : req.user
+        } catch (error) {
+            console.log(error)
+            throw new Error(error)
+        }
         if (!user) {
             return res.status(401).json({ message: 'Incorrect token credentials' })
         }
@@ -47,8 +59,8 @@ function authenticateForAdminOnlyApi(req, res, next) {
             return res.status(403).json({ message: 'Must have admin:org_hook permission scope' })
         }
         let promises = []
-        if (req.args.owner && req.args.repo) {
-            promises.push(utils.checkRepoPushPermissionByName(req.args.repo, req.args.owner, user.token))
+        if ((req.args.owner && req.args.repo) || req.args.repoId) {
+            promises.push(utils.checkRepoPushPermissionByName(req.args.repo, req.args.owner, req.args.repoId, user.token))
         }
         if (req.args.org) {
             promises.push(utils.checkOrgAdminPermission(req.args.org, user.login, user.token))
@@ -65,12 +77,14 @@ function authenticateForAdminOnlyApi(req, res, next) {
 }
 
 module.exports = function (req, res, next) {
-    if (config.server.api_access.free.indexOf(req.originalUrl) > -1 || req.isAuthenticated()) {
+    if (config.server.api_access.free.indexOf(req.originalUrl) > -1) {
         return next()
     } else if (config.server.api_access.external.indexOf(req.originalUrl) > -1) {
         return authenticateForExternalApi(req, res, next)
     } else if (config.server.api_access.admin_only.indexOf(req.originalUrl) > -1) {
         return authenticateForAdminOnlyApi(req, res, next)
+    } else if (req.isAuthenticated()) {
+        return next()
     }
     res.status(401).send('Authentication required')
 }
