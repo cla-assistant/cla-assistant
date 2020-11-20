@@ -12,8 +12,13 @@ class Utils {
         try {
             let res
             if (!repo || !owner) {
+                const header = {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                    }
+                }
                 const url = `https://api.github.com/repositories/${repoId}`
-                res = await fetch(url)
+                res = await fetch(url, header)
                 const resJSON = await res.json()
                 owner = resJSON.owner.login
                 repo = resJSON.name
