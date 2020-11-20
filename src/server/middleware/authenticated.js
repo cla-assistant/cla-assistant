@@ -11,7 +11,7 @@ function authenticateForExternalApi(req, res, next) {
         try {
             user = user ? user : req.user
         } catch (error) {
-            console.log(error)
+            throw new Error(error)
         }
 
         if (!user) {
@@ -49,7 +49,6 @@ function authenticateForAdminOnlyApi(req, res, next) {
         try {
             user = user ? user : req.user
         } catch (error) {
-            console.log(error)
             throw new Error(error)
         }
         if (!user) {
