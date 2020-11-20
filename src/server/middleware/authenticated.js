@@ -21,8 +21,18 @@ function authenticateForExternalApi(req, res, next) {
         }
         let hasPermission = false
         try {
-            if (req.args.repoId) {
-                hasPermission = await utils.checkRepoPushPermissionById(req.args.repoId, user.token)
+            // getting repoId from owner and repository name
+            let repoId
+            if (!req.args.repoId) {
+                const url = `https://api.github.com/repos/${req.args.owner}/${req.args.repo}`
+                res = await fetch(url)
+                const resJSON = await res.json()
+                repoId = resJSON.id
+            } else {
+                repoId = req.args.repoId
+            }
+            if (repoId) {
+                hasPermission = await utils.checkRepoPushPermissionById(repoId, user.token)
             } else if (req.args.org) {
                 hasPermission = await utils.checkOrgAdminPermission(req.args.org, user.login, user.token)
             }
