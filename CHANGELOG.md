@@ -1,5 +1,14 @@
 # Change Log
 
+## [v2.8.5](https://github.com/cla-assistant/cla-assistant/tree/v2.8.5) (2020-11-23)
+
+**Improvements:**
+- import JSON is supported
+- Improve Dockerfile `apk` command cache handling
+- Implemented additional API checks
+- Filter Archived Repositories
+- Added Gardner pipeline
+
 ## [v2.8.4](https://github.com/cla-assistant/cla-assistant/tree/v2.8.4) (2020-08-12)
 
 **Improvements:**
