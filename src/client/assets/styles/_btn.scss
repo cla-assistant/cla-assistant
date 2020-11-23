@@ -4,15 +4,15 @@
 
 .btn {
   &.btn-info {
-    @include button-variant($brand-primary-lightest, $brand-primary, $brand-primary); 
+    @include button-variant($brand-primary-lightest, $brand-primary, $brand-primary);
     /*@color; @background; @border*/
   }
   &.btn-success {
-    @include button-variant($brand-primary-lightest, $green, $green); 
+    @include button-variant($brand-primary-lightest, $green, $green);
     /*@color; @background; @border*/
   }
   &.btn-cancel {
-    @include button-variant($gray-darker, $gray, $gray); 
+    @include button-variant($gray-darker, $gray, $gray);
     /*@color; @background; @border*/
   }
 
@@ -27,10 +27,10 @@
   padding: 6px 12px;
 }
 
-.btn_tab, 
+.btn_tab,
 .btn_tab:active, .btn_tab.active,
 .btn_tab:focus, .btn_tab.focus,
-.btn_tab:hover, .btn_tab.hover 
+.btn_tab:hover, .btn_tab.hover
 {
   z-index: 1;
   background-color: $gray-light;

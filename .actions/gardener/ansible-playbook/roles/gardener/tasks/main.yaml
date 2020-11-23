@@ -4,7 +4,7 @@
 
 - debug:
     msg: TEST2
-    
+
 #  - name: Deploy gardener
 #    block:
 #     # 1. Ensure that theres a kubeconfig and it point to a file path so we can authenticate (if not create a tmp file with the content)
@@ -46,7 +46,7 @@
 #         definition: "{{ lookup('template', 'files/k8s_resources/gardener_shoot.yaml') }}"
 
 #    always:
-#     # 3. Cleanup 
+#     # 3. Cleanup
 #     - name: Delete the kubeconfig stored in the host"
 #       file:
 #         path: "{{ gardener_kubeconfig_path }}"

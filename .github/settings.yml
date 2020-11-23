@@ -1,11 +1,11 @@
 repository:
   name: cla-assistant
-  description: Contributor License Agreement assistant (CLA assistant)  
-  homepage: https://cla-assistant.io/  
-  private: false  
-  has_issues: true  
-  has_wiki: false  
-  has_downloads: true  
+  description: Contributor License Agreement assistant (CLA assistant)
+  homepage: https://cla-assistant.io/
+  private: false
+  has_issues: true
+  has_wiki: false
+  has_downloads: true
   default_branch: master
   allow_squash_merge: true
   allow_merge_commit: true

@@ -14,7 +14,7 @@ gardener_shoot_name:
 
 gardener_shoot_purpose: # The purpose of the Gardener Shoot cluster (evaluation|development|production).
 
-gardener_resource_name: 
+gardener_resource_name:
 
 gardener_user: "{{ gardener_resource_name }}"
 
@@ -83,9 +83,9 @@ gardener_shoot_cert_service_providerconfig: [] # Provider config for the shoot c
 gardener_shoot_annotations: {}
 
 gardener_shoot_azs: # A list of availability zones in the region
-  - us-east-1a 
+  - us-east-1a
   - us-east-1b
-  - us-east-1c 
+  - us-east-1c
 
 gardener_shoot_machine_image_name: coreos # The name of the machine image to use for all workers.
 
@@ -102,12 +102,12 @@ gardener_shoot_auditpolicy_name: test-audit-policy
 # OIDC config
 ######################################
 gardener_shoot_oidc_config:
-  clientid: 
+  clientid:
   groupsClaim: groups
-  issuerURL: 
+  issuerURL:
   usernameClaim: email
 
-gardener_shoot_oidc_caBundle: 
+gardener_shoot_oidc_caBundle:
 
 # VPC vars
 ######################################
@@ -141,7 +141,7 @@ gardener_shoot_vpc_zones: # The zones and ranges to be created in the VPC.
 
 # Worker pools
 ######################################
-gardener_shoot_workers: 
+gardener_shoot_workers:
   - name: gardener-node
     auto_scaler_min: 1
     auto_scaler_max: 2
@@ -152,7 +152,7 @@ gardener_shoot_workers:
     volume_size: 50Gi
     annotations: {}
     labels: {}
-    zones: 
+    zones:
       - us-east-1a
       - us-east-1b
       - us-east-1c

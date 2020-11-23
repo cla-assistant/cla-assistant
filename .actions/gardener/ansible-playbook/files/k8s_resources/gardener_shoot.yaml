@@ -46,7 +46,7 @@ spec:
 {% endif %}
     kubernetesDashboard:
       enabled: {{ gardener_shoot_enable_dashboard | bool | lower }}
-      authenticationMode: token 
+      authenticationMode: token
 
 {% if gardener_shoot_cert_service_providerconfig or gardener_shoot_dns %}
   extensions:
@@ -60,7 +60,7 @@ spec:
 {% for issuer in providerconfig.issuers %}
           - email: {{ issuer.email }}
             name: {{ issuer.name }}
-            server: {{ issuer.server }}        
+            server: {{ issuer.server }}
 {% endfor %}
 {% endfor %}
 {% endif %}
@@ -69,13 +69,13 @@ spec:
 
   dns:
     domain: {{ gardener_shoot_dns }}
-    providers: 
+    providers:
 {% for provider in gardener_shoot_dns_providers %}
        - domains:
-           include: 
+           include:
 {% for domname in provider.domainincludes %}
              - {{ domname }}
-{% endfor %}			
+{% endfor %}
          secretName: {{ provider.secretName }}
          type: {{ provider.type }}
          primary: {{ provider.primary }}
@@ -135,7 +135,7 @@ spec:
     nodes: {{ gardener_shoot_vpc_nodes_cidr }}
 {% else %}
     nodes: {{ gardener_shoot_vpc_cidr }}
-{% endif %}    
+{% endif %}
     services: {{ gardener_shoot_vpc_services_cidr  }}
 
 {% if gardener_shoot_monitoring_email_receivers %}
@@ -156,7 +156,7 @@ spec:
     infrastructureConfig:
       kind: InfrastructureConfig
       apiVersion: aws.provider.extensions.gardener.cloud/v1alpha1
-      enableECRAccess: true 
+      enableECRAccess: true
 
       networks:
         vpc:
