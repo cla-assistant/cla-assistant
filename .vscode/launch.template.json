@@ -1,0 +1,74 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Start",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/app.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy",
+                "--expose-gc"
+            ],
+            "env": {
+                "NODE_ENV": "development",
+                "PROTOCOL": "https",
+                "HOST": "",
+                "PORT": "5000",
+                "MONGODB": "",
+                "GITHUB_CLIENT": "2d72950927ea1cf938af",
+                "GITHUB_SECRET": "",
+                "GITHUB_TOKEN": "",
+                "ROLLBAR_TOKEN": "",
+                "CACHE_TIME": 0,
+                "CODECEPT_URL": "http://localhost",
+                "ENV": "debug",
+                "ORG_OVERRIDE_ENABLED": true
+            },
+            "externalConsole": false,
+            "sourceMaps": false,
+            "outDir": null
+        },
+        {
+            "name": "test",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/.bin/grunt",
+            "stopOnEntry": false,
+            "args": [
+                "debug_test"
+            ],
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false
+        },
+        {
+            "name": "Attach",
+            "type": "node",
+            "request": "attach",
+            "port": 5858,
+            "address": "localhost",
+            "restart": false,
+            "sourceMaps": false,
+            "outDir": null,
+            "localRoot": "${workspaceRoot}",
+            "remoteRoot": null
+        },
+        {
+            "name": "Attach to Process",
+            "type": "node",
+            "request": "attach",
+            "processId": "${command.PickProcess}",
+            "port": 5858,
+            "sourceMaps": false,
+            "outDir": null
+        }
+    ]
+}
