@@ -266,6 +266,9 @@ class ClaService {
         query.user = user
 
         query = this._updateQuery(query, sharedGist, date)
+
+        logger.info(`temporary debug - query: ${JSON.stringify(query)}`)
+
         let cla = await CLA.findOne(query, {}, {
             sort: {
                 'created_at': -1
