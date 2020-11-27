@@ -726,6 +726,13 @@ class ClaService {
         const onDates = [endDate]
         const currentVersion = gist.data.history[0].version
 
+
+        logger.info(`temporary debug repoId: ${item.repoId}`)
+        logger.info(`temporary debug orgId: ${item.orgId}`)
+        logger.info(`temporary debug userId: ${item.userId}`)
+        logger.info(`temporary debug args.user: ${args.user}`)
+        logger.info(`temporary debug endDate: ${endDate}`)
+
         const cla = await this._getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates)
 
         if (!cla) {
