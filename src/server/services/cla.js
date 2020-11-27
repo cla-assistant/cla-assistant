@@ -729,7 +729,7 @@ class ClaService {
 
         logger.info(`temporary debug repoId: ${item.repoId}`)
         logger.info(`temporary debug orgId: ${item.orgId}`)
-        logger.info(`temporary debug userId: ${item.userId}`)
+        logger.info(`temporary debug userId: ${args.userId}`)
         logger.info(`temporary debug args.user: ${args.user}`)
         logger.info(`temporary debug endDate: ${endDate}`)
 
