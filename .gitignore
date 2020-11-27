@@ -17,6 +17,6 @@ src/client/app.min.js.map
 *.log
 log
 log.*
-.vscode/*
 jsconfig.json
 src/tests/acceptance_tests/codecept.conf.js
+launch.json
