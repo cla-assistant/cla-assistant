@@ -22,7 +22,7 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
 - Allows contributors to sign a CLA from within a pull request
-- Authenticates the signee with his or her GitHub account
+- Authenticates the signee with their GitHub account
 - Updates the status of a pull request when the contributor agrees to the CLA
 - Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
