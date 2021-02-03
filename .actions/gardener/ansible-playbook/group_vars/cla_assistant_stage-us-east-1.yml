@@ -20,9 +20,9 @@ gardener_resource_name: gardener-test
 gardener_shoot_allow_delete: # This enables/disables the `confirmation.gardener.cloud/deletion` annotation
 
 gardener_shoot_azs: # A list of availability zones in the region
-  - us-east-1a 
+  - us-east-1a
   - us-east-1b
-  - us-east-1c 
+  - us-east-1c
 
 gardener_shoot_auditpolicy_name: test-audit-policy
 
@@ -37,7 +37,7 @@ gardener_shoot_workers:
     volume_size: 50Gi
     annotations: {}
     labels: {}
-    zones: 
+    zones:
       - us-east-1a
       - us-east-1b
       - us-east-1c
@@ -52,7 +52,7 @@ gardener_shoot_workers:
     volume_size: 50Gi
     annotations: {}
     labels: {}
-    zones: 
+    zones:
       - us-east-1b
     taints: []
 
@@ -60,9 +60,9 @@ gardener_shoot_workers:
 # OIDC config
 ######################################
 gardener_shoot_oidc_config:
-  clientid: 
+  clientid:
   groupsClaim: groups
-  issuerURL: 
+  issuerURL:
   usernameClaim: email
 
 # VPC vars
@@ -75,7 +75,7 @@ gardener_shoot_vpc_cidr_mask:  # The size of the CIDR mask to use for nodes.
 
 gardener_shoot_vpc_nodes_cidr:  # The CIDR range for the nodes.
 
-gardener_shoot_nodeCIDRMaskSize: 16 
+gardener_shoot_nodeCIDRMaskSize: 16
 
 gardener_shoot_vpc_pods_cidr: "100.96.0.0/11" # The CIDR range for a new VPC.
 
