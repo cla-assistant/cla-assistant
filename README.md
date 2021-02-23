@@ -208,6 +208,6 @@ Credits
 =======
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
+    <img src="https://user-images.githubusercontent.com/43786652/108909769-434e3b00-7625-11eb-9abb-53a5db3a3fa6.png" title="SAP" />
 <p align="center">
-:heart: from the GitHub team @ SAP
+
