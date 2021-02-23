@@ -1,5 +1,9 @@
 # Change Log
 
+## [v2.8.6](https://github.com/cla-assistant/cla-assistant/tree/v2.8.6) (2021-02-23)
+**Improvements:**
+- updated SAP Logo
+
 ## [v2.8.5](https://github.com/cla-assistant/cla-assistant/tree/v2.8.5) (2020-11-23)
 
 **Improvements:**
