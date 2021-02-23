@@ -58,8 +58,11 @@ jobs:
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker push sapclaassistant/claassistant
-    - name: push images to gcp
-      if: github.ref == 'refs/heads/master'  || startsWith(github.ref, 'refs/tags')
+    - name: push image to gcp during push on master branch for staging 
+      if: github.ref == 'refs/heads/master'
+      run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}
+    - name: push images to gcp during release for production
+      if: startsWith(github.ref, 'refs/tags')
       run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant
     - name: deploy to staging cloud run service
       if: github.ref == 'refs/heads/master'
