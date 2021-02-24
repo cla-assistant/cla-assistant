@@ -8,10 +8,10 @@
 	<div ng-if="showCLA && !noCLA">
 		<div class="center-block">
 			<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
-				Sorry, your actual signed CLA is outdated...
+				Sorry, your actual signed document is outdated...
 			</div>
 			<div class="center-block row" style="font-size:18px; margin-top: 20px;">
-    		A new CLA has been linked to this Repository.
+    		A new document has been linked to this Repository.
     	</div>
 			<div style="text-align:center; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
 				<button class="btn btn-success" ng-click="openNewCla()" style="margin-left:0;">Take me to the new CLA</button>
@@ -20,11 +20,11 @@
 	</div>
 	<div ng-if="!showCLA && !noCLA">
 			<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
-				Sorry, your actual signed CLA is outdated...
+				Sorry, your actual signed document is outdated...
 			</div>
 			<div class="center-block row" style="font-size:18px; margin-top: 20px;">
-				A new version of the CLA is available.
-				Please consider to view the changes and to resign the CLA.
+				A new version of the document is available.
+				Please consider to view the changes and to resign the document.
 			</div>
 			<div style="text-align:center; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
 				<button class="btn btn-cancel" ng-click="openRevision()" style="margin-left:0;">Show me the changes</button>
@@ -33,10 +33,10 @@
 	</div>
 	<div ng-if="noCLA">
 		<div class="row" style="text-align: center; font-size:26px; margin-top: 20px;">
-			There is currently no CLA linked to this repository.
+			There is currently no document linked to this repository.
 		</div>
 		<div class="center-block row" style="font-size:18px; margin-top: 20px; margin-bottom: 20px;">
-			Please wait, until the owner has linked a CLA.
+			Please wait, until the owner has linked a document.
 		</div>
 	</div>
 </div>
