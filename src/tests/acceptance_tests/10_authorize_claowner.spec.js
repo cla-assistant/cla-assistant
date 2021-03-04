@@ -2,13 +2,14 @@ const github = require('./githubUtils')
 
 let testUserName = process.env.TEST_USER_NAME
 let testUserPass = process.env.TEST_USER_PASS
+let testHost = process.env.TEST_HOST
 
-Feature('Authorize claowner1')
+Feature('Authorize cla owner')
 
 
-Scenario('Authorize cla assistant for claowner1', (I) => {
+Scenario('Authorize cla assistant for cla owner', (I) => {
     github.login(I, testUserName, testUserPass)
-    I.amOnPage('https://preview.cla-assistant.io/')
+    I.amOnPage(testHost)
     I.click('Sign in')
     I.seeInCurrentUrl('/login/oauth/authorize')
     I.waitForEnabled('button#js-oauth-authorize-btn', 5)
@@ -17,5 +18,5 @@ Scenario('Authorize cla assistant for claowner1', (I) => {
     I.seeInCurrentUrl('/login/oauth/authorize')
     I.waitForEnabled('button#js-oauth-authorize-btn', 5)
     I.click('button#js-oauth-authorize-btn')
-    I.seeInCurrentUrl('https://preview.cla-assistant.io/')
+    I.seeInCurrentUrl(testHost)
 })

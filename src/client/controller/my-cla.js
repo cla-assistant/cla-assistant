@@ -10,7 +10,6 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         $scope.repos = [];
         $scope.gists = [];
         $scope.signedCLAs = [];
-        $scope.signedCLAs = [];
         $scope.users = [];
         $scope.user = {};
         $scope.defaultClas = [];
@@ -20,7 +19,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
         var getUser = function () {
             $scope.user = { value: { admin: false } };
 
-            return $HUBService.call('users', 'get', {}, function (err, res) {
+            return $HUBService.call('users', 'getAuthenticated', {}, function (err, res) {
                 if (err) {
                     return;
                 }
@@ -28,16 +27,14 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
                 $scope.user = res;
                 $scope.user.value.admin = false;
 
-                if (res.meta.scopes.indexOf('write:repo_hook') > -1) {
+                if (res.meta && res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1) {
                     $scope.user.value.admin = true;
                 }
             });
         };
 
         var getSignedCLA = function () {
-            return $RPCService.call('cla', 'getSignedCLA', {
-                user: $scope.user.value.login
-            }, function (err, data) {
+            return $RPCService.call('cla', 'getSignedCLA', {}, function (err, data) {
                 if (!err && data) {
                     $scope.signedCLAs = data.value;
                     for (var i = 0; i < $scope.signedCLAs.length; i++) {
@@ -152,6 +149,33 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
                 } else {
                     signedCLA.stat = false;
                 }
+            });
+        };
+
+        $scope.confirmRevoke = function (claItem) {
+            var modal = $modal.open({
+                templateUrl: '/modals/templates/confirmRevoke.html',
+                controller: 'ConfirmCtrl',
+                windowClass: 'confirm-add',
+                resolve: {
+                    selected: function () {
+                        return {
+                            item: claItem
+                        };
+                    }
+                }
+            });
+            modal.result.then(function (claItem) {
+                $scope.remove(claItem);
+            });
+        };
+
+        $scope.remove = function (claItem) {
+            $RPCService.call('cla', 'revoke', claItem, function (err) {
+                if (err) {
+                   return
+                }
+                $scope.signedCLAs.splice($scope.signedCLAs.indexOf(claItem), 1);
             });
         };
     }

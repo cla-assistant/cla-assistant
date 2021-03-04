@@ -9,6 +9,7 @@ const repoService = require('../services/repo')
 const github = require('./github')
 const config = require('../../config')
 const _ = require('lodash')
+const Logger = require('bunyan')
 
 class ClaService {
 
@@ -101,12 +102,16 @@ class ClaService {
                 },
                 end_at: {
                     $gt: date
+                },
+                revoked_at: {
+                    $gt: date
                 }
             }, {
                 created_at: {
                     $lte: date
                 },
-                end_at: undefined
+                end_at: undefined,
+                revoked_at: undefined
             }])
         })
 
@@ -566,15 +571,16 @@ class ClaService {
     }
 
     //Get list of signed CLAs for all repos the user has contributed to
-    async getSignedCLA(args) {
+    async getSignedCLA(user) {
         const selector = []
+        const date = new Date();
         const findCla = async function (query, repoList, claList) {
             const clas = await CLA.find(query, {
-                'repo': '*',
-                'owner': '*',
-                'created_at': '*',
-                'gist_url': '*',
-                'gist_version': '*'
+                'repo': 1,
+                'owner': 1,
+                'created_at': 1,
+                'gist_url': 1,
+                'gist_version': 1
             }, {
                 sort: {
                     'created_at': -1
@@ -592,9 +598,16 @@ class ClaService {
             const repos = await repoService.all()
             repos.forEach((repo) => {
                 selector.push({
-                    user: args.user,
+                    user: user.login,
                     repo: repo.repo,
-                    gist_url: repo.gist
+                    gist_url: repo.gist,
+                    revoked_at: {$gt: date}
+                })
+                selector.push({
+                    user: user.login,
+                    repo: repo.repo,
+                    gist_url: repo.gist,
+                    revoked_at: undefined
                 })
             })
         } catch (error) {
@@ -612,7 +625,13 @@ class ClaService {
         }
         try {
             await findCla({
-                user: args.user
+                $or: [{
+                    user: user.login,
+                    revoked_at: {$gt: date}
+                },{
+                    user: user.login,
+                    revoked_at: undefined
+                }]
             }, repoList, uniqueClaList)
         } catch (error) {
             logger.warn(new Error(error).stack)
@@ -679,15 +698,7 @@ class ClaService {
             if (!clas) {
                 throw new Error('no clas found')
             }
-            const foundSigners = []
-            const distinctClas = clas.filter((cla) => {
-                if (foundSigners.indexOf(cla.userId) < 0) {
-                    foundSigners.push(cla.userId)
-                    return true
-                }
-                return false
-            })
-            return distinctClas
+            return clas
         } catch (error) {
             logger.warn('Error occured when getting all signed CLAs for given repo ' + error)
         }
@@ -751,6 +762,22 @@ class ClaService {
 
     async isClaRequired(args, item) {
         return this._isSignificantPullRequest(args.repo, args.owner, args.number, args.token, item)
+    }
+
+    async revoke(args, user) {
+        const cla = await CLA.findOne({_id: args._id});
+
+        if(user.id !== Number(cla.userId)) {
+            logger.error('User: ' + cla.user + ' is unauthorized to revoke cla with id: ' + cla._id);
+            throw new Error('Unauthorized to revoke CLA');
+        }
+
+        cla.revoked_at = new Date();
+        await cla.save();
+        logger.info('User: ' + cla.user + ' has revoked the cla for repo: ' + cla.repo);
+        
+        return cla;
+            
     }
 }
 

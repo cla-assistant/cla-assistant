@@ -87,8 +87,9 @@ class ClaApi {
 
     //Get list of signed CLAs for all repos the authenticated user has contributed to
     //Parameters: none (user should be taken)
-    getSignedCLA(req) {
-        return cla.getSignedCLA(req.args)
+    async getSignedCLA(req) {
+        const user = await getAuthenticatedUser(req.user.token)
+        return cla.getSignedCLA(user)
     }
 
     //Get users last signature for given repository (if repo is currently linked)
@@ -158,7 +159,21 @@ class ClaApi {
         }
 
         const clas = await cla.getAll(params)
-        return clas.length
+        const distinctClas = this.getDistinctClas(clas)
+        
+        return distinctClas.length
+    }
+
+    getDistinctClas(clas) {
+        const foundSigners = []
+        const distinctClas = clas.filter((cla) => {
+            if (foundSigners.indexOf(cla.userId) < 0) {
+                foundSigners.push(cla.userId)
+                return true
+            }
+            return false
+        })
+        return distinctClas
     }
 
     async validateOrgPullRequests(req, linkedOrg) {
@@ -404,6 +419,17 @@ class ClaApi {
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
         return cla.terminate(req.args)
+    }
+
+    async revoke(req) {
+        const user = await getAuthenticatedUser(req.user.token)
+        
+        if(!req.args._id) {
+            logger.error("cla id is required to revoke cla")
+            throw new Error("cla id is required to revoke cla")
+        }
+
+        return cla.revoke(req.args, user);
     }
 
     // updateDBData: function (req, done) {
@@ -667,6 +693,19 @@ async function getGithubUser(userName, token) {
     })
     if (!res.data) {
         throw `${userName} is not a GitHub user`
+    }
+    return res.data
+}
+
+async function getAuthenticatedUser(token) {
+    const res = await github.call({
+        obj: 'users',
+        fun: 'getAuthenticated',
+        arg: {},
+        token: token
+    })
+    if (!res.data) {
+        throw `No User found`
     }
     return res.data
 }

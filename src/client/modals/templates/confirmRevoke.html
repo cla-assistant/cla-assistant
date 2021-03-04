@@ -1,0 +1,34 @@
+<!-- <div class="modal-header">
+</div> -->
+<div class="modal-body modal-primary">
+	<div ng-click="cancel()" class="fa fa-times close-button"></div>
+    <div class="row" style="text-align: center; font-size:26px; margin-top: 20px; padding: 0 10px">
+        Are you sure you want to revoke {{item.owner}}'s CLA for repository {{item.repo}}?
+    </div>
+
+    <div class="row" style="margin:50px; margin-bottom: 20px;">
+    	<div class="col-sm-12 well center-block" style="position: relative; left: 0; top: 0;">
+            <!-- <div id="Stage" class="EDGE-216448673"></div> -->
+            <div>
+                <img src="/assets/images/nervous_remove/nervous-36.svg" ng-class="{'nervous':isNervous}" style="position: relative;">
+                <img src="/assets/images/nervous_remove/nervous_eye1-37.svg" class="eye-move2">
+                <img src="/assets/images/nervous_remove/nervous_eye2-39.svg" class="eye-move">
+                <img src="/assets/images/nervous_remove/nervous_drop-38.svg" class="nervous-drop">
+                <img src="/assets/images/nervous_remove/nervous_drop-382.svg" style="width: 308px; margin-left: 20px;" class="nervous-drop2">
+            </div>
+    	</div>
+    </div>
+
+    <div class="center-block row" style="font-size:18px;">
+    	Revoking will...
+		<ul class="col-sm-9 col-sm-offset-2" style="text-align:left">
+			<li>Render you unable to further contribute to the repository</li>
+            <li>Require you to resign the CLA in order to make further Contributions</li>
+		</ul>
+    </div>
+
+    <div style="text-align:right; margin-top: 50px; margin-bottom: 15px; margin-right: 10px;">
+	    <button class="btn btn-cancel" ng-click="cancel()">Keep it</button>
+	    <button class="btn btn-danger" ng-click="ok()" ng-mouseenter="isNervous=true" ng-mouseleave="isNervous=false">Revoke anyway</button>
+    </div>
+</div>
