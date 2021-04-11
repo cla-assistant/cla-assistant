@@ -151,6 +151,8 @@ The following are the environment variables you have to configure to run a priva
 - `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
 - `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
 - `SLACK_TOKEN`: Optional.
+- `CLA_SIGNED_LABEL`: Optional. GitHub label which will be applied for the PR when CLA is signed.
+- `CLA_NOT_SIGNED_LABEL`: Optional. GitHub label which will be applied for the PR when CLA is not signed.
 
 > **Hint:** For further reading on setting up MongoDB, go to
 > http://docs.mongodb.org/manual/tutorial/getting-started/

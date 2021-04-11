@@ -55,8 +55,6 @@ const getCombinedStatus = async (args) => {
     } catch (error) {
         logger.info(new Error(error).stack)
     }
-
-
 }
 
 const createStatus = async (args, context, description, state, target_url) => {
@@ -79,6 +77,44 @@ const createStatus = async (args, context, description, state, target_url) => {
     } catch (error) {
         logger.warn('Error on Create Status, possible cause - wrong token, saved token does not have enough rights: ')
     }
+}
+
+const tryRemoveLabel = async (args, label) => {
+  try {
+      logger.debug(`StatusService-->tryRemoveLabel for the repo ${args.owner}/${args.repo}/issues/${args.number}`)
+      await github.call({
+          obj: 'issues',
+          fun: 'removeLabel',
+          arg: {
+              owner: args.owner,
+              repo: args.repo,
+              issue_number: args.number,
+              name: label
+          },
+          token: config.server.github.token
+      })
+  } catch (error) {
+      logger.info(`The label '${label}' is not assigned to the issue #${args.number}`)
+  }
+}
+
+const addLabel = async (args, label) => {
+  try {
+      logger.debug(`StatusService-->addLabel for the repo ${args.owner}/${args.repo}/issues/${args.number}`)
+      await github.call({
+          obj: 'issues',
+          fun: 'addLabels',
+          arg: {
+              owner: args.owner,
+              repo: args.repo,
+              issue_number: args.number,
+              labels: [label]
+          },
+          token: config.server.github.token
+      })
+  } catch (error) {
+      logger.warn('Error on Add Label, possible cause - wrong token, saved token does not have enough rights: ')
+  }
 }
 
 const findStatusToBeChanged = async (args) => {
@@ -135,11 +171,31 @@ const updateStatus = async (args) => {
             logger.debug(`StatusService-->updateStatus status remains the same - no need to update ${args.owner}/${args.repo}/pull/${args.number}`)
             return
         }
+        
+        await updateLabels(args)
         return createStatus(args, status.context, status.description, status.state, status.target_url)
 
     } catch (error) {
         logger.debug(`StatusService-->failed on updateStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         logger.warn(new Error(`${error} with args: ${args}`).stack)
+    }
+}
+
+const updateLabels = async (args) => {
+    let labelToAdd = undefined
+    let labelToRemove = undefined
+    if (args.signed) {
+        labelToAdd = config.server.github.claSignedLabel
+        labelToRemove = config.server.github.claNotSignedLabel
+    } else {
+        labelToAdd = config.server.github.claNotSignedLabel
+        labelToRemove = config.server.github.claSignedLabel
+    }
+    if (labelToRemove) {
+        await tryRemoveLabel(args, labelToRemove)
+    }
+    if (labelToAdd) {
+        await addLabel(args, labelToAdd)
     }
 }
 
