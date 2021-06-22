@@ -22,7 +22,7 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
 - Allows contributors to sign a CLA from within a pull request
-- Authenticates the signee with his or her GitHub account
+- Authenticates the signee with their GitHub account
 - Updates the status of a pull request when the contributor agrees to the CLA
 - Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
@@ -121,6 +121,15 @@ Clone this repository, change into the cloned directory and install dependencies
 
 `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
+
+You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command 
+```sh
+/ngrok http 5000
+```  
+
+If you use ngrok, you need to update the HOST variable in your .env and set PROTOCOL to "https".
+
+
 Copy the sample configuration file `.env.example` file to `.env`.
 
 	cp .env.example .env
@@ -199,6 +208,6 @@ Credits
 =======
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
+    <img src="https://user-images.githubusercontent.com/43786652/108909769-434e3b00-7625-11eb-9abb-53a5db3a3fa6.png" title="SAP" />
 <p align="center">
-:heart: from the GitHub team @ SAP
+

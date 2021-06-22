@@ -266,6 +266,9 @@ class ClaService {
         query.user = user
 
         query = this._updateQuery(query, sharedGist, date)
+
+        logger.info(`temporary debug - query: ${JSON.stringify(query)}`)
+
         let cla = await CLA.findOne(query, {}, {
             sort: {
                 'created_at': -1
@@ -725,6 +728,13 @@ class ClaService {
         const endDate = new Date(args.endDate)
         const onDates = [endDate]
         const currentVersion = gist.data.history[0].version
+
+
+        logger.info(`temporary debug repoId: ${item.repoId}`)
+        logger.info(`temporary debug orgId: ${item.orgId}`)
+        logger.info(`temporary debug userId: ${args.userId}`)
+        logger.info(`temporary debug args.user: ${args.user}`)
+        logger.info(`temporary debug endDate: ${endDate}`)
 
         const cla = await this._getLastSignatureOnMultiDates(args.user, args.userId, item.repoId, item.orgId, item.sharedGist, item.gist, currentVersion, onDates)
 

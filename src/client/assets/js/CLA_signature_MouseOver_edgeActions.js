@@ -1,8 +1,8 @@
 /***********************
 * Adobe Edge Animate Composition Actions
 *
-* Edit this file with caution, being careful to preserve 
-* function signatures and comments starting with 'Edge' to maintain the 
+* Edit this file with caution, being careful to preserve
+* function signatures and comments starting with 'Edge' to maintain the
 * ability to interact with these actions from within Adobe Edge Animate
 *
 ***********************/
@@ -11,8 +11,8 @@ var Composition = Edge.Composition, Symbol = Edge.Symbol; // aliases for commonl
 
    //Edge symbol: 'stage'
    (function(symbolName) {
-      
-      
+
+
       Symbol.bindTriggerAction(compId, symbolName, "Default Timeline", 1000, function(sym, e) {
          // insert code here
          // Play the timeline at a label or specific time. For example:

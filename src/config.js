@@ -97,7 +97,7 @@ module.exports = {
                 '/api/repo/create',
                 '/api/repo/remove',
                 '/api/cla/getAll',
-                'api/cla/upload'
+                '/api/cla/upload'
             ]
         },
 

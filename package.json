@@ -57,7 +57,7 @@
         "raven": "^2.6.4",
         "request": "^2.88.0",
         "request-promise-native": "^1.0.7",
-        "socket.io": "^2.2.0",
+        "socket.io": "^2.4.0",
         "valid-url": "^1.0.9",
         "x-frame-options": "^1.0.0"
     },
@@ -97,6 +97,7 @@
     "scripts": {
         "build": "node_modules/grunt/bin/grunt build",
         "start": "node app.js",
+        "start:dev": "source .env && node app.js",
         "postinstall": "bower install",
         "test": "node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
