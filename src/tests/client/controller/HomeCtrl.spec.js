@@ -213,7 +213,7 @@ describe('Home Controller', function () {
             var deferred = $q.defer();
             if (o === 'repo' && f === 'getAll') {
                 args.set[0].repoId.should.be.ok;
-                response = rpcRepoGetAllData || {
+                response = {
                     value: [{
                         repo: 'Hello-World',
                         owner: 'octocat',

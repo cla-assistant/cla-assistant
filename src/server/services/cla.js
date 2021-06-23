@@ -9,7 +9,6 @@ const repoService = require('../services/repo')
 const github = require('./github')
 const config = require('../../config')
 const _ = require('lodash')
-const Logger = require('bunyan')
 
 class ClaService {
 
