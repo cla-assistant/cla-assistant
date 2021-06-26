@@ -17,11 +17,12 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         $scope.valid = {};
         $scope.signatures = {};
         $scope.contributors = [];
+        $scope.completeHistory = [];
         $scope.jsonUrl = undefined
 
         var webhook = {};
 
-        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Signed for Organization'];
+        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', "Revoked At", 'Signed for Organization'];
         $scope.csvHeader = csvHeader.concat();
 
         function gistArgs() {
@@ -100,27 +101,19 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                         $log.info(err);
                     }
                     $scope.contributors = [];
+                    $scope.completeHistory = [];
                     if (data && data.value && data.value.length > 0) {
+                        var foundSigners = [];
                         data.value.forEach(function (signature) {
-                            var contributor = {};
-                            contributor.user_name = signature.user;
-                            contributor.repo_owner = signature.owner;
-                            contributor.repo_name = signature.repo;
-                            contributor.gist_name = $scope.getGistName();
-                            contributor.gist_url = signature.gist_url;
-                            contributor.gist_version = signature.gist_version;
-                            contributor.signed_at = signature.created_at;
-                            contributor.org_cla = signature.org_cla;
-                            if (customKeys && signature.custom_fields) {
-                                var customFields = JSON.parse(signature.custom_fields);
-                                customKeys.forEach(function (key) {
-                                    contributor[key] = customFields[key];
-                                });
+                            var contributor = buildContributor(signature, customKeys);
+                            if (foundSigners.indexOf(signature.userId) < 0) {
+                                foundSigners.push(signature.userId);
+                                $scope.contributors.push(contributor);
                             }
-                            $scope.contributors.push(contributor);
-                        });
+                            $scope.completeHistory.push(contributor);
+                        })
                     }
-                    var jsonData = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify($scope.contributors));
+                    var jsonData = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify($scope.completeHistory));
                     $scope.jsonUrl = 'data:' + jsonData;
 
                     if (typeof cb == 'function') {
@@ -130,6 +123,26 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
             });
 
         };
+
+        var buildContributor = function (signature, customKeys) {
+            var contributor = {};
+            contributor.user_name = signature.user;
+            contributor.repo_owner = signature.owner;
+            contributor.repo_name = signature.repo;
+            contributor.gist_name = $scope.getGistName();
+            contributor.gist_url = signature.gist_url;
+            contributor.gist_version = signature.gist_version;
+            contributor.signed_at = signature.created_at;
+            contributor.revoked_at = signature.revoked_at ? signature.revoked_at : '';
+            contributor.org_cla = signature.org_cla;
+            if (customKeys && signature.custom_fields) {
+                var customFields = JSON.parse(signature.custom_fields);
+                customKeys.forEach(function (key) {
+                    contributor[key] = customFields[key];
+                });
+            }
+            return contributor;
+        }
 
         $scope.getGist = function () {
             return $RPCService.call('cla', 'getGist', {
@@ -164,11 +177,28 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                 promises.push($scope.getGist());
                 promises.push(getWebhook());
                 $q.all(promises).then(function () {
-                    $scope.signatures = $scope.getSignatures($scope.item, gistArgs().gist_version);
+                    $scope.getSignatures($scope.item, gistArgs().gist_version, function (err, data) {
+                        if(err) {
+                            $log.info(err);
+                        }
+                        $scope.signatures = findDistinctSignatures(data);
+                    })                
                     $scope.loading = false;
                 });
             }
         };
+
+        var findDistinctSignatures = function(data) {
+            var foundSigners = []
+            var distinctSignatures = data.value.filter( function findUnqiueSigners(cla) {
+                if (foundSigners.indexOf(cla.userId) < 0) {
+                    foundSigners.push(cla.userId)
+                    return true
+                }
+                return false
+            })
+            return distinctSignatures;
+        }
 
         $scope.isLinkActive = function () {
             return (!$scope.loading && $scope.valid.gist && $scope.valid.webhook) || !$scope.item.gist;
@@ -184,6 +214,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                 controller: 'ReportCtrl',
                 windowClass: 'report',
                 scope: $scope,
+                size: "lg",
                 resolve: {
                     item: function () {
                         return linkedItem;
@@ -193,7 +224,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         };
 
         $scope.getReport = function () {
-            if ($scope.signatures.value.length > 0) {
+            if ($scope.signatures.length > 0) {
                 $scope.getContributors(gistArgs().gist_version);
             }
             report($scope.item);

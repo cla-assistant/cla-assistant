@@ -48,6 +48,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             $window.location.href = '/auth/github';
         };
 
+        $scope.openMyCLAs = function () {
+            $window.location.href = '/my-cla';
+        };
+
         var nullCla = {
             name: 'No CLA',
             url: null

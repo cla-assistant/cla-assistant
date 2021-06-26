@@ -33,12 +33,12 @@ $footer-height: $navbar-height;
 }
 
 .navbar-home-right{
-	float: right;
+	text-align: right;
 }
 
 .navbar-home-left{
-	float: left;
-	margin-left: 0px
+	text-align: left;
+	//margin-left: 0px
 }
 
 .navbar-fixed-bottom {

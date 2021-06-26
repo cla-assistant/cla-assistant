@@ -26,7 +26,7 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
         }
     } else {
         res = await octokit[obj][fun](arg)
-        // logger.info(`Result for ${obj}.${fun}`)
+        // logger.info(`Result for ${obj}.${fun}`)    
     }
 
     if (res && cacheTime) {

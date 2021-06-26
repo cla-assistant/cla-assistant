@@ -40,8 +40,8 @@
 
     <!-- the navbar -->
     <div id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-home-left">
+        <div class="container-fluid row">      
+            <div class="navbar-home-left col-md-2 col-sm-3">
                 <div ng-show="!!user.value.login">
                     <a ng-href="{{user.value.html_url}}" target="space">
                         <img class="needs-javascript" alt="[ {{ user.value.login }} avatar ]" ng-src="{{ user.value.avatar_url }}" style="height:25px;" />
@@ -52,14 +52,14 @@
                     </a>
                 </div>
             </div>
-            <div class="nav navbar-home-right">
-                <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px" tooltip-placement="left"
-                    tooltip="Sign out"></a>
-            </div>
-            <div class="navbar-center">
-                <a href="/">
+            <div class="col-md-8 col-sm-6 text-center">
+                <a ng-href="/" target="_self">
                     <img class="center-block img-responsive" src="/assets/images/logo_b.svg" alt="[ CLA - assistant ]" style="width:55px;">
                 </a>
+            </div>
+            <div class="nav navbar-home-right col-md-2 col-sm-3">
+                <a ng-hide="!user.value.login" href="/logout" target="_self" class="octicon octicon-sign-out" style="font-size:19px" tooltip-placement="left"
+                    tooltip="Sign out"></a>
             </div>
         </div>
     </div>

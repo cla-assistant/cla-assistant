@@ -8,7 +8,7 @@
 <div class="modal-body modal-primary" ng-show="!newContributors.loading">
     <div ng-click="cancel()" class="fa fa-times close-button"></div>
     <div class="modal-title">
-        Contributors who signed {{getGistName()}}
+        Latest signed CLAs for {{getGistName()}}
     </div>
 
     <div class="export-button row">
@@ -24,8 +24,8 @@
                 </ui-select-choices>
             </ui-select>
         </div>
-        <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="contributors" csv-header="csvHeader" filename="cla-assistant.csv" style="margin-bottom: 10px;">Export as CSV</button>
-        <a download="signatures.json" ng-href="{{ jsonUrl }}" type="button" class="btn btn-info col-xs-4">Export as JSON</a>
+        <button type="button" class="btn btn-info col-xs-4" field-separator=";" ng-csv="completeHistory" csv-header="csvHeader" filename="cla-assistant.csv" style="margin-bottom: 10px;">Complete History as CSV</button>
+        <a download="signatures.json" ng-href="{{ jsonUrl }}" type="button" class="btn btn-info col-xs-4" style="font-size: 16px;">Complete History as JSON</a>
     </div>
 
     <div class="well report" style="max-height: 500px; overflow-y:scroll">
@@ -44,18 +44,23 @@
             </div>
         </div>
         <div class="row" ng-init="reverse=false; column='user_name'" style="margin-top:10px">
-            <div class="col-sm-offset-1 col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'user_name'; reverse = !reverse;">Contributor &nbsp;
+            <div class="col-sm-offset-1 col-sm-3 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'user_name'; reverse = !reverse;">Contributor &nbsp;
                 <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='user_name'"></span>
             </div>
-            <div class="col-sm-5 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'signed_at'; reverse = !reverse;">Date &nbsp;
+            <div class="col-sm-3 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'signed_at'; reverse = !reverse;"> Sign Date &nbsp;
                 <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='signed_at'"></span>
+            </div>
+            <div class="col-sm-3 clickable" style="border-bottom: solid 1px lightgray; padding-bottom: 10px;" ng-click="column = 'revoked_at'; reverse = !reverse;">Revoke Date &nbsp;
+                <span class="fa" ng-class="{true:'fa-caret-down', false:'fa-caret-up'}[reverse]" ng-show="column=='revoked_at'"></span>
             </div>
         </div>
 
         <div class="row" ng-repeat="contributor in contributors | orderBy:column:reverse track by $index">
             <!-- <a class="col-sm-offset-1 col-sm-5" ng-href="{{contributor.html_url}}" target="space" >{{contributor.user_name}}</a> -->
-            <div class="col-sm-offset-1 col-sm-5">{{contributor.user_name}}</div>
-            <div class="col-sm-5">{{contributor.signed_at | date: 'medium'}}</div>
+            <div class="col-sm-offset-1 col-sm-3">{{contributor.user_name}}</div>
+            <div class="col-sm-3">{{contributor.signed_at | date: 'medium'}}</div>
+            <div class="col-sm-3" ng-if="contributor.revoked_at != ''">{{contributor.revoked_at | date: 'medium'}}</div>
+            <div class="col-sm-3" ng-if="contributor.revoked_at == ''" style="text-align: center;">-</div>
         </div>
     </div>
 </div>

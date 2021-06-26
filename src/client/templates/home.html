@@ -8,6 +8,8 @@
     <div class="row" style="margin-bottom: 65px; margin-top: 15px; padding-left:0px" ng-hide="newLink">
         <button class="btn btn-info" ng-click="newLink = !newLink" ng-init="newLink=false"
             style="font-size: 18px; font-weight: 200">Configure CLA</button>
+        <button class="btn btn-info" ng-click="openMyCLAs()" ng-init="newLink=false"
+            style="font-size: 18px; font-weight: 200; float: right;">View my signed CLAs</button>
     </div>
     <div class="row" ng-show="newLink">
         <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">Configure CLA</h4>

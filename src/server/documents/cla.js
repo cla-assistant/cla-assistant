@@ -4,6 +4,7 @@ mongoose.Promise = require('q').Promise
 
 const CLASchema = mongoose.Schema({
     created_at: Date,
+    revoked_at: Date,
     end_at: Date,
     custom_fields: String,
     gist_url: String,
@@ -27,7 +28,8 @@ const index = {
     userId: 1,
     gist_url: 1,
     gist_version: 1,
-    org_cla: 1
+    org_cla: 1,
+    revoked_at: 1
 }
 const indexOptions = {
     unique: true,
@@ -37,12 +39,12 @@ const indexOptions = {
 
 const CLA = mongoose.model('CLA', CLASchema)
 
-// CLA.collection.dropAllIndexes(function (err, results) {
-//     if (err) {
-//         logger.warn('CLA collection dropAllIndexes error: ', err)
-//         logger.warn('dropAllIndexes results: ', results)
-//     }
-// })
+/* CLA.collection.dropAllIndexes(function (err, results) {
+    if (err) {
+        logger.warn('CLA collection dropAllIndexes error: ', err)
+        logger.warn('dropAllIndexes results: ', results)
+    }
+}) */
 CLA.collection.createIndex(index, indexOptions)
 
 module.exports = {

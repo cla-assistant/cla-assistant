@@ -154,6 +154,9 @@ describe('cla:getLastSignature', () => {
                 },
                 end_at: {
                     $gt: now
+                },
+                revoked_at: {
+                    $gt: now
                 }
             }, {
                 userId: 'userId',
@@ -164,7 +167,8 @@ describe('cla:getLastSignature', () => {
                 created_at: {
                     $lte: now
                 },
-                end_at: undefined
+                end_at: undefined,
+                revoked_at: undefined
             }, {
                 user: 'user',
                 userId: {
@@ -179,6 +183,9 @@ describe('cla:getLastSignature', () => {
                 },
                 end_at: {
                     $gt: now
+                },
+                revoked_at: {
+                    $gt: now
                 }
             }, {
                 user: 'user',
@@ -192,7 +199,8 @@ describe('cla:getLastSignature', () => {
                 created_at: {
                     $lte: now
                 },
-                end_at: undefined
+                end_at: undefined,
+                revoked_at: undefined
             }, {
                 userId: 'userId',
                 gist_url: 'url/gistId',
@@ -204,6 +212,9 @@ describe('cla:getLastSignature', () => {
                 },
                 end_at: {
                     $gt: now
+                },
+                revoked_at: {
+                    $gt: now
                 }
             }, {
                 userId: 'userId',
@@ -214,7 +225,8 @@ describe('cla:getLastSignature', () => {
                 created_at: {
                     $lte: now
                 },
-                end_at: undefined
+                end_at: undefined,
+                revoked_at: undefined
             }]
         }), true)
     })
@@ -1421,7 +1433,7 @@ describe('cla:getAll', () => {
         }))
     })
 
-    it('should get only one newest cla per user if gist_version provided', async () => {
+    it('should get all clas per user if gist_version provided', async () => {
         CLA.find.restore()
         sinon.stub(CLA, 'find').callsFake(async (arg, _prop, options) => {
             assert(arg)
@@ -1450,7 +1462,7 @@ describe('cla:getAll', () => {
         }
 
         const arr = await cla.getAll(args)
-        assert.equal(arr.length, 1)
+        assert.equal(arr.length, 2)
     })
 })
 
@@ -1814,5 +1826,100 @@ describe('cla:isClaRequired', () => {
             token: 'abc'
         })
         assert(claIsRequired)
+    })
+})
+
+describe('cla:revoke', () => {
+    beforeEach(() => {
+        stub()
+        testRes.repoServiceGet = {
+            repoId: '123',
+            repo: 'myRepo',
+            owner: 'owner',
+            gist: 'url/gistId',
+            sharedGist: false,
+            token: 'abc',
+            userId: 1,
+            isUserOnAllowlist: function () {
+                return false
+            }
+        }
+        testErr.orgServiceGet = null
+        testErr.repoServiceGet = null
+        testErr.repoServiceGet = null
+        testRes.gistData = {
+            data: {
+                history: [{
+                    version: 'xyz'
+                }]
+            }
+        }
+    })
+
+    afterEach(() => restore())
+
+    it('should send error when revoking cla from a different user', async () => {
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            token: 'test_token',
+            _id: 1,
+        }
+        const user = {
+            id: 1
+        }
+        testRes.repoServiceGet.userId = 2
+        let dbCla
+        try {
+            dbCla = await cla.revoke(args, user)
+        } catch (error) {
+            assert(error)
+            assert(!dbCla)
+        }
+    })
+
+    it('should send error when cannot find a signed cla to revoke', async () => {
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            token: 'test_token',
+            _id: 1
+        }
+        const user = {
+            id: 1
+        }
+        testRes.claFindOne = null
+        let dbCla
+        try {
+            dbCla = await cla.revoke(args, user)
+        } catch (error) {
+            assert(error)
+            assert(!dbCla)
+        }
+    })
+
+    it('should successfully update the revoked_at when revoking a cla', async () => {
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            token: 'test_token',
+            _id: 1
+        }
+        const user = {
+            id: 1
+        }
+        testRes.claFindOne = {
+            user: 'user',
+            userId: 1,
+            repoId: 'repoId',
+            gist_url: 'url/gistId',
+            created_at: '2012-06-20T11:34:15Z',
+            gist_version: 'xyz',
+            save: function () {
+                return Promise.resolve('Success')
+            }
+        }
+        const dbCla = await cla.revoke(args, user)
+        assert(dbCla)
     })
 })

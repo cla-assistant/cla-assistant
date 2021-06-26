@@ -178,6 +178,10 @@ describe('', () => {
                     return {
                         data: resp.github.callUser.two
                     }
+                } else if (args.fun === "getAuthenticated") {
+                    return {
+                        data: resp.github.callUser.one
+                    }
                 } else if (args.arg.username === 'undefined') {
                     throw 'there is no user with username undefined'
                 }
@@ -719,7 +723,8 @@ describe('', () => {
         it('should call cla service on getSignedCLA', async () => {
             sinon.stub(cla, 'getSignedCLA').callsFake(async args => {
                 assert.deepEqual(args, {
-                    user: 'user'
+                    id: 1,
+                    login: 'one'
                 })
 
                 return {}
@@ -896,7 +901,7 @@ describe('', () => {
             req.args.gist = {
                 gist_url: testData.repo_from_db.gist
             }
-            resp.cla.getAll = [{}, {}]
+            resp.cla.getAll = [{userId: 1}, {userId: 2}]
 
             const number = await cla_api.countCLA(req)
             assert(cla.getAll.called)
@@ -904,7 +909,7 @@ describe('', () => {
         })
 
         it('should get gist url and version if not provided', async () => {
-            resp.cla.getAll = [{}, {}]
+            resp.cla.getAll = [{userId: 1}, {userId: 2}]
 
             const number = await cla_api.countCLA(req)
             assert(cla.getAll.called)
@@ -1781,6 +1786,67 @@ describe('', () => {
                 assert(false, 'should throw an error')
             } catch (error) {
                 assert(error === expError.cla.terminate)
+            }
+        })
+    })
+
+    describe('cla:revokeSignature', () => {
+        let req
+        beforeEach(() => {
+            req = {
+                args: {
+                    _id: 1234,
+                    userId: 1,
+                    
+                    repo: 'Hello-World',
+                    owner: 'octocat',
+                },
+                user: {
+                    user: 'user',
+                    token: 'userToken'
+                }
+            }
+            expError.cla.revoke = null
+            sinon.stub(cla, 'revoke').callsFake(async () => {
+                if (expError.cla.revoke) {
+                    throw expError.cla.revoke
+                }
+            })
+        })
+
+        afterEach(() => cla.revoke.restore())
+
+        it('should call cla service revoke', async () => {
+            await cla_api.revoke(req)
+            assert(cla.revoke.called)
+        })
+
+        it('should send validation error when cla id is not provided', async () => {
+            let req = {
+                args: {
+                    userId: 1,
+                },
+                user: {
+                    user: 'user',
+                    token: 'userToken'
+                }
+            }
+            try {
+                cla_api.revoke(req)
+                assert(false, 'should throw an error')
+            } catch (error) {
+                assert(error)
+                assert(!cla.revoke.called)
+            }
+        })
+
+        it('should send error and log error when revoke cla failed', async () => {
+            expError.cla.revoke = 'Cannot find cla record'
+            try {
+                await cla_api.revoke(req)
+                assert(false, 'should throw an error')
+            } catch (error) {
+                assert(error === expError.cla.revoke)
             }
         })
     })

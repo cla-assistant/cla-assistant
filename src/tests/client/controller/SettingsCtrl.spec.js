@@ -196,7 +196,7 @@ describe('Settings Controller', function () {
         it('should get number of contributors on init', function () {
             $timeout.flush();
 
-            (settingsCtrl.scope.signatures.value.length).should.be.equal(1);
+            (settingsCtrl.scope.signatures.length).should.be.equal(1);
         });
 
         it('should prepare csv header for custom fields', function () {
