@@ -2,6 +2,7 @@ let github = require('../services/github');
 let passport = require('passport');
 let Strategy = require('passport-accesstoken').Strategy;
 let merge = require('merge');
+let { request } = require('@octokit/request');
 
 function getGHUser(accessToken, cb) {
     let args = {
@@ -15,26 +16,27 @@ function getGHUser(accessToken, cb) {
     });
 }
 
-function checkToken(accessToken, cb) {
-    let args = {
-        obj: 'authorization',
-        fun: 'check',
-        arg: {
+async function checkToken(accessToken, cb) {
+    try {
+        const response = await request('POST /applications/{client_id}/token', {
+            client_id: config.server.github.client,
             access_token: accessToken,
-            client_id: config.server.github.client
-        },
-        basicAuth: {
-            user: config.server.github.client,
-            pass: config.server.github.secret
-        }
-    };
+            headers: {
+                authorization: `Basic ${Buffer.from(`${config.server.github.client}:${config.server.github.secret}`, 'utf8').toString('base64')}`,
+            }
+        });
 
-    github.call(args, function (err, data) {
-        if (err || (data && data.scopes && data.scopes.indexOf('write:repo_hook') < 0) || !data) {
-            err = err || 'You have not enough rights to call this API';
+        if (!response || response.status !== 200) {
+            throw new Error(`checkToken failed with status code ${response.status}`);
         }
-        cb(err, data);
-    });
+        const { data } = response;
+        if (!data || (data && data.scopes && data.scopes.indexOf('write:repo_hook') < 0)) {
+            throw new Error('You have not enough rights to call this API');
+        }
+        return cb(null, data);
+    } catch (err) {
+        cb(err);
+    }
 }
 
 passport.use(new Strategy(

@@ -1,11 +1,11 @@
 let url = require('../services/url');
 let repoService = require('../services/repo');
 let orgApi = require('../api/org');
-let github = require('../services/github');
 let logger = require('../services/logger');
 let passport = require('passport');
 let Strategy = require('passport-github').Strategy;
 let merge = require('merge');
+let { request } = require('@octokit/request');
 
 function updateToken(item, newToken) {
     item.token = newToken;
@@ -13,24 +13,24 @@ function updateToken(item, newToken) {
     logger.debug('Update access token for repo / org', item.repo || item.org);
 }
 
-function checkToken(item, accessToken) {
+async function checkToken(item, accessToken) {
     let newToken = accessToken;
     let oldToken = item.token;
-    let args = {
-        obj: 'authorization',
-        fun: 'check',
-        arg: {
-            access_token: oldToken,
-            client_id: config.server.github.client
-        },
-        basicAuth: {
-            user: config.server.github.client,
-            pass: config.server.github.secret
-        }
-    };
 
-    github.call(args, function (err, data) {
-        if (err || !(data && data.scopes && data.scopes.indexOf('write:repo_hook') >= 0)) {
+    try {
+        const response = await request('POST /applications/{client_id}/token', {
+            client_id: config.server.github.client,
+            access_token: oldToken,
+            headers: {
+                authorization: `Basic ${Buffer.from(`${config.server.github.client}:${config.server.github.secret}`, 'utf8').toString('base64')}`,
+            }
+        });
+
+        if (!response || response.status !== 200) {
+            updateToken(item, newToken);
+        }
+        const { data } = response;
+        if (!data || !data.scopes || data.scopes.indexOf('write:repo_hook') < 0) {
             updateToken(item, newToken);
         } else if (item.repo) {
             repoService.getGHRepo(item, function (err, ghRepo) {
@@ -40,7 +40,10 @@ function checkToken(item, accessToken) {
                 }
             });
         }
-    });
+    } catch (err) {
+        logger.info(`Check token for ${item.repo} failed: ${err.message}`);
+        updateToken(item, newToken);
+    }
 }
 
 passport.use(new Strategy({
