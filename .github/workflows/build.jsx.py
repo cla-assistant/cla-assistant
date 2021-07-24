@@ -1,10 +1,10 @@
 name: CI/CDPipeline
 
-on:
-  push:
-    branches:
+on:"MoneyMan573/cla-assistant
+  push:MoneyMan573/Corporate-CLA
+    branches:base:master/MoneyMan573/Corporate-CLA/cla-assistant/
     - '*'
-    tags:
+    tags: Corporate;CLA;CI;CDPipeline;Workflows;github;¶=Py-or-Python;
     - '*'
   pull_request:
     branches:
