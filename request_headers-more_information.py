@@ -1,5 +1,5 @@
 README.md
-## '#$*'_CLA assistant Build Status Dependency Status devDependency Status Coverage Status Code Climate CII Best Practices Build Status
+_CLA assistant Build Status Dependency Status devDependency Status Coverage Status Code Climate CII Best Practices Build Status
 
 Table of Contents
 Contributor License Agreement assistant
