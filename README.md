@@ -34,7 +34,7 @@ CLA assistant is provided by SAP as a free hosted offering under: https://cla-as
 
 For SAP open source projects please use the [SAP Individual Contributor License Agreement](https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
 
-*#*** SAP Individual Contributor License Agreement
+*#***### SAP Individual Contributor License Agreement
 
 Thank you for your interest in contributing to open source software projects (“Projects”) made available by SAP SE or its affiliates (“SAP”). This Individual Contributor License Agreement (“Agreement”) sets out the terms governing any source code, object code, bug fixes, configuration changes, tools, specifications, documentation, data, materials, feedback, information or other works of authorship that you submit or have submitted, in any form and in any manner, to SAP in respect of any of the Projects (collectively “Contributions”). If you have any questions respecting this Agreement, please contact opensource@sap.com.
 
@@ -99,7 +99,8 @@ to be unenforceable, the remaining portions hereof shall remain in full force an
 
 
 **Assignment.** You agree that SAP may assign this Agreement, and all of its rights, obligations and licenses
-hereunder.
+hereunder. ***@MoneyMan573, Michael Glenn Sun. July 25 12:56 a.m
+
 
 # G-CLASS Workflow
 TERMS OF SERVICE
