@@ -37,6 +37,35 @@ CLA assistant is provided by SAP as a free hosted offering under: https://cla-as
 
 For SAP open source projects please use the [SAP Individual Contributor License Agreement](https://gist.github.com/CLAassistant/bd1ea8ec8aa0357414e8).
 
+# G-CLASS Workflow
+TERMS OF SERVICE
+If you have landed on this page, it is because you are utilizing the G-Class workflow ADD-On APP. 
+
+The Terms of Services for this ADD-On Application are as follows:
+
+If you have access to this application, you are able to utilize the Google Sheets ADD-On App to assist you for educational and non educational purposes alike.
+
+This APP does NOT collect any of the data you use, make, send, build, or create within any part of the process. This APP was designed to allow anyone to utilize it to help with teaching, learning, and using Google Classroom. 
+
+The purpose of this application is to make the most of your time by doing the following:
+
+Sending Assignments & Announcements - This is done by an initial setup of the sheets to allow you to place specific items into the sheet's cells to make a call to your Google Classroom(s). You will be able to connect to Google Classroom, pull information about what classes you have, and then setup up your sheet(s) to send assignments to the classroom you choose.
+
+Planning out your school year in advance - This is done by creating a dated schedule inside the sheet. 
+
+Curriculum Building - This is done by allowing you to utilize standards and other academic information to call upon this information in a sidebar with checkboxes that easily combine and integrate with the sheet when you use that function.
+
+Drive Items - This connects to your Google Drive and allow you to list all of your documents and folders within a Google Folder as it will pull that information into a sheet to allow you to have access to that information from the spreadsheet. This comes in handy when you want to add links in your curriculum to schedule and send to Google Classroom. This will allow you to get the ID of a Folder and then show the files. 
+
+Create Drive Folders and Files - You can create and organize Google Drive Folders and Files including naming them in advance and creating copies of them within this application.
+
+Sheet Helpers - Sometimes you want to clean your sheet of rows  and unused space as this will help you clean the sheet's rows and/or delete rows.
+
+Forms - You can create Google Forms and store the URL links directly in your sheet to use with the planning of items. The sheet will allow you to pull different options and create multiple forms.
+
+Dynamic Templates - The sheet will allow you use  multiple document templates as it will create options for you to make a document  template and fill out that template as many times as you want from the sheet and email it to yourself or someone else.
+
+
 
 Request more information from the CLA signer
 ===
