@@ -1,7 +1,7 @@
 README.md
-[![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) [![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant) [![Code Climate](https://codeclimate.com/github/cla-assistant/cla-assistant/badges/gpa.svg)](https://codeclimate.com/github/cla-assistant/cla-assistant)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
-[![Build Status](https://github.com/ibakshay/cla-assistant/workflows/CI/CDPipeline/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions)
+# [![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) [![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant) [![Code Climate](https://codeclimate.com/github/cla-assistant/cla-assistant/badges/gpa.svg)](https://codeclimate.com/github/cla-assistant/cla-assistant)
+# [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
+# [![Build Status](https://github.com/ibakshay/cla-assistant/workflows/CI/CDPipeline/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions)
 
 Table of Contents
 ===
@@ -64,6 +64,17 @@ Sheet Helpers - Sometimes you want to clean your sheet of rows  and unused space
 Forms - You can create Google Forms and store the URL links directly in your sheet to use with the planning of items. The sheet will allow you to pull different options and create multiple forms.
 
 Dynamic Templates - The sheet will allow you use  multiple document templates as it will create options for you to make a document  template and fill out that template as many times as you want from the sheet and email it to yourself or someone else.
+
+# Privacy Policy
+The G-Class Workflow Respects your Privacy to the extent of FERPA for publication education, and standards set forth by Google.  With that said and simply put, this application has NO intent to collect ANY information about your specific data, nor is its intent to collect your information or private data.  The only information that may be collected are typical data analytics pertaining to how many times the app was installed, any data pertaining to errors, and other non-sensitive data that only deal with the G-Class Workflows effectiveness for its users. 
+
+FERPA  - The Family Educational Rights and Privacy Act (FERPA) (20 U.S.C. § 1232g; 34 CFR Part 99) is a Federal law that protects the privacy of student education records. The law applies to all schools that receive funds under an applicable program of the U.S. Department of Education.  
+
+
+
+ALL of this application's functions including, but not limited to, Sheets, Documents, Drive, Calendar, Slides, and Google Classroom ONLY access the user's information to create items for the user, and NONE of that data is stored inside this application, nor will G-Class Workflow ask for personal information or collect your data. This application is credited by educators for educators with the sole purpose of creating a workflow for educators to send assignments to Google Classroom and spend more time facilitating the student learning process.  Any and ALL information/data utilized with this application will be on the users side with the exception of information the user may send to Google Classroom as this will be between the user and Google Classroom as the G-Class Workflow application needs NONE of your data or information.  
+
+
 
 
 
