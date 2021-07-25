@@ -1,7 +1,4 @@
 README.md
-# [![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) [![Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant) [![Dependency Status](https://david-dm.org/cla-assistant/cla-assistant.svg)](https://david-dm.org/cla-assistant/cla-assistant) [![devDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant#info=devDependencies) [![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant) [![Code Climate](https://codeclimate.com/github/cla-assistant/cla-assistant/badges/gpa.svg)](https://codeclimate.com/github/cla-assistant/cla-assistant)
-# [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
-# [![Build Status](https://github.com/ibakshay/cla-assistant/workflows/CI/CDPipeline/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions)
 
 Table of Contents
 ===
@@ -74,7 +71,373 @@ FERPA  - The Family Educational Rights and Privacy Act (FERPA) (20 U.S.C. § 123
 
 ALL of this application's functions including, but not limited to, Sheets, Documents, Drive, Calendar, Slides, and Google Classroom ONLY access the user's information to create items for the user, and NONE of that data is stored inside this application, nor will G-Class Workflow ask for personal information or collect your data. This application is credited by educators for educators with the sole purpose of creating a workflow for educators to send assignments to Google Classroom and spend more time facilitating the student learning process.  Any and ALL information/data utilized with this application will be on the users side with the exception of information the user may send to Google Classroom as this will be between the user and Google Classroom as the G-Class Workflow application needs NONE of your data or information.  
 
+# Version v2 of the Content API is scheduled for sunset on September 30th, 2021. Onboarding to v2 ended on April 30, 2021. To avoid disruptions with your integration, please migrate to v2.1 as soon as possible.
+For more information, see Migrating to v2.1 and this blog post.
 
+Home
+Products
+Ads
+Content API for Shopping
+Rate and review
+
+Send feedback
+Account Statuses API
+The Account Statuses API allows you to see the status of your Merchant Center Account or an MCA (multi-client account) and all sub-accounts associated with it.
+
+Merchants who have multiple online stores or brands which are sold on separate websites may choose to have sub-accounts under an MCA.
+
+
+
+get
+The accountstatuses.get API call allows an MCA account to get account status information for a single sub-account, or a standalone account to get its own account status information.
+
+Use the following API call in order to get the account status information where the merchantId is the MCA account number and accountId is its sub-account.
+
+If the Merchant Center account is not a multi-client account, accountstatuses.get can still return account status information; in this case use the same Merchant Center account number for both parameters in the API call below.
+
+Control which product issues are returned by the accountstatuses.get method by using the destination parameter. When the destination is not specified, the default return response only includes statuses for destination: Shopping.
+
+
+GET https://shoppingcontent.googleapis.com/content/v2.1/merchantId/accountstatuses/accountId
+The following is a sample JSON response for a sub-account that was suspended for a "landing page not working policy" violation.
+
+
+{
+ "kind": "content#accountStatus",
+ "accountId": "123456789",
+ "websiteClaimed": true,
+ "accountLevelIssues": [
+  {
+   "id": "editorial_and_professional_standards_destination_url_down_policy",
+   "title": "Account suspended due to policy violation: landing page not working",
+   "country": "US",
+   "severity": "critical",
+   "documentation": "https://support.google.com/merchants/answer/6150244#wycd-usefulness"
+  },
+  {
+   "id": "missing_ad_words_link",
+   "title": "No Google Ads account linked",
+   "severity": "error",
+   "documentation": "https://support.google.com/merchants/answer/6159060"
+  }
+ ],
+ "products": [
+  {
+   "channel": "online",
+   "destination": "Shopping",
+   "country": "US",
+   "statistics": {
+    "active": "0",
+    "pending": "0",
+    "disapproved": "5",
+    "expiring": "0"
+   },
+   "itemLevelIssues": [
+    {
+     "code": "image_link_broken",
+     "servability": "disapproved",
+     "resolution": "merchant_action",
+     "attributeName": "image link",
+     "description": "Invalid image [image link]",
+     "detail": "Ensure the image is accessible and uses an accepted image format (JPEG, PNG, GIF)",
+     "documentation": "https://support.google.com/merchants/answer/6098289",
+     "numItems": "2"
+    },
+    {
+     "code": "landing_page_error",
+     "servability": "disapproved",
+     "resolution": "merchant_action",
+     "attributeName": "link",
+     "description": "Unavailable desktop landing page",
+     "detail": "Update your website or landing page URL to enable access from desktop devices",
+     "documentation": "https://support.google.com/merchants/answer/6098155",
+     "numItems": "5"
+    },
+    {
+     "code": "missing_condition_microdata",
+     "servability": "unaffected",
+     "resolution": "merchant_action",
+     "description": "Missing or invalid data [condition]",
+     "detail": "Add valid structured data markup to your landing page",
+     "documentation": "https://support.google.com/merchants/answer/6183460",
+     "numItems": "5"
+    },
+    {
+     "code": "mobile_landing_page_error",
+     "servability": "disapproved",
+     "resolution": "merchant_action",
+     "attributeName": "link",
+     "description": "Unavailable mobile landing page",
+     "detail": "Update your website or landing page URL to enable access from mobile devices",
+     "documentation": "https://support.google.com/merchants/answer/6098296",
+     "numItems": "3"
+    }
+   ]
+  }
+ ]
+}
+list
+The accountstatuses.list API call returns information on all sub-accounts. Use the following API call in order to get the account status information where the merchantId is the account number for a multi-client account.
+
+The accountstatuses.list method also provides the ability to filter product issues by destination. When the destination is not specified, the default return response only includes statuses for destination: Shopping.
+
+GET https://shoppingcontent.googleapis.com/content/v2.1/merchantId/accountstatuses
+The following is a sample JSON response:
+
+{
+ "kind": "content#accountstatusesListResponse",
+ "resources": [
+  {
+   "kind": "content#accountStatus",
+   "accountId": "1234567",
+   "websiteClaimed": true,
+   "accountLevelIssues": [
+    {
+     "id": "editorial_and_professional_standards_destination_url_down_policy",
+     "title": "Account suspended due to policy violation: landing page not working",
+     "country": "US",
+     "severity": "critical",
+     "documentation": "https://support.google.com/merchants/answer/6150244#wycd-usefulness"
+    },
+    {
+     "id": "missing_ad_words_link",
+     "title": "No Google Ads account linked",
+     "severity": "error",
+     "documentation": "https://support.google.com/merchants/answer/6159060"
+    }
+   ],
+   "products": [
+    {
+     "channel": "online",
+     "destination": "Shopping",
+     "country": "US",
+     "statistics": {
+      "active": "0",
+      "pending": "0",
+      "disapproved": "0",
+      "expiring": "0"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "content#accountStatus",
+   "accountId": "123456789",
+   "websiteClaimed": true,
+   "accountLevelIssues": [
+    {
+     "id": "home_page_issue",
+     "title": "Website URL not provided",
+     "severity": "critical",
+     "documentation": "https://support.google.com/merchants/answer/176793"
+    },
+    {
+     "id": "missing_ad_words_link",
+     "title": "No Google Ads account linked",
+     "severity": "error",
+     "documentation": "https://support.google.com/merchants/answer/6159060"
+    }
+   ],
+   "products": [
+    {
+     "channel": "online",
+     "destination": "Shopping",
+     "country": "US",
+     "statistics": {
+      "active": "0",
+      "pending": "0",
+      "disapproved": "0",
+      "expiring": "0"
+     }
+    }
+   ]
+  }
+ ]
+}
+A call to the accountstatuses.list for a non-MCA account (for example, a standalone Merchant Center account) returns a 403 error, with a JSON body similar to this:
+
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "forbidden",
+    "message": "111111111 is not a multi-client account (MCA). The only account
+                service operations allowed on non-MCAs are 'get', 'update',
+                'authinfo' and 'claimwebsite'."
+   }
+  ],
+  "code": 403,
+  "message": "111111111 is not a multi-client account (MCA). The only account
+              service operations allowed on non-MCAs are 'get', 'update',
+              'authinfo' and 'claimwebsite'."
+ }
+}
+Batch mode
+An accountstatuses.custombatch with a GET method returns account status information for multiple sub-accounts in a multi-client account.
+
+The request JSON includes the merchantId of the MCA account number, the accountId of the sub-account, a unique batchId and the method set to get.
+
+POST https://shoppingcontent.googleapis.com/content/v2.1/accountstatuses/batch
+The following is a sample request JSON body:
+
+{
+  "entries": [
+    {
+      "accountId": 1212121212,
+      "merchantId": 4444444444,
+      "method": "get",
+      "batchId": 9
+    },
+    {
+      "accountId": 1313131313,
+      "merchantId": 4444444444,
+      "method": "get",
+      "batchId": 99
+    }
+  ]
+}
+The following is a sample JSON response body:
+
+{
+ "kind": "content#accountstatusesCustomBatchResponse",
+ "entries": [
+  {
+   "batchId": 9,
+   "accountStatus": {
+    "kind": "content#accountStatus",
+    "accountId": "1212121212",
+    "websiteClaimed": true,
+    "accountLevelIssues": [
+     {
+      "id": "home_page_issue",
+      "title": "Website URL not provided",
+      "severity": "critical",
+      "documentation": "https://support.google.com/merchants/answer/176793"
+     },
+     {
+      "id": "missing_ad_words_link",
+      "title": "No Google Ads account linked",
+      "severity": "error",
+      "documentation": "https://support.google.com/merchants/answer/6159060"
+     }
+    ],
+    "products": [
+     {
+      "channel": "online",
+      "destination": "Shopping",
+      "country": "US",
+      "statistics": {
+       "active": "0",
+       "pending": "0",
+       "disapproved": "0",
+       "expiring": "0"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "batchId": 99,
+   "accountStatus": {
+    "kind": "content#accountStatus",
+    "accountId": "1313131313",
+    "websiteClaimed": true,
+    "accountLevelIssues": [
+     {
+      "id": "editorial_and_professional_standards_destination_url_down_policy",
+      "title": "Account suspended due to policy violation: landing page not working",
+      "country": "US",
+      "severity": "critical",
+      "documentation": "https://support.google.com/merchants/answer/6150244#wycd-usefulness"
+     },
+     {
+      "id": "missing_ad_words_link",
+      "title": "No Google Ads account linked",
+      "severity": "error",
+      "documentation": "https://support.google.com/merchants/answer/6159060"
+     }
+    ],
+    "products": [
+     {
+      "channel": "online",
+      "destination": "Shopping",
+      "country": "US",
+      "statistics": {
+       "active": "0",
+       "pending": "0",
+       "disapproved": "0",
+       "expiring": "0"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
+Changes from v2 to v2.1
+In the AccountStatus resource, dataQualityIssues has been superseded by itemLevelIssues. For more information on updating your application for v2.1, see Migrating from Content API v2 to v2.1.
+
+Testing the accountstatuses API
+These test examples use base_url to refer to https://www.googleapis.com. In addition, all examples use /content/v2 in the URL in a production environment. To test API v2.1, you would instead use /content/v2.1.
+
+In the following example we get, list, and custombatch.get account status for MCA accounts:
+
+Get sub-account status for an MCA using accountstatuses.get.
+
+Get the merchantId and accountId by performing a GET to the API endpoint:
+
+GET https://shoppingcontent.googleapis.com/content/v2.1/merchantId/accountstatuses/accountId
+You should receive an HTTP 200 status code for success and the account status list in JSON.
+
+View all sub-account status for an MCA using accountstatuses.list.
+
+Perform a GET to the API endpoint with your merchantId:
+
+GET https://shoppingcontent.googleapis.com/content/v2.1/merchantId/accountstatuses
+You should receive an HTTP 200 status code for success and the account status list in JSON for the merchantId submitted.
+
+View multiple sub-accounts for MCA in batch mode using accountstatuses.custombatch.
+
+Construct valid JSON using your accountID, merchant ID, and a get method.
+
+Perform a POST to the API endpoint:
+
+POST https://shoppingcontent.googleapis.com/content/v2.1/accountstatuses/batch
+You should receive an HTTP 200 status code for success and the account status list in JSON.
+
+Rate and review
+
+Send feedback
+Except as otherwise noted, the content of this page is licensed under the Creative Commons Attribution 4.0 License, and code samples are licensed under the Apache 2.0 License. For details, see the Google Developers Site Policies. Java is a registered trademark of Oracle and/or its affiliates.
+
+Last updated 2021-02-12 UTC.
+
+BlogBlog
+Tools
+Downloads
+Reference Docs
+Product Info
+Terms of Service
+Developer consoles
+Google API Console
+Google Cloud Platform Console
+Google Play Console
+Firebase Console
+Actions on Google Console
+Cast SDK Developer Console
+Chrome Web Store Dashboard
+Google Developers
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Terms
+Privacy
+Sign up for the Google Developers newsletter
+Subscribe
+Language
 
 
 
