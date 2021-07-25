@@ -108,7 +108,7 @@ The following is a sample JSON response for a sub-account that was suspended for
  "websiteClaimed": true,
  "accountLevelIssues": [
   {
-   "id": "editorial_and_professional_standards_destination_url_down_policy",
+   "id": "https://search.google.com/search-console/insights/?"utm_source=search_console&utm_medium=search_console&utm_campaign=search_console_dashboard&resource_id=sc-domain:invest86llc.net
    "title": "Account suspended due to policy violation: landing page not working",
    "country": "US",
    "severity": "critical",
