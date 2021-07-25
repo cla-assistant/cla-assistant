@@ -47,14 +47,14 @@ Following steps need to be done:
  - Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/add_custom_fields.gif))
  - describe custom fields in JSON format (according to the [JSON Schema](https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/custom-fields-schema.json))
 
-    ```js
+    js
     {
         "name": {
             "title": "Full Name",
             "type": "string",
             "githubKey": "name"
-        },
-        "email": {
+---'''      
+   '''email": {
             "title": "E-Mail",
             "type": "string",
             "githubKey": "email",
@@ -83,8 +83,8 @@ Following steps need to be done:
             "required": true
         }
     }
-    ```
-
+    ---
+---
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
 The possible values for the "githubKey"-property can be found in the [GitHub-Api description](https://developer.github.com/v3/users/#get-a-single-user)
 
@@ -113,19 +113,25 @@ Setup your own instance of CLA assistant
 
 Clone this repository, change into the cloned directory and install dependencies.
 
-    git clone git@github.com:cla-assistant/cla-assistant.git
+   git clone git@github.com:cla-assistant/cla-assistant.git
     cd ./cla-assistant
     npm install
 
 [Register an application on GitHub](https://github.com/settings/applications/new). The callback URL needs to be of the form
 
-`<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
+<PROTOCOL>://
+	<HOST>:
+		<PORT>/
+			auth/
+			github/
+			callback`.
 
 
 You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command 
-```sh
+---
+			sh
 /ngrok http 5000
-```  
+---
 
 If you use ngrok, you need to update the HOST variable in your .env and set PROTOCOL to "https".
 
@@ -158,16 +164,16 @@ The following are the environment variables you have to configure to run a priva
 
 Run grunt in order to build the application.
 
-    ./node_modules/grunt-cli/bin/grunt build
+   node_modules/grunt-cli/bin/grunt build
 
 During development, just run the grunt default task to build the app, start linter checks and run unit tests on each change of relevant .js files.
 
-    ./node_modules/grunt-cli/bin/grunt
+   node_modules/grunt-cli/bin/grunt
 
 Finally, source the environment file and start the application.
 
-    source .env
-    npm start
+  source .env
+   npm start
 
 
 Run the CLA assistant instance with Docker
@@ -175,13 +181,14 @@ Run the CLA assistant instance with Docker
 
 To run the CLA assistant instance with docker:
 
-```bash
+---
+bash
 $ docker build -t cla-assistant .
 $ docker run -d -p5000:5000 \
       -e HOST=.. \
       -e PORT=... \
       cla-assistant
-```
+---
 
 For the list of supported environments see [supported environment variables](#supported-environment-variables)
 
@@ -196,7 +203,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
