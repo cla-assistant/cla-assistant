@@ -1,13 +1,16 @@
-'#$*_Update_dependencies -@READEME.md 
-[!][CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant) 
-[!][Build Status](https://travis-ci.org/cla-assistant/cla-assistant.svg?branch=master)](https://travis-ci.org/cla-assistant/cla-assistant)
-[!][Dependency Status][https://david-dm.org/cla-assistant/cla-assistant.svg)]][(https://david-dm.org/cla-assistant/cla-assistant)]
-[!][DevDependency Status](https://david-dm.org/cla-assistant/cla-assistant/dev-status.svg)](https://david-dm.org/cla-assistant/cla-assistant]'[#info=]'-'[devDependencies)
-[!][Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant)
-[!][Code Climate](https://codeclimate.com/github/cla-assistant/cla-assistant/badges/gpa.svg)](https://codeclimate.com/github/cla-assistant/cla-assistant)
-[!][CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
-[!][Build Status](https://github.com/ibakshay/cla-assistant/workflows/CI/CDPipeline/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions)
-
+READEME.md 
+---
+[✓[CLA assistant)][=(https://cla-assistant.io/cla-assistant/cla-assistant)
+[✓[Build Status)[=[https://travis-ci.org/cla-assistant/cla-assistant) 
+[✓[Dependency Status][=(https://david-dm.org/cla-assistant/cla-assistant.svg)
+[✓[info][=(https://david-dm.org/cla-assistant/cla-assistant)
+[✓[DevDependency Status][=(https://david-dm.org/cla-assistant/cla-assistant)
+[✓[info=devDependencies=][
+[✓[Coverage Status)][=(https://coveralls.io/r/cla-assistant/cla-assistant)
+[✓[Code Climate]=(https://codeclimate.com/github/cla-assistant/cla-assistant) 
+[✓[CII Best Practices)][=(https://bestpractices.coreinfrastructure.org/projects/1583) 
+[✓[Build Status][=(https://github.com/cla-assistant/cla-assistant/actions)
+---
 Table of Contents
 ===
 - [Contributor License Agreement assistant](#contributor-license-agreement-assistant)
@@ -23,7 +26,7 @@ Table of Contents
 Contributor License Agreement assistant
 ===
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
-
+pq
 To get started, simply store your CLA as a GitHub Gist file then link it with the repository/organisation in CLA assistant. Then sit back and relax while CLA assistant:
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
