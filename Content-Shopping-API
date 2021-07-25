@@ -1,0 +1,143 @@
+Content API for Shopping
+Search
+English
+
+Guides
+Reporting API guides
+Reference
+Samples and libraries
+Support
+Version v2 of the Content API is scheduled for sunset on September 30th, 2021. Onboarding to v2 ended on April 30, 2021. To avoid disruptions with your integration, please migrate to v2.1 as soon as possible.
+For more information, see Migrating to v2.1 and this blog post.
+
+Home
+Products
+Ads
+Content API for Shopping
+Reference
+Rate and review
+
+Send feedbackREST Resource: products
+
+
+Resource: Product
+Required product attributes are primarily defined by the products data specification. See the Products Data Specification Help Center article for information.
+
+
+Product data. After inserting, updating, or deleting a product, it may take several minutes before changes take effect.
+JSON representation
+
+{
+  "id": string,
+  "offerId": string,
+  "title": string,
+  "description": string,
+  "link": string,
+  "imageLink": string,
+  "additionalImageLinks": [
+    string
+  ],
+  "contentLanguage": string,
+  "targetCountry": string,
+  "channel": string,
+  "expirationDate": string,
+  "adult": boolean,
+  "kind": string,
+  "brand": string,
+  "color": string,
+  "googleProductCategory": string,
+  "gtin": string,
+  "itemGroupId": string,
+  "material": string,
+  "mpn": string,
+  "pattern": string,
+  "price": {
+    object (Price)
+  },
+  "salePrice": {
+    object (Price)
+  },
+  "salePriceEffectiveDate": string,
+  "shipping": [
+    {
+      object (ProductShipping)
+    }
+  ],
+  "shippingWeight": {
+    object (ProductShippingWeight)
+  },
+  "sizes": [
+    string
+  ],
+  "taxes": [
+    {
+      object (ProductTax)
+    }
+  ],
+  "customAttributes": [
+    {
+      object (CustomAttribute)
+    }
+  ],
+  "identifierExists": boolean,
+  "installment": {
+    object (Installment)
+  },
+  "loyaltyPoints": {
+    object (LoyaltyPoints)
+  },
+  "multipack": string,
+  "customLabel0": string,
+  "customLabel1": string,
+  "customLabel2": string,
+  "customLabel3": string,
+  "customLabel4": string,
+  "isBundle": boolean,
+  "mobileLink": string,
+  "availabilityDate": string,
+  "shippingLabel": string,
+  "unitPricingMeasure": {
+    object (ProductUnitPricingMeasure)
+  },
+  "unitPricingBaseMeasure": {
+    object (ProductUnitPricingBaseMeasure)
+  },
+  "shippingLength": {
+    object (ProductShippingDimension)
+  },
+  "shippingWidth": {
+    object (ProductShippingDimension)
+  },
+  "shippingHeight": {
+    object (ProductShippingDimension)
+  },
+  "displayAdsId": string,
+  "displayAdsSimilarIds": [
+    string
+  ],
+  "displayAdsTitle": string,
+  "displayAdsLink": string,
+  "displayAdsValue": number,
+  "sellOnGoogleQuantity": string,
+  "promotionIds": [
+    string
+  ],
+  "maxHandlingTime": string,
+  "minHandlingTime": string,
+  "costOfGoodsSold": {
+    object (Price)
+  },
+  "source": string,
+  "includedDestinations": [
+    string
+  ],
+  "excludedDestinations": [
+    string
+  ],
+  "adsGrouping": string,
+  "adsLabels": [
+    string
+  ],
+  "adsRedirect": string,
+  "productTypes": [
+    string
