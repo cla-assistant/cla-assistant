@@ -165,9 +165,14 @@ async.series([
             cookie: {
                 maxAge: config.server.security.cookieMaxAge
             },
+            // cosmosDB supports only supports autoExpire on _ts fields
+            // therefore use interval based removal to workaround that
             store: new MongoStore({
                 mongooseConnection: mongoose.connection,
-                collection: 'cookieSession'
+                collection: 'cookieSession',
+                ttl: config.server.security.cookieMaxAge,
+                autoRemove: 'interval',
+                autoRemoveInterval: 10, // Value in minutes (default is 10)
             })
         }
         session.cookie.secure = app.get('env') === 'production'

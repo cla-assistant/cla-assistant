@@ -20,22 +20,6 @@ const CLASchema = mongoose.Schema({
     updated_at: Date
 })
 
-const index = {
-    repo: 1,
-    repoId: 1,
-    owner: 1,
-    ownerId: 1,
-    userId: 1,
-    gist_url: 1,
-    gist_version: 1,
-    org_cla: 1,
-    revoked_at: 1
-}
-const indexOptions = {
-    unique: true,
-    partialFilterExpression: { userId: { $exists: true } },
-    background: true,
-}
 
 const CLA = mongoose.model('CLA', CLASchema)
 
@@ -45,8 +29,9 @@ const CLA = mongoose.model('CLA', CLASchema)
         logger.warn('dropAllIndexes results: ', results)
     }
 }) */
-CLA.collection.createIndex(index, indexOptions)
 
+// add a full wildcard index for better indexing
+CLA.collection.createIndex({ "$**" : 1 })
 module.exports = {
     CLA: CLA
 }
