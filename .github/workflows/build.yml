@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: setup gcloud CLI
-      uses: GoogleCloudPlatform/setup-gcloud@master
+      uses: google-github-actions/setup-gcloud@master
       with:
         version: '275.0.0'
         service_account_key: ${{ secrets.GCP_base64 }}
