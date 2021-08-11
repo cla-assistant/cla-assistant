@@ -69,20 +69,3 @@ jobs:
     - name: deploy to staging cloud run service
       if: github.ref == 'refs/heads/master'
       run: gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
-
-    - uses: azure/k8s-set-context@v1
-      if: github.ref == 'refs/heads/master'
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.GARDNER_PANOV_KUBECTL_CONFIG }}
-      id: setcontext
-
-    - uses: danielr1996/envsubst-action@1.0.0
-      if: github.ref == 'refs/heads/master'
-      with:
-        input: kubernetes/deployment-cla-assistant.yaml.tmpl
-        output: kubernetes/deployment-cla-assistant.yaml
-
-    - name: Update to new image
-      if: github.ref == 'refs/heads/master'
-      run: kubectl -n andrey apply -f kubernetes/
