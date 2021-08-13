@@ -1,0 +1,24 @@
+# Docker compose file to get an instance of CLA-assistant quickly up
+# Mainly for development purposes
+# NOT PRODUCTION READY
+version: '3.7'
+services:
+  cla-assistant:
+    image: cla-assistant
+    build: .
+    ports:
+      - "5000:5000"
+    networks:
+      - cla
+    env_file:
+      - .env
+    environment:
+      MONGODB: mongodb://cla-db:27017/cla_assistant
+    depends_on:
+      - cla-db
+  cla-db:
+    image: mongo
+    networks:
+      - cla
+networks:
+  cla:

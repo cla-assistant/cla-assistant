@@ -96,7 +96,7 @@ Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a
 Clone this repository, change into the cloned directory and install dependencies.
 
 ```sh
-git clone git@github.com:cla-assistant/cla-assistant.git
+git clone https://github.com/cla-assistant/cla-assistant
 cd ./cla-assistant
 npm install
 ```
@@ -104,10 +104,9 @@ npm install
 [Register an application on GitHub](https://github.com/settings/applications/new).
 The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
-
 You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command
 ```sh
-/ngrok http 5000
+ngrok http 5000
 ```
 
 If you use ngrok, you need to update the HOST variable in your .env and set PROTOCOL to "https".
@@ -118,6 +117,14 @@ Copy the sample configuration file `.env.example` file to `.env`.
 ```sh
 cp .env.example .env
 ```
+
+You require a MongoDB compatible database as a backend. For development purposes you can run MongoDB in a docker container easily:
+
+```sh
+docker run --detach --publish 27017:27017 mongo
+```
+
+With that you need to adjust the `MONGODB` environment variable in the `.env` file to `mongodb://localhost:27017/cla_assistant`.
 
 ### Supported environment variables
 
@@ -136,9 +143,7 @@ The following are the environment variables you have to configure to run a priva
 - `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
 - `SLACK_TOKEN`: Optional.
 
-> **Hint:** For further reading on setting up MongoDB, go to
-> http://docs.mongodb.org/manual/tutorial/getting-started/
-> http://docs.mongodb.org/manual/reference/method/db.createUser
+> **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](http://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](http://docs.mongodb.org/manual/reference/method/db.createUser).
 
 Run grunt in order to build the application.
 ```sh
@@ -156,6 +161,19 @@ Finally, source the environment file and start the application.
 source .env
 npm start
 ```
+
+### Quick start with Docker Compose
+To get a CLA assistant instance quickly up you can as well use Docker compose:
+
+```sh
+git clone https://github.com/cla-assistant/cla-assistant
+cd ./cla-assistant
+
+cp .env.example .env
+# Update GITHUB_CLIENT, GITHUB_SECRET and GITHUB_TOKEN with your values in .env
+docker-compose up
+```
+Now you can navigate to `http://localhost:5000` and access your installation. To locally test webhooks you needs to expose it via e.g. `ngrok` as outlined above.
 
 ### Run the CLA assistant instance with Docker
 
