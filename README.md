@@ -162,6 +162,19 @@ source .env
 npm start
 ```
 
+### Quick start with Docker Compose
+To get a CLA assistant instance quickly up you can as well use Docker compose:
+
+```sh
+git clone https://github.com/cla-assistant/cla-assistant
+cd ./cla-assistant
+
+cp .env.example .env
+# Update GITHUB_CLIENT, GITHUB_SECRET and GITHUB_TOKEN with your values in .env
+docker-compose up
+```
+Now you can navigate to `http://localhost:5000` and access your installation. To locally test webhooks you needs to expose it via e.g. `ngrok` as outlined above.
+
 ### Run the CLA assistant instance with Docker
 
 To run the CLA assistant instance with docker:
