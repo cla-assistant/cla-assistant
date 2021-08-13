@@ -1,7 +1,9 @@
+# Docker compose file to get an instance of CLA-assistant quickly up
+# Mainly for development purposes
+# NOT PRODUCTION READY
 version: '3.7'
-
 services:
-  portal:
+  cla-assistant:
     image: cla-assistant
     build: .
     ports:
@@ -12,16 +14,11 @@ services:
       - .env
     environment:
       MONGODB: mongodb://cla-db:27017/cla_assistant
-      POSTGRES_USER: portal
-      POSTGRES_PASSWORD: latrop
     depends_on:
       - cla-db
-
   cla-db:
     image: mongo
     networks:
       - cla
-
-
 networks:
   cla:
