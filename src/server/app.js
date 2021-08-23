@@ -257,7 +257,7 @@ app.all('/api/:obj/:fun', async (req, res) => {
 // Handle webhook calls
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.all('/github/webhook/:repo', (req, res) => {
+app.all('/github/webhook', (req, res) => {
     let event = req.headers['x-github-event']
     try {
         let hook = webhooks[event]
@@ -267,7 +267,7 @@ app.all('/github/webhook/:repo', (req, res) => {
         if (hook.accepts(req)) {
             if (isRudundantWebhook(req)) {
                 console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
-                return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
+                // return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
             }
             return hook.handle(req, res)
         }

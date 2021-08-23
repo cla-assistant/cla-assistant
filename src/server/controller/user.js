@@ -2,27 +2,23 @@ const passport = require('passport')
 const express = require('express')
 const utils = require('../middleware/utils')
 const logger = require('../services/logger')
+const User = require('mongoose').model('User')
+const url = require('../services/url')
 
 const router = express.Router()
-let scope
 
 function checkReturnTo(req, res, next) {
-    scope = null
     req.session.requiredScope = null
     if (!req.session) {
         req.session = {}
     }
 
     if (req.query.public === 'true') {
-        scope = config.server.github.user_scope.concat()
         req.session.requiredScope = 'public'
-    }
-    if (req.query.admin === 'true') {
-        scope = config.server.github.admin_scope.concat()
+    } else {
         req.session.requiredScope = 'admin'
     }
     if (req.query.org_admin === 'true') {
-        scope.push('admin:org_hook')
         req.session.requiredScope = 'org_admin'
     }
 
@@ -30,9 +26,7 @@ function checkReturnTo(req, res, next) {
 
     logger.debug('Check returnTo and call passport authenticate with appropriate scope')
 
-    passport.authenticate('github', {
-        scope: scope
-    })(req, res, next)
+    passport.authenticate('github')(req, res, next)
 }
 
 router.get('/auth/github', checkReturnTo)
@@ -45,17 +39,52 @@ router.get('/auth/github/callback',
     passport.authenticate('github', {
         failureRedirect: '/'
     }),
-    function (req, res) {
+    async function (req, res) {
         logger.debug('Process authentication callback after passport authenticate')
-        if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login) && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
-            return res.redirect('/auth/github?admin=true')
+        // if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login) && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
+        //     return res.redirect('/auth/github?admin=true')
+        // }
+
+        // Check weather user installed the app. If not, redirect to installing github app
+        let user
+        try {
+            user = await User.findOne({
+                name: req.user.login
+            })
+        } catch (error) {
+            logger.warn(error.stack)
         }
-        res.redirect(req.session.returnTo || req.headers.referer || '/')
-        req.session.next = null
-        logger.debug('Finish processing authentication callback after passport authenticate')
+        if (user && user.appInstalled) {
+            res.redirect(req.session.returnTo || req.headers.referer || '/')
+            req.session.next = null
+            logger.debug('Finish processing authentication callback after passport authenticate')
+        } else {
+            res.redirect(url.githubInstallation)
+            logger.debug('Finish processing authentication callback after passport authenticate')
+        }
     }
 )
 
+router.get('/auth/github/post-install',
+    async function (req, res) {
+        logger.debug('Start additional step')
+        let user
+        try {
+            user = await User.findOne({
+                name: req.user.login
+            })
+            if (user) {
+                user.appInstalled = true
+            }
+            user.save()
+            res.redirect(req.session.returnTo || req.headers.referer || '/')
+            req.session.next = null
+            logger.debug('Finish additional step')
+        } catch (error) {
+            logger.warn(error.stack)
+        }
+    }
+)
 router.get('/logout',
     function (req, res, next) {
         req.logout()

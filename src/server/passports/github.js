@@ -3,7 +3,7 @@ const repoService = require('../services/repo')
 const orgApi = require('../api/org')
 const logger = require('../services/logger')
 const passport = require('passport')
-const Strategy = require('passport-github').Strategy
+const Strategy = require('passport-github2').Strategy
 const merge = require('merge')
 const User = require('mongoose').model('User')
 const fetch = require('node-fetch')
@@ -82,52 +82,42 @@ passport.use(new Strategy({
             await User.create({
                 uuid: profile.id,
                 name: profile.username,
-                token: accessToken
+                token: accessToken,
+                appInstalled: false
             })
         } catch (error) {
             logger.warn(new Error(`Could not create new user ${error}`).stack)
         }
     }
-    // User.update({
-    //     uuid: profile.id
-    // }, {
-    //     name: profile.username,
-    //     email: '', // needs fix
-    //     token: accessToken
-    // }, {
-    //     upsert: true
-    // }, function () {})
-
-    if (params.scope.indexOf('write:repo_hook') >= 0) {
-        try {
-            const repoRes = await repoService.getUserRepos({
-                token: accessToken
-            })
-            if (repoRes && repoRes.length > 0) {
-                repoRes.forEach((repo) => checkToken(repo, accessToken))
-            }
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
-    }
-    if (params.scope.indexOf('admin:org_hook') >= 0) {
-        try {
-            const orgRes = await orgApi.getForUser({
-                user: {
-                    token: accessToken,
-                    login: profile.username
-                }
-            })
-            if (orgRes && orgRes.length > 0) {
-                orgRes.forEach((org) => checkToken(org, accessToken))
-            }
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
-    }
+    // if (params.scope.indexOf('write:repo_hook') >= 0) {
+    //     try {
+    //         const repoRes = await repoService.getUserRepos({
+    //             token: accessToken
+    //         })
+    //         if (repoRes && repoRes.length > 0) {
+    //             repoRes.forEach((repo) => checkToken(repo, accessToken))
+    //         }
+    //     } catch (error) {
+    //         logger.warn(new Error(error).stack)
+    //     }
+    // }
+    // if (params.scope.indexOf('admin:org_hook') >= 0) {
+    //     try {
+    //         const orgRes = await orgApi.getForUser({
+    //             user: {
+    //                 token: accessToken,
+    //                 login: profile.username
+    //             }
+    //         })
+    //         if (orgRes && orgRes.length > 0) {
+    //             orgRes.forEach((org) => checkToken(org, accessToken))
+    //         }
+    //     } catch (error) {
+    //         logger.warn(new Error(error).stack)
+    //     }
+    // }
     done(null, merge(profile._json, {
-        token: accessToken,
-        scope: params.scope
+        token: accessToken
     }))
 }))
 

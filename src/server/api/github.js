@@ -6,6 +6,6 @@ module.exports = {
     call: async (req) => {
         const res = await github.call(merge(req.args, { token: req.user.token }))
 
-        return { data: res.data, meta: res.headers }
+        return { data: res.data, meta: res.headers, scope: req.session.requiredScope }
     }
 }

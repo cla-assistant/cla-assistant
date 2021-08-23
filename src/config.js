@@ -5,6 +5,7 @@
  * @overview Configuration Module
  */
 let path = require('path');
+// const dotenv = require('dotenv').config();
 
 module.exports = {
     server: {
@@ -40,7 +41,12 @@ module.exports = {
             enforceDelay: parseInt(process.env.GITHUB_DELAY || '5000', 10),
 
             //slow down API calls in order to avoid abuse rate limit
-            timeToWait: process.env.GITHUB_TIME_TO_WAIT || 1000
+            timeToWait: process.env.GITHUB_TIME_TO_WAIT || 1000,
+
+            // Required for GitHub App Authenticate
+            private_key: process.env.PRIVATE_KEY,
+            app_id: process.env.APP_ID,
+            app_name: process.env.APP_NAME
         },
 
         localport: process.env.PORT || 5000,

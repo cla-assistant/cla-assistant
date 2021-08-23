@@ -52,14 +52,6 @@ module.exports = {
             }
         } catch (error) {
             dbRepo = await repo.create(req.args)
-
-            if (dbRepo.gist) {
-                try {
-                    webhook.create(req)
-                } catch (error) {
-                    logger.error(`Could not create a webhook for the new repo ${new Error(error)}`)
-                }
-            }
             return dbRepo
         }
         throw 'This repository is already linked.'

@@ -127,8 +127,8 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
                 }
 
                 $scope.user = res;
-                $scope.user.value.admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1 ? true : false;
-                $scope.user.value.org_admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('admin:org_hook') > -1 ? true : false;
+                $scope.user.value.admin = res.scope === 'public' ? false : true; // If scope === public => not admin / else (scope === admin or org_admin => true)
+                $scope.user.value.org_admin = res.scope === 'org_admin' ? true : false;
                 $rootScope.user = $scope.user;
                 $rootScope.$broadcast('user');
             });
