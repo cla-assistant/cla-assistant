@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.9.0](https://github.com/cla-assistant/cla-assistant/tree/v2.9.0) (2021-08-24)
+**Improvements:**
+- Implemented my signed CLAs feature (#688)
+- Capitalize sentence-like message (#678)
+- Cleanup project files (#731, #736, #737)
+- Update Dockerfile to use node-alpine base 
+
 ## [v2.8.6](https://github.com/cla-assistant/cla-assistant/tree/v2.8.6) (2021-02-23)
 **Improvements:**
 - updated SAP Logo
