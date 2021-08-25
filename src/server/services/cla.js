@@ -1,6 +1,8 @@
 // models
 require('../documents/cla')
 const CLA = require('mongoose').model('CLA')
+const Repository = require('mongoose').model('Repo')
+const Org = require('mongoose').model('Org')
 
 //services
 const logger = require('../services/logger')
@@ -569,73 +571,65 @@ class ClaService {
         return signature
     }
 
-    //Get list of signed CLAs for all repos the user has contributed to
+    // Get list of signed CLAs for all repos/owners the user has contributed to
     async getSignedCLA(user) {
-        const selector = []
-        const date = new Date();
-        const findCla = async function (query, repoList, claList) {
-            const clas = await CLA.find(query, {
-                'repo': 1,
-                'owner': 1,
-                'created_at': 1,
-                'gist_url': 1,
-                'gist_version': 1
+        // get all ever signed CLAs for the given user/userId
+        let clas = await CLA.find({
+            $or: [{
+                user: user.login,
             }, {
-                sort: {
-                    'created_at': -1
-                }
-            })
+                userId: user.id,
+            }],
+        }, {
+            'repo': 1,
+            'owner': 1,
+            'created_at': 1,
+            'repoId': 1,
+            'gist_url': 1,
+            'gist_version': 1,
+            'revoked_at': 1,
+        }, {
+            sort: {
+                'created_at': -1
+            }
+        })
 
-            clas.forEach((cla) => {
-                if (repoList.indexOf(cla.repo) < 0) {
-                    repoList.push(cla.repo)
-                    claList.push(cla)
-                }
-            })
-        }
-        try {
-            const repos = await repoService.all()
-            repos.forEach((repo) => {
-                selector.push({
-                    user: user.login,
-                    repo: repo.repo,
-                    gist_url: repo.gist,
-                    revoked_at: {$gt: date}
-                })
-                selector.push({
-                    user: user.login,
-                    repo: repo.repo,
-                    gist_url: repo.gist,
-                    revoked_at: undefined
-                })
-            })
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
+        // return only the ones which are not yet revoked
+        clas = clas.filter(cla => cla.revoked_at == undefined)
+        // return empty array if we don't have any repositories anymore
+        if (clas.length == 0) { return [] }
 
-        const repoList = []
-        const uniqueClaList = []
-        try {
-            await findCla({
-                $or: selector
-            }, repoList, uniqueClaList)
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
-        try {
-            await findCla({
-                $or: [{
-                    user: user.login,
-                    revoked_at: {$gt: date}
-                },{
-                    user: user.login,
-                    revoked_at: undefined
-                }]
-            }, repoList, uniqueClaList)
-        } catch (error) {
-            logger.warn(new Error(error).stack)
-        }
-        return uniqueClaList
+        // find all repositories related to the clas and only return still existing repositories and where the signature is up-to-date
+        const repofilter = clas.map(cla => ({
+            owner: cla.owner,
+            gist: cla.gist_url
+        }))
+        const repos = await Repository.find({
+            $or: repofilter
+        })
+
+        // find all owners/organizations related to the clas and only return still existing owners and where the signature is up-to-date
+        const ownerfilter = clas.map(cla => ({
+            org: cla.owner,
+            gist: cla.gist_url
+        }))
+        const owners = await Org.find({
+            $or: ownerfilter
+        })
+
+        // filter if its an org CLA (repo == undefined) or if repo exists
+        clas = clas.filter(cla => {
+            // check if it is an owner or repo configuration
+            // if repo is undefined it is an org/owner wide cla
+            if (cla.repo == undefined) {
+                // if owner and gist matches return cla
+                return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url)
+            } else {
+                // if repo, owner and gist matches return cla
+                return repos.find(repo => repo.repo == cla.repo && repo.owner == cla.owner && repo.gist == cla.gist_url)
+            }
+        })
+        return clas
     }
 
     // Get linked repo or org
@@ -764,9 +758,9 @@ class ClaService {
     }
 
     async revoke(args, user) {
-        const cla = await CLA.findOne({_id: args._id});
+        const cla = await CLA.findOne({ _id: args._id });
 
-        if(user.id !== Number(cla.userId)) {
+        if (user.id !== Number(cla.userId)) {
             logger.error('User: ' + cla.user + ' is unauthorized to revoke cla with id: ' + cla._id);
             throw new Error('Unauthorized to revoke CLA');
         }
