@@ -624,10 +624,9 @@ class ClaService {
             if (cla.repo == undefined) {
                 // if owner and gist matches return cla
                 return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url)
-            } else {
-                // if repo, owner and gist matches return cla
-                return repos.find(repo => repo.repo == cla.repo && repo.owner == cla.owner && repo.gist == cla.gist_url)
             }
+            // if repo, owner and gist matches return cla
+            return repos.find(repo => repo.repo == cla.repo && repo.owner == cla.owner && repo.gist == cla.gist_url)
         })
         return clas
     }
