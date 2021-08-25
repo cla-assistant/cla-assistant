@@ -5,7 +5,8 @@ const sinon = require('sinon')
 
 //model
 const CLA = require('../../../server/documents/cla').CLA
-
+const Org = require('../../../server/documents/org').Org
+const Repository = require('../../../server/documents/repo').Repo
 //services
 const org_service = require('../../../server/services/org')
 const repo_service = require('../../../server/services/repo')
@@ -1191,39 +1192,53 @@ describe('cla:create', () => {
 
 describe('cla:getSignedCLA', () => {
     it('should get all clas signed by the user but only one per repo (linked or not)', async () => {
-        sinon.stub(repo_service, 'all').callsFake(async () => {
+        sinon.stub(Repository, 'find').callsFake(async () => {
             return [{
                 repo: 'repo1',
-                gist_url: 'gist_url'
+                owner: 'owner1',
+                gist: 'gist_url'
             }, {
                 repo: 'repo2',
-                gist_url: 'gist_url'
+                owner: 'owner1',
+                gist: 'gist_url'
+            },
+            {
+                repo: 'repo3',
+                owner: 'owner1',
+                gist: 'gist_url'
             }]
         })
 
+        sinon.stub(Org, 'find').callsFake(async () => {
+            return []
+        })
+
         sinon.stub(CLA, 'find').callsFake(async () => {
-            let listOfAllCla = [{
+            return [{
                 repo: 'repo1',
                 user: 'login',
+                owner: 'owner1',
                 gist_url: 'gist_url',
                 gist_version: '1'
             }, {
                 repo: 'repo2',
                 user: 'login',
+                owner: 'owner1',
                 gist_url: 'gist_url',
                 gist_version: '1'
             }, {
                 repo: 'repo2',
                 user: 'login',
+                owner: 'owner1',
                 gist_url: 'gist_url',
                 gist_version: '2'
             }, {
                 repo: 'repo3',
                 user: 'login',
+                owner: 'owner1',
                 gist_url: 'gist_url',
                 gist_version: '1'
             }]
-            return listOfAllCla
         })
 
         const args = {
@@ -1233,28 +1248,50 @@ describe('cla:getSignedCLA', () => {
         assert.equal(clas.length, 3)
         assert.equal(clas[2].repo, 'repo3')
         CLA.find.restore()
-        repo_service.all.restore()
+        Repository.find.restore()
+        Org.find.restore()
     })
 
     it('should select cla for the actual linked gist per repo even if it is signed earlier than others', async () => {
-        sinon.stub(repo_service, 'all').callsFake(async () => {
+        sinon.stub(Repository, 'find').callsFake(async () => {
             return [{
                 repo: 'repo1',
-                gist_url: 'gist_url2'
+                owner: 'owner1',
+                gist: 'gist_url2'
             }, {
                 repo: 'repo2',
-                gist_url: 'gist_url'
+                owner: 'owner1',
+                gist: 'gist_url'
             }, {
                 repo: 'repo3',
-                gist_url: 'gist_url'
+                owner: 'owner1',
+                gist: 'gist_url'
             }]
         })
+
+        sinon.stub(Org, 'find').callsFake(async () => {
+            return []
+        })
+
         sinon.stub(CLA, 'find').callsFake(async (arg) => {
             let listOfAllCla = [{
                 repo: 'repo1',
                 user: 'login',
+                owner: "owner1",
                 gist_url: 'gist_url1',
                 created_at: '2011-06-20T11:34:15Z'
+            }, {
+                repo: 'repo1',
+                user: 'login',
+                owner: "owner1",
+                gist_url: 'gist_url2',
+                created_at: '2011-06-15T11:34:15Z'
+            }, {
+                repo: 'repo2',
+                user: 'login',
+                owner: "owner1",
+                gist_url: 'gist_url',
+                created_at: '2011-06-15T11:34:15Z'
             }, {
                 repo: 'repo1',
                 user: 'login',
@@ -1265,20 +1302,8 @@ describe('cla:getSignedCLA', () => {
                 user: 'login',
                 gist_url: 'gist_url',
                 created_at: '2011-06-15T11:34:15Z'
-            }]
-            if (arg.$or) {
-                return [{
-                    repo: 'repo1',
-                    user: 'login',
-                    gist_url: 'gist_url2',
-                    created_at: '2011-06-15T11:34:15Z'
-                }, {
-                    repo: 'repo2',
-                    user: 'login',
-                    gist_url: 'gist_url',
-                    created_at: '2011-06-15T11:34:15Z'
-                }]
             }
+            ]
             return listOfAllCla
         })
 
@@ -1287,9 +1312,10 @@ describe('cla:getSignedCLA', () => {
         }
         const clas = await cla.getSignedCLA(args)
         assert.equal(clas[0].gist_url, 'gist_url2')
-        assert.equal(CLA.find.callCount, 2)
+        assert.equal(CLA.find.callCount, 1)
         CLA.find.restore()
-        repo_service.all.restore()
+        Repository.find.restore()
+        Org.find.restore()
     })
 })
 

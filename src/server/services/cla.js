@@ -1,8 +1,11 @@
 // models
 require('../documents/cla')
-const CLA = require('mongoose').model('CLA')
-const Repository = require('mongoose').model('Repo')
-const Org = require('mongoose').model('Org')
+require('../documents/repo')
+require('../documents/org')
+const mongoose = require('mongoose')
+const CLA = mongoose.model('CLA')
+const Repository = mongoose.model('Repo')
+const Org = mongoose.model('Org')
 
 //services
 const logger = require('../services/logger')
@@ -623,12 +626,24 @@ class ClaService {
             // if repo is undefined it is an org/owner wide cla
             if (cla.repo == undefined) {
                 // if owner and gist matches return cla
-                return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url)
+                return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url )
             }
             // if repo, owner and gist matches return cla
             return repos.find(repo => repo.repo == cla.repo && repo.owner == cla.owner && repo.gist == cla.gist_url)
         })
-        return clas
+        // filter out non-unique entries based on our three "unique" properties repo, owner, gist_url
+        const uniqueCLAs = []
+        for (const cla of clas) {
+            const isNotNew = uniqueCLAs.find(uniqueCLA =>
+                cla.repo === uniqueCLA.repo &&
+                cla.owner === uniqueCLA.owner &&
+                cla.gist_url === uniqueCLA.gist_url
+            )
+            if (isNotNew === undefined){
+                uniqueCLAs.push(cla)
+            }
+        }
+        return uniqueCLAs
     }
 
     // Get linked repo or org
