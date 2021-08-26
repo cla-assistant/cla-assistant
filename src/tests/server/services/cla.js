@@ -7,13 +7,14 @@ const sinon = require('sinon')
 const CLA = require('../../../server/documents/cla').CLA
 const Org = require('../../../server/documents/org').Org
 const Repository = require('../../../server/documents/repo').Repo
+
 //services
 const org_service = require('../../../server/services/org')
 const repo_service = require('../../../server/services/repo')
 const github = require('../../../server/services/github')
 const logger = require('../../../server/services/logger')
-
 const config = require('../../../config')
+
 // test data
 const testData = require('../testData').data
 
