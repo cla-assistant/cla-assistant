@@ -325,9 +325,8 @@ let ClaApi = {
                         gist_url: item.gist
                     };
                     gist_args = req.args.gist ? req.args.gist : gist_args;
-                    token = item.token;
+                    // GitHub App token could not get gist. Pass no token to use the default token instead.
                     cla.getGist({
-                        token: token,
                         gist: gist_args
                     }, done);
                 });
