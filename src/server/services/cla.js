@@ -2,6 +2,7 @@
 require('../documents/cla')
 require('../documents/repo')
 require('../documents/org')
+
 const mongoose = require('mongoose')
 const CLA = mongoose.model('CLA')
 const Repository = mongoose.model('Repo')
