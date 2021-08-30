@@ -592,6 +592,7 @@ class ClaService {
             'gist_url': 1,
             'gist_version': 1,
             'revoked_at': 1,
+            'org_cla': 1,
         }, {
             sort: {
                 'created_at': -1
@@ -621,11 +622,10 @@ class ClaService {
             $or: ownerfilter
         })
 
-        // filter if its an org CLA (repo == undefined) or if repo exists
+        // filter if its an org CLA (org_cla == true) or if repo exists
         clas = clas.filter(cla => {
-            // check if it is an owner or repo configuration
-            // if repo is undefined it is an org/owner wide cla
-            if (cla.repo == undefined) {
+            // if org_cla is true it is an organization based CLA
+            if (cla.org_cla) {
                 // if owner and gist matches return cla
                 return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url )
             }
