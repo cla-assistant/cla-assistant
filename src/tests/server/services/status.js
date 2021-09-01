@@ -470,6 +470,68 @@ describe('status', () => {
             assert(github.call.calledTwice)
 
 
+        });
+
+        [
+          {signed: false, labelsConfigured: false, assertion: 'neverCalledWithMatch', label: 'signed'},
+          {signed: false, labelsConfigured: true, assertion: 'calledWithMatch', label: 'signed'},
+          {signed: true, labelsConfigured: false, assertion: 'neverCalledWithMatch', label: 'unsigned'},
+          {signed: true, labelsConfigured: true, assertion: 'calledWithMatch', label: 'unsigned'}
+        ].forEach(function(test) {
+            it('should try to remove the label if configured', async () => {
+                const args = {
+                    owner: 'octocat',
+                    repo: 'Hello-World',
+                    number: 1,
+                    signed: test.signed,
+                    token: 'abc'
+                }
+                if (test.labelsConfigured) {
+                    config.server.github.claSignedLabel = 'signed'
+                    config.server.github.claNotSignedLabel = 'unsigned'
+                }
+
+                await status.update(args)
+                assert(github.call[test.assertion]({
+                    obj: 'issues',
+                    fun: 'removeLabel',
+                    arg: {
+                      name: test.label
+                    }
+                }))
+                config.server.github.claSignedLabel = config.server.github.claNotSignedLabel = undefined
+            })
+        });
+
+        [
+          {signed: false, labelsConfigured: false, assertion: 'neverCalledWithMatch', label: 'unsigned'},
+          {signed: false, labelsConfigured: true, assertion: 'calledWithMatch', label: 'unsigned'},
+          {signed: true, labelsConfigured: false, assertion: 'neverCalledWithMatch', label: 'signed'},
+          {signed: true, labelsConfigured: true, assertion: 'calledWithMatch', label: 'signed'}
+        ].forEach(function(test) {
+            it('should add the label if configured', async () => {
+                const args = {
+                    owner: 'octocat',
+                    repo: 'Hello-World',
+                    number: 1,
+                    signed: test.signed,
+                    token: 'abc'
+                }
+                if (test.labelsConfigured) {
+                    config.server.github.claSignedLabel = 'signed'
+                    config.server.github.claNotSignedLabel = 'unsigned'
+                }
+
+                await status.update(args)
+                assert(github.call[test.assertion]({
+                    obj: 'issues',
+                    fun: 'addLabels',
+                    arg: {
+                      labels: [test.label]
+                    }
+                }))
+                config.server.github.claSignedLabel = config.server.github.claNotSignedLabel = undefined
+            })
         })
     })
 

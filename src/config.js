@@ -15,6 +15,8 @@ module.exports = {
             api: process.env.GITHUB_API_HOST || 'api.github.com',
             enterprise: !!process.env.GITHUB_HOST, // flag enterprise version
             version: process.env.GITHUB_VERSION || '3.0.0',
+            claSignedLabel: process.env.CLA_SIGNED_LABEL,
+            claNotSignedLabel: process.env.CLA_NOT_SIGNED_LABEL,
 
             graphqlEndpoint: process.env.GITHUB_GRAPHQL || 'https://api.github.com/graphql',
 
