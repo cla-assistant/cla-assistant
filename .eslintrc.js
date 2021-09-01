@@ -29,7 +29,7 @@ module.exports = {
         "dot-notation": "error",
         "func-call-spacing": "error",
         "func-name-matching": "error",
-        "handle-callback-err": "warn",
+        "handle-callback-err": "error",
         "no-confusing-arrow": "error",
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
@@ -37,11 +37,11 @@ module.exports = {
         "no-empty-function": "error",
         "no-multiple-empty-lines": "error",
         "no-native-reassign": "error",
-        "no-path-concat": "warn",
-        "no-trailing-spaces": "warn",
+        "no-path-concat": "error",
+        "no-trailing-spaces": "error",
         "no-undef": "error",
-        "no-unused-expressions": "warn",
-        "no-unused-vars": "warn",
+        "no-unused-expressions": "error",
+        "no-unused-vars": "error",
         "no-use-before-define": [
             "error",
             {
@@ -57,9 +57,9 @@ module.exports = {
             1,
             "single"
         ],
-        "valid-typeof": "warn",
-        "semi-spacing": "warn",
-        "space-infix-ops": "warn",
+        "valid-typeof": "error",
+        "semi-spacing": "error",
+        "space-infix-ops": "error",
         "yoda": [
             "error",
             "never"
