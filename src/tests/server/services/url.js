@@ -1,4 +1,4 @@
-/*global describe, it, beforeEach, afterEach*/
+/*global describe, it*/
 
 // unit test
 const assert = require('assert')

@@ -1,5 +1,5 @@
 /*eslint no-unused-expressions: "off"*/
-/*global angular, sinon, describe, xit, it, beforeEach, afterEach*/
+/*global angular, sinon, describe, it, beforeEach, afterEach*/
 
 describe('Settings Controller', function () {
 

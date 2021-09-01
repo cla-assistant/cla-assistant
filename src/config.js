@@ -85,7 +85,7 @@ module.exports = {
 
         api_access: {
             free: [
-                '/api/cla/get', 
+                '/api/cla/get',
                 '/api/cla/getLinkedItem',
                 '/api/cla/getGist'
             ],

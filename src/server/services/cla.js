@@ -774,9 +774,9 @@ class ClaService {
         cla.revoked_at = new Date();
         await cla.save();
         logger.info('User: ' + cla.user + ' has revoked the cla for repo: ' + cla.repo);
-        
+
         return cla;
-            
+
     }
 }
 

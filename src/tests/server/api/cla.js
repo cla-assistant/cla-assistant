@@ -178,7 +178,7 @@ describe('', () => {
                     return {
                         data: resp.github.callUser.two
                     }
-                } else if (args.fun === "getAuthenticated") {
+                } else if (args.fun === 'getAuthenticated') {
                     return {
                         data: resp.github.callUser.one
                     }
@@ -1797,7 +1797,7 @@ describe('', () => {
                 args: {
                     _id: 1234,
                     userId: 1,
-                    
+
                     repo: 'Hello-World',
                     owner: 'octocat',
                 },

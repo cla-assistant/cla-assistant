@@ -22,7 +22,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
 
         var webhook = {};
 
-        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', "Revoked At", 'Signed for Organization'];
+        var csvHeader = ['User Name', 'Repository Owner', 'Repository Name', 'CLA Title', 'Gist URL', 'Gist Version', 'Signed At', 'Revoked At', 'Signed for Organization'];
         $scope.csvHeader = csvHeader.concat();
 
         function gistArgs() {
@@ -113,7 +113,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                             $scope.completeHistory.push(contributor);
                         })
                     }
-                    var jsonData = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify($scope.completeHistory));
+                    var jsonData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify($scope.completeHistory));
                     $scope.jsonUrl = 'data:' + jsonData;
 
                     if (typeof cb == 'function') {
@@ -182,7 +182,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                             $log.info(err);
                         }
                         $scope.signatures = findDistinctSignatures(data);
-                    })                
+                    })
                     $scope.loading = false;
                 });
             }
@@ -214,7 +214,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                 controller: 'ReportCtrl',
                 windowClass: 'report',
                 scope: $scope,
-                size: "lg",
+                size: 'lg',
                 resolve: {
                     item: function () {
                         return linkedItem;
