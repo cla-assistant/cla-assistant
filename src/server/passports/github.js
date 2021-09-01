@@ -16,7 +16,7 @@ function updateToken(item, newToken) {
 }
 
 async function checkToken(item, accessToken) {
-    const baseURL = `https://api.github.com`
+    const baseURL = 'https://api.github.com'
     const checkAuthApi = `${ baseURL }/applications/${ config.server.github.client }/token`
     const newToken = accessToken
     const oldToken = item.token
@@ -28,7 +28,7 @@ async function checkToken(item, accessToken) {
         const header = {
             method: 'POST',
             headers: {
-                'Authorization': 'Basic ' + base64.encode(config.server.github.client + ":" + config.server.github.secret),
+                'Authorization': 'Basic ' + base64.encode(config.server.github.client + ':' + config.server.github.secret),
                 'User-Agent': 'CLA assistant',
                 'Accept': 'application/vnd.github.doctor-strange-preview+json',
                 'Content-Type': 'application/json'

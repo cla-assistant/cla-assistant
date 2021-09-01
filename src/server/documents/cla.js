@@ -31,7 +31,7 @@ const CLA = mongoose.model('CLA', CLASchema)
 }) */
 
 // add a full wildcard index for better indexing
-CLA.collection.createIndex({ "$**" : 1 })
+CLA.collection.createIndex({ '$**' : 1 })
 module.exports = {
     CLA: CLA
 }
