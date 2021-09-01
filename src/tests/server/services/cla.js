@@ -1274,23 +1274,23 @@ describe('cla:getSignedCLA', () => {
             return []
         })
 
-        sinon.stub(CLA, 'find').callsFake(async (arg) => {
-            let listOfAllCla = [{
+        sinon.stub(CLA, 'find').callsFake(async () => {
+            return [{
                 repo: 'repo1',
                 user: 'login',
-                owner: "owner1",
+                owner: 'owner1',
                 gist_url: 'gist_url1',
                 created_at: '2011-06-20T11:34:15Z'
             }, {
                 repo: 'repo1',
                 user: 'login',
-                owner: "owner1",
+                owner: 'owner1',
                 gist_url: 'gist_url2',
                 created_at: '2011-06-15T11:34:15Z'
             }, {
                 repo: 'repo2',
                 user: 'login',
-                owner: "owner1",
+                owner: 'owner1',
                 gist_url: 'gist_url',
                 created_at: '2011-06-15T11:34:15Z'
             }, {
@@ -1303,9 +1303,7 @@ describe('cla:getSignedCLA', () => {
                 user: 'login',
                 gist_url: 'gist_url',
                 created_at: '2011-06-15T11:34:15Z'
-            }
-            ]
-            return listOfAllCla
+            }]
         })
 
         const args = {
