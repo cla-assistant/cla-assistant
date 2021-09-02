@@ -12,7 +12,6 @@ const glob = require('glob')
 const merge = require('merge')
 const passport = require('passport')
 const path = require('path')
-const sass_middleware = require('node-sass-middleware')
 const cleanup = require('./middleware/cleanup')
 const noSniff = require('dont-sniff-mimetype')
 const mongoose = require('mongoose')
@@ -135,12 +134,6 @@ async.series([
         console.log('bootstrap static files'.bold)
 
         config.server.static.forEach((p) => {
-            app.use(sass_middleware({
-                src: p,
-                dest: p,
-                outputStyle: 'compressed',
-                force: config.server.always_recompile_sass
-            }))
             app.use(express.static(p))
         })
         callback()
