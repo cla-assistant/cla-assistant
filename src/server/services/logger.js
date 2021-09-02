@@ -9,15 +9,13 @@ const formatter = (record, levelName) => {
     }
 }
 
-function wrappedStdout() {
-    return {
+// we use a custom Stdout writer, which injects for each call the request id
+const wrappedStdout = {
         write: entry => {
-            // we use a custom Stdout writer, which injects for each call the req_id
             const logObject = JSON.parse(entry)
             logObject[config.server.observability.log_trace_field_name] = rTracer.id();
             process.stdout.write(JSON.stringify(logObject) + '\n');
         }
-    }
 }
 
 log = bunyan.createLogger({
@@ -26,7 +24,7 @@ log = bunyan.createLogger({
     streams: [{
         name: 'stdout',
         level: process.env.ENV == 'debug' ? 'info' : 'debug',
-        stream: wrappedStdout(),
+        stream: wrappedStdout,
     }]
 });
 
