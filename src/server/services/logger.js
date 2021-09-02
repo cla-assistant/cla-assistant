@@ -1,7 +1,6 @@
 const bunyan = require('bunyan')
 const BunyanSlack = require('bunyan-slack')
 const rTracer = require('cls-rtracer')
-let log
 
 const formatter = (record, levelName) => {
     return {
@@ -18,7 +17,7 @@ const wrappedStdout = {
         }
 }
 
-log = bunyan.createLogger({
+const log = bunyan.createLogger({
     src: true,
     name: config.server.http.host,
     streams: [{
