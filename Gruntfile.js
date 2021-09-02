@@ -1,3 +1,5 @@
+const sass = require('sass');
+
 module.exports = function (grunt) {
     let appJsFiles = [
         'src/client/app.js',
@@ -98,7 +100,20 @@ module.exports = function (grunt) {
                     'src/client/app.min.js': appJsFiles
                 }
             }
-        }
+        },
+
+        sass: {
+            options: {
+                implementation: sass,
+                sourceMap: true,
+                outputStyle: 'compressed',
+            },
+            dist: {
+                files: {
+                    'src/client/assets/styles/app.css': 'src/client/assets/styles/app.scss'
+                }
+            }
+        },
     };
 
     // Initialize configuration
@@ -106,7 +121,7 @@ module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('build', ['uglify']);
+    grunt.registerTask('build', ['uglify', 'sass']);
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul']);
     grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'karma', 'watch']);
