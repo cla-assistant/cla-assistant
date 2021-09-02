@@ -15,7 +15,7 @@ const wrappedStdout = {
         let traceId = rTracer.id()
         if (traceId) {
             if (config.server.observability.request_trace_header_name == 'traceparent') {
-                traceParts = traceId.split('-');
+                const traceParts = traceId.split('-');
                 // check if it conforms to version 00 of opentelemetry spec (https://www.w3.org/TR/trace-context)
                 // version "-" trace-id "-" parent-id "-" trace-flags
                 if (traceParts.length == 4 && traceParts[0] == '00') {
