@@ -109,6 +109,11 @@ module.exports = {
             organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
         },
 
+        observability: {
+            request_trace_header_name: process.env.REQUEST_TRACE_HEADER_NAME,
+            log_trace_field_name: process.env.LOG_TRACE_FIELD_NAME || 'req_id',
+        },
+
         static: [
             path.join(__dirname, 'bower'),
             path.join(__dirname, 'client')

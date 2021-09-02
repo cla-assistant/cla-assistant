@@ -1,6 +1,6 @@
 const bunyan = require('bunyan')
 const BunyanSlack = require('bunyan-slack')
-let log
+const rTracer = require('cls-rtracer')
 
 const formatter = (record, levelName) => {
     return {
@@ -8,13 +8,22 @@ const formatter = (record, levelName) => {
     }
 }
 
-log = bunyan.createLogger({
+// we use a custom Stdout writer, which injects for each call the request id
+const wrappedStdout = {
+        write: entry => {
+            const logObject = JSON.parse(entry)
+            logObject[config.server.observability.log_trace_field_name] = rTracer.id();
+            process.stdout.write(JSON.stringify(logObject) + '\n');
+        }
+}
+
+const log = bunyan.createLogger({
     src: true,
     name: config.server.http.host,
     streams: [{
         name: 'stdout',
         level: process.env.ENV == 'debug' ? 'info' : 'debug',
-        stream: process.stdout
+        stream: wrappedStdout,
     }]
 });
 

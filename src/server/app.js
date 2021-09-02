@@ -15,6 +15,8 @@ const path = require('path')
 const cleanup = require('./middleware/cleanup')
 const noSniff = require('dont-sniff-mimetype')
 const mongoose = require('mongoose')
+const rTracer = require('cls-rtracer')
+
 // var sass_middleware = require('node-sass-middleware');
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,10 +29,20 @@ global.config = require('./../config')
 // Express application
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
+const log = require('./services/logger')
+
 const app = express()
 const api = {}
 const webhooks = {}
 let runningWebhooks = []
+
+// install tracing middleware
+const tracingOptions = {}
+if (config.server.observability.request_trace_header_name) {
+    tracingOptions.useHeader = true
+    tracingOptions.headerName = config.server.observability.request_trace_header_name
+}
+app.use(rTracer.expressMiddleware(tracingOptions))
 
 // redirect from http to https
 app.use((req, res, next) => {
@@ -61,11 +73,6 @@ app.use('/api', require('./middleware/param'))
 app.use('/github', require('./middleware/param'))
 app.use('/accept', require('./middleware/param'))
 app.use('/count', require('./middleware/param'))
-
-// app.use(function (err, req, res, next) {
-//     var log = require('./services/logger');
-//     log.info('app error: ', err.stack);
-// });
 
 const bootstrap = (files, callback) => {
     console.log('bootstrap'.bold, files.bold);
@@ -198,7 +205,7 @@ async.series([
     if (err) {
         console.log('! '.yellow + err)
     }
-    const log = require('./services/logger')
+
 
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
@@ -298,15 +305,3 @@ function retryInitializeMongoose(uri, options, callback) {
 }
 
 module.exports = app
-// async function retryInitializeMongoose(uri, options) {
-//     const defaultInterval = 1000
-//     try {
-//         await mongoose.connect(uri, options);
-//     } catch (err) {
-//         console.log(err, `Retry initialize mongoose in ${options.retryInitializeInterval || defaultInterval} milliseconds`)
-//         setTimeout(() => {
-//             retryInitializeMongoose(uri, options)
-//         }, options.retryInitializeInterval || defaultInterval)
-
-//     }
-// }
