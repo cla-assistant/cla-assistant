@@ -112,6 +112,7 @@ module.exports = {
         observability: {
             request_trace_header_name: process.env.REQUEST_TRACE_HEADER_NAME,
             log_trace_field_name: process.env.LOG_TRACE_FIELD_NAME || 'req_id',
+            trace_prefix: process.env.LOG_TRACE_PREFIX || '',
         },
 
         static: [
