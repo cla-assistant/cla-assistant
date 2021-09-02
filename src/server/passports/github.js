@@ -7,7 +7,6 @@ const Strategy = require('passport-github').Strategy
 const merge = require('merge')
 const User = require('mongoose').model('User')
 const fetch = require('node-fetch')
-const base64 = require('base-64')
 
 function updateToken(item, newToken) {
     item.token = newToken
@@ -28,7 +27,7 @@ async function checkToken(item, accessToken) {
         const header = {
             method: 'POST',
             headers: {
-                'Authorization': 'Basic ' + base64.encode(config.server.github.client + ':' + config.server.github.secret),
+                'Authorization': 'Basic ' + Buffer.from(config.server.github.client + ':' + config.server.github.secret).toString('base64'),
                 'User-Agent': 'CLA assistant',
                 'Accept': 'application/vnd.github.doctor-strange-preview+json',
                 'Content-Type': 'application/json'
