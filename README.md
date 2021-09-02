@@ -145,6 +145,7 @@ The following are the environment variables you have to configure to run a priva
 - `SLACK_TOKEN`: Optional.
 - `REQUEST_TRACE_HEADER_NAME`: Use the value of an HTTP-header to set the name. E.g. the request id set by an ingress controller via `X-Req-Id`. If not set or no HTTP-header is present a random uuid is used.
 - `LOG_TRACE_FIELD_NAME`: The log field to log the request id to. Defaults to `req_id`.
+- `LOG_TRACE_PREFIX`: A prefix put before the traceId.
 
 > **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](http://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](http://docs.mongodb.org/manual/reference/method/db.createUser).
 
