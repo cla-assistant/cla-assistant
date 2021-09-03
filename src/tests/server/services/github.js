@@ -50,7 +50,7 @@ describe('github:call', () => {
         callStub.reset()
         cache.clear()
         expectedAuth = undefined
-        sinon.stub(enabeOctokitNetworkInterceptor, "afterRequest").returns('mocked return')
+        sinon.stub(enabeOctokitNetworkInterceptor, 'afterRequest').returns('mocked return')
         authenticateStub.reset()
     })
 

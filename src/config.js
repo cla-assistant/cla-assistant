@@ -91,7 +91,7 @@ module.exports = {
 
         api_access: {
             free: [
-                '/api/cla/get', 
+                '/api/cla/get',
                 '/api/cla/getLinkedItem',
                 '/api/cla/getGist'
             ],
@@ -113,6 +113,12 @@ module.exports = {
         feature_flag: {
             required_signees: process.env.REQUIRED_SIGNEES || '',
             organization_override_enabled: process.env.ORG_OVERRIDE_ENABLED || false,
+        },
+
+        observability: {
+            request_trace_header_name: process.env.REQUEST_TRACE_HEADER_NAME,
+            log_trace_field_name: process.env.LOG_TRACE_FIELD_NAME || 'req_id',
+            trace_prefix: process.env.LOG_TRACE_PREFIX || '',
         },
 
         static: [

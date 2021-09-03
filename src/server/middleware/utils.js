@@ -1,7 +1,6 @@
 const githubService = require('../services/github')
 const log = require('../services/logger')
 const Joi = require('joi')
-const fetch = require('node-fetch')
 
 class Utils {
     couldBeAdmin(username) {

@@ -160,7 +160,7 @@ class ClaApi {
 
         const clas = await cla.getAll(params)
         const distinctClas = this.getDistinctClas(clas)
-        
+
         return distinctClas.length
     }
 
@@ -423,10 +423,10 @@ class ClaApi {
 
     async revoke(req) {
         const user = await getAuthenticatedUser(req.user.token)
-        
+
         if(!req.args._id) {
-            logger.error("cla id is required to revoke cla")
-            throw new Error("cla id is required to revoke cla")
+            logger.error('cla id is required to revoke cla')
+            throw new Error('cla id is required to revoke cla')
         }
 
         return cla.revoke(req.args, user);
@@ -705,7 +705,7 @@ async function getAuthenticatedUser(token) {
         token: token
     })
     if (!res.data) {
-        throw `No User found`
+        throw 'No User found'
     }
     return res.data
 }

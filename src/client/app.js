@@ -25,7 +25,7 @@ angular.element(document).ready(function () {
 // *************************************************************
 
 module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$compileProvider', '$qProvider',
-    function ($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $qProvider) {
+    function ($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider) {
 
         $stateProvider
             //

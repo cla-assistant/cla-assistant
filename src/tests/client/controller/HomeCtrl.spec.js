@@ -1,5 +1,5 @@
 /*eslint no-unused-expressions: "off", no-empty-function: "off"*/
-/*global angular, describe, xit, it, beforeEach, afterEach*/
+/*global angular, describe, it, beforeEach, afterEach*/
 
 describe('Home Controller', function () {
     var scope, httpBackend, createCtrl, homeCtrl, $HUB, $RAW, $RPCService, _timeout;
@@ -123,7 +123,6 @@ describe('Home Controller', function () {
     var expErr;
     var getAllReposData;
     var getAllReposError;
-    var rpcRepoGetAllData;
     var rpcRepoGetAllError;
     var rpcRepoCreate;
 
@@ -317,7 +316,6 @@ describe('Home Controller', function () {
         $RPCService.call.restore();
         getAllReposData = undefined;
         getAllReposError = undefined;
-        rpcRepoGetAllData = undefined;
         rpcRepoGetAllError = undefined;
     });
 
