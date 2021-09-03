@@ -9,6 +9,7 @@
 - remove btoa, bunyan-sentry-stream, raven, socket.io, valid-url as no longer needed dependencies (#748)
 - resolve linter issues and set all rules to error (#744)
 - add COMMON_ISSUES as file (#743)
+
 **Fixed Bugs:**
 - improve request performance for getSignedCLA() (#739)
 
