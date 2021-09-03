@@ -115,22 +115,14 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
         };
 
         var getUser = function () {
-            $rootScope.user = {
-                value: {
-                    admin: false
-                }
-            };
+            return $HUBService.call('users', 'getAuthenticated', {}).then(function (res){
+                return res;
+            });
+        };
 
-            return $HUBService.call('users', 'getAuthenticated', {}, function (err, res) {
-                if (err) {
-                    return;
-                }
-
-                $scope.user = res;
-                $scope.user.value.admin = res.scope === 'public' ? false : true; // If scope === public => not admin / else (scope === admin or org_admin => true)
-                $scope.user.value.org_admin = res.scope === 'org_admin' ? true : false;
-                $rootScope.user = $scope.user;
-                $rootScope.$broadcast('user');
+        var getScope = function () {
+            return $HUBService.scope().then(function (res){
+                return res.value;
             });
         };
 
@@ -310,8 +302,27 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             });
         };
 
-        getUser().then(function () {
+        $q.all([
+            getUser(),
+            getScope()
+        ]).then(function (results) {
             $scope.isLoading = true;
+
+            $rootScope.user = {
+                value: {
+                    admin: false
+                }
+            };
+
+            $scope.user = results[0]
+
+            $scope.user.value.admin = results[1].role === 'public' ? false : true; // If scope === public => not admin / else (scope === admin or org_admin => true)
+            $scope.user.value.org_admin = results[1].role === 'org_admin' ? true : false;
+            $scope.user.value.appInstalled = results[1].appInstalled;
+
+            $rootScope.user = $scope.user;
+            $rootScope.$broadcast('user');
+
             $q.all([
                 getOrgs(),
                 getRepos(),

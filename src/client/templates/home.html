@@ -6,8 +6,10 @@
 <div id="activated_cla" ng-show="user.value.admin" class="row content-block">
 
     <div class="row" style="margin-bottom: 65px; margin-top: 15px; padding-left:0px" ng-hide="newLink">
-        <button class="btn btn-info" ng-click="newLink = !newLink" ng-init="newLink=false"
+        <button class="btn btn-info" ng-click="newLink = !newLink" ng-init="newLink=false" ng-show="user.value.appInstalled"
             style="font-size: 18px; font-weight: 200">Configure CLA</button>
+        <button class="btn btn-info" ng-click="newLink = !newLink" ng-init="newLink=false" ng-show="!user.value.appInstalled"
+            style="font-size: 18px; font-weight: 200">Install GitHub Apps</button>
         <button class="btn btn-info" ng-click="openMyCLAs()" ng-init="newLink=false"
             style="font-size: 18px; font-weight: 200; float: right;">View my signed CLAs</button>
     </div>

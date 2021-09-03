@@ -157,6 +157,9 @@ module.factory('$HUB', ['$RAW', '$log',
             // },
             wrap: function (o, functn, data, callback) {
                 return exec('wrap', new ResultSet(), { obj: o, fun: functn, arg: data }, callback);
+            },
+            scope: function (o, functn, data, callback) {
+                return exec('scope', new ResultSet(), {}, callback);
             }
         };
     }
@@ -197,6 +200,9 @@ module.factory('$HUBService', ['$q', '$HUB',
             },
             wrap: function (o, functn, data, callback) {
                 return exec('wrap', o, functn, data, callback);
+            },
+            scope: function () {
+                return exec('scope');
             }
         };
     }

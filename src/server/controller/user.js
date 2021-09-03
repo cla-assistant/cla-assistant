@@ -55,13 +55,13 @@ router.get('/auth/github/callback',
             logger.warn(error.stack)
         }
         if (user && user.appInstalled) {
-            res.redirect(req.session.returnTo || req.headers.referer || '/')
-            req.session.next = null
-            logger.debug('Finish processing authentication callback after passport authenticate')
+            req.session.appInstalled = true
         } else {
-            res.redirect(url.githubInstallation)
-            logger.debug('Finish processing authentication callback after passport authenticate')
+            req.session.appInstalled = false
         }
+        res.redirect(req.session.returnTo || req.headers.referer || '/')
+        req.session.next = null
+        logger.debug('Finish processing authentication callback after passport authenticate')
     }
 )
 

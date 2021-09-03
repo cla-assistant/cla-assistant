@@ -46,7 +46,8 @@ module.exports = {
             // Required for GitHub App Authenticate
             private_key: process.env.PRIVATE_KEY,
             app_id: process.env.APP_ID,
-            app_name: process.env.APP_NAME
+            app_name: process.env.APP_NAME,
+            authentication_type: process.env.AUTH_TYPE
         },
 
         localport: process.env.PORT || 5000,
