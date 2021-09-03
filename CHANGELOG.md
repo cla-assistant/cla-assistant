@@ -1,5 +1,17 @@
 # Change Log
 
+## [v2.9.1](https://github.com/cla-assistant/cla-assistant/tree/v2.9.1) (2021-09-03)
+**Improvements:**
+- move sass compilation from startup to build (#747)
+- Update data storage location to cosmosDB (#741)
+- add option to associate logs with request ids/opentelemtry support (#749, #751)
+- replace base-64 with native base64 encoding (#746)
+- remove btoa, bunyan-sentry-stream, raven, socket.io, valid-url as no longer needed dependencies (#748)
+- resolve linter issues and set all rules to error (#744)
+- add COMMON_ISSUES as file (#743)
+**Fixed Bugs:**
+- improve request performance for getSignedCLA() (#739)
+
 ## [v2.9.0](https://github.com/cla-assistant/cla-assistant/tree/v2.9.0) (2021-08-24)
 **Improvements:**
 - Implemented my signed CLAs feature (#688)
