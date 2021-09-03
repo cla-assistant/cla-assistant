@@ -37,7 +37,7 @@ function callGithub(github, obj, fun, arg, token, done) {
             }, 60000 * config.server.cache_time);
         }
 
-        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: createLogObj(arg), token: hashToken(token), remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '' });
+        logger.info({ name: 'CLAAssistantGithubCall', obj: obj, fun: fun, arg: createLogObj(arg), token: hashToken(token), remaining: res && res.meta ? res.meta['x-ratelimit-remaining'] : '', err: JSON.stringify(err) });
 
         if (typeof done === 'function') {
             done(err, res);
