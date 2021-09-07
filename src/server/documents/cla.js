@@ -1,6 +1,4 @@
 const mongoose = require('mongoose')
-// const logger = require('../services/logger')
-mongoose.Promise = require('q').Promise
 
 const CLASchema = mongoose.Schema({
     created_at: Date,
