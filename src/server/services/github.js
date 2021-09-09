@@ -83,11 +83,11 @@ const githubService = {
         const octokit = new OctokitWithPluginsAndDefaults({ auth })
 
         if (!obj || !octokit[obj]) {
-            throw new Error(`${obj} required/object not found`)
+            throw new Error(`${obj} required/object not found or specified`)
         }
 
         if (!fun || !octokit[obj][fun]) {
-            throw new Error(`${obj}.${fun} required/function not found`)
+            throw new Error(`${obj}.${fun} required/function not found or specified`)
         }
 
         try {

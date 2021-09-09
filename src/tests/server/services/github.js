@@ -10,7 +10,7 @@ global.config = require('../../../config')
 
 // service
 const github = rewire('../../../server/services/github')
-const enabeOctokitNetworkInterceptor = require('../../../server/services/octokit-network-interceptor')
+// const enabeOctokitNetworkInterceptor = require('../../../server/services/octokit-plugins/network-interceptor')
 
 const cache = require('memory-cache')
 
@@ -41,21 +41,40 @@ describe('github:call', () => {
 
         this.paginate = callStub
     }
+    function OctokitWithPluginsAndDefaultsMock(args) {
+        assert.deepStrictEqual(args.auth, expectedAuth)
+
+        this.obj = {
+            fun: callStub,
+            listSomething: {
+                endpoint: {
+                    merge: function (args) {
+                        return args
+                    }
+                }
+            }
+        }
+
+        this.authenticate = authenticateStub
+
+        this.paginate = callStub
+    }
     OctokitMock.plugin = sinon.stub().returns(OctokitMock)
 
     github.__set__('Octokit', OctokitMock)
+    github.__set__('OctokitWithPluginsAndDefaults', OctokitWithPluginsAndDefaultsMock)
 
     beforeEach(() => {
         github.resetList = {}
         callStub.reset()
         cache.clear()
         expectedAuth = undefined
-        sinon.stub(enabeOctokitNetworkInterceptor, 'afterRequest').returns('mocked return')
+        // sinon.stub(enabeOctokitNetworkInterceptor, 'rateLimitLogger').returns('mocked return')
         authenticateStub.reset()
     })
 
     afterEach(() => {
-        enabeOctokitNetworkInterceptor.afterRequest.restore()
+        // enabeOctokitNetworkInterceptor.rateLimitLogger.restore()
     })
 
     it('should return an error if obj is not set', async () => {
@@ -63,7 +82,7 @@ describe('github:call', () => {
             await github.call({})
             assert(false, 'Should throw an error')
         } catch (error) {
-            assert.equal(error.message, 'obj required/obj not found')
+            assert.equal(error.message, 'undefined required/object not found or specified')
         }
     })
 
@@ -72,7 +91,7 @@ describe('github:call', () => {
             await github.call({ obj: 'obj' })
             assert(false, 'Should throw an error')
         } catch (error) {
-            assert.equal(error.message, 'fun required/fun not found')
+            assert.equal(error.message, 'obj.undefined required/function not found or specified')
         }
     })
 
