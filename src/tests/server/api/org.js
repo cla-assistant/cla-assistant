@@ -48,7 +48,7 @@ describe('org api', () => {
             if (testErr.githubCallGraphql) {
                 throw new Error(testErr.githubCallGraphql)
             }
-            return JSON.stringify(testRes.githubCallGraphql.body)
+            return testRes.githubCallGraphql.body
         })
         sinon.stub(github, 'call').callsFake(async (args) => {
             if (args.fun === 'getOrgs') {
