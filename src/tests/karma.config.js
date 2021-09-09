@@ -25,11 +25,10 @@ module.exports = function (config) {
 
             'http://cdnjs.cloudflare.com/ajax/libs/sinon.js/1.7.3/sinon-min.js',
 
-            'src/bower/should/should.js',
-
-            // Bower
-            'src/bower/bootstrap-sass-official/assets/javascripts/bootstrap.js',
-            'src/bower/angular-mocks/angular-mocks.js',
+            // node_modules
+            'node_modules/should/should.js',
+            'node_modules/bootstrap-sass/assets/javascripts/bootstrap.js',
+            'node_modules/angular-mocks/angular-mocks.js',
 
             // Client code
             'src/client/app.js',

@@ -114,7 +114,7 @@ $label-default-bg: $brand-info;
 $label-color: $brand-primary;
 
 // import bootstrap
-@import '../../../bower/bootstrap-sass-official/assets/stylesheets/bootstrap.scss';
+@import '../../../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap.scss';
 
 // import our files
 @import 'animation';
