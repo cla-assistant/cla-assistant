@@ -262,7 +262,7 @@ class RepoService {
         const affiliation = args.affiliation ? args.affiliation : 'owner,organization_member'
         const ghRepos = await github.call({
             obj: 'repos',
-            fun: 'list',
+            fun: 'listForAuthenticatedUser',
             arg: {
                 affiliation: affiliation,
                 per_page: 100
