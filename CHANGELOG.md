@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.9.2](https://github.com/cla-assistant/cla-assistant/tree/v2.9.2) (2021-09-09)
+**Improvements:**
+- remove array-sugar and q; move codeceptjs to dev (#756)
+- use node-fetch; remove request(-promise-native) (#754, #757)
+- switch bower dependencies to npm (#753)
+
 ## [v2.9.1](https://github.com/cla-assistant/cla-assistant/tree/v2.9.1) (2021-09-03)
 **Improvements:**
 - move sass compilation from startup to build (#747)
@@ -18,7 +24,7 @@
 - Implemented my signed CLAs feature (#688)
 - Capitalize sentence-like message (#678)
 - Cleanup project files (#731, #736, #737)
-- Update Dockerfile to use node-alpine base 
+- Update Dockerfile to use node-alpine base
 
 ## [v2.8.6](https://github.com/cla-assistant/cla-assistant/tree/v2.8.6) (2021-02-23)
 **Improvements:**
