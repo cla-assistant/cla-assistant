@@ -1,5 +1,4 @@
-const request = require('request-promise-native')
-
+const fetch = require('node-fetch')
 const cache = require('memory-cache')
 const config = require('../../config')
 let Octokit = require('@octokit/rest')
@@ -120,12 +119,12 @@ const githubService = {
     },
 
     callGraphql: async (query, token) => {
-        return request.post({
+        return fetch(config.server.github.graphqlEndpoint, {
+            method: 'POST',
             headers: {
                 'Authorization': `bearer ${token}`,
                 'User-Agent': 'CLA assistant'
             },
-            url: config.server.github.graphqlEndpoint,
             body: query
         })
     }
