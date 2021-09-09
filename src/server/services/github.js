@@ -4,12 +4,12 @@ const config = require('../../config')
 const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
 
-const { Octokit } = require("@octokit/rest")
+const { Octokit } = require('@octokit/rest')
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
-    require("@octokit/plugin-retry").retry,
-    require("@octokit/plugin-throttling").throttling,
-    require("./octokit-plugins/custom-endpoints").repoGetById,
-    require("./octokit-plugins/network-interceptor").rateLimitLogger,
+    require('@octokit/plugin-retry').retry,
+    require('@octokit/plugin-throttling').throttling,
+    require('./octokit-plugins/custom-endpoints').repoGetById,
+    require('./octokit-plugins/network-interceptor').rateLimitLogger,
 ).defaults({
     protocol: config.server.github.protocol,
     version: config.server.github.version,
@@ -76,7 +76,7 @@ const githubService = {
         const arg = call.arg || {}
         const fun = call.fun
         const obj = call.obj
-        const cacheKey = generateCacheKey(arg, obj, fun, token)
+        const cacheKey = generateCacheKey(arg, obj, fun, call.token)
 
         const auth = determineAuthentication(call.token, call.basicAuth)
 

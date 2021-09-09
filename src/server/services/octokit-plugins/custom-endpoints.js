@@ -1,5 +1,5 @@
 // custom endpoints for Octokit
-function repoGetById (octokit, options) {
+function repoGetById (octokit) {
     return {
         repo: {
             getById: octokit.request.defaults({
