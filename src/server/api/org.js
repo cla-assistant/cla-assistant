@@ -80,8 +80,7 @@ class OrgAPI {
             const query = arg.query ? arg.query : queries.getUserOrgs(req.user.login, null)
 
             try {
-                let body = await github.callGraphql(query, req.user.token)
-                body = JSON.parse(body)
+                const body = await github.callGraphql(query, req.user.token)
 
                 if (body.errors) {
                     const errorMessage = body.errors[0] && body.errors[0].message ? body.errors[0].message : 'Error occurred by getting users organizations'

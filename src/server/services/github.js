@@ -119,14 +119,17 @@ const githubService = {
     },
 
     callGraphql: async (query, token) => {
-        return fetch(config.server.github.graphqlEndpoint, {
+        const response = await fetch(config.server.github.graphqlEndpoint, {
             method: 'POST',
             headers: {
                 'Authorization': `bearer ${token}`,
-                'User-Agent': 'CLA assistant'
+                'User-Agent': 'CLA assistant',
+                'Content-Type': 'application/json',
             },
             body: query
         })
+        const dataPromise = response.json()
+        return dataPromise
     }
 }
 

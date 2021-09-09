@@ -164,9 +164,8 @@ class RepoService {
                 let committers = []
                 let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '')
 
-                let body = await github.callGraphql(query, arg.token)
+                const body = await github.callGraphql(query, arg.token)
 
-                body = JSON.parse(body)
                 if (body.errors) {
                     logger.info(new Error(body.errors[0].message).stack)
                 }
