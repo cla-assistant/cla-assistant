@@ -8,7 +8,7 @@ const { Octokit } = require('@octokit/rest')
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
     require('@octokit/plugin-retry').retry,
     require('@octokit/plugin-throttling').throttling,
-    require('./octokit-plugins/custom-endpoints').repoGetById,
+    require('./octokit-plugins/custom-endpoints').reposGetById,
     require('./octokit-plugins/network-interceptor').rateLimitLogger,
 ).defaults({
     protocol: config.server.github.protocol,
