@@ -318,7 +318,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
             $scope.user.value.admin = results[1].role === 'public' ? false : true; // If scope === public => not admin / else (scope === admin or org_admin => true)
             $scope.user.value.org_admin = results[1].role === 'org_admin' ? true : false;
-            $scope.user.value.appInstalled = results[1].appInstalled;
+            $scope.user.value.appInstalled = results[1].appInstalled === 'OAuthApp' ? true : results[1].appInstalled;
 
             $rootScope.user = $scope.user;
             $rootScope.$broadcast('user');

@@ -54,7 +54,7 @@ async function checkToken(item, accessToken) {
 
 }
 
-if (config.server.github.authentication_type === 'OAuth3') {
+if (config.server.github.authentication_type === 'GitHubApp') {
     passport.use(new github2({
         clientID: config.server.github.client,
         clientSecret: config.server.github.secret,
@@ -89,38 +89,11 @@ if (config.server.github.authentication_type === 'OAuth3') {
                 logger.warn(new Error(`Could not create new user ${error}`).stack)
             }
         }
-        // if (params.scope.indexOf('write:repo_hook') >= 0) {
-        //     try {
-        //         const repoRes = await repoService.getUserRepos({
-        //             token: accessToken
-        //         })
-        //         if (repoRes && repoRes.length > 0) {
-        //             repoRes.forEach((repo) => checkToken(repo, accessToken))
-        //         }
-        //     } catch (error) {
-        //         logger.warn(new Error(error).stack)
-        //     }
-        // }
-        // if (params.scope.indexOf('admin:org_hook') >= 0) {
-        //     try {
-        //         const orgRes = await orgApi.getForUser({
-        //             user: {
-        //                 token: accessToken,
-        //                 login: profile.username
-        //             }
-        //         })
-        //         if (orgRes && orgRes.length > 0) {
-        //             orgRes.forEach((org) => checkToken(org, accessToken))
-        //         }
-        //     } catch (error) {
-        //         logger.warn(new Error(error).stack)
-        //     }
-        // }
         done(null, merge(profile._json, {
             token: accessToken
         }))
     }))
-} else if (config.server.github.authentication_type === 'OAuth2') {
+} else if (config.server.github.authentication_type === 'OAuthApp') {
     passport.use(new github({
         clientID: config.server.github.client,
         clientSecret: config.server.github.secret,
@@ -155,15 +128,6 @@ if (config.server.github.authentication_type === 'OAuth3') {
                 logger.warn(new Error(`Could not create new user ${error}`).stack)
             }
         }
-        // User.update({
-        //     uuid: profile.id
-        // }, {
-        //     name: profile.username,
-        //     email: '', // needs fix
-        //     token: accessToken
-        // }, {
-        //     upsert: true
-        // }, function () {})
     
         if (params.scope.indexOf('write:repo_hook') >= 0) {
             try {

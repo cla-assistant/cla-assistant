@@ -5,7 +5,7 @@
  * @overview Configuration Module
  */
 let path = require('path');
-// const dotenv = require('dotenv').config();
+const dotenv = require('dotenv').config();
 
 module.exports = {
     server: {
@@ -20,6 +20,7 @@ module.exports = {
             graphqlEndpoint: process.env.GITHUB_GRAPHQL || 'https://api.github.com/graphql',
 
             // required
+            authentication_type: process.env.AUTH_TYPE || 'GitHubApp',
             client: process.env.GITHUB_CLIENT,
             secret: process.env.GITHUB_SECRET,
 
@@ -46,8 +47,7 @@ module.exports = {
             // Required for GitHub App Authenticate
             private_key: process.env.PRIVATE_KEY,
             app_id: process.env.APP_ID,
-            app_name: process.env.APP_NAME,
-            authentication_type: process.env.AUTH_TYPE
+            app_name: process.env.APP_NAME
         },
 
         localport: process.env.PORT || 5000,

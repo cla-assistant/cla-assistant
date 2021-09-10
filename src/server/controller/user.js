@@ -6,19 +6,24 @@ const User = require('mongoose').model('User')
 const url = require('../services/url')
 
 const router = express.Router()
+let scope
 
 function checkReturnTo(req, res, next) {
+    scope = null
     req.session.requiredScope = null
     if (!req.session) {
         req.session = {}
     }
 
     if (req.query.public === 'true') {
+        scope = config.server.github.user_scope.concat()
         req.session.requiredScope = 'public'
     } else {
+        scope = config.server.github.admin_scope.concat()
         req.session.requiredScope = 'admin'
     }
     if (req.query.org_admin === 'true') {
+        scope.push('admin:org_hook')
         req.session.requiredScope = 'org_admin'
     }
 
@@ -26,7 +31,9 @@ function checkReturnTo(req, res, next) {
 
     logger.debug('Check returnTo and call passport authenticate with appropriate scope')
 
-    passport.authenticate('github')(req, res, next)
+    passport.authenticate('github', {
+        scope: scope
+    })(req, res, next)
 }
 
 router.get('/auth/github', checkReturnTo)
@@ -41,23 +48,9 @@ router.get('/auth/github/callback',
     }),
     async function (req, res) {
         logger.debug('Process authentication callback after passport authenticate')
-        // if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login) && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
-        //     return res.redirect('/auth/github?admin=true')
-        // }
-
-        // Check weather user installed the app. If not, redirect to installing github app
-        let user
-        try {
-            user = await User.findOne({
-                name: req.user.login
-            })
-        } catch (error) {
-            logger.warn(error.stack)
-        }
-        if (user && user.appInstalled) {
-            req.session.appInstalled = true
-        } else {
-            req.session.appInstalled = false
+        if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login)
+        && config.server.github.authentication_type === 'OAuthApp' && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
+            return res.redirect('/auth/github?public=false')
         }
         res.redirect(req.session.returnTo || req.headers.referer || '/')
         req.session.next = null
@@ -85,6 +78,7 @@ router.get('/auth/github/post-install',
         }
     }
 )
+
 router.get('/logout',
     function (req, res, next) {
         req.logout()
