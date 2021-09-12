@@ -52,6 +52,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             $window.location.href = '/my-cla';
         };
 
+        $scope.installGitHubApp = function() {
+            $window.location.href = 'https://github.com/apps/local-install-cla-assistant/installations/new/permissions?suggested_target_id=' + $scope.user.value.id;
+        }
+
         var nullCla = {
             name: 'No CLA',
             url: null
