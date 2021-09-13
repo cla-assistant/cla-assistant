@@ -20,9 +20,9 @@
     "contributors": [],
     "dependencies": {
         "@google-cloud/trace-agent": "^5.1.5",
-        "@octokit/plugin-retry": "^2.2.0",
-        "@octokit/plugin-throttling": "^2.4.0",
-        "@octokit/rest": "^16.37.0",
+        "@octokit/plugin-retry": "^3.0.9",
+        "@octokit/plugin-throttling": "^3.5.2",
+        "@octokit/rest": "^18.10.0",
         "angular": "^1.7.9",
         "async": "^3.2.1",
         "body-parser": "^1.19.0",

@@ -309,7 +309,7 @@ describe('status', () => {
             if (args.obj === 'pulls' && args.fun === 'get') {
                 assert(args.token)
                 return githubCallPRGet
-            } else if (args.obj === 'repos' && args.fun === 'listStatusesForRef') {
+            } else if (args.obj === 'repos' && args.fun === 'listCommitStatusesForRef') {
                 assert.equal(args.token, 'abc')
                 return githubCallStatusGet
             } else if (args.obj === 'repos' && args.fun === 'getCombinedStatusForRef') {
@@ -436,7 +436,7 @@ describe('status', () => {
             assert(github.call.calledOnce)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'listStatusesForRef'
+                fun: 'listCommitStatusesForRef'
             }))
 
 
@@ -514,7 +514,7 @@ describe('status', () => {
             await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus',
+                fun: 'createCommitStatus',
             }))
         })
 
@@ -523,7 +523,7 @@ describe('status', () => {
             await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus'
+                fun: 'createCommitStatus'
             }))
         })
 
@@ -532,7 +532,7 @@ describe('status', () => {
             await status.updateForNullCla(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus'
+                fun: 'createCommitStatus'
             }))
         })
 
@@ -595,7 +595,7 @@ describe('status', () => {
             await status.updateForClaNotRequired(args)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus'
+                fun: 'createCommitStatus'
             }))
         })
 
@@ -605,7 +605,7 @@ describe('status', () => {
             assert(github.call.called)
             assert(github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus'
+                fun: 'createCommitStatus'
             }))
         })
 
@@ -614,7 +614,7 @@ describe('status', () => {
             await status.updateForClaNotRequired(args)
             assert(!github.call.calledWithMatch({
                 obj: 'repos',
-                fun: 'createStatus'
+                fun: 'createCommitStatus'
             }))
         })
 

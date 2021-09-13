@@ -36,17 +36,17 @@ describe('webhookApi', function () {
         resGetRepoHooks = [hook]
         resGetOrgHooks = [hook]
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (args.fun === 'listHooks') {
+            if (args.fun === 'listWebhooks') {
                 return args.obj === 'repos' ? {
                     data: resGetRepoHooks
                 } : {
                         data: resGetOrgHooks
                     }
-            } else if (args.fun === 'deleteHook') {
+            } else if (args.fun === 'deleteWebhook') {
                 return {
                     data: hook
                 }
-            } else if (args.fun === 'createHook') {
+            } else if (args.fun === 'createWebhook') {
                 return {
                     data: hook
                 }
@@ -64,7 +64,7 @@ describe('webhookApi', function () {
             resGetOrgHooks = []
             let expArgs = {
                 obj: 'repos',
-                fun: 'createHook',
+                fun: 'createWebhook',
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',
@@ -98,7 +98,7 @@ describe('webhookApi', function () {
         it('should NOT create a repo webhook when repo webhook exists', async () => {
             let expArgs = {
                 obj: 'repos',
-                fun: 'createHook',
+                fun: 'createWebhook',
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',
@@ -133,7 +133,7 @@ describe('webhookApi', function () {
             resGetRepoHooks = []
             let expArgs = {
                 obj: 'repos',
-                fun: 'createHook',
+                fun: 'createWebhook',
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',
@@ -168,7 +168,7 @@ describe('webhookApi', function () {
             resGetOrgHooks = []
             let expArgs = {
                 obj: 'orgs',
-                fun: 'createHook',
+                fun: 'createWebhook',
                 arg: {
                     org: testData.orgs[0].login,
                     name: 'web',
@@ -203,7 +203,7 @@ describe('webhookApi', function () {
             hook.type = 'Repository'
             let expArgs = {
                 obj: 'repos',
-                fun: 'deleteHook',
+                fun: 'deleteWebhook',
                 arg: {
                     hook_id: 123,
                     repo: 'myRepo',
@@ -232,7 +232,7 @@ describe('webhookApi', function () {
             repo.gist = null
             let expArgs = {
                 obj: 'repos',
-                fun: 'deleteHook',
+                fun: 'deleteWebhook',
                 arg: {
                     hook_id: 123,
                     repo: 'myRepo',
@@ -263,7 +263,7 @@ describe('webhookApi', function () {
         it('should call github service with user token for repo hooks', async () => {
             let expArgs = {
                 obj: 'repos',
-                fun: 'listHooks',
+                fun: 'listWebhooks',
                 arg: {
                     owner: 'owner',
                     repo: 'myRepo'
@@ -299,7 +299,7 @@ describe('webhookApi', function () {
             resGetRepoHooks = []
             let expArgs = {
                 obj: 'orgs',
-                fun: 'listHooks',
+                fun: 'listWebhooks',
                 arg: {
                     org: 'owner'
                 },
@@ -337,7 +337,7 @@ describe('webhookApi', function () {
             resGetRepoHooks = []
             let expArgs = {
                 obj: 'orgs',
-                fun: 'listHooks',
+                fun: 'listWebhooks',
                 arg: {
                     org: 'owner'
                 },
@@ -363,7 +363,7 @@ describe('webhookApi', function () {
         it('should call github service with user token for org hooks', async () => {
             let expArgs = {
                 obj: 'orgs',
-                fun: 'listHooks',
+                fun: 'listWebhooks',
                 arg: {
                     org: 'org'
                 },
@@ -399,7 +399,7 @@ describe('webhookApi', function () {
             hook.type = 'Repository'
             let expArgs = {
                 obj: 'repos',
-                fun: 'deleteHook',
+                fun: 'deleteWebhook',
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',
@@ -427,7 +427,7 @@ describe('webhookApi', function () {
         it('should remove org hook when it exists', async () => {
             let expArgs = {
                 obj: 'orgs',
-                fun: 'deleteHook',
+                fun: 'deleteWebhook',
                 arg: {
                     org: 'octocat',
                     hook_id: 123
@@ -455,7 +455,7 @@ describe('webhookApi', function () {
             repo.gist = null
             let expArgs = {
                 obj: 'repos',
-                fun: 'createHook',
+                fun: 'createWebhook',
                 arg: {
                     owner: 'login',
                     repo: 'myRepo',

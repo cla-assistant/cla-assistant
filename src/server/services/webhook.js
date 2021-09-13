@@ -10,7 +10,7 @@ class WebhookService {
             throw 'Owner/org and token is required.'
         }
         let args = {
-            fun: 'listHooks',
+            fun: 'listWebhooks',
             arg: {},
             token: token
         }
@@ -59,7 +59,7 @@ class WebhookService {
             throw 'Owner/org and token are required.'
         }
         let args = {
-            fun: 'createHook',
+            fun: 'createWebhook',
             arg: {
                 config: {
                     content_type: 'json'
@@ -111,7 +111,7 @@ class WebhookService {
             throw 'Owner/org and token is required.'
         }
         let args = {
-            fun: 'deleteHook',
+            fun: 'deleteWebhook',
             arg: {
                 hook_id: hookId
             },

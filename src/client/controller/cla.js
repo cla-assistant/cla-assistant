@@ -21,7 +21,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
 
         function getUserEmail(key) {
             // eslint-disable-next-line handle-callback-err
-            $HUBService.call('users', 'listEmails', {}, function (err, data) {
+            $HUBService.call('users', 'listEmailsForAuthenticated', {}, function (err, data) {
                 if (data && data.value) {
                     data.value.some(function (email) {
                         $scope.customValues[key] = email.primary ? email.email : $scope.customValues[key];

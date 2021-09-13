@@ -57,7 +57,7 @@ class Utils {
         try {
             const res = await githubService.call({
                 obj: 'orgs',
-                fun: 'getMembership',
+                fun: 'getMembershipForUser',
                 arg: {
                     org: org,
                     username: username

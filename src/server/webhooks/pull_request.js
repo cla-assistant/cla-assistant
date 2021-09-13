@@ -93,7 +93,8 @@ async function updateStatusAndComment(args, item) {
             try {
                 await Promise.all(promises)
             } catch (error) {
-                logger.warn(new Error(`Could not update status and/or comment on PR. Args: ${args}`).stack)
+                logger.warn(new Error(`Could not update status and/or comment on PR. Args: ${JSON.stringify(args)}`).stack)
+                logger.warn(error)
             }
         } else {
             logger.warn(new Error(`No committers found for the PR. Args: ${args}`).stack)
