@@ -35,13 +35,13 @@ async function checkToken(item, accessToken) {
         const res = await github.call(args)
 
         if (res) {
-            if (!(res && res.scopes && res.scopes.indexOf('write:repo_hook') >= 0)) {
+            if (!(res.scopes && res.scopes.indexOf('write:repo_hook') >= 0)) {
                 updateToken(item, newToken)
             } else if (item.repo) {
                 const ghRepo = await repoService.getGHRepo(item)
                 if (!(ghRepo && ghRepo.permissions && ghRepo.permissions.admin)) {
                     updateToken(item, newToken)
-                    logger.info('Update access token for repo ', item.repo, ' admin rights have been changed')
+                    logger.info(`Update access token for repo ${item.repo} admin rights have been changed`)
                 }
             }
         }
