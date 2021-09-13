@@ -16,6 +16,8 @@ const cleanup = require('./middleware/cleanup')
 const noSniff = require('dont-sniff-mimetype')
 const mongoose = require('mongoose')
 const rTracer = require('cls-rtracer')
+const expressSession = require('express-session');
+const MongoStore = require('connect-mongo');
 
 // var sass_middleware = require('node-sass-middleware');
 
@@ -65,8 +67,6 @@ app.use(require('body-parser').json({
 app.use(require('cookie-parser')());
 app.use(noSniff());
 app.enable('trust proxy');
-let expressSession = require('express-session');
-let MongoStore = require('connect-mongo')(expressSession);
 
 // custom mrepodleware
 app.use('/api', require('./middleware/param'))
@@ -167,8 +167,8 @@ async.series([
             },
             // cosmosDB supports only supports autoExpire on _ts fields
             // therefore use interval based removal to workaround that
-            store: new MongoStore({
-                mongooseConnection: mongoose.connection,
+            store: MongoStore.create({
+                client: mongoose.connection.getClient(),
                 collection: 'cookieSession',
                 ttl: config.server.security.cookieMaxAge,
                 autoRemove: 'interval',
