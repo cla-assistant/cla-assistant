@@ -209,7 +209,7 @@ describe('repo:getPRCommitters', () => {
             if (githubCallGraphqlRes.getPRCommitters.err) {
                 throw new Error(githubCallGraphqlRes.getPRCommitters.err)
             }
-            return JSON.stringify(githubCallGraphqlRes.getPRCommitters.body)
+            return githubCallGraphqlRes.getPRCommitters.body
         })
 
         sinon.stub(orgService, 'get').callsFake(async () => testOrg)
@@ -489,7 +489,7 @@ describe('repo:getPRCommitters', () => {
         github.callGraphql.onFirstCall().rejects({
             message: 'Moved Permanently'
         })
-        github.callGraphql.onSecondCall().resolves(JSON.stringify(githubCallGraphqlRes.getPRCommitters.body))
+        github.callGraphql.onSecondCall().resolves(githubCallGraphqlRes.getPRCommitters.body)
 
         sinon.stub(repo, 'getGHRepo').callsFake(async () => {
             return {
@@ -562,7 +562,7 @@ describe('repo:getUserRepos', () => {
             }]
         }
         sinon.stub(github, 'call').callsFake(async (args) => {
-            if (args.obj == 'repos' && args.fun == 'list') {
+            if (args.obj == 'repos' && args.fun == 'listForAuthenticatedUser') {
                 if (githubCallRes.err) {
                     throw new Error(githubCallRes.err)
                 }

@@ -25,7 +25,7 @@ const getStatuses = async (args) => {
     try {
         return github.call({
             obj: 'repos',
-            fun: 'listStatusesForRef',
+            fun: 'listCommitStatusesForRef',
             arg: {
                 owner: args.owner,
                 repo: args.repo,
@@ -64,7 +64,7 @@ const createStatus = async (args, context, description, state, target_url) => {
         logger.debug(`StatusService-->createStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
         return github.call({
             obj: 'repos',
-            fun: 'createStatus',
+            fun: 'createCommitStatus',
             arg: {
                 owner: args.owner,
                 repo: args.repo,

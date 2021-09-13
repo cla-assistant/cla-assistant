@@ -1,6 +1,5 @@
 const githubService = require('../services/github')
 const log = require('../services/logger')
-const Joi = require('joi')
 
 class Utils {
     couldBeAdmin(username) {
@@ -57,7 +56,7 @@ class Utils {
         try {
             const res = await githubService.call({
                 obj: 'orgs',
-                fun: 'getMembership',
+                fun: 'getMembershipForUser',
                 arg: {
                     org: org,
                     username: username
@@ -82,7 +81,7 @@ class Utils {
     }
 
     validateArgs(args, schema, allowUnknown = false, convert = true) {
-        const joiRes = Joi.validate(args, schema, { abortEarly: false, allowUnknown, convert })
+        const joiRes = schema.validate(args, { abortEarly: false, allowUnknown, convert })
         if (joiRes.error) {
             joiRes.error.code = 400
             throw joiRes.error

@@ -1,5 +1,4 @@
 let passport = require('passport')
-let q = require('q')
 let utils = require('./utils')
 
 function authenticateForAdminOnlyApi(req, res, next) {
@@ -26,7 +25,7 @@ function authenticateForAdminOnlyApi(req, res, next) {
             promises.push(utils.checkOrgAdminPermission(req.args.org, user.login, user.token))
         }
 
-        return q.all(promises).then(function () {
+        return Promise.all(promises).then(function () {
             req.user = user
             next()
         }).catch(function (error) {

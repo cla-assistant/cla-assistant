@@ -29,7 +29,7 @@ const SIGNATURESCHEMA = Joi.object().keys({
 const GISTREQUESTSCHEMA = Joi.object().keys({
     gist: Joi.alternatives([Joi.string().uri(), Joi.object().keys({
         gist_url: Joi.string().uri(),
-        gist_version: Joi.strict()
+        gist_version: Joi.any().strict()
     })]),
     repoId: Joi.number(),
     orgId: Joi.number(),

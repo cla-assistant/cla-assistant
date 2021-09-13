@@ -27,7 +27,7 @@ describe('CLA Controller', function () {
             if (o === 'users' && functn === 'getAuthenticated') {
                 deferred.resolve(user);
                 cb(null, user);
-            } else if (o === 'users' && functn === 'listEmails') {
+            } else if (o === 'users' && functn === 'listEmailsForAuthenticated') {
                 var emails = {
                     value: [
                         {

@@ -132,7 +132,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         var getRepos = function () {
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
-                return $HUBService.call('repos', 'list', {
+                return $HUBService.call('repos', 'listForAuthenticatedUser', {
                     per_page: 100,
                     affiliation: 'owner,organization_member'
                 }).then(function (data) {
