@@ -10,7 +10,7 @@ const REPOCREATESCHEMA = Joi.object().keys({
     repo: Joi.string().required(),
     repoId: Joi.number().required(),
     token: Joi.string().required(),
-    gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow([null])), // Null CLA
+    gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow(null)), // Null CLA
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
     minCodeChanges: Joi.number(),
