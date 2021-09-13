@@ -19,7 +19,7 @@
     "bugs": "https://github.com/cla-assistant/cla-assistant/issues",
     "contributors": [],
     "dependencies": {
-        "@google-cloud/trace-agent": "^4.2.5",
+        "@google-cloud/trace-agent": "^5.1.5",
         "@octokit/plugin-retry": "^2.2.0",
         "@octokit/plugin-throttling": "^2.4.0",
         "@octokit/rest": "^16.37.0",
