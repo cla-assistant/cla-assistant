@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.9.3](https://github.com/cla-assistant/cla-assistant/tree/v2.9.3) (2021-09-14)
+**Improvements:**
+- use native octokit calls instead of node-fetch (#768)
+- update all production dependencies to the their newest version (#767, #765, #764, #759, #763, #762, #761)
+- update octokit libraries and refactor Octokit usage (#759)
+
 ## [v2.9.2](https://github.com/cla-assistant/cla-assistant/tree/v2.9.2) (2021-09-09)
 **Improvements:**
 - remove array-sugar and q; move codeceptjs to dev (#756)
