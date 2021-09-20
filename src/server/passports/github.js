@@ -92,7 +92,7 @@ if (config.server.github.authentication_type === 'GitHubApp') {
         }))
     }))
 } else if (config.server.github.authentication_type === 'OAuthApp') {
-    passport.use(new github2Strategy({
+    passport.use(new githubStrategy({
         clientID: config.server.github.client,
         clientSecret: config.server.github.secret,
         callbackURL: url.githubCallback,

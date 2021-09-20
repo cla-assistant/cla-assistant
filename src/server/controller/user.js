@@ -3,7 +3,6 @@ const express = require('express')
 const utils = require('../middleware/utils')
 const logger = require('../services/logger')
 const User = require('mongoose').model('User')
-const url = require('../services/url')
 
 const router = express.Router()
 let scope

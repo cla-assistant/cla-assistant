@@ -23,6 +23,7 @@ module.exports = {
             authentication_type: process.env.AUTH_TYPE || 'GitHubApp',
             client: process.env.GITHUB_CLIENT,
             secret: process.env.GITHUB_SECRET,
+            github_app_name: process.env.AUTH_TYPE === 'GitHubApp' ? process.env.GITHUB_APP_NAME : '',
 
             // required
             admin_users: process.env.GITHUB_ADMIN_USERS ? process.env.GITHUB_ADMIN_USERS.split(/\s*,\s*/) : [],
