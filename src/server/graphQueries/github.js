@@ -2,8 +2,7 @@
 module.exports = {
     getPRCommitters: (owner, repo, number, cursor) => {
         number = typeof number === 'string' ? parseInt(number) : number
-        let query = `
-            query($owner:String! $name:String! $number:Int! $cursor:String!){
+        const query = `query ($owner:String! $name:String! $number:Int! $cursor:String!){
                 repository(owner: $owner, name: $name) {
                 pullRequest(number: $number) {
                     commits(first: 100, after: $cursor) {
@@ -39,15 +38,16 @@ module.exports = {
                     }
                 }
             }
-        }`.replace(/ /g, '')
-        let variables = {
+        }`
+
+        const variables = {
             owner: owner,
             name: repo,
             number: number,
-            cursor: cursor
+            cursor: cursor,
         }
 
-        return JSON.stringify({ query, variables })
+        return { query, variables }
     },
 
     getUserOrgs: (owner, cursor) => {
@@ -73,11 +73,15 @@ module.exports = {
                 }
             }
         }`
-        let variables = { owner }
+
+        const variables = {
+            owner: owner,
+        }
+
         if (cursor) {
             variables.cursor = cursor
         }
 
-        return JSON.stringify({ query, variables }).replace(/ /g, '')
+        return { query, variables }
     }
 }

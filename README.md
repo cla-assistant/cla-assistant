@@ -70,7 +70,7 @@ Following steps need to be done:
 ```
 
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
-The possible values for the "githubKey"-property can be found in the [GitHub-API description](https://developer.github.com/v3/users/#get-a-single-user)
+The possible values for the "githubKey"-property can be found in the [GitHub-API description](https://developer.github.com/v3/users/#get-a-single-user).
 
 ## FAQ
 #### Where is the list of signees stored?
@@ -105,7 +105,7 @@ npm install
 [Register an application on GitHub](https://github.com/settings/applications/new).
 The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
-You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command
+You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command:
 ```sh
 ngrok http 5000
 ```
@@ -192,7 +192,7 @@ $ docker run -d -p5000:5000 \
       cla-assistant
 ```
 
-For the list of supported environments see [supported environment variables](#supported-environment-variables)
+For the list of supported environments see [supported environment variables](#supported-environment-variables).
 
 ## License
 

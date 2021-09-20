@@ -7,7 +7,7 @@ const github = require('passport-github').Strategy
 const github2 = require('passport-github2').Strategy
 const merge = require('merge')
 const User = require('mongoose').model('User')
-const fetch = require('node-fetch')
+const github = require('../services/github')
 
 function updateToken(item, newToken) {
     item.token = newToken
@@ -16,35 +16,33 @@ function updateToken(item, newToken) {
 }
 
 async function checkToken(item, accessToken) {
-    const baseURL = 'https://api.github.com'
-    const checkAuthApi = `${ baseURL }/applications/${ config.server.github.client }/token`
     const newToken = accessToken
     const oldToken = item.token
-    const accesstokenObject = {
-        access_token: oldToken
-    }
 
     try {
-        const header = {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Basic ' + Buffer.from(config.server.github.client + ':' + config.server.github.secret).toString('base64'),
-                'User-Agent': 'CLA assistant',
-                'Accept': 'application/vnd.github.doctor-strange-preview+json',
-                'Content-Type': 'application/json'
+        const args = {
+            obj: 'apps',
+            fun: 'checkToken',
+            arg: {
+                access_token: oldToken,
+                client_id: config.server.github.client
             },
-            body: JSON.stringify(accesstokenObject)
+            basicAuth: {
+                user: config.server.github.client,
+                pass: config.server.github.secret
+            }
         }
-        const res = await fetch(checkAuthApi, header)
-        const checkTokenResponse = await res.json()
-        if (checkTokenResponse) {
-            if (!(checkTokenResponse && checkTokenResponse.scopes && checkTokenResponse.scopes.indexOf('write:repo_hook') >= 0)) {
+
+        const res = await github.call(args)
+
+        if (res) {
+            if (!(res.scopes && res.scopes.indexOf('write:repo_hook') >= 0)) {
                 updateToken(item, newToken)
             } else if (item.repo) {
                 const ghRepo = await repoService.getGHRepo(item)
                 if (!(ghRepo && ghRepo.permissions && ghRepo.permissions.admin)) {
                     updateToken(item, newToken)
-                    logger.info('Update access token for repo ', item.repo, ' admin rights have been changed')
+                    logger.info(`Update access token for repo ${item.repo} admin rights have been changed`)
                 }
             }
         }

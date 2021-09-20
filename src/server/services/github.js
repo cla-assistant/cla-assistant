@@ -1,4 +1,3 @@
-const fetch = require('node-fetch')
 const cache = require('memory-cache')
 const config = require('../../config')
 const stringify = require('json-stable-stringify')
@@ -99,17 +98,11 @@ const githubService = {
     },
 
     callGraphql: async (query, token) => {
-        const response = await fetch(config.server.github.graphqlEndpoint, {
-            method: 'POST',
-            headers: {
-                'Authorization': `bearer ${token}`,
-                'User-Agent': 'CLA assistant',
-                'Content-Type': 'application/json',
-            },
-            body: query
-        })
-        const dataPromise = response.json()
-        return dataPromise
+        const octokit = new OctokitWithPluginsAndDefaults({ auth: token })
+        const response = await octokit.graphql(query.query, query.variables)
+        // workaround as the other functions expect the response body in the data attribute
+        // TODO: refactor probably
+        return { data: response }
     }
 }
 
