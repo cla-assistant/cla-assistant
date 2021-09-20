@@ -72,7 +72,7 @@ router.all('/*', (req, res) => {
     if (req.path === '/robots.txt') {
         filePath = path.join(__dirname, '..', '..', 'client', 'assets', 'robots.txt')
     }
-    else if ((req.user && req.session.requiredScope === 'admin') || req.path !== '/') {
+    else if ((req.user && req.session.requiredScope !== 'public') || req.path !== '/') {
         filePath = path.join(__dirname, '..', '..', 'client', 'home.html')
     } else {
         filePath = config.server.templates.login

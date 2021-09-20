@@ -3,8 +3,8 @@ const repoService = require('../services/repo')
 const orgApi = require('../api/org')
 const logger = require('../services/logger')
 const passport = require('passport')
-const github = require('passport-github').Strategy
-const github2 = require('passport-github2').Strategy
+const githubStrategy = require('passport-github').Strategy
+const github2Strategy = require('passport-github2').Strategy
 const merge = require('merge')
 const User = require('mongoose').model('User')
 const github = require('../services/github')
@@ -53,7 +53,7 @@ async function checkToken(item, accessToken) {
 }
 
 if (config.server.github.authentication_type === 'GitHubApp') {
-    passport.use(new github2({
+    passport.use(new github2Strategy({
         clientID: config.server.github.client,
         clientSecret: config.server.github.secret,
         callbackURL: url.githubCallback,
@@ -92,7 +92,7 @@ if (config.server.github.authentication_type === 'GitHubApp') {
         }))
     }))
 } else if (config.server.github.authentication_type === 'OAuthApp') {
-    passport.use(new github({
+    passport.use(new github2Strategy({
         clientID: config.server.github.client,
         clientSecret: config.server.github.secret,
         callbackURL: url.githubCallback,
@@ -126,6 +126,15 @@ if (config.server.github.authentication_type === 'GitHubApp') {
                 logger.warn(new Error(`Could not create new user ${error}`).stack)
             }
         }
+        // User.update({
+        //     uuid: profile.id
+        // }, {
+        //     name: profile.username,
+        //     email: '', // needs fix
+        //     token: accessToken
+        // }, {
+        //     upsert: true
+        // }, function () {})
     
         if (params.scope.indexOf('write:repo_hook') >= 0) {
             try {

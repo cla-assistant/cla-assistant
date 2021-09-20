@@ -134,7 +134,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
                 return $HUBService.call('repos', 'listForAuthenticatedUser', {
                     per_page: 100,
-                    affiliation: 'owner,organization_member'
+                    affiliation: 'owner,organization_member,collaborator'
                 }).then(function (data) {
                     data.value.forEach(function (repo) {
                         if (repo.permissions.push) {

@@ -32,6 +32,7 @@
         "connect-mongo": "^4.5.0",
         "cookie-parser": "^1.4.5",
         "dont-sniff-mimetype": "^1.1.0",
+        "dotenv": "^10.0.0",
         "ejs": "^3.1.6",
         "express": "^4.17.1",
         "express-session": "^1.17.2",
@@ -45,6 +46,7 @@
         "passport": "^0.4.1",
         "passport-accesstoken": "^0.1.0",
         "passport-github": "^1.1.0",
+        "passport-github2": "^0.1.12",
         "x-frame-options": "^1.0.0"
     },
     "devDependencies": {
