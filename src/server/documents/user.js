@@ -8,8 +8,7 @@ const UserSchema = mongoose.Schema({
         owner: String,
         numbers: [Number]
     }],
-    token: String,
-    appInstalled: Boolean
+    token: String
 })
 
 UserSchema.index({

@@ -20,16 +20,17 @@ module.exports = {
             graphqlEndpoint: process.env.GITHUB_GRAPHQL || 'https://api.github.com/graphql',
 
             // required
-            authentication_type: process.env.AUTH_TYPE || 'GitHubApp',
             client: process.env.GITHUB_CLIENT,
             secret: process.env.GITHUB_SECRET,
-            github_app_name: process.env.AUTH_TYPE === 'GitHubApp' ? process.env.GITHUB_APP_NAME : '',
+            token: process.env.GITHUB_TOKEN,
+            github_app_name: process.env.GITHUB_APP_NAME,
+            github_app_private_key: process.env.GITHUB_PRIVATE_KEY,
+            github_app_app_id: process.env.GITHUB_APP_ID,
+            github_app_client: process.env.GITHUB_APP_CLIENT,
+            github_app_secret: process.env.GITHUB_APP_SECRET,
 
             // required
             admin_users: process.env.GITHUB_ADMIN_USERS ? process.env.GITHUB_ADMIN_USERS.split(/\s*,\s*/) : [],
-
-            // required
-            token: process.env.GITHUB_TOKEN,
 
             //temporary, not required
             token_old: process.env.GITHUB_TOKEN_OLD,

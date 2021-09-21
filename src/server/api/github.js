@@ -19,7 +19,7 @@ module.exports = {
             if (user) {
                 const scope = {
                     role: req.session.requiredScope,
-                    appInstalled: config.server.github.authentication_type === 'GitHubApp' ?  user.appInstalled : 'OAuthApp'
+                    // appInstalled: config.server.github.authentication_type === 'GitHubApp' ?  user.appInstalled : 'OAuthApp'
                 }
                 return { data: scope }
             }

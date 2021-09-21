@@ -47,8 +47,7 @@ router.get('/auth/github/callback',
     }),
     async function (req, res) {
         logger.debug('Process authentication callback after passport authenticate')
-        if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login)
-        && config.server.github.authentication_type === 'OAuthApp' && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
+        if (req.user && req.session.requiredScope != 'public' && utils.couldBeAdmin(req.user.login) && (!req.user.scope || req.user.scope.indexOf('write:repo_hook') < 0)) {
             return res.redirect('/auth/github?public=false')
         }
         res.redirect(req.session.returnTo || req.headers.referer || '/')
@@ -60,21 +59,23 @@ router.get('/auth/github/callback',
 router.get('/auth/github/post-install',
     async function (req, res) {
         logger.debug('Start additional step')
-        let user
-        try {
-            user = await User.findOne({
-                name: req.user.login
-            })
-            if (user) {
-                user.appInstalled = true
-            }
-            user.save()
-            res.redirect(req.session.returnTo || req.headers.referer || '/')
-            req.session.next = null
-            logger.debug('Finish additional step')
-        } catch (error) {
-            logger.warn(error.stack)
-        }
+        // Do something
+        
+        // let user
+        // try {
+        //     user = await User.findOne({
+        //         name: req.user.login
+        //     })
+        //     if (user) {
+        //         user.appInstalled = true
+        //     }
+        //     user.save()
+        //     res.redirect(req.session.returnTo || req.headers.referer || '/')
+        //     req.session.next = null
+        //     logger.debug('Finish additional step')
+        // } catch (error) {
+        //     logger.warn(error.stack)
+        // }
     }
 )
 
