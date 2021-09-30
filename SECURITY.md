@@ -1,6 +1,6 @@
 <!-- START SAP SECURITY.MD V0.0.1 BLOCK -->
 <!-- Please do not remove the version header, this is needed for automatic updates of the SECURITY.md -->
-# SAP Open Source Security Policy
+# SAP Open Source Security Policy 
 
 SAP takes the security of our software products and services seriously, which includes all source code repositories managed through our GitHub organizations, including our primary [SAP](https://github.com/SAP), [SAP-docs](https://github.com/SAP-docs) organizations as well as [our other GitHub organizations and projects](https://opensource.sap.com).
 
