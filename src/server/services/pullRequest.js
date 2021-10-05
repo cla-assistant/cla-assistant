@@ -76,11 +76,12 @@ class PullRequestService {
                 return
             }
 
-            github.call({
+            github.callWithGitHubApp({
                 obj: 'issues',
                 fun,
                 arg,
                 token: config.server.github.token,
+                owner
             }).catch((error) => {
                 logger.debug(`Failed on api call issues/${fun} for PR ${url.githubHttpPullRequest(owner, repo, pullNumber)}`)
                 logger.warn(new Error(error).stack)
@@ -91,7 +92,7 @@ class PullRequestService {
     }
 
     async getComment(args) {
-        const res = await github.call({
+        const res = await github.callWithGitHubApp({
             obj: 'issues',
             fun: 'listComments',
             arg: {
@@ -99,7 +100,8 @@ class PullRequestService {
                 repo: args.repo,
                 issue_number: args.number
             },
-            token: config.server.github.token
+            token: config.server.github.token,
+            owner: args.owner
         })
         return res.data.find(comment => comment.body.match(/.*!\[CLA assistant check\].*/))
     }
@@ -122,7 +124,7 @@ class PullRequestService {
             const userMap = args.userMap ? args.userMap : null
             const body = commentText(args.signed, badgeUrl, claUrl, userMap, recheckUrl)
 
-            await github.call({
+            await github.callWithGitHubApp({
                 obj: 'issues',
                 fun: 'updateComment',
                 arg: {
@@ -131,7 +133,8 @@ class PullRequestService {
                     comment_id: comment.id,
                     body: body
                 },
-                token: config.server.github.token
+                token: config.server.github.token,
+                owner: args.owner
             })
         } catch (error) {
             logger.warn(new Error(`${error} with args: ${args}`).stack)
@@ -148,7 +151,7 @@ class PullRequestService {
             if (!comment) {
                 return
             }
-            await github.call({
+            await github.callWithGitHubApp({
                 obj: 'issues',
                 fun: 'deleteComment',
                 arg: {
@@ -156,6 +159,7 @@ class PullRequestService {
                     repo: args.repo,
                     comment_id: comment.id
                 },
+                owner: args.owner,
                 token: config.server.github.token
             })
         } catch (error) {
@@ -169,20 +173,22 @@ module.exports = new PullRequestService()
 
 //Temporary fix of comments from outdated user -- remove later
 function updateCommentOfDeprecatedUser(arg, pullNumber, owner, repo) {
-    github.call({
+    github.callWithGitHubApp({
         obj: 'issues',
         fun: 'deleteComment',
         arg,
         token: config.server.github.token_old,
+        owner: arg.owner
     }).catch(() => {
         logger.debug('Failed on deleting comment from the old user')
     })
     arg.issue_number = pullNumber
-    github.call({
+    github.callWithGitHubApp({
         obj: 'issues',
         fun: 'createComment',
         arg,
         token: config.server.github.token,
+        owner: arg.owner
     }).catch(() => {
         logger.debug('Failed on creating comment for CLAassistant user')
     })

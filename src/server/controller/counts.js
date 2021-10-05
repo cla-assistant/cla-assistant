@@ -74,14 +74,15 @@ router.all('/count/clas', async (req, res) => {
 router.all('/count/stars', async (_req, res) => {
     let resp
     try {
-        resp = await github.call({
+        resp = await github.callWithGitHubApp({
             obj: 'repos',
             fun: 'get',
             arg: {
                 owner: 'cla-assistant',
                 repo: 'cla-assistant'
             },
-            token: config.server.github.token
+            token: config.server.github.token,
+            owner: _req.user.login
         })
     } catch (error) {
         logger.info(error)

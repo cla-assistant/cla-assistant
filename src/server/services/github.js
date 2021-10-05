@@ -4,6 +4,7 @@ const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
 
 const { Octokit } = require('@octokit/rest')
+const { createAppAuth } = require('@octokit/auth-app')
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
     require('@octokit/plugin-retry').retry,
     require('@octokit/plugin-throttling').throttling,
@@ -68,6 +69,27 @@ function determineAuthentication(token, basicAuth) {
     }
 }
 
+async function getInstallationId(octokit, arg) {
+    // Test: using the user installtion for both user and organization installation
+    const result = await callGithub(octokit, 'apps', 'getUserInstallation', arg);
+    return result.data.id;
+}
+
+async function getInstallationAccessToken(username) {
+    const JWToctokit = new OctokitWithPluginsAndDefaults({
+        authStrategy: createAppAuth,
+        auth: {
+            appId: config.server.github.github_app_app_id,
+            privateKey: config.server.github.github_app_private_key,
+            clientId: config.server.github.github_app_client,
+            clientSecret: config.server.github.github_app_secret
+        }
+    });
+    const installation_id = await getInstallationId(JWToctokit, { username });
+    const result = await callGithub(JWToctokit, 'apps', 'createInstallationAccessToken', {installation_id});
+    return result.data.token;
+}
+
 const githubService = {
     resetList: {},
 
@@ -103,6 +125,18 @@ const githubService = {
         // workaround as the other functions expect the response body in the data attribute
         // TODO: refactor probably
         return { data: response }
+    },
+
+    callWithGitHubApp: async (request) => {
+        try {
+            const username = request.owner;
+            const token = await getInstallationAccessToken(username);
+            request.token = token;
+            logger.info(request);
+        } catch(error) {
+            logger.error(error);
+        }
+        return call(request);
     }
 }
 
@@ -117,4 +151,8 @@ function generateCacheKey(arg, obj, fun, token) {
         arg: argWithoutCacheParams,
         token
     })
+}
+
+async function call(request) {
+    return await githubService.call(request);
 }

@@ -309,13 +309,14 @@ class RepoService {
     // }
 
     async getGHRepo(args) {
-        let res = await github.call({
+        let res = await github.callWithGitHubApp({
             obj: 'repos',
             fun: 'get',
             arg: {
                 owner: args.owner,
                 repo: args.repo
             },
+            owner: args.owner,
             token: args.token
         })
         return res.data
