@@ -43,7 +43,8 @@ class ClaApi {
         if (req.user && req.user.token && req.args.gist) {
             return cla.getGist({
                 token: req.user.token,
-                gist: req.args.gist
+                gist: req.args.gist,
+                owner: req.args.owner || req.user.login
             })
         }
 
@@ -59,8 +60,10 @@ class ClaApi {
         }
         gistArgs = req.args.gist ? req.args.gist : gistArgs
         token = item.token
+        const owner = req.user ? req.user.login : req.args.owner
         return cla.getGist({
             token,
+            owner: owner,
             gist: gistArgs
         })
     }
@@ -75,7 +78,7 @@ class ClaApi {
 
         try {
             let renderToken = token ? token : req.user && req.user.token ? req.user.token : token
-            let gistContent = await renderFiles(gist.files, renderToken)
+            let gistContent = await renderFiles(gist.files, renderToken, req.user ? req.user.login : req.args.owner)
             gistContent.updatedAt = gist.updated_at
             return gistContent
         } catch (error) {
@@ -228,7 +231,7 @@ class ClaApi {
         const token = req.args.token ? req.args.token : req.user.token
 
         try {
-            const resp = await github.call({
+            const resp = await github.callWithGitHubApp({
                 obj: 'pulls',
                 fun: 'list',
                 arg: {
@@ -237,7 +240,8 @@ class ClaApi {
                     state: 'open',
                     per_page: 100
                 },
-                token
+                token,
+                owner: req.args.owner
             })
             pullRequests = resp.data
         } catch (error) {
@@ -351,7 +355,7 @@ class ClaApi {
                     // eslint-disable-next-line quotes
                     throw `Uploaded signature doesn't contain user name`
                 }
-                const ghUser = await getGithubUser(signature.user, req.user.token)
+                const ghUser = await getGithubUser(signature.user, req.user.token, req.args.owner)
 
                 const args = {
                     repo: req.args.repo,
@@ -444,22 +448,23 @@ const claApi = new ClaApi()
 module.exports = claApi
 
 
-async function markdownRender(content, token) {
+async function markdownRender(content, token, owner) {
     const args = {
         obj: 'markdown',
         fun: 'render',
         arg: {
             text: content
         },
-        token: token
+        token,
+        owner
     }
-    const response = await github.call(args)
+    const response = await github.callWithGitHubApp(args)
     return {
         raw: response.body || response.data || response
     }
 }
 
-async function renderFiles(files, renderToken) {
+async function renderFiles(files, token, owner) {
     let content
     try {
         Object.keys(files).some(function (name) {
@@ -471,8 +476,8 @@ async function renderFiles(files, renderToken) {
         throw new Error(e)
     }
 
-    const contentPromise = markdownRender(content, renderToken)
-    const metaPromise = files && files.metadata ? markdownRender(files.metadata.content, renderToken) : undefined
+    const contentPromise = markdownRender(content, token, owner)
+    const metaPromise = files && files.metadata ? markdownRender(files.metadata.content, token, owner) : undefined
     const data = await Promise.all([contentPromise, metaPromise])
 
     let gistContent = {}
@@ -641,14 +646,15 @@ function validateUserPRs(repo, owner, gist, sharedGist, numbers, token, item) {
 
 async function getReposNeedToValidate(req) {
     let repos = []
-    const allRepos = await github.call({
+    const allRepos = await github.callWithGitHubApp({
         obj: 'repos',
         fun: 'listForOrg',
         arg: {
             org: req.args.org,
             per_page: 100
         },
-        token: req.args.token || req.user.token
+        token: req.args.token || req.user.token,
+        owner: req.args.org
     })
     try {
         const linkedOrg = await orgService.get(req.args)
@@ -682,14 +688,15 @@ async function getReposNeedToValidate(req) {
     return repos
 }
 
-async function getGithubUser(userName, token) {
-    const res = await github.call({
+async function getGithubUser(userName, token, owner) {
+    const res = await github.callWithGitHubApp({
         obj: 'users',
         fun: 'getByUsername',
         arg: {
             username: userName
         },
-        token: token
+        token: token,
+        owner: owner
     })
     if (!res.data) {
         throw `${userName} is not a GitHub user`

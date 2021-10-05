@@ -20,6 +20,7 @@
     "contributors": [],
     "dependencies": {
         "@google-cloud/trace-agent": "^5.1.5",
+        "@octokit/auth-app": "^3.6.0",
         "@octokit/plugin-retry": "^3.0.9",
         "@octokit/plugin-throttling": "^3.5.2",
         "@octokit/rest": "^18.10.0",
