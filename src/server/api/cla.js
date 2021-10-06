@@ -43,8 +43,7 @@ class ClaApi {
         if (req.user && req.user.token && req.args.gist) {
             return cla.getGist({
                 token: req.user.token,
-                gist: req.args.gist,
-                owner: req.args.owner || req.user.login
+                gist: req.args.gist
             })
         }
 
