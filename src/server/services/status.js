@@ -24,7 +24,7 @@ const getPR = async (args) => {
 
 const getStatuses = async (args) => {
     try {
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'repos',
             fun: 'listCommitStatusesForRef',
             arg: {
@@ -32,6 +32,7 @@ const getStatuses = async (args) => {
                 repo: args.repo,
                 ref: args.sha
             },
+            owner: args.owner,
             token: args.token
         })
 

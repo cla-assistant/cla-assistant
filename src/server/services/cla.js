@@ -37,8 +37,13 @@ class ClaService {
             token: token,
             owner
         }
-
-        return github.call(args)
+        try {
+            return github.call(args)
+        } catch (error) {
+            logger.error(new Error(error).stack)
+            args.token = config.server.github.token
+            return github.call(args)
+        }
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
