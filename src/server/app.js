@@ -36,7 +36,7 @@ const log = require('./services/logger')
 const app = express()
 const api = {}
 const webhooks = {}
-let runningWebhooks = []
+const runningWebhooks = new Set()
 
 // install tracing middleware
 const tracingOptions = {}
@@ -257,36 +257,41 @@ app.all('/api/:obj/:fun', async (req, res) => {
 // Handle webhook calls
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-app.all('/github/webhook/:repo', (req, res) => {
-    let event = req.headers['x-github-event']
-    try {
-        let hook = webhooks[event]
-        if (!hook) {
-            return res.status(400).send('Unsupported event')
+app.all('/github/webhook/:repo',
+    ensureSupportedEvent,
+    isRudundantWebhookForPR,
+    (req, res) => {
+        try {
+            return req.hook.handle(req, res)
+        } catch (err) {
+            res.status(500).send('Internal Server Error')
         }
-        if (hook.accepts(req)) {
-            if (isRudundantWebhook(req)) {
-                console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
-                return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
-            }
-            return hook.handle(req, res)
-        }
-        return res.status(204).send('This webhook performed no action')
-    } catch (err) {
-        res.status(500).send('Internal Server Error')
-    }
-})
+    })
 
-function isRudundantWebhook(req) {
-    if (req.args.pull_request && req.args.pull_request.html_url) {
-        if (runningWebhooks.indexOf(req.args.pull_request.html_url) >= 0) {
-            return true
-        }
-        runningWebhooks.push(req.args.pull_request.html_url)
-        setTimeout(() => {
-            runningWebhooks = runningWebhooks.filter(e => e !== req.args.pull_request.html_url)
-        }, 2000)
+function ensureSupportedEvent(req, res, next) {
+    const event = req.headers['x-github-event']
+    req.hook = webhooks[event]
+    if (!req.hook) {
+        return res.status(400).send(`Unsupported event ${event}`)
     }
+    if (!req.hook.accepts(req)) {
+        // webhook performed no action
+        return res.status(200).send('No action performed')
+    }
+    next()
+}
+
+function isRudundantWebhookForPR(req, res, next) {
+    if (req.args.pull_request && req.args.pull_request.html_url) {
+        if (runningWebhooks.has(req.args.pull_request.html_url)) {
+            console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
+            return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
+        }
+        runningWebhooks.add(req.args.pull_request.html_url)
+        // For two seconds remember PR url to ensure that we don't handle it twice
+        setTimeout(() => runningWebhooks.delete(req.args.pull_request.html_url), 2000)
+    }
+    next()
 }
 
 function retryInitializeMongoose(uri, options, callback) {
