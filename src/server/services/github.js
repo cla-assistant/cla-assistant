@@ -130,6 +130,7 @@ const githubService = {
     callWithGitHubApp: async (request) => {
         try {
             const username = request.owner;
+            delete request.owner
             const token = await getInstallationAccessToken(username);
             request.token = token;
             logger.info(request);

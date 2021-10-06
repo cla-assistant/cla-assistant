@@ -501,7 +501,7 @@ describe('pullRequest:getComment', () => {
             number: 1
         }
         try {
-            pullRequest.getComment(args)
+            await pullRequest.getComment(args)
             assert(false, 'should have thrown an error')
         } catch (error) {
             assert(error)
