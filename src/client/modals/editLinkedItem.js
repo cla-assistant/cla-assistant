@@ -45,9 +45,9 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
         });
     };
 
-    $scope.allowlistInfoOrg = function () {
+    $scope.allowlistInfoOrgs = function () {
         $modal.open({
-            templateUrl: '/modals/templates/allowlistorg_info.html',
+            templateUrl: '/modals/templates/allowlistorgs_info.html',
             controller: 'InfoCtrl',
             windowClass: 'howto'
         });
