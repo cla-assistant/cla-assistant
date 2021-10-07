@@ -45,6 +45,14 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
         });
     };
 
+    $scope.allowlistInfoOrg = function () {
+        $modal.open({
+            templateUrl: '/modals/templates/allowlistorg_info.html',
+            controller: 'InfoCtrl',
+            windowClass: 'howto'
+        });
+    };
+
     $scope.ok = function (itemToSave) {
         $scope.selectedGistId = getGistId($scope.selected.gist.url);
         $scope.itemsGistId = getGistId(itemToSave.gist);

@@ -545,7 +545,7 @@ class ClaService {
             const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token)
 
             // if one of the Organizations is on the allowlist we accept that as signature and don't need to look further
-            const userOrgIsOnAllowlist = userOrgMemberships.find(userOrgMembership => item.isUserOnAllowlist(userOrgMembership.name))
+            const userOrgIsOnAllowlist = userOrgMemberships && userOrgMemberships.find(userOrgMembership => item.isOrgOnAllowlist && item.isOrgOnAllowlist(userOrgMembership.name))
 
             // if the user is not on the allowlist add them to the signeesNotExcluded array
             if (!userOrgIsOnAllowlist) {

@@ -92,6 +92,19 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="form-group">
+                <div style="margin-bottom: 5px; margin-top: 5px;">Specify organization, which public members are always allowed
+                    <span class="clickable" ng-click="allowlistOrgsInfo()"
+                        style="font-size:12px; text-decoration:underline">(how does this work?)</span>
+                </div>
+                <input id="allowListPatternOrgs" class="form-control" ng-model="selected.item.allowListPatternOrgs"
+                    placeholder="org1,org2"></input>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
                 <div style="margin-bottom: 5px; margin-top: 5px;">Request the user's consent to the use of personal data
                     in accordance with your privacy policy. Please, provide
                     a link to your Privacy Policy here
