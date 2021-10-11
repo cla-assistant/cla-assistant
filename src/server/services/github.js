@@ -129,15 +129,28 @@ const githubService = {
 
     callWithGitHubApp: async (request) => {
         try {
-            const username = request.owner;
+            const username = request.owner
             delete request.owner
-            const token = await getInstallationAccessToken(username);
-            request.token = token;
-            logger.info(request);
+            const token = await getInstallationAccessToken(username)
+            request.token = token
+            logger.info(request)
         } catch(error) {
             logger.error(error);
         }
         return call(request);
+    },
+
+    callGraphqlWithGitHubApp: async (query, token) => {
+        try {
+            const username = query.owner
+            delete query.owner
+            const ghsToken = await getInstallationAccessToken(username)
+            token = ghsToken
+            logger.info(query)
+        } catch (error) {
+            logger.error(error);
+        }
+        return callGraphql(query, token);
     }
 }
 
@@ -156,4 +169,8 @@ function generateCacheKey(arg, obj, fun, token) {
 
 async function call(request) {
     return await githubService.call(request);
+}
+
+async function callGraphql(query, token) {
+    return await githubService.callGraphql(query, token);
 }
