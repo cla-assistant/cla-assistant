@@ -40,7 +40,6 @@ let runningWebhooks = []
 
 // install tracing middleware
 const tracingOptions = {}
-tracingOptions.echoHeader = true
 if (config.server.observability.request_trace_header_name) {
     tracingOptions.useHeader = true
     tracingOptions.headerName = config.server.observability.request_trace_header_name
