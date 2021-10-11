@@ -165,6 +165,7 @@ class RepoService {
             try {
                 let committers = []
                 let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '')
+                query.owner = arg.arg.owner
 
                 const body = await github.callGraphql(query, arg.token)
 
