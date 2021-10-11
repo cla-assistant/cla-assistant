@@ -907,6 +907,46 @@ describe('cla:checkPullRequestSignatures', () => {
         }
     })
 
+    it('should correctly map github response down for _getGHOrgMemberships', async () => {
+        github.call.restore()
+        sinon.stub(github, 'call').resolves({
+            data: [
+                {
+                    login: 'org0',
+                    id: 1,
+                    someThing: "blub"
+                },
+                {
+                    login: 'org1',
+                    id: 2,
+                    someThing: "blub"
+                }
+            ]
+        })
+
+        const orgMemberships = await cla._getGHOrgMemberships('login0', 'abc')
+        assert.deepEqual(orgMemberships, [
+            {
+                name: 'org0',
+                id: 1
+            },
+            {
+                name: 'org1',
+                id: 2,
+            }
+        ])
+
+        assert.equal(github.call.calledWithMatch({
+            obj: 'orgs',
+            fun: 'listForUser',
+            arg: {
+                username: 'login0'
+            },
+            token: 'abc'
+        }), true)
+
+    })
+
     it('should exclude committers on allowlist from the map', async () => {
         testRes.repoServiceGet.isUserOnAllowlist = (user) => user === 'login1'
         testRes.repoServiceGetCommitters = [{
