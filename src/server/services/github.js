@@ -78,12 +78,7 @@ async function getInstallationId(octokit, arg) {
 async function getInstallationAccessToken(username) {
     const JWToctokit = new OctokitWithPluginsAndDefaults({
         authStrategy: createAppAuth,
-        auth: {
-            appId: config.server.github.app.github_app_app_id,
-            privateKey: config.server.github.app.github_app_private_key,
-            clientId: config.server.github.app.github_app_client,
-            clientSecret: config.server.github.app.github_app_secret
-        }
+        auth: config.server.github.app
     });
     const installation_id = await getInstallationId(JWToctokit, { username });
     const result = await callGithub(JWToctokit, 'apps', 'createInstallationAccessToken', {installation_id});
