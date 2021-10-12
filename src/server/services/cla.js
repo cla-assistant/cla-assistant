@@ -35,9 +35,13 @@ class ClaService {
                 cacheTime: 60 //seconds
             },
             token: token,
-            owner
+            owner: owner
         }
         try {
+            // The gists.get endpoint currently doesn't support the usage of a Github App installation token
+            // Therefore we try to use the stored user token
+            // If that fails we fall back to the generic CLA token
+            // This helps to not use the complete rate limit for the CLA bot, while still keep working in case the user token gets revoked
             return github.call(args)
         } catch (error) {
             logger.error(new Error(error).stack)
@@ -167,7 +171,7 @@ class ClaService {
                 pull_number: number
             },
             token: token,
-            owner
+            owner: owner
         })
     }
 
