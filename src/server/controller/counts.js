@@ -82,7 +82,7 @@ router.all('/count/stars', async (_req, res) => {
                 repo: 'cla-assistant'
             },
             token: config.server.github.token,
-            owner: _req.user.login
+            owner: 'cla-assistant'
         })
     } catch (error) {
         logger.info(error)

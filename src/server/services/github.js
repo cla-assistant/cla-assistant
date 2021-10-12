@@ -79,10 +79,10 @@ async function getInstallationAccessToken(username) {
     const JWToctokit = new OctokitWithPluginsAndDefaults({
         authStrategy: createAppAuth,
         auth: {
-            appId: config.server.github.github_app_app_id,
-            privateKey: config.server.github.github_app_private_key,
-            clientId: config.server.github.github_app_client,
-            clientSecret: config.server.github.github_app_secret
+            appId: config.server.github.app.github_app_app_id,
+            privateKey: config.server.github.app.github_app_private_key,
+            clientId: config.server.github.app.github_app_client,
+            clientSecret: config.server.github.app.github_app_secret
         }
     });
     const installation_id = await getInstallationId(JWToctokit, { username });
@@ -137,7 +137,7 @@ const githubService = {
         } catch(error) {
             logger.error(error);
         }
-        return call(request);
+        return githubService.call(request);
     },
 
     callGraphqlWithGitHubApp: async (query, token) => {
@@ -150,7 +150,7 @@ const githubService = {
         } catch (error) {
             logger.error(error);
         }
-        return callGraphql(query, token);
+        return githubService.callGraphql(query, token);
     }
 }
 
@@ -165,12 +165,4 @@ function generateCacheKey(arg, obj, fun, token) {
         arg: argWithoutCacheParams,
         token
     })
-}
-
-async function call(request) {
-    return await githubService.call(request);
-}
-
-async function callGraphql(query, token) {
-    return await githubService.callGraphql(query, token);
 }
