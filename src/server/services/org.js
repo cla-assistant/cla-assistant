@@ -20,6 +20,7 @@ class OrgService {
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
             allowListPattern: args.allowListPattern,
+            allowListPatternOrgs: args.allowListPatternOrgs,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
         })
@@ -38,6 +39,7 @@ class OrgService {
         org.minFileChanges = args.minFileChanges
         org.minCodeChanges = args.minCodeChanges
         org.allowListPattern = args.allowListPattern
+        org.allowListPatternOrgs = args.allowListPatternOrgs
         org.privacyPolicy = args.privacyPolicy
         org.updatedAt = new Date()
 

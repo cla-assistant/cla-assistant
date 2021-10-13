@@ -12,6 +12,7 @@ const RepoSchema = mongoose.Schema({
     minFileChanges: Number,
     minCodeChanges: Number,
     allowListPattern: String,
+    allowListPatternOrgs: String,
     privacyPolicy: String,
     updated_at: Date
 })
@@ -27,6 +28,10 @@ const indexOptions = {
 
 RepoSchema.methods.isUserOnAllowlist = function (user) {
     return utils.checkPatternWildcard(this.allowListPattern, user)
+}
+
+RepoSchema.methods.isOrgOnAllowlist = function (org) {
+    return utils.checkPatternWildcard(this.allowListPatternOrgs, org)
 }
 
 const Repo = mongoose.model('Repo', RepoSchema)

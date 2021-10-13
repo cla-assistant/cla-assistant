@@ -190,6 +190,31 @@ class ClaService {
 
     }
 
+    async _getGHOrgMemberships(username, token) {
+        try {
+            const response = await github.call({
+                obj: 'orgs',
+                fun: 'listForUser',
+                arg: {
+                    username: username
+                },
+                token: token
+            })
+            const orgMemberships = []
+            response.data.map((orgMembership) => {
+                orgMemberships.push({
+                    name: orgMembership.login,
+                    id: orgMembership.id
+                })
+            })
+
+            return orgMemberships
+
+        } catch (error) {
+            logger.error(new Error(error).stack)
+        }
+    }
+
     // let getOrg = function (args, done) {
     //     let deferred = q.defer()
     //     orgService.get(args, function (err, org) {
@@ -430,8 +455,11 @@ class ClaService {
         args.onDates.push(new Date(pullRequest.created_at))
 
         if (pullRequest.head && pullRequest.head.repo && pullRequest.head.repo.owner) {
+            // check if the contribution comes from an Organization
             const isOrgHead = pullRequest.head.repo.owner.type === 'Organization'
+            // check that this is actually a fork (and not just a branch in the same repo)
             const isForked = pullRequest.head.repo.fork
+            // only if feature flag is enabled
             if (organizationOverrideEnabled && isOrgHead) {
                 const {
                     owner: headOrg
@@ -447,8 +475,9 @@ class ClaService {
                         return ({
                             signed: true
                         })
+                    }
 
-                    } else if (externalCommitters.length > 0 && isForked && baseOrg.login !== headOrg.login) {
+                    if (externalCommitters.length > 0 && isForked && baseOrg.login !== headOrg.login) {                   // filter out users explicitly mentioned on allowlist
                         externalCommitters = externalCommitters.filter(externalCommitter =>
                             externalCommitter && !(item.isUserOnAllowlist !== undefined && item.isUserOnAllowlist(externalCommitter.name))
                         )
@@ -508,8 +537,24 @@ class ClaService {
         signees = signees.filter(signee =>
             signee && !(item.isUserOnAllowlist !== undefined && item.isUserOnAllowlist(signee.name))
         )
+
+        // loop through the signees and check which ones belong to an excepted org
+        const signeesNotExcluded = []
+        for (const signee of signees) {
+            // get org memberships for the signee
+            const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token)
+
+            // if one of the Organizations is on the allowlist we accept that as signature and don't need to look further
+            const userOrgIsOnAllowlist = userOrgMemberships && userOrgMemberships.find(userOrgMembership => item.isOrgOnAllowlist && item.isOrgOnAllowlist(userOrgMembership.name))
+
+            // if the user is not on the allowlist add them to the signeesNotExcluded array
+            if (!userOrgIsOnAllowlist) {
+                signeesNotExcluded.push(signee)
+            }
+        }
+
         return this._checkAll(
-            signees,
+            signeesNotExcluded,
             item.repoId,
             item.orgId,
             item.sharedGist,
@@ -627,7 +672,7 @@ class ClaService {
             // if org_cla is true it is an organization based CLA
             if (cla.org_cla) {
                 // if owner and gist matches return cla
-                return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url )
+                return owners.find(owner => owner.org == cla.owner && owner.gist == cla.gist_url)
             }
             // if repo, owner and gist matches return cla
             return repos.find(repo => repo.repo == cla.repo && repo.owner == cla.owner && repo.gist == cla.gist_url)
@@ -640,7 +685,7 @@ class ClaService {
                 cla.owner === uniqueCLA.owner &&
                 cla.gist_url === uniqueCLA.gist_url
             )
-            if (isNotNew === undefined){
+            if (isNotNew === undefined) {
                 uniqueCLAs.push(cla)
             }
         }

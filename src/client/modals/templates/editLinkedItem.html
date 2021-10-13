@@ -76,16 +76,33 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="form-group">
-                <div style="margin-bottom: 5px; margin-top: 5px;">Specify usernames to be always allowed
-                    <span class="clickable" ng-click="allowlistInfo()"
-                        style="font-size:12px; text-decoration:underline">(how does this work?)</span>
+                <div style="margin-bottom: 5px; margin-top: 5px;">Specify usernames and source organizations to be
+                    exempt from signing the CLA
                     <br />
+                    <span class="clickable" ng-click="allowlistInfo()"
+                        style="font-size:12px; text-decoration:underline">How does this work?</span>
                     <span class="side-note">(you can also use wildcard
-                        <span class="wildcard">*</span>)</span>
+                        <span class="wildcard">*</span>; multiple names need to separated by comma)</span>
                 </div>
-                <input id="allowListPattern" class="form-control" ng-model="selected.item.allowListPattern"
-                    placeholder="user1,user2,*[bot]"></input>
             </div>
+            <input id="allowListPattern" class="form-control" ng-model="selected.item.allowListPattern"
+                placeholder="user1,user2,*[bot]"></input>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <div style="margin-bottom: 5px; margin-top: 5px;">Specify organizations whose public members are exempt
+                    from signing the CLA
+                    <br />
+                    <span class="clickable" ng-click="allowlistInfoOrgs()"
+                        style="font-size:12px; text-decoration:underline">How does this work?</span>
+                    <span class="side-note">(multiple organization names need to separated by comma)</span>
+                </div>
+            </div>
+            <input id="allowListPatternOrgs" class="form-control" ng-model="selected.item.allowListPatternOrgs"
+                placeholder="org1,org2"></input>
         </div>
     </div>
 
