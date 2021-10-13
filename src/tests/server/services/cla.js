@@ -914,12 +914,12 @@ describe('cla:checkPullRequestSignatures', () => {
                 {
                     login: 'org0',
                     id: 1,
-                    someThing: "blub"
+                    someThing: 'blub'
                 },
                 {
                     login: 'org1',
                     id: 2,
-                    someThing: "blub"
+                    someThing: 'blub'
                 }
             ]
         })
