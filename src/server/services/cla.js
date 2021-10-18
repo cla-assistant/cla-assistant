@@ -202,15 +202,16 @@ class ClaService {
 
     }
 
-    async _getGHOrgMemberships(username, token) {
+    async _getGHOrgMemberships(username, token, owner) {
         try {
-            const response = await github.call({
+            const response = await github.callWithGitHubApp({
                 obj: 'orgs',
                 fun: 'listForUser',
                 arg: {
                     username: username
                 },
-                token: token
+                token: token,
+                owner: owner,
             })
             const orgMemberships = []
             response.data.map((orgMembership) => {
@@ -554,7 +555,7 @@ class ClaService {
         const signeesNotExcluded = []
         for (const signee of signees) {
             // get org memberships for the signee
-            const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token)
+            const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token, args.owner)
 
             // if one of the Organizations is on the allowlist we accept that as signature and don't need to look further
             const userOrgIsOnAllowlist = userOrgMemberships && userOrgMemberships.find(userOrgMembership => item.isOrgOnAllowlist && item.isOrgOnAllowlist(userOrgMembership.name))
