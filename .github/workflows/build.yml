@@ -52,7 +52,7 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          git-commit: ${{ github.event.inputs.ref || 'refs/heads/master' }}
+          git-commit: ${{ github.event.inputs.ref || github.sha }}
           path-to-lcov: ./output/coverage/lcov.info
       - name: build the docker image with committ SHA for staging
         if: github.ref == 'refs/heads/master' || ${{ github.event.inputs.ref }}
