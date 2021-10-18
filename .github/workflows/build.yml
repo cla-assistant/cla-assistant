@@ -75,4 +75,4 @@ jobs:
           docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}
       - name: deploy to staging cloud run service
         if: github.ref == 'refs/heads/master' || ${{ github.event.inputs.ref }}
-        run: gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
+        run: gcloud --quiet --project sap-cla-assistant beta run deploy cla-assistant-staging --platform managed --region europe-west1 --image eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }}
