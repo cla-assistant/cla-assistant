@@ -52,11 +52,11 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          git-commit: ${{ github.event.inputs.ref }} || 'refs/heads/master'
+          git-commit: ${{ github.event.inputs.ref || 'refs/heads/master' }}
           path-to-lcov: ./output/coverage/lcov.info
       - name: build the docker image with committ SHA for staging
         if: github.ref == 'refs/heads/master' || ${{ github.event.inputs.ref }}
-        run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA} .
+        run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }} .
       - name: build the docker images with tag name and latest for production
         if: startsWith(github.ref, 'refs/tags')
         run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_REF:10}  -t eu.gcr.io/sap-cla-assistant/cla-assistant:latest -t sapclaassistant/claassistant:latest -t sapclaassistant/claassistant:${GITHUB_REF:10} .
@@ -67,7 +67,7 @@ jobs:
           docker push sapclaassistant/claassistant
       - name: push image to gcp during push on master branch for testing in staging
         if: github.ref == 'refs/heads/master' || ${{ github.event.inputs.ref }}
-        run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${GITHUB_SHA}
+        run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }}
       - name: push images to gcp during new release for production usage
         if: startsWith(github.ref, 'refs/tags')
         run: |
