@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.10.0](https://github.com/cla-assistant/cla-assistant/tree/v2.10.0) (2021-10-20)
+**Features:**
+- Add option to except members of org from CLA (#783)
+
+**Improvements:**
+- Enable actions to deploy arbitrary commit to staging (#788, #789, 790)
+
 ## [v2.9.3](https://github.com/cla-assistant/cla-assistant/tree/v2.9.3) (2021-09-14)
 **Improvements:**
 - use native octokit calls instead of node-fetch (#768)
