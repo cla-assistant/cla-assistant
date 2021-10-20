@@ -5,7 +5,7 @@
 - Add option to except members of org from CLA (#783)
 
 **Improvements:**
-- Enable actions to deploy arbitrary commit to staging (#788, #789, 790)
+- Enable actions to deploy arbitrary commit to staging (#788, #789, #790, #792)
 
 ## [v2.9.3](https://github.com/cla-assistant/cla-assistant/tree/v2.9.3) (2021-09-14)
 **Improvements:**
