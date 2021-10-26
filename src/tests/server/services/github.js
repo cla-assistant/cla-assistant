@@ -15,6 +15,8 @@ const cache = require('memory-cache')
 
 const callStub = sinon.stub()
 const authenticateStub = sinon.stub()
+const createInstallationAccessTokenStub = sinon.stub()
+const getUserInstallationStub = sinon.stub()
 
 describe('github:call', () => {
     let expectedAuth
@@ -41,10 +43,24 @@ describe('github:call', () => {
                 }
             }
         }
-
         this.authenticate = authenticateStub
         this.paginate = callStub
+        this.apps = {
+            getUserInstallation: getUserInstallationStub,
+            createInstallationAccessToken: createInstallationAccessTokenStub
+        }
     }
+
+    // custom getInstallationAccessToken function
+    function fakeInstallationToken(owner) {
+        if (owner) {
+            return 'ghs_12345abc'
+        }
+    }
+
+    function fakeErrorInstallationToken(owner) {
+        throw Error(owner)
+     }
 
     github.__set__('Octokit', OctokitMock)
     github.__set__('OctokitWithPluginsAndDefaults', OctokitWithPluginsAndDefaultsMock)
@@ -148,4 +164,71 @@ describe('github:call', () => {
         }
         sinon.assert.calledOnce(callStub)
     })
+
+    it('callWithGitHubApp should use installation token if created by getInstallationAccessToken', async () => {
+        github.__set__('getInstallationAccessToken', fakeInstallationToken)
+        const githubCall = sinon.stub(github, 'call').resolves({ data: {}, headers: {} })
+
+        await github.callWithGitHubApp({
+            token: 'ghu_123',
+            owner: 'app-installer-name'
+        })
+        sinon.assert.calledWith(githubCall,{
+            token: 'ghs_12345abc'
+        })
+        githubCall.restore()
+    })
+
+    it('callWithGitHubApp should use user token if getInstallationAccessToken throws error', async () => {
+        github.__set__('getInstallationAccessToken', fakeErrorInstallationToken)
+        const githubCall = sinon.stub(github, 'call').resolves({ data: {}, headers: {} })
+
+        await github.callWithGitHubApp({
+            owner: 'app-installer-name',
+            token: 'ghu_123'
+        })
+        sinon.assert.calledWith(githubCall, {
+            token: 'ghu_123'
+        })
+        githubCall.restore()
+    })
+
+    it('should use user token if owner is not existed inside request', async () => {
+        let spy = sinon.spy(github, 'call')
+        expectedAuth = 'token ghu_123'
+
+        await github.callWithGitHubApp({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'ghu_123'
+        })
+
+        assert.strictEqual(spy.args[0][0].token, 'ghu_123')
+
+        github.call.restore()
+    })
+
+    it('should not contain owner key inside the input of github.call', async () => {
+        // custom getInstallationAccessToken function
+        function fakeInstallationToken(owner) {
+            if (owner) {
+                return 'ghs_12345abc'
+            }
+        }
+        github.__set__('getInstallationAccessToken', fakeInstallationToken)
+        let spy = sinon.spy(github, 'call')
+        expectedAuth = 'token ghs_12345abc'
+
+        await github.callWithGitHubApp({
+            obj: 'obj',
+            fun: 'fun',
+            token: 'ghu_123',
+            owner: 'app-installer-name'
+        })
+
+        assert(!('owner' in spy.args[0][0]))
+        assert.strictEqual(spy.args[0][0].owner, undefined)
+        github.call.restore()
+    })
+
 })
