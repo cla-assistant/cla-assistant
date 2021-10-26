@@ -67,6 +67,7 @@ class RepoService {
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
             allowListPattern: args.allowListPattern,
+            allowListPatternOrgs: args.allowListPatternOrgs,
             privacyPolicy: args.privacyPolicy,
             updatedAt: new Date()
         })
@@ -138,6 +139,7 @@ class RepoService {
         repo.minFileChanges = args.minFileChanges
         repo.minCodeChanges = args.minCodeChanges
         repo.allowListPattern = args.allowListPattern
+        repo.allowListPatternOrgs = args.allowListPatternOrgs
         repo.privacyPolicy = args.privacyPolicy
         repo.updatedAt = new Date()
 

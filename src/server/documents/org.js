@@ -11,6 +11,7 @@ const OrgSchema = mongoose.Schema({
     minFileChanges: Number,
     minCodeChanges: Number,
     allowListPattern: String,
+    allowListPatternOrgs: String,
     privacyPolicy: String,
     updated_at: Date
 })
@@ -21,6 +22,10 @@ OrgSchema.methods.isRepoExcluded = function (repo) {
 
 OrgSchema.methods.isUserOnAllowlist = function (user) {
     return utils.checkPatternWildcard(this.allowListPattern, user)
+}
+
+OrgSchema.methods.isOrgOnAllowlist = function (org) {
+    return utils.checkPatternWildcard(this.allowListPatternOrgs, org)
 }
 
 OrgSchema.index({

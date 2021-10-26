@@ -2,21 +2,25 @@
     <div ng-click="cancel()" class="fa fa-times close-button"></div>
 
     <div class="free-space">
-        <h4>How does always allowing users work?</h4>
+        <h4>How does exempting users work?</h4>
         <div>
-            If a GitHub username is included in the list to be always allowed, they will not be
-            required to sign a CLA. This also applies to organization usernames.
+            If a GitHub username is included in the list to be exempted from signing the CLA, they will not be
+            required to sign a CLA. If an organization's username is included, the service checks whether
+            the pull request branch is from a repository or fork belonging to that organization: if so,
+            then the organization's members are not required to sign a CLA. This exemption does not apply to private
+            members, personal forks, or commits authored by non-members. The input is a comma-separated list of GitHub
+            organization usernames.
         </div>
-        <h4>Why always allowing usernames?</h4>
+        <h4>Why exempt usernames?</h4>
         <div>
             Since there's no way for bot users (such as Dependabot or Greenkeeper) to
-            sign a CLA, you may want to allow their contributions without it. You can
+            sign a CLA, you may want to accept their contributions without it. You can
             do so by adding their names (in this case
             <i>dependabot-preview[bot]</i> and <i>greenkeeper[bot]</i> separated by a
-            comma) to the list of always allowed users. You can also use wildcard
-            symbol in case you want to allow all bot users <i>*[bot]</i>.
+            comma) to the list of exempting users. You can also use wildcard
+            symbol in case you want to exempt all bot users <i>*[bot]</i>.
         </div>
-        <h4>Why always allow whole organizations?</h4>
+        <h4>Why exempt whole organizations?</h4>
         <div>
             We see at least two use cases you may want to do so:
             <ul>
@@ -24,16 +28,18 @@
                     You develop in a team and commit your changes via feature branches. As
                     soon as you create a new pull request CLA assistant would ask you and
                     your team fellows to sign a CLA even if you are part of the
-                    organization and doesn't need to do so. Now if you always allow your
-                    own organization name all pull requests coming from the same
+                    organization and doesn't need to do so. Now if you exempt your
+                    own organization all pull requests coming from the same
                     repository will pass the CLA check.
                 </li>
                 <li>
                     You get contributions from another company which has already signed
                     your corporate CLA. You may want to let CLA assistant accept all PRs
-                    coming from this company. Now you can always allow the GitHub
-                    organization name of this company and all pull requests coming from
+                    coming from this company. Now you can exempt the GitHub
+                    organization of this company and all pull requests coming from
                     this GitHub organization (i.e., from that organization's fork) will pass the check.
+                    If you want to exempt pull requests from user forks from such a company you should instead use the
+                    <i>Organizations whose members are exempt</i> config field below.
                 </li>
             </ul>
         </div>

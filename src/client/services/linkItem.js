@@ -11,6 +11,7 @@ module.factory('linkItemService', ['$RPCService',
                 gist: options.gist.url,
                 sharedGist: options.sharedGist,
                 allowListPattern: options.allowListPattern,
+                allowListPatternOrgs: options.allowListPatternOrgs,
                 minFileChanges: options.minFileChanges,
                 minCodeChanges: options.minCodeChanges,
                 privacyPolicy: options.privacyPolicy

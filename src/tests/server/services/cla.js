@@ -509,7 +509,10 @@ describe('cla:checkPullRequestSignatures', () => {
             token: 'abc',
             isUserOnAllowlist: function () {
                 return false
-            }
+            },
+            isOrgOnAllowList: function () {
+                return false
+            },
         }
         clock = sinon.useFakeTimers(now.getTime())
         let prCreateDateString = '1970-01-01T00:00:00.000Z'
@@ -797,6 +800,151 @@ describe('cla:checkPullRequestSignatures', () => {
         } finally {
             config.server.feature_flag.required_signees = ''
         }
+    })
+
+    it('should exempt submitter on the organization public member exempt list', async () => {
+        testRes.repoServiceGet.isOrgOnAllowlist = org => org === 'org0'
+        config.server.feature_flag.required_signees = 'submitter'
+        testRes.claFindOne = null
+
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        }
+
+        sinon.stub(cla, '_getGHOrgMemberships').resolves([{
+            name: 'org0',
+            id: 1
+        }])
+
+        try {
+            const {
+                userMap: {
+                    not_signed
+                }
+            } = await cla.checkPullRequestSignatures(args)
+            assert.deepEqual(not_signed, [])
+            assert.equal(cla._getGHOrgMemberships.calledWithMatch('login0', 'abc'), true)
+        } finally {
+            config.server.feature_flag.required_signees = ''
+            cla._getGHOrgMemberships.restore()
+
+        }
+    })
+
+    it('should not exempt submitters on the organization public member exempt list', async () => {
+        testRes.repoServiceGet.isOrgOnAllowlist = org => org === 'org1'
+        config.server.feature_flag.required_signees = 'submitter'
+        testRes.claFindOne = null
+
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        }
+
+        sinon.stub(cla, '_getGHOrgMemberships').resolves([{
+            name: 'org0',
+            id: 1
+        }])
+
+        try {
+            const {
+                userMap: {
+                    not_signed
+                }
+            } = await cla.checkPullRequestSignatures(args)
+            assert.deepEqual(not_signed, ['login0'])
+            assert.equal(cla._getGHOrgMemberships.calledWithMatch('login0', 'abc'), true)
+        } finally {
+            config.server.feature_flag.required_signees = ''
+            cla._getGHOrgMemberships.restore()
+        }
+    })
+
+    it('should only except a single committer if they are on the organization public member exempt list', async () => {
+        testRes.repoServiceGet.isOrgOnAllowlist = org => org === 'org0'
+        config.server.feature_flag.required_signees = 'committer'
+        testRes.claFindOne = null
+
+        testRes.repoServiceGetCommitters = [{
+            name: 'committer1',
+            id: '123'
+        }, {
+            name: 'committer2',
+            id: '321'
+        }]
+
+        const args = {
+            repo: 'myRepo',
+            owner: 'owner',
+            number: '1'
+        }
+
+        sinon.stub(cla, '_getGHOrgMemberships')
+            .onFirstCall().resolves([{
+                name: 'org0',
+                id: 1
+            }])
+            .onSecondCall().resolves([{
+                name: 'org1',
+                id: 1
+            }])
+
+        try {
+            const {
+                userMap: {
+                    not_signed
+                }
+            } = await cla.checkPullRequestSignatures(args)
+            assert.deepEqual(not_signed, ['committer2'])
+            assert.equal(cla._getGHOrgMemberships.calledWith('committer1', 'abc'), true)
+            assert.equal(cla._getGHOrgMemberships.calledWith('committer2', 'abc'), true)
+        } finally {
+            config.server.feature_flag.required_signees = ''
+            cla._getGHOrgMemberships.restore()
+        }
+    })
+
+    it('should correctly map github response down for _getGHOrgMemberships', async () => {
+        github.call.restore()
+        sinon.stub(github, 'call').resolves({
+            data: [
+                {
+                    login: 'org0',
+                    id: 1,
+                    someThing: 'blub'
+                },
+                {
+                    login: 'org1',
+                    id: 2,
+                    someThing: 'blub'
+                }
+            ]
+        })
+
+        const orgMemberships = await cla._getGHOrgMemberships('login0', 'abc')
+        assert.deepEqual(orgMemberships, [
+            {
+                name: 'org0',
+                id: 1
+            },
+            {
+                name: 'org1',
+                id: 2,
+            }
+        ])
+
+        assert.equal(github.call.calledWithMatch({
+            obj: 'orgs',
+            fun: 'listForUser',
+            arg: {
+                username: 'login0'
+            },
+            token: 'abc'
+        }), true)
+
     })
 
     it('should exclude committers on allowlist from the map', async () => {
