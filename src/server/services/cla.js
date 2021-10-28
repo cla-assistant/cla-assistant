@@ -42,11 +42,11 @@ class ClaService {
             // Therefore we try to use the stored user token
             // If that fails we fall back to the generic CLA token
             // This helps to not use the complete rate limit for the CLA bot, while still keep working in case the user token gets revoked
-            return github.call(args)
+            return await github.call(args)
         } catch (error) {
             logger.error(new Error(error).stack)
             args.token = config.server.github.token
-            return github.call(args)
+            return await github.call(args)
         }
     }
 
