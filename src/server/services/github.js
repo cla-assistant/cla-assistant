@@ -81,7 +81,7 @@ async function getInstallationAccessToken(username) {
         auth: config.server.github.app
     });
     const installation_id = await getInstallationId(JWToctokit, { username });
-    const result = await callGithub(JWToctokit, 'apps', 'createInstallationAccessToken', {installation_id});
+    const result = await callGithub(JWToctokit, 'apps', 'createInstallationAccessToken', { installation_id });
     return result.data.token;
 }
 
@@ -129,7 +129,7 @@ const githubService = {
             const token = await getInstallationAccessToken(username)
             request.token = token
             logger.info(request)
-        } catch(error) {
+        } catch (error) {
             logger.error(error);
         }
         return githubService.call(request);
