@@ -81,7 +81,7 @@ Before that all the data was stored in a MongoDB hosted by [mLab](https://mlab.c
 You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
 
 #### What should my Contributor License Agreement say?
-We're no lawyers, but we can suggest using http://contributoragreements.org/ for a fill-in-the-blank approach to creating a CLA tailored to your needs.
+We're no lawyers, but we can suggest using https://contributoragreements.org/ for a fill-in-the-blank approach to creating a CLA tailored to your needs.
 
 #### Who can I contact for help?
 In case of problems or any further questions, please check our [general trouble shooting issue](https://github.com/cla-assistant/cla-assistant/issues/567) or [open an issue](https://github.com/cla-assistant/cla-assistant/issues/new). We always appreciate helpful tips and support for the project.
@@ -147,7 +147,7 @@ The following are the environment variables you have to configure to run a priva
 - `LOG_TRACE_FIELD_NAME`: The log field to log the request id to. Defaults to `req_id`.
 - `LOG_TRACE_PREFIX`: A prefix put before the traceId.
 
-> **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](http://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](http://docs.mongodb.org/manual/reference/method/db.createUser).
+> **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](https://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](https://docs.mongodb.org/manual/reference/method/db.createUser).
 
 Run grunt in order to build the application.
 ```sh
@@ -197,13 +197,13 @@ For the list of supported environments see [supported environment variables](#su
 
 Contributor License Agreement assistant
 
-Copyright (c) 2021 [SAP SE](http://www.sap.com) or an SAP affiliate company. All rights reserved.
+Copyright (c) 2021 [SAP SE](https://www.sap.com) or an SAP affiliate company. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
