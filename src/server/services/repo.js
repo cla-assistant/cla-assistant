@@ -165,8 +165,9 @@ class RepoService {
             try {
                 let committers = []
                 let query = arg.query ? arg.query : queries.getPRCommitters(arg.arg.owner, arg.arg.repo, arg.arg.number, '')
+                query.owner = arg.arg.owner
 
-                const body = await github.callGraphql(query, arg.token)
+                const body = await github.callGraphqlWithGitHubApp(query, arg.token)
 
                 if (body.errors) {
                     logger.info(new Error(body.errors[0].message).stack)
@@ -311,13 +312,14 @@ class RepoService {
     // }
 
     async getGHRepo(args) {
-        let res = await github.call({
+        let res = await github.callWithGitHubApp({
             obj: 'repos',
             fun: 'get',
             arg: {
                 owner: args.owner,
                 repo: args.repo
             },
+            owner: args.owner,
             token: args.token
         })
         return res.data

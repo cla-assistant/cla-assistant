@@ -4,6 +4,7 @@ const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
 
 const { Octokit } = require('@octokit/rest')
+const { createAppAuth } = require('@octokit/auth-app')
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
     require('@octokit/plugin-retry').retry,
     require('@octokit/plugin-throttling').throttling,
@@ -68,6 +69,22 @@ function determineAuthentication(token, basicAuth) {
     }
 }
 
+async function getInstallationId(octokit, arg) {
+    // Test: using the user installtion for both user and organization installation
+    const result = await callGithub(octokit, 'apps', 'getUserInstallation', arg);
+    return result.data.id;
+}
+
+async function getInstallationAccessToken(username) {
+    const JWToctokit = new OctokitWithPluginsAndDefaults({
+        authStrategy: createAppAuth,
+        auth: config.server.github.app
+    });
+    const installation_id = await getInstallationId(JWToctokit, { username });
+    const result = await callGithub(JWToctokit, 'apps', 'createInstallationAccessToken', { installation_id });
+    return result.data.token;
+}
+
 const githubService = {
     resetList: {},
 
@@ -103,6 +120,32 @@ const githubService = {
         // workaround as the other functions expect the response body in the data attribute
         // TODO: refactor probably
         return { data: response }
+    },
+
+    callWithGitHubApp: async (request) => {
+        try {
+            const username = request.owner
+            delete request.owner
+            const token = await getInstallationAccessToken(username)
+            request.token = token
+            logger.info(request)
+        } catch (error) {
+            logger.error(error);
+        }
+        return githubService.call(request);
+    },
+
+    callGraphqlWithGitHubApp: async (query, token) => {
+        try {
+            const username = query.owner
+            delete query.owner
+            const ghsToken = await getInstallationAccessToken(username)
+            token = ghsToken
+            logger.info(query)
+        } catch (error) {
+            logger.error(error);
+        }
+        return githubService.callGraphql(query, token);
     }
 }
 

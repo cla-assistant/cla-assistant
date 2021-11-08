@@ -21,12 +21,17 @@ module.exports = {
             // required
             client: process.env.GITHUB_CLIENT,
             secret: process.env.GITHUB_SECRET,
+            token: process.env.GITHUB_TOKEN,
+            app: {
+                name: process.env.GITHUB_APP_NAME,
+                privateKey: process.env.GITHUB_APP_PRIVATE_KEY,
+                appId: process.env.GITHUB_APP_ID,
+                clientId: process.env.GITHUB_APP_CLIENT,
+                clientSecret: process.env.GITHUB_APP_SECRET,
+            },
 
             // required
             admin_users: process.env.GITHUB_ADMIN_USERS ? process.env.GITHUB_ADMIN_USERS.split(/\s*,\s*/) : [],
-
-            // required
-            token: process.env.GITHUB_TOKEN,
 
             //temporary, not required
             token_old: process.env.GITHUB_TOKEN_OLD,

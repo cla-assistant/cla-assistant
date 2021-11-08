@@ -18,7 +18,7 @@ const _ = require('lodash')
 
 class ClaService {
 
-    async _getGistObject(gist_url, token) {
+    async _getGistObject(gist_url, token, owner) {
         let id = ''
         try {
             let gistArray = gist_url.split('/') // e.g. https://gist.github.com/KharitonOff/60e9b5d7ce65ca474c29
@@ -34,10 +34,20 @@ class ClaService {
                 gist_id: id,
                 cacheTime: 60 //seconds
             },
-            token: token
+            token: token,
+            owner: owner
         }
-
-        return github.call(args)
+        try {
+            // The gists.get endpoint currently doesn't support the usage of a Github App installation token
+            // Therefore we try to use the stored user token
+            // If that fails we fall back to the generic CLA token
+            // This helps to not use the complete rate limit for the CLA bot, while still keep working in case the user token gets revoked
+            return await github.call(args)
+        } catch (error) {
+            logger.error(new Error(error).stack)
+            args.token = config.server.github.token
+            return await github.call(args)
+        }
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
@@ -152,7 +162,7 @@ class ClaService {
     }
 
     async _getPR(owner, repo, number, token) {
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'pulls',
             fun: 'get',
             arg: {
@@ -160,19 +170,21 @@ class ClaService {
                 repo: repo,
                 pull_number: number
             },
-            token: token
+            token: token,
+            owner: owner
         })
     }
 
     async _getGHOrgMembers(org, token) {
         try {
-            const response = await github.call({
+            const response = await github.callWithGitHubApp({
                 obj: 'orgs',
                 fun: 'listMembers',
                 arg: {
                     org: org
                 },
-                token: token
+                token: token,
+                owner: org
             })
             const orgMembers = []
             response.data.map((orgMember) => {
@@ -190,15 +202,16 @@ class ClaService {
 
     }
 
-    async _getGHOrgMemberships(username, token) {
+    async _getGHOrgMemberships(username, token, owner) {
         try {
-            const response = await github.call({
+            const response = await github.callWithGitHubApp({
                 obj: 'orgs',
                 fun: 'listForUser',
                 arg: {
                     username: username
                 },
-                token: token
+                token: token,
+                owner: owner,
             })
             const orgMemberships = []
             response.data.map((orgMembership) => {
@@ -329,7 +342,7 @@ class ClaService {
                 return true
             }
             token = token || item.token // in case this method is called via controller/default.js check -> api/cla.js validatePullRequest -> services/cla.js isCLARequired there is no user token
-            const pullRequest = await this._getPR(owner, repo, number, token, true)
+            const pullRequest = await this._getPR(owner, repo, number, token)
             if (typeof item.minFileChanges === 'number' && pullRequest.data.changed_files >= item.minFileChanges) {
                 return true
             }
@@ -348,7 +361,7 @@ class ClaService {
     async getGist(args) {
         let gist_url = args.gist ? args.gist.gist_url || args.gist.url || args.gist : undefined
         // let gist_version = args.gist ? args.gist.gist_version : undefined
-        const gistRes = await this._getGistObject(gist_url, args.token)
+        const gistRes = await this._getGistObject(gist_url, args.token, args.owner)
         return gistRes.data
     }
 
@@ -369,7 +382,7 @@ class ClaService {
             return 'null-cla'
         }
 
-        const gist = await this._getGistObject(args.gist, item.token)
+        const gist = await this._getGistObject(args.gist, item.token, args.owner)
 
         args.gist_version = gist.data.history[0].version
         args.onDates = [new Date()]
@@ -441,7 +454,7 @@ class ClaService {
             })
         }
         // logger.debug(`checkPullRequestSignatures-->getGistObject for the repo ${args.owner}/${args.repo}`)
-        const gist = await this._getGistObject(args.gist, item.token)
+        const gist = await this._getGistObject(args.gist, item.token, args.owner)
         if (!gist) {
             throw new Error('No gist found for item')
         }
@@ -542,7 +555,7 @@ class ClaService {
         const signeesNotExcluded = []
         for (const signee of signees) {
             // get org memberships for the signee
-            const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token)
+            const userOrgMemberships = await this._getGHOrgMemberships(signee.name, item.token, args.owner)
 
             // if one of the Organizations is on the allowlist we accept that as signature and don't need to look further
             const userOrgIsOnAllowlist = userOrgMemberships && userOrgMemberships.find(userOrgMembership => item.isOrgOnAllowlist && item.isOrgOnAllowlist(userOrgMembership.name))
@@ -584,7 +597,7 @@ class ClaService {
             throw nullClaErr
         }
 
-        const gist = await this._getGistObject(item.gist, item.token)
+        const gist = await this._getGistObject(item.gist, item.token, args.owner)
         let onDates = [new Date()]
         let currentVersion = gist.data.history[0].version
 
@@ -788,7 +801,7 @@ class ClaService {
             throw nullClaErr
         }
 
-        const gist = await this._getGistObject(item.gist, item.token)
+        const gist = await this._getGistObject(item.gist, item.token, args.owner)
         const endDate = new Date(args.endDate)
         const onDates = [endDate]
         const currentVersion = gist.data.history[0].version

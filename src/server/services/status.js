@@ -5,7 +5,7 @@ const logger = require('../services/logger')
 
 const getPR = async (args) => {
     try {
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'pulls',
             fun: 'get',
             arg: {
@@ -13,6 +13,7 @@ const getPR = async (args) => {
                 repo: args.repo,
                 pull_number: args.number
             },
+            owner: args.owner,
             token: args.token
         })
 
@@ -23,7 +24,7 @@ const getPR = async (args) => {
 
 const getStatuses = async (args) => {
     try {
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'repos',
             fun: 'listCommitStatusesForRef',
             arg: {
@@ -31,6 +32,7 @@ const getStatuses = async (args) => {
                 repo: args.repo,
                 ref: args.sha
             },
+            owner: args.owner,
             token: args.token
         })
 
@@ -42,7 +44,7 @@ const getStatuses = async (args) => {
 
 const getCombinedStatus = async (args) => {
     try {
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'repos',
             fun: 'getCombinedStatusForRef',
             arg: {
@@ -50,6 +52,7 @@ const getCombinedStatus = async (args) => {
                 repo: args.repo,
                 ref: args.sha
             },
+            owner: args.owner,
             token: args.token
         })
     } catch (error) {
@@ -62,7 +65,7 @@ const getCombinedStatus = async (args) => {
 const createStatus = async (args, context, description, state, target_url) => {
     try {
         logger.debug(`StatusService-->createStatus for the repo ${args.owner}/${args.repo}/pull/${args.number}`)
-        return github.call({
+        return github.callWithGitHubApp({
             obj: 'repos',
             fun: 'createCommitStatus',
             arg: {
@@ -74,6 +77,7 @@ const createStatus = async (args, context, description, state, target_url) => {
                 target_url: target_url,
                 context: context
             },
+            owner: args.owner,
             token: args.token
         })
     } catch (error) {
