@@ -1,4 +1,10 @@
 # Change Log
+## [v2.11.0](https://github.com/cla-assistant/cla-assistant/tree/v2.11.0) (2021-11-08)
+**Features:**
+- Alpha: Add GitHub App as a hidden feature (#781)
+
+**Improvements:**
+- README.md: HTTP => HTTPS (#796)
 
 ## [v2.10.0](https://github.com/cla-assistant/cla-assistant/tree/v2.10.0) (2021-10-20)
 **Features:**
