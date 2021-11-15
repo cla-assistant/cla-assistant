@@ -14,7 +14,7 @@ To get started, simply store your CLA as a [GitHub Gist file](https://gist.githu
 - Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/cla-assistant/cla-assistant/master/src/client/assets/images/preview.gif" />
+<img src="https://raw.githubusercontent.com/cla-assistant/cla-assistant/main/src/client/assets/images/preview.gif" />
 </p>
 
 Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit https://cla-assistant.io.

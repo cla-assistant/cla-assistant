@@ -21,7 +21,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.5/clipboard.min.js"></script>
     <!-- APP -->
-    <script src="app.min.js"></script>
+    <script src="/dist/app.min.js"></script>
 
     <!-- INTERCEPTORS -->
     <!-- <script src="/interceptors/401.js"></script> -->
@@ -33,14 +33,14 @@
     <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.min.css" rel="stylesheet">
 
     <!-- APP STYLESHEET -->
-    <link href="/assets/styles/app.css" rel="stylesheet">
+    <link href="/dist/app.css" rel="stylesheet">
 </head>
 
 <body ng-controller="HomeCtrl">
 
     <!-- the navbar -->
     <div id="navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <div class="container-fluid row">      
+        <div class="container-fluid row">
             <div class="navbar-home-left col-md-2 col-sm-3">
                 <div ng-show="!!user.value.login">
                     <a ng-href="{{user.value.html_url}}" target="space">

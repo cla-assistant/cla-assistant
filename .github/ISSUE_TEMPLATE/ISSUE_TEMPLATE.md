@@ -8,7 +8,7 @@ labels:
 
 Thank you for considering to contribute to CLA Assistant.
 
-Please kindly look into the [most common issues and solutions](https://github.com/cla-assistant/cla-assistant/blob/master/COMMON_ISSUES.md) before creating the issue.
+Please kindly look into the [most common issues and solutions](https://github.com/cla-assistant/cla-assistant/blob/main/COMMON_ISSUES.md) before creating the issue.
 
 Please provide as much information as you can. This help a lot in a quick response and resolving the problem.
 -->
