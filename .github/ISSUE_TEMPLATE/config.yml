@@ -1,6 +1,6 @@
 blank_issues_enabled: true
 contact_links:
   - name: Common Issues
-    url: https://github.com/cla-assistant/cla-assistant/blob/master/COMMON_ISSUES.md
+    url: https://github.com/cla-assistant/cla-assistant/blob/main/COMMON_ISSUES.md
     about: Please check for common issues and their solution here first before opening an issue.
 
