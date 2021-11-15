@@ -141,7 +141,7 @@ async.series([
         console.log('bootstrap static files'.bold)
 
         config.server.static.forEach((p) => {
-            app.use(express.static(p))
+            app.use(p.prefix, express.static(p.path))
         })
         callback()
     },

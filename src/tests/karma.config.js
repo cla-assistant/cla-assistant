@@ -30,11 +30,8 @@ module.exports = function (config) {
             'node_modules/bootstrap-sass/assets/javascripts/bootstrap.js',
             'node_modules/angular-mocks/angular-mocks.js',
 
-            // Client code
-            'src/client/app.js',
-            'src/client/api.js',
-            'src/client/services/**/*.js',
-            'src/client/controller/**/*.js',
+            // Client code (minified)
+            'src/client/dist/app.min.js',
 
             // Client templates
             'src/client/**/*.html',

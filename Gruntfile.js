@@ -2,11 +2,11 @@ const sass = require('sass');
 
 module.exports = function (grunt) {
     let appJsFiles = [
-        'src/client/app.js',
-        'src/client/api.js',
-        'src/client/controller/**/*.js',
-        'src/client/modals/**/*.js',
-        'src/client/services/**/*.js'
+        'src/client/src/app.js',
+        'src/client/src/api.js',
+        'src/client/src/controller/**/*.js',
+        'src/client/src/modals/**/*.js',
+        'src/client/src/services/**/*.js'
     ];
 
     let config = {
@@ -77,15 +77,15 @@ module.exports = function (grunt) {
             },
             eslint: {
                 tasks: ['eslint'],
-                files: ['src/**/*.js', '!src/client/app.min.js']
+                files: ['src/**/*.js', '!src/client/dist/app.min.js']
             },
             mocha: {
                 tasks: ['mochaTest:server'],
-                files: ['src/server/**/*.js', 'src/tests/server/**/*.js', '!src/client/app.min.js']
+                files: ['src/server/**/*.js', 'src/tests/server/**/*.js', '!src/client/dist/app.min.js']
             },
             karma: {
                 tasks: ['karma'],
-                files: ['src/client/**/*.js', 'src/tests/client/**/*.js', '!src/client/app.min.js']
+                files: ['src/client/**/*.js', 'src/tests/client/**/*.js', '!src/client/dist/app.min.js']
             }
         },
 
@@ -97,7 +97,7 @@ module.exports = function (grunt) {
             },
             target: {
                 files: {
-                    'src/client/app.min.js': appJsFiles
+                    'src/client/dist/app.min.js': appJsFiles
                 }
             }
         },
@@ -110,7 +110,7 @@ module.exports = function (grunt) {
             },
             dist: {
                 files: {
-                    'src/client/assets/styles/app.css': 'src/client/assets/styles/app.scss'
+                    'src/client/dist/app.css': 'src/client/src/styles/app.scss'
                 }
             }
         },

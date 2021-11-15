@@ -33,7 +33,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$co
             //
             .state('home', {
                 url: '/',
-                templateUrl: '/templates/home.html',
+                templateUrl: '/assets/templates/home.html',
                 controller: 'HomeCtrl'
             })
 
@@ -42,7 +42,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$co
             //
             .state('home.settings', {
                 // url: '/detail/:user/:repo',
-                templateUrl: '/templates/settings.html',
+                templateUrl: '/assets/templates/settings.html',
                 controller: 'SettingsCtrl',
                 params: {
                     'user': {},
@@ -65,7 +65,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$co
 
             .state('cla.myCla', {
                 url: '',
-                templateUrl: '/templates/my-cla.html',
+                templateUrl: '/assets/templates/my-cla.html',
                 controller: 'MyClaCtrl'
             })
 
@@ -83,7 +83,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$co
             //
             .state('repo.cla', {
                 url: '',
-                templateUrl: '/templates/cla.html',
+                templateUrl: '/assets/templates/cla.html',
                 controller: 'ClaController'
             })
 
@@ -92,7 +92,7 @@ module.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$co
             //
             .state('404', {
                 url: '/404',
-                templateUrl: '/templates/404.html'
+                templateUrl: '/assets/templates/404.html'
             });
 
         $urlRouterProvider.otherwise('/404');

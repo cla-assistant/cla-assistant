@@ -85,7 +85,7 @@ module.exports = {
         },
 
         templates: {
-            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, 'client', 'login.html')
+            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, 'client', 'assets', 'login.html')
         },
 
         api_access: {
@@ -121,7 +121,8 @@ module.exports = {
         },
 
         static: [
-            path.join(__dirname, 'client')
+            { prefix: '/assets', path: path.join(__dirname, 'client', 'assets') },
+            { prefix: '/dist', path: path.join(__dirname, 'client', 'dist') },
         ],
 
         api: [
