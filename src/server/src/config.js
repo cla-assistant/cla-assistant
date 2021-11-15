@@ -85,7 +85,7 @@ module.exports = {
         },
 
         templates: {
-            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, '..', 'client', 'assets', 'login.html')
+            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, '..', '..', 'client', 'assets', 'login.html')
         },
 
         api_access: {
