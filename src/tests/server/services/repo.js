@@ -6,16 +6,16 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 //model
-const Repo = require('../../../server/documents/repo').Repo
+const Repo = require('../../../server/src/documents/repo').Repo
 
 //services
-const github = require('../../../server/services/github')
-const orgService = require('../../../server/services/org')
-const logger = require('../../../server/services/logger')
-const queries = require('../../../server/graphQueries/github')
+const github = require('../../../server/src/services/github')
+const orgService = require('../../../server/src/services/org')
+const logger = require('../../../server/src/services/logger')
+const queries = require('../../../server/src/graphQueries/github')
 
 // service under test
-const repo = require('../../../server/services/repo')
+const repo = require('../../../server/src/services/repo')
 
 // test data
 const testData = require('../testData').data

@@ -47,7 +47,7 @@ router.use('/signin/:owner/:repo', (req, res) => {
 router.all('/static/*', (req, res) => {
     let filePath
     if (req.user && req.path === '/static/cla-assistant.json') {
-        filePath = path.join(__dirname, '..', '..', '..', 'cla-assistant.json')
+        filePath = path.join(__dirname, '..', '..', '..', '..', 'cla-assistant.json')
     } else {
         filePath = config.server.templates.login
     }
@@ -70,10 +70,10 @@ router.get('/check/:owner/:repo', (req, res) => {
 router.all('/*', (req, res) => {
     let filePath
     if (req.path === '/robots.txt') {
-        filePath = path.join(__dirname, '..', '..', 'client', 'assets', 'robots.txt')
+        filePath = path.join(__dirname, '..', '..', '..', 'client', 'assets', 'robots.txt')
     }
     else if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
-        filePath = path.join(__dirname, '..', '..', 'client', 'assets', 'home.html')
+        filePath = path.join(__dirname, '..', '..', '..', 'client', 'assets', 'home.html')
     } else {
         filePath = config.server.templates.login
     }
