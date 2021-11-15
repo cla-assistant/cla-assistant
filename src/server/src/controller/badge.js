@@ -12,7 +12,7 @@ const router = express.Router()
 router.all('/pull/badge/:signed', (req, res) => {
     const fileName = req.params.signed === 'signed' ? 'badge_signed.svg' : 'badge_not_signed.svg'
     const status = req.params.signed === 'signed' ? 'signed' : 'pending'
-    const tmp = fs.readFileSync(path.join(__dirname, '..', 'templates', fileName), 'utf-8')
+    const tmp = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'templates', fileName), 'utf-8')
     const hash = crypto.createHash('md5').update(status, 'utf8').digest('hex')
 
     if (req.get('If-None-Match') === hash) {

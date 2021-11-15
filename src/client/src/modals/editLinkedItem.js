@@ -31,7 +31,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
 
     $scope.gistShareInfo = function () {
         $modal.open({
-            templateUrl: '/modals/templates/info_share_gist.html',
+            templateUrl: '/assets/templates/modals/info_share_gist.html',
             controller: 'InfoCtrl',
             windowClass: 'howto'
         });
@@ -39,7 +39,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
 
     $scope.allowlistInfo = function () {
         $modal.open({
-            templateUrl: '/modals/templates/allowlist_info.html',
+            templateUrl: '/assets/templates/modals/allowlist_info.html',
             controller: 'InfoCtrl',
             windowClass: 'howto'
         });
@@ -47,7 +47,7 @@ module.controller('EditLinkedItemCtrl', function ($scope, $modalInstance, $windo
 
     $scope.allowlistInfoOrgs = function () {
         $modal.open({
-            templateUrl: '/modals/templates/allowlistorgs_info.html',
+            templateUrl: '/assets/templates/modals/allowlistorgs_info.html',
             controller: 'InfoCtrl',
             windowClass: 'howto'
         });

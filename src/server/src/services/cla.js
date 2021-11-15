@@ -13,7 +13,7 @@ const logger = require('../services/logger')
 const orgService = require('../services/org')
 const repoService = require('../services/repo')
 const github = require('./github')
-const config = require('../../config')
+const config = require('../config')
 const _ = require('lodash')
 
 class ClaService {

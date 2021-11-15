@@ -1,5 +1,5 @@
 const assert = require('assert')
-const Org = require('../../../server/documents/org').Org
+const Org = require('../../../server/src/documents/org').Org
 
 // test data
 const testData = require('../testData').data

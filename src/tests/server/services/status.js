@@ -5,10 +5,10 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // services
-const github = require('../../../server/services/github')
+const github = require('../../../server/src/services/github')
 
 // service under test
-const status = require('../../../server/services/status')
+const status = require('../../../server/src/services/status')
 
 const testData = {
     'id': 1,
