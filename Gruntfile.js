@@ -19,7 +19,7 @@ module.exports = function (grunt) {
 
             },
             options: {
-                rootDir: "src/server/src"
+                rootDir: 'src/server/src'
             }
         },
 
@@ -130,7 +130,7 @@ module.exports = function (grunt) {
     grunt.initConfig(config);
 
     require('load-grunt-tasks')(grunt);
-    grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks('grunt-ts');
 
     grunt.registerTask('build', ['uglify', 'sass', 'ts']);
     grunt.registerTask('tsc', ['ts']);
