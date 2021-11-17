@@ -32,9 +32,9 @@ class ClaService {
             fun: 'get',
             arg: {
                 gist_id: id,
-                cacheTime: 60 //seconds
+                isUseETag: true
             },
-            token: token,
+            token: config.server.github.token,
             owner: owner
         }
         try {
@@ -45,7 +45,7 @@ class ClaService {
             return await github.call(args)
         } catch (error) {
             logger.error(new Error(error).stack)
-            args.token = config.server.github.token
+            args.token = null // anonymous call
             return await github.call(args)
         }
     }

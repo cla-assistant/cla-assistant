@@ -31,15 +31,32 @@ const OctokitWithPluginsAndDefaults = Octokit.plugin(
     }
 })
 
-async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
-    if (cacheKey && !config.server.nocache) {
-        const cachedRes = cache.get(cacheKey)
-        if (cachedRes) {
-            logger.info(`Result returned from cache for ${obj}.${fun}`)
-            return cachedRes
+async function callGithub(octokit, obj, fun, arg, cacheKey, isUseETag) {
+    let res
+
+    if (isUseETag && !config.server.nocache) {
+        let cachedData = cache.get(cacheKey)
+        if (cachedData) {
+            arg.headers = {
+                'If-None-Match': stringify(cachedData.headers.etag.split('"')[1])
+            }
+            
+            delete arg.isUseETag
+            try {
+                res = await octokit[obj][fun](arg)
+                return res
+            }
+            catch (error) {
+                if (error.status === 304) {
+                    logger.info(`Conditional request using etag for ${obj}.${fun}`)
+                } else {
+                    logger.error(new Error(error).stack)
+                }
+                return cachedData
+            }
+            
         }
     }
-    let res
     if (fun.match(/list.*/g)) {
         const options = octokit[obj][fun].endpoint.merge(arg)
         res = {
@@ -47,11 +64,10 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
         }
     } else {
         res = await octokit[obj][fun](arg)
-        // logger.info(`Result for ${obj}.${fun}`)
     }
 
-    if (res && cacheTime) {
-        cache.put(cacheKey, res, 1000 * cacheTime)
+    if (isUseETag && res && res.headers && res.headers.etag) {
+        cache.put(cacheKey, res, 1000 * 60 * 60) // caching for one hour - rate limit will be reset
     }
 
     return res
@@ -92,11 +108,16 @@ const githubService = {
         const arg = call.arg || {}
         const fun = call.fun
         const obj = call.obj
+        let octokitOptions = {}
+
         const cacheKey = generateCacheKey(arg, obj, fun, call.token)
 
-        const auth = determineAuthentication(call.token, call.basicAuth)
+        if (call.token || call.basicAuth) {
+            const auth = determineAuthentication(call.token, call.basicAuth)
+            octokitOptions = { auth }
+        }
 
-        const octokit = new OctokitWithPluginsAndDefaults({ auth })
+        const octokit = new OctokitWithPluginsAndDefaults(octokitOptions)
 
         if (!obj || !octokit[obj]) {
             throw new Error(`${obj} required/object not found or specified`)
@@ -107,7 +128,7 @@ const githubService = {
         }
 
         try {
-            return callGithub(octokit, obj, fun, arg, cacheKey, arg.cacheTime)
+            return callGithub(octokit, obj, fun, arg, cacheKey, arg.isUseETag)
         } catch (error) {
             logger.info(`${error} - Error on callGithub.${obj}.${fun} with args ${arg}.`)
             throw new Error(error)
@@ -153,7 +174,7 @@ module.exports = githubService
 
 function generateCacheKey(arg, obj, fun, token) {
     const argWithoutCacheParams = Object.assign({}, arg)
-    delete argWithoutCacheParams.cacheTime
+    delete argWithoutCacheParams.isUseETag
     return stringify({
         obj,
         fun,
