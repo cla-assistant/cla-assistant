@@ -40,7 +40,6 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, isUseETag) {
             arg.headers = {
                 'If-None-Match': stringify(cachedData.headers.etag.split('"')[1])
             }
-            
             delete arg.isUseETag
             try {
                 res = await octokit[obj][fun](arg)
@@ -54,7 +53,6 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, isUseETag) {
                 }
                 return cachedData
             }
-            
         }
     }
     if (fun.match(/list.*/g)) {
