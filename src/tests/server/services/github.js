@@ -4,6 +4,7 @@
 const rewire = require('rewire')
 const assert = require('assert')
 const sinon = require('sinon')
+const stringify = require('json-stable-stringify')
 
 // config
 global.config = require('../../../server/src/config')
@@ -149,20 +150,22 @@ describe('github:call', () => {
             })
             assert(false, 'Should throw an error')
         } catch (error) {
-            assert.equal(error, 'github error')
+            assert.equal(error, 'Error: fun.obj: github error')
         }
     })
 
-    it('should cache github call results if cacheTime provided', async () => {
-        callStub.resolves({ data: {}, headers: {} })
-        for (let i = 0; i < 3; i++) {
-            await github.call({
-                obj: 'obj',
-                fun: 'fun',
-                arg: { cacheTime: 1 }
-            })
+    it('should cache github call results if isUseETag provided', async () => {
+        const expectedResult = { data: {}, headers: { etag: 'abcxyz123'} }
+        const mockInput = {
+            obj: 'obj',
+            fun: 'fun',
+            arg: { isUseETag: true }
         }
-        sinon.assert.calledOnce(callStub)
+        callStub.resolves(expectedResult)
+        await github.call(mockInput)
+        delete mockInput.arg.isUseETag
+        const cacheData = cache.get(stringify(mockInput))
+        assert.deepStrictEqual(cacheData, expectedResult)
     })
 
     it('callWithGitHubApp should use installation token if created by getInstallationAccessToken', async () => {
