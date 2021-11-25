@@ -5,7 +5,9 @@
         "target": "es2019",
         "skipLibCheck": true,
         "strict": false,
-        "module": "CommonJS"
+        "module": "CommonJS",
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
     },
     "include": [
         "./src/**/*"

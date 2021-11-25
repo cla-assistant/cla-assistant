@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 
-const CLASchema = mongoose.Schema({
+const CLASchema = new mongoose.Schema({
     created_at: Date,
     revoked_at: Date,
     end_at: Date,

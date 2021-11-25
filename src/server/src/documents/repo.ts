@@ -1,8 +1,9 @@
-const mongoose = require('mongoose')
-const utils = require('./utils')
+import mongoose = require('mongoose')
+import * as utils from './utils'
+
 // const logger = require('../services/logger')
 
-const RepoSchema = mongoose.Schema({
+const RepoSchema = new mongoose.Schema({
     repoId: String,
     repo: String,
     owner: String,

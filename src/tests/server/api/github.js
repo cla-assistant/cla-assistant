@@ -5,10 +5,10 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // api
-const github_api = require('../../../server/src/api/github')
+const github_api = require('../../../server/dist/api/github')
 
 // module
-const github = require('../../../server/src/services/github')
+const github = require('../../../server/dist/services/github')
 
 describe('github:call', () => {
     beforeEach(() => sinon.stub(github, 'call').callsFake(async args => {

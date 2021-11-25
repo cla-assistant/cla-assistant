@@ -1,7 +1,9 @@
-const mongoose = require('mongoose')
-const utils = require('./utils')
+import mongoose = require('mongoose')
+import * as utils from './utils'
 
-const OrgSchema = mongoose.Schema({
+// const utils = new Utils()
+
+const OrgSchema = new mongoose.Schema({
     orgId: String,
     org: String,
     gist: String,

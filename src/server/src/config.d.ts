@@ -6,8 +6,8 @@
  */
 let path = require('path');
 
-module.exports = {
-    server: {
+declare namespace config {
+    const server = {
         github: {
             // optional
             protocol: process.env.GITHUB_PROTOCOL || 'https',

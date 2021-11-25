@@ -6,26 +6,26 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // config
-global.config = require('../../../server/src/config')
+global.config = require('../../../server/dist/config')
 
 // models
-const Repo = require('../../../server/src/documents/repo').Repo
-const User = require('../../../server/src/documents/user').User
+const Repo = require('../../../server/dist/documents/repo').Repo
+const User = require('../../../server/dist/documents/user').User
 
 //services
-const github = require('../../../server/src/services/github')
-const cla = require('../../../server/src/services/cla')
-const repo_service = require('../../../server/src/services/repo')
-const org_service = require('../../../server/src/services/org')
-const statusService = require('../../../server/src/services/status')
-const prService = require('../../../server/src/services/pullRequest')
-const log = require('../../../server/src/services/logger')
+const github = require('../../../server/dist/services/github')
+const cla = require('../../../server/dist/services/cla')
+const repo_service = require('../../../server/dist/services/repo')
+const org_service = require('../../../server/dist/services/org')
+const statusService = require('../../../server/dist/services/status')
+const prService = require('../../../server/dist/services/pullRequest')
+const log = require('../../../server/dist/services/logger')
 
 // Test data
 const testData = require('../testData').data
 
 // api
-const cla_api = require('../../../server/src/api/cla')
+const cla_api = require('../../../server/dist/api/cla')
 
 describe('', () => {
     let reqArgs

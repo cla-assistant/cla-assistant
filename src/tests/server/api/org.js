@@ -5,16 +5,16 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // service
-const org = require('../../../server/src/services/org')
-const github = require('../../../server/src/services/github')
-const logger = require('../../../server/src/services/logger')
-const webhook = require('../../../server/src/api/webhook')
+const org = require('../../../server/dist/services/org')
+const github = require('../../../server/dist/services/github')
+const logger = require('../../../server/dist/services/logger')
+const webhook = require('../../../server/dist/api/webhook')
 
 // test data
 const testData = require('../testData').data
 
 // api
-const org_api = require('../../../server/src/api/org')
+const org_api = require('../../../server/dist/api/org')
 
 
 describe('org api', () => {

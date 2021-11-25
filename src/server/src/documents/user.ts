@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import mongoose = require('mongoose')
 
-const UserSchema = mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     uuid: Number,
     name: String,
     requests: [{
