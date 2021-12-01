@@ -1,7 +1,9 @@
-const cache = require('memory-cache')
+require('../documents/cache')
+
 const config = require('../config')
 const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
+const Cache = require('mongoose').model('Cache')
 
 const { Octokit } = require('@octokit/rest')
 const { createAppAuth } = require('@octokit/auth-app')
@@ -31,16 +33,23 @@ const OctokitWithPluginsAndDefaults = Octokit.plugin(
     }
 })
 
-async function callGithub(octokit, obj, fun, arg, cacheKey, isUseETag) {
-    let res
+async function callGithub(octokit, obj, fun, arg, cacheKey) {
+    let res, cachedData = null
+    const isUseETag = arg.isUseETag
+    delete arg.isUseETag
 
     if (isUseETag && !config.server.nocache) {
-        const cachedData = cache.get(cacheKey)
+        try {
+            cachedData = await Cache.findOne({
+                cache_key: cacheKey
+            })
+        } catch(error) {
+            logger.info(`Cannot find cache with key ${cacheKey}`)
+        }
         if (cachedData) {
             arg.headers = {
-                'If-None-Match': stringify(cachedData.headers.etag.split('"')[1])
+                'If-None-Match': stringify(cachedData.cache_value.headers.etag.split('"')[1])
             }
-            delete arg.isUseETag
         }
     }
 
@@ -52,22 +61,34 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, isUseETag) {
             }
         } else {
             res = await octokit[obj][fun](arg)
+            if (cachedData) { // Response is changed, updating cache
+                cachedData.cache_value = res
+                cachedData.save()
+            }
         }
     } catch (error) {
-        if (error.status === 304) {
+        if (error.status === 304 && cachedData) {
             logger.info(`Conditional request using etag for ${obj}.${fun}`)
-            const cachedData = cache.get(cacheKey)
-            if (cachedData) {
-                return cachedData
-            }
-        } else {
-            logger.error(new Error(error).stack)
-            throw new Error(`${fun}.${obj}: ${error}`)
+            return cachedData.cache_value
         }
+        logger.error(new Error(error).stack)
+        throw new Error(`${fun}.${obj}: ${error}`)
     }
 
     if (isUseETag && res && res.headers && res.headers.etag) {
-        cache.put(cacheKey, res, 1000 * 60 * 60) // caching for one hour - rate limit will be reset
+        const isCacheExisted = await Cache.exists({
+            cache_key: cacheKey
+        })
+        if (!isCacheExisted) {
+            try {
+                await Cache.create({
+                    cache_key: cacheKey,
+                    cache_value: res
+                })
+            } catch (error) {
+                logger.warn(new Error(`Could not create cache ${error}`).stack)
+            }
+        }
     }
 
     return res
@@ -123,7 +144,7 @@ const githubService = {
         }
 
         try {
-            return callGithub(octokit, obj, fun, arg, cacheKey, arg.isUseETag)
+            return callGithub(octokit, obj, fun, arg, cacheKey)
         } catch (error) {
             logger.info(`${error} - Error on callGithub.${obj}.${fun} with args ${arg}.`)
             throw new Error(error)
