@@ -1,8 +1,8 @@
-const express = require('express'),
-    ejs = require('ejs'),
-    fs = require('fs'),
-    path = require('path'),
-    crypto = require('crypto')
+import express = require('express')
+import ejs = require('ejs')
+import fs = require('fs')
+import path = require('path')
+import crypto = require('crypto')
 
 //api
 const cla = require('./../api/cla')

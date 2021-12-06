@@ -7,7 +7,8 @@ let sinon = require('sinon')
 
 // module
 let repo = require('../../../server/dist/services/repo')
-let webhook = require('../../../server/dist/api/webhook')
+const webhookAPI = require('../../../server/dist/api/webhook')
+const webhook = webhookAPI.webhook
 
 // api
 let repo_api = require('../../../server/dist/api/repo')

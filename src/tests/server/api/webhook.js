@@ -10,7 +10,8 @@ const url = require('../../../server/dist/services/url')
 const Repo = require('../../../server/dist/documents/repo').Repo
 
 // api
-const webhook_api = require('../../../server/dist/api/webhook')
+const webhook = require('../../../server/dist/api/webhook')
+const webhook_api = webhook.webhook
 
 const testData = require('../testData').data
 

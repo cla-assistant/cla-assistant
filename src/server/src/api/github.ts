@@ -1,6 +1,6 @@
 // module
-const github = require('../services/github')
-const merge = require('merge')
+import github = require('../services/github')
+import { merge } from 'merge'
 
 module.exports = {
     call: async (req) => {

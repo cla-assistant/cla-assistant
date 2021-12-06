@@ -8,7 +8,8 @@ const sinon = require('sinon')
 const org = require('../../../server/dist/services/org')
 const github = require('../../../server/dist/services/github')
 const logger = require('../../../server/dist/services/logger')
-const webhook = require('../../../server/dist/api/webhook')
+const webhookAPI = require('../../../server/dist/api/webhook')
+const webhook = webhookAPI.webhook
 
 // test data
 const testData = require('../testData').data
