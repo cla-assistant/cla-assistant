@@ -222,7 +222,7 @@ class ClaApi {
     // sharedGist (optional)
     // token (optional)
     // sha (optional)
-    async validatePullRequest(args, item) {
+    async validatePullRequest(args, item = undefined) {
         return validatePR(args, item)
     }
 
@@ -444,8 +444,8 @@ class ClaApi {
     //     // })
     // }
 }
-const claApi = new ClaApi()
-module.exports = claApi
+export const claApi = new ClaApi()
+// module.exports = claApi
 
 
 async function markdownRender(content, token, owner) {

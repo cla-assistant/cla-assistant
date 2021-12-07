@@ -1,4 +1,4 @@
-const express = require('express');
+import express = require('express');
 const router = express.Router();
 
 router.get('/health/readiness', (req, res) => {

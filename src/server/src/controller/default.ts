@@ -1,7 +1,8 @@
-const express = require('express')
-const path = require('path')
-const cla = require('./../api/cla')
-const logger = require('./../services/logger')
+import express = require('express')
+import path = require('path')
+import { claApi as cla } from '../api/cla'
+import logger = require('./../services/logger')
+import * as config from '../config'
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Default router
 //////////////////////////////////////////////////////////////////////////////////////////////

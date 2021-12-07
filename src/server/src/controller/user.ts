@@ -1,7 +1,8 @@
-const passport = require('passport')
-const express = require('express')
-const utils = require('../middleware/utils')
-const logger = require('../services/logger')
+import passport = require('passport')
+import express = require('express')
+import utils = require('../middleware/utils')
+import logger = require('../services/logger')
+import * as config from '../config'
 
 const router = express.Router()
 let scope

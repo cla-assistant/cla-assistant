@@ -25,7 +25,7 @@ const log = require('../../../server/dist/services/logger')
 const testData = require('../testData').data
 
 // api
-const cla_api = require('../../../server/dist/api/cla')
+const cla_api = require('../../../server/dist/api/cla').claApi
 
 describe('', () => {
     let reqArgs
