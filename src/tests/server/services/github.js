@@ -4,7 +4,6 @@
 const rewire = require('rewire')
 const assert = require('assert')
 const sinon = require('sinon')
-// const stringify = require('json-stable-stringify')
 
 // config
 global.config = require('../../../server/src/config')
@@ -12,50 +11,10 @@ global.config = require('../../../server/src/config')
 // service
 const github = rewire('../../../server/src/services/github')
 
-//model
-const Cache = require('../../../server/src/documents/cache').Cache
-
 const callStub = sinon.stub()
 const authenticateStub = sinon.stub()
 const createInstallationAccessTokenStub = sinon.stub()
 const getUserInstallationStub = sinon.stub()
-
-let testRes = {}
-let testErr = {}
-
-const stub = () => {
-    testErr.cacheFindOne = 'error'
-    testErr.cacheCreate = 'error'
-
-    testRes.cacheFindOne = {
-        cache_key: 'cacheKey',
-        cache_value: {
-            headers: {
-                etag: "W/'438f72f7fa7e852df83950aaa1a8934c582027daafa782945102c6d6fbf1ab4c'"
-            },
-            data: {}
-        },
-        save: sinon.stub().resolves(),
-    }
-    testRes.cacheCreate = 'success'
-
-    sinon.stub(Cache, 'findOne').callsFake(async () => {
-        if (testErr.cacheFindOne === null) {
-            throw testErr.cacheFindOne
-        }
-        return testRes.cacheFindOne
-    })
-    sinon.stub(Cache, 'create').callsFake(async () => {
-        if (testErr.cacheCreate === null) {
-            throw testErr.cacheCreate
-        }
-        return testRes.cacheCreate
-    })
-
-    sinon.stub(Cache, 'exists').callsFake(async () => {
-        return false
-    })
-}
 
 describe('github:call', () => {
     let expectedAuth
@@ -99,23 +58,16 @@ describe('github:call', () => {
 
     function fakeErrorInstallationToken(owner) {
         throw Error(owner)
-     }
+    }
 
     github.__set__('Octokit', OctokitMock)
     github.__set__('OctokitWithPluginsAndDefaults', OctokitWithPluginsAndDefaultsMock)
 
     beforeEach(() => {
-        stub()
         github.resetList = {}
         callStub.reset()
         expectedAuth = undefined
         authenticateStub.reset()
-    })
-
-    afterEach(() => {
-        Cache.findOne.restore()
-        Cache.create.restore()
-        Cache.exists.restore()
     })
 
     it('should return an error if obj is not set', async () => {
@@ -196,41 +148,6 @@ describe('github:call', () => {
         } catch (error) {
             assert.equal(error, 'Error: fun.obj: github error')
         }
-    })
-
-    it('should check cache for github call results if isUseETag is provided', async () => {
-        testErr.cacheFindOne = null
-        const mockInput = {
-            obj: 'obj',
-            fun: 'fun',
-            arg: { isUseETag: true }
-        }
-
-        await github.call(mockInput)
-        assert(Cache.findOne.called)
-    })
-
-    it('should use cache for github call results if isUseETag is provided and github returns 304', async () => {
-        callStub.rejects({ status: 304 })
-        const mockInput = {
-            obj: 'obj',
-            fun: 'fun',
-            arg: { isUseETag: true }
-        }
-        const res = await github.call(mockInput)
-        assert.equal(res, testRes.cacheFindOne.cache_value)
-    })
-
-    it('should create cache if isUseETag is provided and the response header contains etag', async () => {
-        callStub.resolves(testRes.cacheFindOne.cache_value)
-        testErr.cacheFindOne = null
-        const mockInput = {
-            obj: 'obj',
-            fun: 'fun',
-            arg: { isUseETag: true }
-        }
-        await github.call(mockInput)
-        assert(Cache.create.called)
     })
 
     it('callWithGitHubApp should use installation token if created by getInstallationAccessToken', async () => {

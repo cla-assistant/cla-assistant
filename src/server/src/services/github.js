@@ -1,15 +1,12 @@
-require('../documents/cache')
-
 const config = require('../config')
-const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
-const Cache = require('mongoose').model('Cache')
 
 const { Octokit } = require('@octokit/rest')
 const { createAppAuth } = require('@octokit/auth-app')
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
     require('@octokit/plugin-retry').retry,
     require('@octokit/plugin-throttling').throttling,
+    require('./octokit-plugins/cache').cache,
     require('./octokit-plugins/custom-endpoints').reposGetById,
     require('./octokit-plugins/network-interceptor').rateLimitLogger,
 ).defaults({
@@ -33,25 +30,8 @@ const OctokitWithPluginsAndDefaults = Octokit.plugin(
     }
 })
 
-async function callGithub(octokit, obj, fun, arg, cacheKey) {
-    let res, cachedData = null
-    const isUseETag = arg.isUseETag
-    delete arg.isUseETag
-
-    if (isUseETag && !config.server.nocache) {
-        try {
-            cachedData = await Cache.findOne({
-                cache_key: cacheKey
-            })
-        } catch(error) {
-            logger.info(`Cannot find cache with key ${cacheKey}`)
-        }
-        if (cachedData) {
-            arg.headers = {
-                'If-None-Match': stringify(cachedData.cache_value.headers.etag.split('"')[1])
-            }
-        }
-    }
+async function callGithub(octokit, obj, fun, arg) {
+    let res
 
     try {
         if (fun.match(/list.*/g)) {
@@ -61,34 +41,10 @@ async function callGithub(octokit, obj, fun, arg, cacheKey) {
             }
         } else {
             res = await octokit[obj][fun](arg)
-            if (cachedData) { // Response is changed, updating cache
-                cachedData.cache_value = res
-                cachedData.save()
-            }
         }
     } catch (error) {
-        if (error.status === 304 && cachedData) {
-            logger.info(`Conditional request using etag for ${obj}.${fun}`)
-            return cachedData.cache_value
-        }
         logger.error(new Error(error).stack)
         throw new Error(`${fun}.${obj}: ${error}`)
-    }
-
-    if (isUseETag && res && res.headers && res.headers.etag) {
-        const isCacheExisted = await Cache.exists({
-            cache_key: cacheKey
-        })
-        if (!isCacheExisted) {
-            try {
-                await Cache.create({
-                    cache_key: cacheKey,
-                    cache_value: res
-                })
-            } catch (error) {
-                logger.warn(new Error(`Could not create cache ${error}`).stack)
-            }
-        }
     }
 
     return res
@@ -129,7 +85,7 @@ const githubService = {
         const arg = call.arg || {}
         const fun = call.fun
         const obj = call.obj
-        const cacheKey = generateCacheKey(arg, obj, fun, call.token)
+        // const cacheKey = generateCacheKey(arg, obj, fun, call.token)
 
         const auth = determineAuthentication(call.token, call.basicAuth)
 
@@ -144,7 +100,7 @@ const githubService = {
         }
 
         try {
-            return callGithub(octokit, obj, fun, arg, cacheKey)
+            return callGithub(octokit, obj, fun, arg)
         } catch (error) {
             logger.info(`${error} - Error on callGithub.${obj}.${fun} with args ${arg}.`)
             throw new Error(error)
@@ -188,13 +144,13 @@ const githubService = {
 
 module.exports = githubService
 
-function generateCacheKey(arg, obj, fun, token) {
-    const argWithoutCacheParams = Object.assign({}, arg)
-    delete argWithoutCacheParams.isUseETag
-    return stringify({
-        obj,
-        fun,
-        arg: argWithoutCacheParams,
-        token
-    })
-}
+// function generateCacheKey(arg, obj, fun, token) {
+//     const argWithoutCacheParams = Object.assign({}, arg)
+//     delete argWithoutCacheParams.isUseETag
+//     return JSON.stringify({
+//         obj,
+//         fun,
+//         arg: argWithoutCacheParams,
+//         token
+//     })
+// }
