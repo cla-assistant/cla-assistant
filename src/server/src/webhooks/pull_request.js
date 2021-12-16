@@ -117,11 +117,11 @@ async function handleWebHook(args, item) {
         if (claRequired) {
             // eslint-disable-next-line no-console
             console.log('DEBUG: handleWebHook for the repo' + JSON.stringify(args.repo))
-            return updateStatusAndComment(args, item)
+            return await updateStatusAndComment(args, item)
         }
 
-        status.updateForClaNotRequired(args)
-        return pullRequest.deleteComment({
+        await status.updateForClaNotRequired(args)
+        return await pullRequest.deleteComment({
             repo: args.repo,
             owner: args.owner,
             number: args.number
