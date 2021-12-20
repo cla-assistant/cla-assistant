@@ -4,10 +4,10 @@
 const assert = require('assert')
 
 // config
-global.config = require('../../../server/src/config')
+global.config = require('../../../config')
 
 // service
-const url = require('../../../server/src/services/url')
+const url = require('../../../server/services/url')
 
 describe('url:baseUrl', () => it('should by default be http://cla-assistant.io', async () => {
     assert.equal(url.baseUrl, 'http://cla-assistant.io')

@@ -235,7 +235,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
 ])
     .directive('customfield', [function () {
         return {
-            templateUrl: '/assets/templates/customField.html',
+            templateUrl: '/templates/customField.html',
             scope: {
                 description: '=',
                 key: '=',

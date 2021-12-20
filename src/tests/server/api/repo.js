@@ -6,11 +6,11 @@ let assert = require('assert')
 let sinon = require('sinon')
 
 // module
-let repo = require('../../../server/src/services/repo')
-let webhook = require('../../../server/src/api/webhook')
+let repo = require('../../../server/services/repo')
+let webhook = require('../../../server/api/webhook')
 
 // api
-let repo_api = require('../../../server/src/api/repo')
+let repo_api = require('../../../server/api/repo')
 
 
 describe('repo', () => {
