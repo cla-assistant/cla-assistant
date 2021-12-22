@@ -38,7 +38,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
 
         $scope.open_error = function () {
             $modal.open({
-                templateUrl: '/assets/templates/modals/error_modal.html',
+                templateUrl: '/modals/templates/error_modal.html',
                 controller: 'ErrorCtrl'
             });
         };
@@ -210,7 +210,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
 
         var report = function (linkedItem) {
             $modal.open({
-                templateUrl: '/assets/templates/modals/report.html',
+                templateUrl: '/modals/templates/report.html',
                 controller: 'ReportCtrl',
                 windowClass: 'report',
                 scope: $scope,
@@ -259,7 +259,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
                     //do nothing
                 }
                 var modal = $modal.open({
-                    templateUrl: '/assets/templates/modals/upload.html',
+                    templateUrl: '/modals/templates/upload.html',
                     controller: 'UploadCtrl',
                     windowClass: 'upload',
                     resolve: {
@@ -281,7 +281,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         $scope.getBadge = function (claRepo) {
             $scope.popoverIsOpen = false;
             $modal.open({
-                templateUrl: '/assets/templates/modals/badge.html',
+                templateUrl: '/modals/templates/badge.html',
                 controller: 'BadgeCtrl',
                 windowClass: 'get-badge',
                 resolve: {
@@ -295,7 +295,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
         $scope.editLinkedItem = function (linkedItem, gist, gists) {
             $scope.popoverIsOpen = false;
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/editLinkedItem.html',
+                templateUrl: '/modals/templates/editLinkedItem.html',
                 controller: 'EditLinkedItemCtrl',
                 windowClass: 'edit-linked-item',
                 resolve: {
@@ -331,7 +331,7 @@ module.controller('SettingsCtrl', ['$rootScope', '$scope', '$stateParams', '$RPC
 
 module.directive('settings', ['$document', function ($document) {
     return {
-        templateUrl: '/assets/templates/settings.html',
+        templateUrl: '/templates/settings.html',
         controller: 'SettingsCtrl',
         transclude: true,
         scope: {

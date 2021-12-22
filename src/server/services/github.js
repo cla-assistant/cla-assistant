@@ -1,5 +1,5 @@
 const cache = require('memory-cache')
-const config = require('../config')
+const config = require('../../config')
 const stringify = require('json-stable-stringify')
 const logger = require('../services/logger')
 

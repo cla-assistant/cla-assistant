@@ -25,7 +25,7 @@ const MongoStore = require('connect-mongo');
 // Load configuration
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 
-global.config = require('./config')
+global.config = require('./../config')
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // Express application
@@ -141,7 +141,7 @@ async.series([
         console.log('bootstrap static files'.bold)
 
         config.server.static.forEach((p) => {
-            app.use(p.prefix, express.static(p.path))
+            app.use(express.static(p))
         })
         callback()
     },

@@ -85,7 +85,7 @@ module.exports = {
         },
 
         templates: {
-            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, '..', '..', 'client', 'assets', 'login.html')
+            login: process.env.LOGIN_PAGE_TEMPLATE || path.join(__dirname, 'client', 'login.html')
         },
 
         api_access: {
@@ -121,37 +121,36 @@ module.exports = {
         },
 
         static: [
-            { prefix: '/assets', path: path.join(__dirname, '..', '..', 'client', 'assets') },
-            { prefix: '/dist', path: path.join(__dirname, '..', '..', 'client', 'dist') },
+            path.join(__dirname, 'client')
         ],
 
         api: [
-            path.join(__dirname, 'api', '*.js')
+            path.join(__dirname, 'server', 'api', '*.js')
         ],
 
         webhooks: [
-            path.join(__dirname, 'webhooks', '*.js')
+            path.join(__dirname, 'server', 'webhooks', '*.js')
         ],
 
         documents: [
-            path.join(__dirname, 'documents', '*.js')
+            path.join(__dirname, 'server', 'documents', '*.js')
         ],
 
         controller: [
-            path.join(__dirname, 'controller', '!(default).js'),
-            path.join(__dirname, 'controller', 'default.js')
+            path.join(__dirname, 'server', 'controller', '!(default).js'),
+            path.join(__dirname, 'server', 'controller', 'default.js')
         ],
 
         graphQueries: [
-            path.join(__dirname, 'graphQueries', '*.js')
+            path.join(__dirname, 'server', 'graphQueries', '*.js')
         ],
 
         middleware: [
-            path.join(__dirname, 'middleware', '*.js')
+            path.join(__dirname, 'server', 'middleware', '*.js')
         ],
 
         passport: [
-            path.join(__dirname, 'passports', '*.js')
+            path.join(__dirname, 'server', 'passports', '*.js')
         ],
 
     }

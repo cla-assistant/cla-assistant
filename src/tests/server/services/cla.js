@@ -4,22 +4,22 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 //model
-const CLA = require('../../../server/src/documents/cla').CLA
-const Org = require('../../../server/src/documents/org').Org
-const Repository = require('../../../server/src/documents/repo').Repo
+const CLA = require('../../../server/documents/cla').CLA
+const Org = require('../../../server/documents/org').Org
+const Repository = require('../../../server/documents/repo').Repo
 
 //services
-const org_service = require('../../../server/src/services/org')
-const repo_service = require('../../../server/src/services/repo')
-const github = require('../../../server/src/services/github')
-const logger = require('../../../server/src/services/logger')
-const config = require('../../../server/src/config')
+const org_service = require('../../../server/services/org')
+const repo_service = require('../../../server/services/repo')
+const github = require('../../../server/services/github')
+const logger = require('../../../server/services/logger')
+const config = require('../../../config')
 
 // test data
 const testData = require('../testData').data
 
 // service under test
-const cla = require('../../../server/src/services/cla')
+const cla = require('../../../server/services/cla')
 
 let expArgs = {}
 let testRes = {}
