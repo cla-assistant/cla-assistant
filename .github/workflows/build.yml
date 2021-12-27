@@ -1,11 +1,14 @@
 name: CI/CDPipeline
+permissions:
+  id-token: write
+  contents: read
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'commit sha to deploy to staging'
+        description: "commit sha to deploy to staging"
         required: true
-        default: 'refs/heads/main'
+        default: "refs/heads/main"
   push:
     branches:
       - "*"
@@ -23,18 +26,11 @@ jobs:
           - 12
         os:
           - ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.inputs.ref }}
-      - name: setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          version: "275.0.0"
-          service_account_key: ${{ secrets.GCP_base64 }}
-      # Configure docker to use the gcloud command-line tool as a credential helper
-      - run: gcloud auth configure-docker
+
       - name: Use Node version 12.6
         uses: actions/setup-node@v1
         with:
@@ -54,7 +50,7 @@ jobs:
           github-token: ${{ secrets.github_token }}
           git-commit: ${{ github.event.inputs.ref || github.sha }}
           path-to-lcov: ./output/coverage/lcov.info
-      - name: build the docker image with committ SHA for staging
+      - name: build the docker image with commit SHA for staging
         if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
         run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }} .
       - name: build the docker images with tag name and latest for production
@@ -65,6 +61,15 @@ jobs:
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push sapclaassistant/claassistant
+      - id: "gcp-identity-federation-auth"
+        name: "Authenticate to GCP via OIDC Identity Federation"
+        uses: "google-github-actions/auth@v0.4.4"
+        with:
+          create_credentials_file: "true"
+          workload_identity_provider: "projects/209238640650/locations/global/workloadIdentityPools/github-actions/providers/github-oidc"
+          service_account: "github-actions-containerupload@sap-cla-assistant.iam.gserviceaccount.com"
+      # Configure docker to use the gcloud command-line tool as a credential helper
+      - run: gcloud auth configure-docker
       - name: push image to gcp during push on main branch for testing in staging
         if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
         run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }}
