@@ -51,7 +51,6 @@ jobs:
           git-commit: ${{ github.event.inputs.ref || github.sha }}
           path-to-lcov: ./output/coverage/lcov.info
       - name: build the docker image with commit SHA for staging
-        if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
         run: docker build  -t eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }} .
       - name: build the docker images with tag name and latest for production
         if: startsWith(github.ref, 'refs/tags')
@@ -71,7 +70,6 @@ jobs:
       # Configure docker to use the gcloud command-line tool as a credential helper
       - run: gcloud auth configure-docker
       - name: push image to gcp during push on main branch for testing in staging
-        if: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
         run: docker push eu.gcr.io/sap-cla-assistant/cla-assistant:${{ github.event.inputs.ref || github.sha }}
       - name: push images to gcp during new release for production usage
         if: startsWith(github.ref, 'refs/tags')
