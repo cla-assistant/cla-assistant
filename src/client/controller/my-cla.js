@@ -80,7 +80,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
         $scope.getClaView = function (signedCLA) {
             $modal.open({
-                templateUrl: '/assets/templates/modals/claView.html',
+                templateUrl: '/modals/templates/claView.html',
                 controller: 'ClaViewCtrl',
                 scope: $scope,
                 resolve: {
@@ -106,7 +106,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
                 signedCLA.noCLA = true;
             }
             $modal.open({
-                templateUrl: '/assets/templates/modals/versionView.html',
+                templateUrl: '/modals/templates/versionView.html',
                 controller: 'VersionViewCtrl',
                 scope: $scope,
                 resolve: {
@@ -154,7 +154,7 @@ module.controller('MyClaCtrl', ['$scope', '$filter', '$HUB', '$RAW', '$RPCServic
 
         $scope.confirmRevoke = function (claItem) {
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/confirmRevoke.html',
+                templateUrl: '/modals/templates/confirmRevoke.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {

@@ -202,7 +202,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         var linkSuccess = function () {
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/linkSuccess.html',
+                templateUrl: '/modals/templates/linkSuccess.html',
                 controller: 'LinkCtrl',
                 windowClass: 'link-success',
                 scope: $scope,
@@ -224,7 +224,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         var confirmAdd = function () {
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/confirmLink.html',
+                templateUrl: '/modals/templates/confirmLink.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
@@ -246,7 +246,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         $scope.confirmRemove = function (linkedItem) {
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/confirmRemove.html',
+                templateUrl: '/modals/templates/confirmRemove.html',
                 controller: 'ConfirmCtrl',
                 windowClass: 'confirm-add',
                 resolve: {
@@ -264,7 +264,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         $scope.info = function () {
             $modal.open({
-                templateUrl: '/assets/templates/modals/info_gist.html',
+                templateUrl: '/modals/templates/info_gist.html',
                 controller: 'InfoCtrl',
                 windowClass: 'howto'
             });
@@ -272,7 +272,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         $scope.addScope = function () {
             var modal = $modal.open({
-                templateUrl: '/assets/templates/modals/add_scope.html',
+                templateUrl: '/modals/templates/add_scope.html',
                 controller: 'AddScopeCtrl',
                 windowClass: 'howto'
             });
@@ -283,7 +283,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 
         $scope.gistShareInfo = function () {
             $modal.open({
-                templateUrl: '/assets/templates/modals/info_share_gist.html',
+                templateUrl: '/modals/templates/info_share_gist.html',
                 controller: 'InfoCtrl',
                 windowClass: 'howto'
             });
@@ -517,7 +517,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
 ])
     .directive('feature', ['$window', function () {
         return {
-            templateUrl: '/assets/templates/feature.html',
+            templateUrl: '/templates/feature.html',
             scope: {
                 id: '@',
                 iconSrc: '@',

@@ -1,5 +1,5 @@
 node_modules/**
 src/client/assets/js/**
-src/client/dist/**
+src/client/app.min.*
 src/tests/acceptance_tests/**/*
 output/**

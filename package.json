@@ -89,8 +89,8 @@
     },
     "scripts": {
         "build": "node_modules/grunt/bin/grunt build",
-        "start": "node src/server/src/app.js",
-        "start:dev": "source .env && node src/server/src/app.js",
+        "start": "node app.js",
+        "start:dev": "source .env && node app.js",
         "test": "node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
     }
