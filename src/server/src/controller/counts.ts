@@ -1,16 +1,18 @@
 // modules
-const express = require('express')
+import express = require('express')
 
 // models
-const Repo = require('mongoose').model('Repo')
-const Org = require('mongoose').model('Org')
-const CLA = require('mongoose').model('CLA')
+import mongoose = require('mongoose')
+const Repo = mongoose.model('Repo')
+const Org = mongoose.model('Org')
+const CLA = mongoose.model('CLA')
 
 const router = express.Router()
 
 //services
-const logger = require('./../services/logger')
-const github = require('./../services/github')
+import logger = require('./../services/logger')
+import github = require('./../services/github')
+import * as config from '../config'
 
 router.post('/count/*', (_req, _res, next) => next())
 

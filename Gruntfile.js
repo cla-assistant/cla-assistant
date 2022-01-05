@@ -13,6 +13,16 @@ module.exports = function (grunt) {
 
         pkg: grunt.file.readJSON('package.json'),
 
+        ts: {
+            default: {
+                tsconfig: 'src/server/tsconfig.json',
+
+            },
+            options: {
+                rootDir: 'src/server/src'
+            }
+        },
+
         coveralls: {
             target: {
                 src: 'output/coverage/lcov.info'
@@ -120,8 +130,10 @@ module.exports = function (grunt) {
     grunt.initConfig(config);
 
     require('load-grunt-tasks')(grunt);
+    grunt.loadNpmTasks('grunt-ts');
 
-    grunt.registerTask('build', ['uglify', 'sass']);
+    grunt.registerTask('build', ['uglify', 'sass', 'ts']);
+    grunt.registerTask('tsc', ['ts']);
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul']);
     grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'karma', 'watch']);

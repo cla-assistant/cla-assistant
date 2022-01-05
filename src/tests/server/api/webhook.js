@@ -3,14 +3,15 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // module
-const github = require('../../../server/src/services/github')
-const url = require('../../../server/src/services/url')
+const github = require('../../../server/dist/services/github')
+const url = require('../../../server/dist/services/url')
 
 //model
-const Repo = require('../../../server/src/documents/repo').Repo
+const Repo = require('../../../server/dist/documents/repo').Repo
 
 // api
-const webhook_api = require('../../../server/src/api/webhook')
+const webhook = require('../../../server/dist/api/webhook')
+const webhook_api = webhook.webhook
 
 const testData = require('../testData').data
 

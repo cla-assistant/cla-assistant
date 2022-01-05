@@ -6,10 +6,10 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // config
-global.config = require('../../../server/src/config')
+global.config = require('../../../server/dist/config')
 
 // service
-const github = rewire('../../../server/src/services/github')
+const github = rewire('../../../server/dist/services/github')
 
 const cache = require('memory-cache')
 

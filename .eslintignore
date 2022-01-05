@@ -3,3 +3,4 @@ src/client/assets/js/**
 src/client/dist/**
 src/tests/acceptance_tests/**/*
 output/**
+src/server/dist/**

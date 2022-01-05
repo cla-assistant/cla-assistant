@@ -35,6 +35,7 @@
         "dont-sniff-mimetype": "^1.1.0",
         "ejs": "^3.1.6",
         "express": "^4.17.1",
+        "express-rate-limit": "^5.5.1",
         "express-session": "^1.17.2",
         "glob": "^7.1.7",
         "joi": "^17.4.2",
@@ -67,6 +68,7 @@
         "grunt-mocha-test": "^0.13.3",
         "grunt-sass": "^3.1.0",
         "grunt-scss-lint": "^0.5.0",
+        "grunt-ts": "^6.0.0-beta.22",
         "istanbul": "^0.4.5",
         "karma": "^4.0.1",
         "karma-chrome-launcher": "^2.2.0",
@@ -82,6 +84,7 @@
         "should": "^13.2.3",
         "sinon": "^7.2.7",
         "supertest": "4.0.0",
+        "typescript": "^4.4.4",
         "webdriverio": "^5.7.2"
     },
     "engines": {
@@ -89,8 +92,8 @@
     },
     "scripts": {
         "build": "node_modules/grunt/bin/grunt build",
-        "start": "node src/server/src/app.js",
-        "start:dev": "source .env && node src/server/src/app.js",
+        "start": "node src/server/dist/app.js",
+        "start:dev": "source .env && node src/server/dist/app.js",
         "test": "node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
     }

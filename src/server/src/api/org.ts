@@ -1,12 +1,13 @@
-const org = require('../services/org')
-const github = require('../services/github')
-const log = require('../services/logger')
-const Joi = require('joi')
-const webhook = require('./webhook')
-const logger = require('../services/logger')
-const utils = require('../middleware/utils')
+import org = require('../services/org')
+import github = require('../services/github')
+import log = require('../services/logger')
+import Joi = require('joi')
+import { webhook } from './webhook'
+import logger = require('../services/logger')
+import utils = require('../middleware/utils')
 //queries
-const queries = require('../graphQueries/github')
+import queries = require('../graphQueries/github')
+
 const newOrgSchema = Joi.object().keys({
     orgId: Joi.number().required(),
     org: Joi.string().required(),
@@ -47,6 +48,7 @@ class OrgAPI {
         dbOrg = await org.create(req.args)
 
         try {
+            // const webhookFactory = webhook.webhookFactory()
             await webhook.create(req)
         } catch (error) {
             logger.error(new Error(error).stack)
@@ -127,6 +129,7 @@ class OrgAPI {
         }
         req.args.org = dbOrg.org
         try {
+            // const webhookFactory = webhook.webhookFactory()
             await webhook.remove(req)
         } catch (error) {
             logger.warn(new Error(error))

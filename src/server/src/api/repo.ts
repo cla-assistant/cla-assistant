@@ -1,9 +1,9 @@
 // module
-const repo = require('../services/repo')
-const logger = require('../services/logger')
-const Joi = require('joi')
-const webhook = require('./webhook')
-const utils = require('../middleware/utils')
+import repo = require('../services/repo')
+import logger = require('../services/logger')
+import Joi = require('joi')
+import { webhook } from './webhook'
+import utils = require('../middleware/utils')
 
 const REPOCREATESCHEMA = Joi.object().keys({
     owner: Joi.string().required(),
@@ -56,7 +56,8 @@ module.exports = {
 
             if (dbRepo.gist) {
                 try {
-                    webhook.create(req)
+                    // const webhookFactory = webhook.webhookFactory()
+                    await webhook.create(req)
                 } catch (error) {
                     logger.error(`Could not create a webhook for the new repo ${new Error(error)}`)
                 }
@@ -89,7 +90,8 @@ module.exports = {
             req.args.owner = dbRepo.owner
             req.args.repo = dbRepo.repo
             try {
-                webhook.remove(req)
+                // const webhookFactory = webhook.webhookFactory()
+                await webhook.remove(req)
             } catch (error) {
                 logger.error(`Could not remove the webhook for the repo ${new Error(error)}`)
             }

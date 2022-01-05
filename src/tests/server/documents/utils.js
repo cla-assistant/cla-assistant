@@ -1,4 +1,4 @@
-const utils = require('../../../server/src/documents/utils');
+const utils = require('../../../server/dist/documents/utils');
 const assert = require('assert');
 
 describe('documents:utils', () => {

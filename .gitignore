@@ -17,3 +17,5 @@ log.*
 jsconfig.json
 src/tests/acceptance_tests/codecept.conf.js
 launch.json
+src/server/dist
+.tscache

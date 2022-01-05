@@ -4,19 +4,19 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // services
-const pullRequest = require('../../../server/src/services/pullRequest')
-const status = require('../../../server/src/services/status')
-const cla = require('../../../server/src/services/cla')
-const repoService = require('../../../server/src/services/repo')
-const orgService = require('../../../server/src/services/org')
-const logger = require('../../../server/src/services/logger')
+const pullRequest = require('../../../server/dist/services/pullRequest')
+const status = require('../../../server/dist/services/status')
+const cla = require('../../../server/dist/services/cla')
+const repoService = require('../../../server/dist/services/repo')
+const orgService = require('../../../server/dist/services/org')
+const logger = require('../../../server/dist/services/logger')
 
-const config = require('../../../server/src/config')
+const config = require('../../../server/dist/config')
 
-const User = require('../../../server/src/documents/user').User
+const User = require('../../../server/dist/documents/user').User
 
 // webhook under test
-const webhook = require('../../../server/src/webhooks/pull_request')
+const webhook = require('../../../server/dist/webhooks/pull_request')
 
 function pull_request(req, res) {
     if (webhook.accepts(req)) {

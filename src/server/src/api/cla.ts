@@ -2,14 +2,15 @@
 const Joi = require('joi')
 
 // services
-const github = require('../services/github')
-const cla = require('../services/cla')
-const status = require('../services/status')
-const repoService = require('../services/repo')
-const orgService = require('../services/org')
-const prService = require('../services/pullRequest')
-const logger = require('../services/logger')
-const utils = require('../middleware/utils')
+import github = require('../services/github')
+import cla = require('../services/cla')
+import status = require('../services/status')
+import repoService = require('../services/repo')
+import orgService = require('../services/org')
+import prService = require('../services/pullRequest')
+import logger = require('../services/logger')
+import utils = require('../middleware/utils')
+import * as config from '../config'
 
 const User = require('mongoose').model('User')
 
@@ -221,7 +222,7 @@ class ClaApi {
     // sharedGist (optional)
     // token (optional)
     // sha (optional)
-    async validatePullRequest(args, item) {
+    async validatePullRequest(args, item = undefined) {
         return validatePR(args, item)
     }
 
@@ -269,7 +270,7 @@ class ClaApi {
                 setTimeout(() => {
                     this.validatePullRequest(status_args, item)
                     logger.info('validateRepoPRs for ' + status_args.owner + '/' + status_args.repo)
-                }, global.config.server.github.timeToWait * (index + (Math.floor(index / 10) * 10)))
+                }, config.server.github.timeToWait * (index + (Math.floor(index / 10) * 10)))
             })
             // return Promise.all(promises)
         }
@@ -280,7 +281,7 @@ class ClaApi {
         const sharedItems = await getLinkedItemsWithSharedGist(req.args.gist)
         const items = (sharedItems.repos || []).concat(sharedItems.orgs || [])
         const promises = items.map(function (item) {
-            let tmpReq = {
+            let tmpReq: any = {
                 args: {
                     token: item.token,
                     gist: item.gist,
@@ -299,7 +300,7 @@ class ClaApi {
     }
 
     async sign(req) {
-        let args = {
+        let args: any = {
             repo: req.args.repo,
             owner: req.args.owner,
             user: req.user.login,
@@ -321,7 +322,7 @@ class ClaApi {
             args.origin = `sign|${req.user.login}`
 
             const signed = await cla.sign(args, item)
-            updateUsersPullRequests(args, item)
+            updateUsersPullRequests(args)
 
             return signed
         } catch (e) {
@@ -356,7 +357,7 @@ class ClaApi {
                 }
                 const ghUser = await getGithubUser(signature.user, req.user.token, req.args.owner)
 
-                const args = {
+                const args: any = {
                     repo: req.args.repo,
                     owner: req.args.owner,
                     user: ghUser.login,
@@ -443,8 +444,8 @@ class ClaApi {
     //     // })
     // }
 }
-const claApi = new ClaApi()
-module.exports = claApi
+export const claApi = new ClaApi()
+// module.exports = claApi
 
 
 async function markdownRender(content, token, owner) {
@@ -479,7 +480,7 @@ async function renderFiles(files, token, owner) {
     const metaPromise = files && files.metadata ? markdownRender(files.metadata.content, token, owner) : undefined
     const data = await Promise.all([contentPromise, metaPromise])
 
-    let gistContent = {}
+    let gistContent: any = {}
     gistContent.raw = data[0] ? data[0].raw : undefined
     gistContent.meta = data[1] ? data[1].raw : undefined
 
@@ -490,7 +491,7 @@ async function getLinkedItemsWithSharedGist(gist) {
     if (!gist) {
         throw 'Gist is required.'
     }
-    const linkedItems = {}
+    const linkedItems: any = {}
     try {
         linkedItems.repos = await repoService.getRepoWithSharedGist(gist)
     } catch (error) {
@@ -573,9 +574,9 @@ async function updateUsersPullRequests(args) {
             throw 'user or PRs not found'
         }
 
-        await prepareForValidation(args.item, user)
+        return await prepareForValidation(args.item, user)
     } catch (e) {
-        let req = {
+        let req: any = {
             args: {
                 gist: args.item.gist,
                 token: args.token

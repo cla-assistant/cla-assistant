@@ -5,12 +5,12 @@ const assert = require('assert')
 const sinon = require('sinon')
 
 // services
-const github = require('../../../server/src/services/github')
-const logger = require('../../../server/src/services/logger')
-const cla_config = require('../../../server/src/config')
+const github = require('../../../server/dist/services/github')
+const logger = require('../../../server/dist/services/logger')
+const cla_config = require('../../../server/dist/config')
 
 // service under test
-const pullRequest = require('../../../server/src/services/pullRequest')
+const pullRequest = require('../../../server/dist/services/pullRequest')
 
 const testDataComments_withCLAComment = [{
     'url': 'https://api.github.com/repos/octocat/Hello-World/pulls/comments/1',

@@ -1,15 +1,21 @@
-const express = require('express'),
-    ejs = require('ejs'),
-    fs = require('fs'),
-    path = require('path'),
-    crypto = require('crypto')
+import express = require('express')
+import ejs = require('ejs')
+import fs = require('fs')
+import path = require('path')
+import crypto = require('crypto')
+import RateLimit = require('express-rate-limit');
 
 //api
 const cla = require('./../api/cla')
 
 const router = express.Router()
 
-router.all('/pull/badge/:signed', (req, res) => {
+const limiter = new RateLimit({
+    windowMs: 60*60*1000, // 1 hour
+    max: 60
+});
+
+router.all('/pull/badge/:signed', limiter, (req, res) => {
     const fileName = req.params.signed === 'signed' ? 'badge_signed.svg' : 'badge_not_signed.svg'
     const status = req.params.signed === 'signed' ? 'signed' : 'pending'
     const tmp = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'templates', fileName), 'utf-8')

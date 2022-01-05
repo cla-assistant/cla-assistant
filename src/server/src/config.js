@@ -45,7 +45,7 @@ module.exports = {
             enforceDelay: parseInt(process.env.GITHUB_DELAY || '5000', 10),
 
             //slow down API calls in order to avoid abuse rate limit
-            timeToWait: process.env.GITHUB_TIME_TO_WAIT || 1000
+            timeToWait: parseInt(process.env.GITHUB_TIME_TO_WAIT) || 1000
         },
 
         localport: process.env.PORT || 5000,
