@@ -1832,7 +1832,7 @@ describe('', () => {
                 }
             }
             try {
-                cla_api.revoke(req)
+                await cla_api.revoke(req)
                 assert(false, 'should throw an error')
             } catch (error) {
                 assert(error)
