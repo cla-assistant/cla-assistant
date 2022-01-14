@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         node_version:
-          - 12
+          - 16
         os:
           - ubuntu-latest
     steps:
@@ -31,7 +31,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.ref }}
 
-      - name: Use Node version 12.6
+      - name: Use specified node version
         uses: actions/setup-node@v1
         with:
           version: ${{ matrix.node_version }}

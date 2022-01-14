@@ -6,7 +6,7 @@
 
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
 
-To get started, simply store your CLA as a GitHub Gist file then link it with the repository/organisation in CLA assistant. Then sit back and relax while CLA assistant:
+To get started, simply store your CLA as a GitHub Gist file then link it with the repository/organization in CLA assistant. Then sit back and relax while CLA assistant:
 
 - Comments on each opened pull request to ask the contributor to sign the CLA
 - Allows contributors to sign a CLA from within a pull request
@@ -101,6 +101,8 @@ git clone https://github.com/cla-assistant/cla-assistant
 cd ./cla-assistant
 npm install
 ```
+
+Please check the `package.json` for the supported and tested versions of node and npm.
 
 [Register an application on GitHub](https://github.com/settings/applications/new).
 The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
