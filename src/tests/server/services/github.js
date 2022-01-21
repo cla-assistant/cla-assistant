@@ -104,8 +104,8 @@ describe('github:call', () => {
 
     it('should authenticate when basic authentication is required', async () => {
         expectedAuth = {
-            username: 'user',
-            password: 'pass'
+            clientId: 'user',
+            clientSecret: 'pass'
         }
         callStub.resolves({ data: {}, meta: {} })
         await github.call({
