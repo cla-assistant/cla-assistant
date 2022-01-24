@@ -1,4 +1,17 @@
 # Change Log
+## [v2.12.0](https://github.com/cla-assistant/cla-assistant/tree/v2.12.0) (2022-01-24)
+
+**Improvements:**
+- rename default branch to main (#799)
+- restructure files to separate code and runtime assets (#800)
+- use GitHub Actions OIDC to authenticate against GCP (#816)
+- remove configuration for stale bot (#821)
+- update to node16 and switch to karma-chrome (#823)
+
+**Fixes:**
+- await all promises before sending status back (#813)
+- use createOAuthAppAuth to create authentification when acting as the OAuthApp (#826)
+
 ## [v2.11.0](https://github.com/cla-assistant/cla-assistant/tree/v2.11.0) (2021-11-08)
 **Features:**
 - Alpha: Add GitHub App as a hidden feature (#781)
