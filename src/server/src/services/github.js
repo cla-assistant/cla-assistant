@@ -5,6 +5,8 @@ const logger = require('../services/logger')
 
 const { Octokit } = require('@octokit/rest')
 const { createAppAuth } = require('@octokit/auth-app')
+const { createOAuthAppAuth } = require('@octokit/auth-oauth-app');
+
 const OctokitWithPluginsAndDefaults = Octokit.plugin(
     require('@octokit/plugin-retry').retry,
     require('@octokit/plugin-throttling').throttling,
@@ -59,14 +61,20 @@ async function callGithub(octokit, obj, fun, arg, cacheKey, cacheTime) {
 
 function determineAuthentication(token, basicAuth) {
     if (token) {
-        return `token ${token}`
+        return { auth: `token ${token}` }
     }
+    // basic Auth means that we want to act as the OAuthApp
     if (basicAuth) {
         return {
-            username: basicAuth.user,
-            password: basicAuth.pass
+            authStrategy: createOAuthAppAuth,
+            auth: {
+                clientId: basicAuth.user,
+                clientSecret: basicAuth.pass
+            }
         }
     }
+    // if nothing matches we return an empty object, so we have the same types
+    return {}
 }
 
 async function getInstallationId(octokit, arg) {
@@ -94,9 +102,9 @@ const githubService = {
         const obj = call.obj
         const cacheKey = generateCacheKey(arg, obj, fun, call.token)
 
-        const auth = determineAuthentication(call.token, call.basicAuth)
+        const { auth, authStrategy } = determineAuthentication(call.token, call.basicAuth)
 
-        const octokit = new OctokitWithPluginsAndDefaults({ auth })
+        const octokit = new OctokitWithPluginsAndDefaults({ auth, authStrategy })
 
         if (!obj || !octokit[obj]) {
             throw new Error(`${obj} required/object not found or specified`)
