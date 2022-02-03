@@ -199,7 +199,7 @@ For the list of supported environments see [supported environment variables](#su
 
 Contributor License Agreement assistant
 
-Copyright (c) 2021 [SAP SE](https://www.sap.com) or an SAP affiliate company. All rights reserved.
+Copyright (c) 2022 [SAP SE](https://www.sap.com) or an SAP affiliate company. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
