@@ -68,7 +68,7 @@
         "grunt-sass": "^3.1.0",
         "grunt-scss-lint": "^0.5.0",
         "istanbul": "^0.4.5",
-        "karma": "^6.3.11",
+        "karma": "^6.3.14",
         "karma-chrome-launcher": "^3.1.0",
         "karma-mocha": "^2.0.1",
         "karma-ng-html2js-preprocessor": "~1.0.0",
