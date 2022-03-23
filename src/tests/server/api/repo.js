@@ -309,6 +309,18 @@ describe('repo', () => {
             assert(webhook.remove.called)
         })
 
+        it('should gracefully handle when webhook removal fails', async () => {
+            webhook.remove.restore()
+            sinon.stub(webhook, 'remove').callsFake(async () => {
+                throw 'No webhook found with base url https://test-cla.com/webhook'
+            })
+            await repo_api.remove(req)
+            assert(req.args.owner)
+            assert(req.args.repo)
+            assert(repo.remove.called)
+            assert(webhook.remove.called)
+        })
+
         it('should remove repo entry but not remove webhook when unlink a null CLA repo', async () => {
             res.repoRemove.data.gist = null
             await repo_api.remove(req)

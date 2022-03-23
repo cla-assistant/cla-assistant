@@ -56,7 +56,7 @@ module.exports = {
 
             if (dbRepo.gist) {
                 try {
-                    webhook.create(req)
+                    await webhook.create(req)
                 } catch (error) {
                     logger.error(`Could not create a webhook for the new repo ${new Error(error)}`)
                 }
@@ -89,7 +89,7 @@ module.exports = {
             req.args.owner = dbRepo.owner
             req.args.repo = dbRepo.repo
             try {
-                webhook.remove(req)
+                await webhook.remove(req)
             } catch (error) {
                 logger.error(`Could not remove the webhook for the repo ${new Error(error)}`)
             }
