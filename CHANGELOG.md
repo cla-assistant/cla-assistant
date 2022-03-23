@@ -1,4 +1,10 @@
 # Change Log
+## [v2.13.0](https://github.com/cla-assistant/cla-assistant/tree/v2.13.0) (2022-03-23)
+
+**Fixes:**
+- await webhook removal to gracefully handle rejected promises (#854)
+- Update copyright year to 2022 (#834)
+
 ## [v2.12.0](https://github.com/cla-assistant/cla-assistant/tree/v2.12.0) (2022-01-24)
 
 **Improvements:**
