@@ -175,7 +175,7 @@ To get a CLA assistant instance quickly up you can as well use Docker compose:
 git clone https://github.com/cla-assistant/cla-assistant
 cd ./cla-assistant
 
-cp .env.example .env
+sed 's/export//g' .env.example > .env
 # Update GITHUB_CLIENT, GITHUB_SECRET and GITHUB_TOKEN with your values in .env
 docker-compose up
 ```
