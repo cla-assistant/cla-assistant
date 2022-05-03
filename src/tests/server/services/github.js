@@ -11,8 +11,6 @@ global.config = require('../../../server/src/config')
 // service
 const github = rewire('../../../server/src/services/github')
 
-const cache = require('memory-cache')
-
 const callStub = sinon.stub()
 const authenticateStub = sinon.stub()
 const createInstallationAccessTokenStub = sinon.stub()
@@ -60,7 +58,7 @@ describe('github:call', () => {
 
     function fakeErrorInstallationToken(owner) {
         throw Error(owner)
-     }
+    }
 
     github.__set__('Octokit', OctokitMock)
     github.__set__('OctokitWithPluginsAndDefaults', OctokitWithPluginsAndDefaultsMock)
@@ -68,7 +66,6 @@ describe('github:call', () => {
     beforeEach(() => {
         github.resetList = {}
         callStub.reset()
-        cache.clear()
         expectedAuth = undefined
         authenticateStub.reset()
     })
@@ -149,20 +146,8 @@ describe('github:call', () => {
             })
             assert(false, 'Should throw an error')
         } catch (error) {
-            assert.equal(error, 'github error')
+            assert.equal(error, 'Error: fun.obj: github error')
         }
-    })
-
-    it('should cache github call results if cacheTime provided', async () => {
-        callStub.resolves({ data: {}, headers: {} })
-        for (let i = 0; i < 3; i++) {
-            await github.call({
-                obj: 'obj',
-                fun: 'fun',
-                arg: { cacheTime: 1 }
-            })
-        }
-        sinon.assert.calledOnce(callStub)
     })
 
     it('callWithGitHubApp should use installation token if created by getInstallationAccessToken', async () => {

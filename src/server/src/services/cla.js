@@ -13,7 +13,6 @@ const logger = require('../services/logger')
 const orgService = require('../services/org')
 const repoService = require('../services/repo')
 const github = require('./github')
-const config = require('../config')
 const _ = require('lodash')
 
 class ClaService {
@@ -32,22 +31,15 @@ class ClaService {
             fun: 'get',
             arg: {
                 gist_id: id,
-                cacheTime: 60 //seconds
+                isUseETag: true
             },
-            token: token,
+            token: config.server.github.token,
             owner: owner
         }
-        try {
-            // The gists.get endpoint currently doesn't support the usage of a Github App installation token
-            // Therefore we try to use the stored user token
-            // If that fails we fall back to the generic CLA token
-            // This helps to not use the complete rate limit for the CLA bot, while still keep working in case the user token gets revoked
-            return await github.call(args)
-        } catch (error) {
-            logger.error(new Error(error).stack)
-            args.token = config.server.github.token
-            return await github.call(args)
-        }
+        // The gists.get endpoint currently doesn't support the usage of a Github App installation token
+        // Therefore we try to use the CLA bot token with conditional request using etag to prevent the depletion of rate limit for bot token
+        // We can add anonymous call as the backup plan (also with etag)
+        return await github.call(args)
     }
 
     async _checkAll(users, repoId, orgId, sharedGist, gist_url, gist_version, onDates, hasExternalCommiter) {
