@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # Docker compose file to get an instance of CLA-assistant quickly up
 # Mainly for development purposes
 # NOT PRODUCTION READY

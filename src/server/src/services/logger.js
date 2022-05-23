@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+//
+// SPDX-License-Identifier: Apache-2.0
+
 const bunyan = require('bunyan')
 const BunyanSlack = require('bunyan-slack')
 const rTracer = require('cls-rtracer')

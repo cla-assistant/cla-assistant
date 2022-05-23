@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Contributing to CLA Assistant
 
 You want to contribute to CLA Assistant? Welcome! Please read this document to understand what you can do:

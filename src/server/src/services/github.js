@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+//
+// SPDX-License-Identifier: Apache-2.0
+
 const cache = require('memory-cache')
 const config = require('../config')
 const stringify = require('json-stable-stringify')
