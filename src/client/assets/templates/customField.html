@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <div ng-if="type != 'checkbox' && type != 'textarea' && !type.enum && type !== 'readonly'" title="{{description}}">
     <label ng-hide="type === 'hidden'" ng-class="{'required': required}">{{title || name}} </label>
     <div ng-show="description && type !== 'hidden'" class="description">({{description}})</div>

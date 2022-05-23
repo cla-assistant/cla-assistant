@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Common Issues and their solutions
 
 Please check this document first, before opening an issue for common issues and their solutions.

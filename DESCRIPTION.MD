@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 ### Tagline
 Manages the signing of Contributor License Agreements (CLAs) within GitHub Flow.
 

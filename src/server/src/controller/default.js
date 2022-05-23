@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+//
+// SPDX-License-Identifier: Apache-2.0
+
 const express = require('express')
 const path = require('path')
 const cla = require('./../api/cla')

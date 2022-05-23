@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+//
+// SPDX-License-Identifier: Apache-2.0
+
 /*jslint */
 /*global AdobeEdge: false, window: false, document: false, console:false, alert: false */
 (function (compId) {

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Change Log
 ## [v2.13.0](https://github.com/cla-assistant/cla-assistant/tree/v2.13.0) (2022-03-23)
 

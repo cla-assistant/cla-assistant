@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <!-- START SAP SECURITY.MD V0.0.1 BLOCK -->
 <!-- Please do not remove the version header, this is needed for automatic updates of the SECURITY.md -->
 # SAP Open Source Security Policy

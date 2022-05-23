@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+//
+// SPDX-License-Identifier: Apache-2.0
+
 module.controller('ClaViewCtrl', function ($scope, $modalInstance, $window, cla, $state, $RPCService, $sce, utils) {
     $scope.claObj = cla;
     $scope.cla = null;
