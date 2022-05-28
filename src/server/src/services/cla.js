@@ -757,7 +757,7 @@ class ClaService {
             try {
                 return CLA.find(selection, {}, options)
             } catch (error) {
-                logger.warn('Error occured when getting all signed CLAs for given repo without gist version' + error)
+                logger.warn('Error occurred when getting all signed CLAs for given repo without gist version' + error)
                 logger.warn('Api cla.getAll failed with selection ' + selection)
                 // eslint-disable-next-line no-console
                 console.log('Api cla.getAll failed with selection from console log ' + selection)
@@ -770,7 +770,7 @@ class ClaService {
             }
             return clas
         } catch (error) {
-            logger.warn('Error occured when getting all signed CLAs for given repo ' + error)
+            logger.warn('Error occurred when getting all signed CLAs for given repo ' + error)
         }
 
 
