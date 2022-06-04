@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
 [![CI/CDPipeline](https://github.com/cla-assistant/cla-assistant/actions/workflows/build.yml/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions/workflows/build.yml)
 [![REUSE status](https://api.reuse.software/badge/github.com/cla-assistant/cla-assistant)](https://api.reuse.software/info/github.com/cla-assistant/cla-assistant)
 
-# Contributor License Agreement (CLA) assistant
+# Contributor License Agreement (CLA) assistant ...
 
 Streamline your workflow and let CLA assistant handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request.
 
