@@ -164,7 +164,7 @@ async.series([
             config.server.mongodb.uri,
             {keepAlive: true}
         )
-        .then(db => bootstrap('documents', callback))
+        .then(() => bootstrap('documents', callback))
         .catch(err => callback(err))
     },
 
@@ -217,7 +217,7 @@ async.series([
     (callback) => {
         bootstrap('controller', callback)
     }
-]).then(results => {
+]).then(() => {
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
     // eslint-disable-next-line no-console
