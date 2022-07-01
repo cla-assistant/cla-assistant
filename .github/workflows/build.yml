@@ -31,12 +31,12 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.ref }}
 
       - name: Use specified node version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           version: ${{ matrix.node_version }}
       - name: Npm Install
@@ -67,7 +67,7 @@ jobs:
           docker push sapclaassistant/claassistant
       - id: "gcp-identity-federation-auth"
         name: "Authenticate to GCP via OIDC Identity Federation"
-        uses: "google-github-actions/auth@v0.4.4"
+        uses: "google-github-actions/auth@v0.8.0"
         if: ${{ startsWith(github.ref, 'refs/tags') || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
         with:
           create_credentials_file: "true"
