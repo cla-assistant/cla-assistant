@@ -75,7 +75,7 @@
         "karma-phantomjs-launcher": "1.0.4",
         "load-grunt-tasks": "^4.0.0",
         "mkdirp": "0.5.1",
-        "mocha": "^6.1.4",
+        "mocha": "^10.2.0",
         "rewire": "^4.0.1",
         "sass": "^1.39.0",
         "should": "^13.2.3",
