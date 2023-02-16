@@ -141,6 +141,7 @@ module.exports = {
         return ['opened', 'reopened', 'synchronize'].indexOf(req.args.action) > -1 && (req.args.repository && req.args.repository.private == false)
     },
     handle: async function (req, res) {
+        res.status(200).send('OK - Will be working on it')
         const args = {
             owner: req.args.repository.owner.login,
             repoId: req.args.repository.id,
@@ -166,6 +167,5 @@ module.exports = {
         } catch (e) {
             logger.warn(e)
         }
-        res.status(200).send('OK')
     }
 }

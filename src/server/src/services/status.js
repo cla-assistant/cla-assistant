@@ -228,6 +228,17 @@ class StatusService {
         }
         return updateStatusIfNeeded(args, status, false)
     }
+
+    async updateForMergeQueue(args) {
+        logger.debug(`StatusService-->updateForMergeQueue for the repo ${args.owner}/${args.repo}/${args.sha}`)
+        let status = {
+            context: 'license/cla',
+            state: 'success',
+            description: 'Dummy status to green light merge group. CLA checks only happen on Pull Requests.',
+            url: url.claURL(args.owner, args.repo)
+        }
+        return createStatus(args, status.context, status.description, status.state, status.url)
+    }
 }
 
 module.exports = new StatusService()
