@@ -82,7 +82,7 @@ The possible values for the "githubKey"-property can be found in the [GitHub-API
 
 ## FAQ
 #### Where is the list of signees stored?
-Since 27.08.2021 all data is stored in a cosmosDB (mongoDB compatible) hosted on Microsoft Azure in Europe ([#740](https://github.com/cla-assistant/cla-assistant/issues/740)).
+Since 27.08.2021 all data is stored in a Cosmos DB (MongoDB compatible) hosted on Microsoft Azure in Europe ([#740](https://github.com/cla-assistant/cla-assistant/issues/740)).
 Before that all the data was stored in a MongoDB hosted by [mLab](https://mlab.com/).
 
 #### Where can I see the list of signees? Is there a way to import/export the signee data?
@@ -129,7 +129,8 @@ Copy the sample configuration file `.env.example` file to `.env`.
 cp .env.example .env
 ```
 
-You require a MongoDB compatible database as a backend. For development purposes you can run MongoDB in a docker container easily:
+You require a MongoDB or compatible database such as [Azure Cosmos DB](https://cosmos.azure.com) or [FerretDB](https://www.ferretdb.io) as a backend.
+For development purposes you can run MongoDB in a docker container easily:
 
 ```sh
 docker run --detach --publish 27017:27017 mongo
