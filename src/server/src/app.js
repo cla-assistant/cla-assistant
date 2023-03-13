@@ -1,4 +1,5 @@
-let http = require('http')
+let fs = require('fs');
+let https = require('https')
 
 if (process.env.NODE_ENV === 'production') {
     require('@google-cloud/trace-agent').start();
@@ -206,12 +207,16 @@ async.series([
         console.log('! '.yellow + err)
     }
 
-
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
     // eslint-disable-next-line no-console
     console.log('App is initialized')
-    let server = http.createServer(app)
+
+    let privateKey = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'star_pingcap.net.key'), 'utf8');
+    let certificate = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'STAR_pingcap_net.chain.crt'), 'utf8');
+    let credentials = { key: privateKey, cert: certificate };
+    let server = https.createServer(credentials, app)
+
     // eslint-disable-next-line no-console
     console.log('Server is created')
     const listener = server.listen(config.server.localport, function () {
