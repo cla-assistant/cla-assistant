@@ -132,6 +132,7 @@ cp .env.example .env
 You require a MongoDB or compatible database as a backend such as: 
 -  [Azure Cosmos DB](https://cosmos.azure.com)
 -  [FerretDB](https://www.ferretdb.io) and [their blog post about using it with CLA Assistant](https://blog.ferretdb.io/using-cla-assistant-with-ferretdb/)
+
 For development purposes you can run MongoDB in a docker container easily:
 
 ```sh
