@@ -77,7 +77,7 @@ describe('webhookApi', function () {
                         url: url.webhook('myRepo'),
                         content_type: 'json'
                     },
-                    events: ['pull_request'],
+                    events: ['pull_request', 'merge_group'],
                     active: true
                 },
                 token: 'abc'
@@ -180,7 +180,7 @@ describe('webhookApi', function () {
                         url: url.webhook(testData.orgs[0].login),
                         content_type: 'json'
                     },
-                    events: ['pull_request'],
+                    events: ['pull_request', 'merge_group'],
                     active: true
                 },
                 token: 'abc'
