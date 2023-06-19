@@ -69,7 +69,7 @@ class WebhookService {
                     content_type: 'json'
                 },
                 name: 'web',
-                events: ['pull_request'],
+                events: ['pull_request', 'merge_group'],
                 active: true
             },
             token: token
