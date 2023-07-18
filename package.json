@@ -42,7 +42,7 @@
         "lodash": "^4.17.21",
         "memory-cache": "^0.2.0",
         "merge": "^2.1.1",
-        "mongoose": "^6.0.5",
+        "mongoose": "^6.11.3",
         "passport": "^0.4.1",
         "passport-accesstoken": "^0.1.0",
         "passport-github": "^1.1.0",
