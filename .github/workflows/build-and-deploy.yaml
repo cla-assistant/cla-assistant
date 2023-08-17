@@ -1,0 +1,77 @@
+on:
+  push:
+    branches:
+      - main
+      - TECH-1861
+
+name: Deploy to AWS Production (K8s)
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_REGION: us-east-1
+      CLUSTER_NAME: maker-prod
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Extract commit hash
+      id: vars
+      shell: bash
+      run: |
+        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        SHA_TAG: ${{ steps.vars.outputs.sha_short }}
+        LATEST_TAG: latest
+        ENVIRONMENT_TAG: prod
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |  
+        # Build Docker containers and push them to ECR cla-assistant-prod
+        docker pull $ECR_REGISTRY/cla-assistant-prod:$LATEST_TAG || true
+        docker build -t cla-assistant-prod \
+                     -t $ECR_REGISTRY/cla-assistant-prod:$SHA_TAG \
+                     -t $ECR_REGISTRY/cla-assistant-prod:$LATEST_TAG \
+                     -t $ECR_REGISTRY/cla-assistant-prod:$ENVIRONMENT_TAG \
+                     -f Dockerfile \
+                     .
+
+        docker push $ECR_REGISTRY/cla-assistant-prod --all-tags
+
+    - name: Preparing Helm values files
+      id: preparing-helm-values
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        sed -i 's/${ECR_REGISTRY}/'$(echo $ECR_REGISTRY)/ deploy/prod/cla-assistant.yaml
+
+    - name: Deploying CLA Assistant Logger to Kubernetes with Helm
+      uses: bitovi/github-actions-deploy-eks-helm@v1.2.4
+      with:
+        values: image.repository=${{ steps.login-ecr.outputs.registry }}/cla-assistant-prod,image.tag=${{ steps.vars.outputs.sha_short }}
+        cluster-name: ${{ env.CLUSTER_NAME }}
+        config-files: deploy/prod/cla-assistant.yaml
+        chart-path: techops-services/common
+        namespace: cla-assistant
+        timeout: 5m0s
+        name: cla-assistant
+        chart-repository: https://techops-services.github.io/helm-charts
+        version: 0.0.14
+        atomic: true

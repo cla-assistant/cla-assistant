@@ -1,0 +1,71 @@
+replicaCount: 1
+service:
+  name: cla-assistent
+  port: 80
+  type: ClusterIP
+  containerPort: 8080
+  tls:
+    enabled: true
+    issuerName: cloudflare
+image:
+  repository: ${ECR_REGISTRY}/cla-assistent-prod
+  pullPolicy: Always
+  tag: prod
+serviceAccount:
+  create: false
+ingress:
+  enabled: true
+  host: cla.daifoundation.org
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+podAnnotations:
+  reloader.stakater.com/auto: 'true'
+resources:
+  limits:
+    cpu: 2
+    memory: 4096Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 60
+env:
+  PROTOCOL:
+    type: kv
+    value: 'https'
+  PORT:
+    type: kv
+    value: '8080'
+  HOST:
+    type: kv
+    value: 'cla.daifoundation.org'
+  GITHUB_CLIENT:
+    type: parameterStore
+    name: github-client
+    parameter_name: /eks/maker-prod/cla-assistent/github-client
+  GITHUB_SECRET:
+    type: parameterStore
+    name: github-secret
+    parameter_name: /eks/maker-prod/cla-assistent/github-secret
+  GITHUB_TOKEN:
+    type: parameterStore
+    name: github-token
+    parameter_name: /eks/maker-prod/cla-assistent/github-token
+  MONGODB:
+    type: parameterStore
+    name: mongodb
+    parameter_name: /eks/maker-prod/cla-assistent/mongodb
+  GITHUB_ADMIN_USERS:
+    type: parameterStore
+    name: github-admin-users
+    parameter_name: /eks/maker-prod/cla-assistent/github-admin-users
+readinessProbe:
+  tcpSocket:
+    port: 80
+livenessProbe:
+  tcpSocket:
+    port: 80
