@@ -74,3 +74,4 @@ jobs:
         name: cla-assistant
         chart-repository: https://techops-services.github.io/helm-charts
         version: 0.0.14
+        atomic: true
