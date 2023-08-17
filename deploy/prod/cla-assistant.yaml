@@ -61,7 +61,7 @@ env:
     parameter_name: /eks/maker-prod/cla-assistent/mongodb
   GITHUB_ADMIN_USERS:
     type: parameterStore
-    name: github-admin-users
+    name: github-admins
     parameter_name: /eks/maker-prod/cla-assistent/github-admin-users
 readinessProbe:
   tcpSocket:
