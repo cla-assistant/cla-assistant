@@ -1,5 +1,6 @@
 replicaCount: 1
 service:
+  enabled: true
   name: cla-assistent
   port: 8080
   type: ClusterIP
