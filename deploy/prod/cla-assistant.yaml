@@ -16,11 +16,11 @@ serviceAccount:
   create: false
 ingress:
   enabled: true
-  host: cla-k8s.daifoundation.org
+  host: cla.daifoundation.org
   annotations:
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
 podAnnotations:
-  reloader.stakater.com/auto: 'true'
+  reloader.stakater.com/auto: "true"
 resources:
   limits:
     cpu: 2
@@ -37,13 +37,13 @@ autoscaling:
 env:
   PROTOCOL:
     type: kv
-    value: 'https'
+    value: "https"
   PORT:
     type: kv
-    value: '8080'
+    value: "8080"
   HOST:
     type: kv
-    value: 'cla-k8s.daifoundation.org'
+    value: "cla.daifoundation.org"
   GITHUB_CLIENT:
     type: parameterStore
     name: github-client
