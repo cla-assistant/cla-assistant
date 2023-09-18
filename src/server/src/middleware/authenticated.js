@@ -4,6 +4,7 @@
 
 let passport = require('passport')
 let utils = require('./utils')
+const config = require('../../../server/src/config')
 const { isUserAppAuthenticated } = require('../util')
 
 function authenticateForAdminOnlyApi(req, res, next) {
@@ -41,11 +42,17 @@ function authenticateForAdminOnlyApi(req, res, next) {
 }
 
 module.exports = function (req, res, next) {
-    if (config.server.api_access.free.indexOf(req.originalUrl) > -1) {
+    let requestedUrl = req.originalUrl.trim()
+    while (requestedUrl.endsWith('/')) {
+        requestedUrl = requestedUrl.substring(0, requestedUrl.length - 1)
+    }
+    if (config.server.api_access.free.includes(requestedUrl)) {
         return next()
-    } else if (config.server.api_access.admin_only.indexOf(req.originalUrl) > -1) {
+    }
+    if (config.server.api_access.admin_only.includes(requestedUrl)) {
         return authenticateForAdminOnlyApi(req, res, next)
-    } else if (req.isAuthenticated()) {
+    }
+    if (config.server.api_access.authenticated.includes(requestedUrl) && req.isAuthenticated()) {
         return next()
     }
     res.status(401).send('Authentication required')

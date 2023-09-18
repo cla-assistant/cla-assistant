@@ -5,6 +5,15 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # Change Log
+## [v2.13.1](https://github.com/cla-assistant/cla-assistant/tree/v2.13.1) (2023-08-15)
+
+**Fixes:**
+- allowlist whitelist authenticated routes (GHSA-gw8p-frwv-25gh)
+
+**Improvements:**
+- add support for merge_group status checks (#973)
+- Register webhook to receive `merge_group` events (#1003)
+
 ## [v2.13.0](https://github.com/cla-assistant/cla-assistant/tree/v2.13.0) (2022-03-23)
 
 **Fixes:**
