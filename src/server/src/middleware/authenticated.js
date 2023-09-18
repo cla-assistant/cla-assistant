@@ -4,6 +4,7 @@
 
 let passport = require('passport')
 let utils = require('./utils')
+const { isUserAppAuthenticated } = require('../util')
 
 function authenticateForAdminOnlyApi(req, res, next) {
     passport.authenticate('token', { session: false }, function (err, user) {
@@ -18,7 +19,7 @@ function authenticateForAdminOnlyApi(req, res, next) {
         if (!user) {
             return res.status(401).json({ message: 'Incorrect token credentials' })
         }
-        if (!utils.couldBeAdmin(user.login) || (req.args.org && user.scope.indexOf('admin:org_hook') < 0)) {
+        if (!utils.couldBeAdmin(user.login) || (req.args.org && !isUserAppAuthenticated(user))) {
             return res.status(403).json({ message: 'Must have admin:org_hook permission scope' })
         }
         let promises = []

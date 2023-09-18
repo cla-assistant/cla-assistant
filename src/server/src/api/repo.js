@@ -8,12 +8,13 @@ const logger = require('../services/logger')
 const Joi = require('joi')
 const webhook = require('./webhook')
 const utils = require('../middleware/utils')
+const github = require('../services/github')
 
 const REPOCREATESCHEMA = Joi.object().keys({
     owner: Joi.string().required(),
     repo: Joi.string().required(),
     repoId: Joi.number().required(),
-    token: Joi.string().required(),
+    token: Joi.string().optional(),
     gist: Joi.alternatives().try(Joi.string().uri(), Joi.any().allow(null)), // Null CLA
     sharedGist: Joi.boolean(),
     minFileChanges: Joi.number(),
@@ -32,41 +33,54 @@ const REPOREMOVESCHEMA = Joi.alternatives().try(Joi.object().keys({
 
 module.exports = {
     check: (req) => repo.check(req.args),
+    migrate: async (req) => {
+        return await repo.migrate(req.args)
+    },
+    migrationPending: async (req) => {
+        if (!req.user || !req.user.login) {
+            throw 'Invalid user'
+        }
+        const pending = await repo.getMigrationPending(req.user.login)
+        return pending.map(repo => {
+            return { owner: repo.owner, repo: repo.repo, id: repo.repoId }
+        })
+    },
     create: async (req) => {
-        req.args.token = req.args.token || req.user.token
         utils.validateArgs(req.args, REPOCREATESCHEMA, true)
 
         const repoArgs = {
             repo: req.args.repo,
             owner: req.args.owner,
-            token: req.args.token
         }
-        let dbRepo
-        try {
-            dbRepo = await repo.get(repoArgs)
-            if (!dbRepo) {
-                throw 'New repo should be created'
-            }
-            try {
-                const ghRepo = await repo.getGHRepo(repoArgs)
-                if (ghRepo && ghRepo.id != dbRepo.repoId) {
-                    throw 'Repo id has changed'
-                }
-            } catch (error) {
-                return repo.update(req.args)
-            }
-        } catch (error) {
-            dbRepo = await repo.create(req.args)
+        const dbRepo = await repo.get(repoArgs)
 
-            if (dbRepo.gist) {
+        // repo not yet in database: create
+        if (!dbRepo) {
+            // check if repo exists and if the GitHub App is installed
+            try {
+                // this will throw an error if the app is not installed
+                await github.getInstallationAccessTokenForRepo(req.args.owner, req.args.repo)
+            } catch(error) {
+                throw 'GitHub App not installed'
+            }
+
+            const createdRepo = await repo.create(req.args)
+            if (createdRepo.gist) {
                 try {
                     await webhook.create(req)
                 } catch (error) {
                     logger.error(`Could not create a webhook for the new repo ${new Error(error)}`)
                 }
             }
-            return dbRepo
+            return createdRepo
         }
+
+        // repo already in database: check for update
+        const ghRepo = await repo.getGHRepo(repoArgs)
+        if (ghRepo && ghRepo.id !== dbRepo.repoId) {
+            return repo.update(req.args)
+        }
+
         throw 'This repository is already linked.'
     },
     // get: function(req, done){
@@ -80,6 +94,7 @@ module.exports = {
     // 	})
     // },
     getAll: (req) => repo.getAll(req.args),
+    getAllAppAccess: (req) => repo.getAllAccessibleByApp(req.user.token),
     update: (req) => {
         req.args.token = req.args.token || req.user.token
         utils.validateArgs(req.args, REPOCREATESCHEMA)

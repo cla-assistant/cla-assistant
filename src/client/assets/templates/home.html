@@ -38,7 +38,8 @@ SPDX-License-Identifier: Apache-2.0
                     <ui-select-match placeholder="select">
                         <button class="fa fa-times clear-button" ng-click="clear($event, 'repo')"
                             ng-show="$select.selected.name"></button>
-                        {{$select.selected.full_name || $select.selected.login}}</ui-select-match>
+                        {{$select.selected.full_name || $select.selected.login}}
+                    </ui-select-match>
                     <ui-select-choices group-by="groupOrgs"
                         repeat="item in reposAndOrgs | filter: $select.search | notIn:claRepos | notIn:claOrgs">
                         <span ng-if="item.full_name" class="octicon"
@@ -48,6 +49,9 @@ SPDX-License-Identifier: Apache-2.0
                             <img src="{{item.avatarUrl}}" alt="" style="width:20px">
                         </span>
                         <span ng-if="!item.full_name" ng-bind-html="item.login | highlight: $select.search"></span>
+                        <span ng-if="item.repository_selection">
+                            | ({{item.repository_selection}} repos)
+                        </span>
                     </ui-select-choices>
                 </ui-select>
                 <span ng-if="selected.item && !isRepo(selected.item)">
@@ -55,6 +59,14 @@ SPDX-License-Identifier: Apache-2.0
                         <i>Optional:</i> Exclude the following repos from the org</div>
                     <input class="form-control" ng-model="selected.item.excludePattern"
                         placeholder="repo1,repo2,substring1"></input>
+                </span>
+                <span ng-id="!selected.item">
+                    <div style="margin-bottom: 5px; margin-top: 5px;">
+                        <i>Can't find your repository?</i> 
+                        <a href="https://github.com/apps/{{appName}}/installations/new">
+                            Add the CLA-Assistant app to your repository
+                        </a>
+                    </div>
                 </span>
             </div>
         </div>
@@ -121,9 +133,26 @@ SPDX-License-Identifier: Apache-2.0
 
     </div>
 
+    <div class="well row" style="padding: 2rem; background-color: #0794C6;">
+        <h3 style="color: white; font-weight: bold;">Missing anything?</h3>
+        <p style="color: #d2d2d2">
+            If you can't find your linked repository or organization, 
+            you'll need to add the new CLA-Assistant app to your repository or organization.
+        </p>
+        <a class="btn btn-success" href="https://github.com/apps/{{appName}}/installations/new">
+            Add GitHub App
+        </a>
+    </div>
+
     <!-- ----------ACTIVATED ORGS---------- -->
     <div ng-if="claOrgs.length > 0" class="row">
-        <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">Linked Organisations</h4>
+        <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">
+            Linked Organisations
+            <span ng-if="numMigrateOrgs" style="color: red;">
+                <i class="octicon octicon-alert"></i> 
+                <strong>{{numMigrateOrgs}}</strong> organizations need to be migrated.
+            </span>
+        </h4>
     </div>
     <div ng-if="claOrgs.length > 0" class="well row" style="padding-top:25px;">
         <table class="table">
@@ -163,7 +192,13 @@ SPDX-License-Identifier: Apache-2.0
 
     <!-- ----------ACTIVATED REPOS---------- -->
     <div class="row">
-        <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">Linked Repositories</h4>
+        <h4 class="col-xs-12" style="margin: 25px 0; padding-left: 0;">
+            Linked Repositories
+            <span ng-if="numMigrateRepos" style="color: red;">
+                <i class="octicon octicon-alert"></i> 
+                <strong>{{numMigrateRepos}}</strong> repositories need to be migrated.
+            </span>
+        </h4>
     </div>
     <div class="well row" style="padding-top:25px;">
         <table class=" table">

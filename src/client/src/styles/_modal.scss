@@ -128,10 +128,26 @@
   }
 }
 
+.migrate-repository .model-body.container {
+  width: 50%;
+}
+
+.migrate-repository .modal-body {
+  .center-text {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  button {
+    margin-left: 0px !important;
+  }
+}
+
 .report .modal-body,
 .get-badge .modal-body,
 .upload .modal-body,
 .edit-linked-item .modal-body,
+.migrate-repository .modal-body,
 .validatePr .modal-body {
   padding: 15px 35px;
 
@@ -164,4 +180,66 @@
   text-align: center;
   font-size: 26px;
   margin: 20px;
+}
+
+.small-light-text {
+  font-size: 12px;
+  color: gray;
+}
+
+.small-green-text {
+  font-size: 12px;
+  color: green;
+}
+
+.big-bold-text {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.modal-container {
+  display: flex;
+  flex-direction: column;
+}
+
+// Header styles
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid gray;
+}
+
+.modal-flex-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.left-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-height: 70%;
+    max-width: 70%;
+  }
+}
+
+.vertical-separator {
+  width: 1px;
+  height: 100%;
+  background-color: gray;
+}
+
+.right-content {
+  flex: 2;
+  padding: 20px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: bold;
+  }
 }

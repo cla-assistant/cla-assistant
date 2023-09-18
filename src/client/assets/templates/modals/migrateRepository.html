@@ -1,0 +1,69 @@
+<!--
+SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<div class="modal-body modal-primary container" style="text-align: center;">
+    <div ng-click="cancel()" class="fa fa-times close-button"></div>
+
+    <div class="modal-header">
+        <span class="small-light-text">MIGRATION</span><br>
+        <span class="big-bold-text">{{item.owner}}/{{item.repo}}</span>
+        <div ng-show="success">
+            <span class="small-green-text">Migration Successful</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <img src="/assets/images/howto4.svg" class="icon-img icon" ng-show="success">
+        <img src="/assets/images/feature3.svg" class="icon-img icon" ng-show="!success">
+    </div>
+
+    <!-- Default Migrating Notice -->
+    <div ng-if="checking" class="row">
+        <h2>Migrating...</h2>
+        <p>
+            This process can take a while.
+        </p>
+    </div>
+
+    <!-- Actual Left Content -->
+    <div ng-if="!checking" class="row">
+        <div ng-show="needGitHubApp">
+            <h2>Install the GitHub App</h2>
+            <p>
+                Install the GitHub App on each repository where you want to use CLA-Assistant.
+                The GitHub app will act on your behalf with more restricted permissions.
+            </p>
+            <a ng-show="inviteUserID" class="btn btn-success"
+                href="https://github.com/apps/{{inviteAppName}}/installations/new/permissions?suggested_target_id={{inviteUserID}}&repository_ids[]={{item.repoId}}">
+                Install GitHub App
+            </a>
+            <br><br>
+        </div>
+        <div ng-show="needGitHubAppPrivileges">
+            <h2>Extend Privileges</h2>
+            <p>
+                The GitHub App requires extended permissions.
+            </p>
+            <a class="btn btn-info" href="https://github.com/settings/installations/40445958">Update Permissions</a>
+            <br><br>
+        </div>
+        <div ng-show="needCheckMigration">
+            <h2>Start Migration</h2>
+            <p>
+                Click on the button to check if CLA-Assistant can access your repository and start the migration.
+            </p>
+            <button class="btn btn-info" ng-show="!checking" ng-click="migrate()">Start Migration</button>
+        </div>
+        <div ng-show="errorMsg">
+            <h2>Error</h2>
+            <span style="color: red">{{errorMsg}}</span>
+        </div>
+        <div ng-show="success">
+            <h2>Migration Complete!</h2>
+            <button class="btn btn-info" ng-click="done()">Close Window</button>
+        </div>
+    </div>
+</div>

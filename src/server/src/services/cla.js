@@ -632,6 +632,20 @@ class ClaService {
             argsToCreate.origin = `unknown|${args.user}`
         }
 
+        // try to migrate repository in the background
+        try {
+            repoService.migrate({
+                repo: args.repo,
+                owner: args.owner
+            }).then((resp) => {
+                if (resp.success) {
+                    logger.info('repository migration successful:', args)
+                }
+            })
+        } catch (e) {
+            logger.debug('tried to migrate repository because someone signed a CLA but failed:', e)
+        }
+
         const signature = await this.create(argsToCreate)
 
         return signature

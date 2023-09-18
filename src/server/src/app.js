@@ -22,6 +22,7 @@ const mongoose = require('mongoose')
 const rTracer = require('cls-rtracer')
 const expressSession = require('express-session');
 const MongoStore = require('connect-mongo');
+const { verify: verifyWebhookSignature } = require('@octokit/webhooks-methods')
 
 // var sass_middleware = require('node-sass-middleware');
 
@@ -34,6 +35,7 @@ global.config = require('./config')
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // Express application
 // ////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 const log = require('./services/logger')
 
@@ -260,6 +262,30 @@ app.all('/api/:obj/:fun', async (req, res) => {
 // ////////////////////////////////////////////////////////////////////////////////////////////////
 // Handle webhook calls
 // ////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.all('/github/webhooks', async (req, res) => {
+    const signature = req.get('X-Hub-Signature')
+    if (!(await verifyWebhookSignature(
+        config.server.github.app.webhookSecret,
+        JSON.stringify(req.body),
+        signature
+    ))) {
+        return res.status(401).send('Cannot verify webhook signature')
+    }
+    const event = req.get('X-GitHub-Event')
+    const hook = webhooks[event]
+    if (!hook) {
+        return res.status(400).send('Unsupported event')
+    }
+    if (!hook.accepts(req)) {
+        return res.status(204).send('This webhook performed no action')
+    }
+    if (isRudundantWebhook(req)) {
+        console.log(`Skip redundant webhook for the PR ${req.args.pull_request.html_url} on PR action "${req.args.action}"`)
+        return res.status(202).send('This seems to be a redundant webhook. Probably there are two webhooks registered: org- and repo-webhook')
+    }
+    return hook.handle(req, res)
+})
 
 app.all('/github/webhook/:repo', (req, res) => {
     let event = req.headers['x-github-event']

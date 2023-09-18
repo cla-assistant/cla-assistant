@@ -8,8 +8,23 @@ SPDX-License-Identifier: Apache-2.0
 <td>
     <div class="col-xs-12 col-sm-3 col-lg-5" style="padding-left:0">
         <div class="text clickable">
+            <i 
+                ng-if="item.migrate && item.repo" 
+                ng-click="showMigration(item)" 
+                tooltip-placement="bottom" 
+                tooltip="Migrate Repository" 
+                class="octicon octicon-alert"
+            ></i> 
+            <i 
+                ng-if="item.migrate && item.org" 
+                ng-click="showOrganizationMigration(item)" 
+                tooltip-placement="bottom" 
+                tooltip="Migrate Organization" 
+                class="octicon octicon-alert"
+            ></i> 
             <a ng-if="item.repo" ng-href="https://github.com/{{ item.owner }}/{{ item.repo }}" target="space">
-                <i class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i> &nbsp;
+                <i ng-if="!item.migrate" class="octicon" ng-class="{false:'octicon-repo', true:'octicon-repo-forked'}[item.fork]"></i>
+                &nbsp;
                 {{ item.owner }} / {{ item.repo }}
             </a>
             <a ng-if="item.org" ng-href="https://github.com/{{ item.org }}" target="space" tooltip-placement="bottom"

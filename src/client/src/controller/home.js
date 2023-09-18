@@ -40,6 +40,10 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
         $scope.orgs = [];
         $scope.query = {};
         $scope.repos = [];
+
+        // newRepos is used to show the repos that are not yet linked and can be linked
+        $scope.newRepos = [];
+
         $scope.reposAndOrgs = [];
         $scope.selected = {};
         $scope.selectedIndex = -1;
@@ -47,6 +51,21 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
         $scope.user = {};
         $scope.isLoading = false;
         $scope.showActivity = $location.host().indexOf('cla-assistant.io') > -1;
+        $scope.numMigrateRepos = 0;
+        $scope.numMigrateOrgs = 0;
+
+        $scope.appName = 'cla-assistant';
+        $scope.updateInstallatinMeta = function() {
+        $RPCService.call('github', 'getInstallationMeta', {}, function(err, res) {
+            if (err) {
+                return;
+            }
+            $scope.appName = res.value.appName;
+            $scope.$broadcast('appName');
+        })
+        };
+        $scope.updateInstallatinMeta();
+
 
         $scope.logAdminIn = function () {
             $window.location.href = '/auth/github';
@@ -71,11 +90,18 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             });
         };
 
+        var updateNumMigrateOrgs = function(data) {
+            $scope.numMigrateOrgs = data.filter(function(r) {
+                return r.migrate
+            }).length;
+        }
+
         var getLinkedOrgs = function () {
             $scope.claOrgs = [];
 
             return $RPCService.call('org', 'getForUser', {}).then(function (data) {
                 if (data && data.value) {
+                    updateNumMigrateOrgs(data.value)
                     data.value.forEach(function (org) {
                         mixOrgData(org);
                         $scope.claOrgs.push(org);
@@ -96,6 +122,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             return claRepo;
         };
 
+        var updateNumMigrateRepos = function(repos) {
+            $scope.numMigrateRepos = repos.filter(function(r) {
+                return r.migrate
+            }).length;
+        }
+
         var getLinkedRepos = function () {
             var repoSet = [];
             $scope.repos.forEach(function (repo) {
@@ -110,6 +142,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
                 if (!data) {
                     return;
                 }
+                updateNumMigrateRepos(data.value)
                 $scope.claRepos = data.value;
                 // eslint-disable-next-line no-unused-vars
                 $scope.claRepos.forEach(function (claRepo) {
@@ -131,12 +164,27 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
                 }
 
                 $scope.user = res;
-                $scope.user.value.admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('write:repo_hook') > -1 ? true : false;
-                $scope.user.value.org_admin = res.meta['x-oauth-scopes'] && res.meta['x-oauth-scopes'].indexOf('admin:org_hook') > -1 ? true : false;
+                // when x-oauth-scopes is empty, the user most likely authenticated using the GitHub App
+                $scope.user.value.admin = 'x-oauth-scopes' in res.meta && res.meta['x-oauth-scopes'] === '';
+                // same for org_admin but since there are no scopes, we cannot differentiate between user and org admin
+                // so we just assume that the user is an org admin
+                $scope.user.value.org_admin = $scope.user.value.admin;
                 $rootScope.user = $scope.user;
                 $rootScope.$broadcast('user');
             });
         };
+
+        var getNewRepos = function() {
+            return $RPCService.call('repo', 'getAllAppAccess', {}).then(function(data) {
+                if (data) {
+                    data.value.data.forEach(function (repo) {
+                        if (repo.permissions.push) {
+                            $scope.newRepos.push(repo);
+                        }
+                    });
+                }
+            });
+        }
 
         var getRepos = function () {
             if ($scope.user && $scope.user.value && $scope.user.value.admin) {
@@ -189,9 +237,7 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
                 if (res && res.value) {
                     $scope.orgs = res.value;
                 }
-                if ($scope.orgs.length > 0) {
-                    return getLinkedOrgs();
-                }
+                return getLinkedOrgs();
             });
         };
 
@@ -319,9 +365,12 @@ module.controller('HomeCtrl', ['$rootScope', '$scope', '$RPCService', '$RAW', '$
             $q.all([
                 getOrgs(),
                 getRepos(),
+                getNewRepos(),
                 getGists()
             ]).then(function () {
-                $scope.reposAndOrgs = $scope.user.value.org_admin ? $scope.orgs.concat($scope.repos) : $scope.repos;
+                $scope.reposAndOrgs = $scope.user.value.org_admin
+                    ? $scope.orgs.concat($scope.newRepos)
+                    : $scope.newRepos;
                 $scope.isLoading = false;
             }, function () {
                 $scope.isLoading = false;

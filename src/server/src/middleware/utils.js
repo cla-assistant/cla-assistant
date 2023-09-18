@@ -62,10 +62,10 @@ class Utils {
                 obj: 'orgs',
                 fun: 'getMembershipForUser',
                 arg: {
-                    org: org,
-                    username: username
+                    org,
+                    username
                 },
-                token: token
+                token
             })
             if (!res.data) {
                 throw new Error('No data returned')

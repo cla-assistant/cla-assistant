@@ -55,25 +55,19 @@ async function checkToken(item, accessToken) {
 
 }
 
-passport.use(new Strategy({
-    clientID: config.server.github.client,
-    clientSecret: config.server.github.secret,
-    callbackURL: url.githubCallback,
-    authorizationURL: url.githubAuthorization,
-    tokenURL: url.githubToken,
-    userProfileURL: url.githubProfile()
-}, async (accessToken, _refreshToken, params, profile, done) => {
+const githubVerifyCallback = async (accessToken, _refreshToken, params, profile, done) => {
     let user
     try {
         user = await User.findOne({
             name: profile.username
         })
-
-        if (user && !user.uuid) {
-            user.uuid = profile.id
+        if (user) {
+            if (!user.uuid) {
+                user.uuid = profile.id
+            }
+            user.token = accessToken
+            user.save()
         }
-        user.token = accessToken
-        user.save()
     } catch (error) {
         logger.warn(error.stack)
     }
@@ -89,23 +83,16 @@ passport.use(new Strategy({
             logger.warn(new Error(`Could not create new user ${error}`).stack)
         }
     }
-    // User.update({
-    //     uuid: profile.id
-    // }, {
-    //     name: profile.username,
-    //     email: '', // needs fix
-    //     token: accessToken
-    // }, {
-    //     upsert: true
-    // }, function () {})
 
+    // find all available repos
     if (params.scope.indexOf('write:repo_hook') >= 0) {
         try {
             const repoRes = await repoService.getUserRepos({
                 token: accessToken
             })
             if (repoRes && repoRes.length > 0) {
-                repoRes.forEach((repo) => checkToken(repo, accessToken))
+                // only update the token for repositories which have tokens (legacy behavior)
+                repoRes.filter((repo) => repo.token).forEach((repo) => checkToken(repo, accessToken))
             }
         } catch (error) {
             logger.warn(new Error(error).stack)
@@ -130,7 +117,25 @@ passport.use(new Strategy({
         token: accessToken,
         scope: params.scope
     }))
-}))
+}
+
+passport.use('github-app-auth', new Strategy({
+    clientID: config.server.github.app.clientId,
+    clientSecret: config.server.github.app.clientSecret,
+    callbackURL: url.githubAppCallback,
+    authorizationURL: url.githubAuthorization,
+    tokenURL: url.githubToken,
+    userProfileURL: url.githubProfile()
+}, githubVerifyCallback))
+
+passport.use('github-oauth', new Strategy({
+    clientID: config.server.github.client,
+    clientSecret: config.server.github.secret,
+    callbackURL: url.githubCallback,
+    authorizationURL: url.githubAuthorization,
+    tokenURL: url.githubToken,
+    userProfileURL: url.githubProfile()
+}, githubVerifyCallback))
 
 passport.serializeUser((user, done) => done(null, user))
 

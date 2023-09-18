@@ -6,6 +6,7 @@ const express = require('express')
 const path = require('path')
 const cla = require('./../api/cla')
 const logger = require('./../services/logger')
+const { isUserAppAuthenticated } = require('../util')
 //////////////////////////////////////////////////////////////////////////////////////////////
 // Default router
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +77,7 @@ router.all('/*', (req, res) => {
     if (req.path === '/robots.txt') {
         filePath = path.join(__dirname, '..', '..', '..', 'client', 'assets', 'robots.txt')
     }
-    else if ((req.user && req.user.scope && req.user.scope.indexOf('write:repo_hook') > -1) || req.path !== '/') {
+    else if (isUserAppAuthenticated(req.user) || req.path !== '/') {
         filePath = path.join(__dirname, '..', '..', '..', 'client', 'assets', 'home.html')
     } else {
         filePath = config.server.templates.login

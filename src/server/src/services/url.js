@@ -34,6 +34,7 @@ module.exports = function () {
         githubBase: githubBase,
         githubApiBase: githubApiBase,
         githubCallback: url.resolve(baseUrl, '/auth/github/callback'),
+        githubAppCallback: url.resolve(baseUrl, '/auth/github/app-callback'),
         githubAuthorization: url.resolve(githubBase, '/login/oauth/authorize'),
         githubToken: url.resolve(githubBase, '/login/oauth/access_token'),
         githubProfile: () => url.resolve(githubApiBase, config.server.github.enterprise ? '/api/v3/user' : '/user'),

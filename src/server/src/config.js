@@ -32,6 +32,7 @@ module.exports = {
                 appId: process.env.GITHUB_APP_ID,
                 clientId: process.env.GITHUB_APP_CLIENT,
                 clientSecret: process.env.GITHUB_APP_SECRET,
+                webhookSecret: process.env.GITHUB_APP_WEBHOOK_SECRET,
             },
 
             // required
@@ -108,6 +109,7 @@ module.exports = {
                 '/api/org/remove',
                 '/api/repo/create',
                 '/api/repo/remove',
+                '/api/repo/getAllAppAccess',
                 '/api/cla/getAll',
                 '/api/cla/upload'
             ]

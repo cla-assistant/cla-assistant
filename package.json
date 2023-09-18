@@ -24,6 +24,7 @@
         "@octokit/plugin-retry": "^3.0.9",
         "@octokit/plugin-throttling": "^3.5.2",
         "@octokit/rest": "^18.10.0",
+        "@octokit/webhooks-methods": "^4.0.0",
         "async": "^3.2.1",
         "body-parser": "^1.19.0",
         "bunyan": "^1.8.15",
@@ -90,7 +91,7 @@
     "scripts": {
         "build": "node_modules/grunt/bin/grunt build",
         "start": "node src/server/src/app.js",
-        "start:dev": "source .env && node src/server/src/app.js",
+        "start:dev": "npx grunt build && source .env && node src/server/src/app.js",
         "test": "node_modules/grunt/bin/grunt test",
         "acceptance_test": "source .env && npx codeceptjs run"
     }
