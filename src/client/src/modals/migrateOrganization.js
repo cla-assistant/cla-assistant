@@ -7,16 +7,16 @@ module.controller(
   function ($scope, $modalInstance, $RPCService, $window, $modal, $log, linkItemService, item) {
     $scope.item = item;
     $scope.errorMsg = '';
-    
+
     // these are used to automatically fill out the organization
     // when installing the GitHub App
     $scope.inviteAppName = ''
     $scope.inviteOrganizationID = ''
 
-    $scope.updateOrganizationID = function() {
+    $scope.updateOrganizationID = function () {
       $RPCService.call('github', 'getInstallationMeta', {
         org: item.org,
-      }, function(err, res) {
+      }, function (err, res) {
         $log.info('getInstallationMeta', err, res)
         if (err) {
           return;
