@@ -108,12 +108,15 @@ module.exports = {
                 '/api/org/create',
                 '/api/org/remove',
                 '/api/org/update',
+                '/api/org/migrate',
                 '/api/repo/create',
                 '/api/repo/remove',
                 '/api/repo/getAllAppAccess',
                 '/api/repo/update',
+                '/api/repo/migrate',
                 '/api/cla/getAll',
-                '/api/cla/upload'
+                '/api/cla/upload',
+                '/api/github/getInstallationMeta',
             ],
             authenticated: [
                 '/api/cla/getSignedCLA',
