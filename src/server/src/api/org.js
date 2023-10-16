@@ -9,8 +9,7 @@ const Joi = require('joi')
 const webhook = require('./webhook')
 const logger = require('../services/logger')
 const utils = require('../middleware/utils')
-//queries
-const queries = require('../graphQueries/github')
+const orgService = require('../services/org')
 const newOrgSchema = Joi.object().keys({
     orgId: Joi.number().required(),
     org: Joi.string().required(),
@@ -31,6 +30,7 @@ const removeOrgSchema = Joi.object().keys({
 
 class OrgAPI {
     async create(req) {
+        logger.info('got org create request')
         req.args.token = req.args.token || req.user.token
         utils.validateArgs(req.args, newOrgSchema, true)
 
@@ -48,6 +48,15 @@ class OrgAPI {
         if (dbOrg) {
             throw new Error('This org is already linked.')
         }
+
+        // check if GitHub App is installed to the org
+        try {
+            // this will throw an error if the app is not installed
+            await github.getInstallationAccessTokenForOrg(req.args.org)
+        } catch(error) {
+            return 'GitHub App not installed or insufficient permissions'
+        }
+
         dbOrg = await org.create(req.args)
 
         try {
@@ -71,7 +80,11 @@ class OrgAPI {
             const argsForOrg = {
                 orgId: res.map((org) => org.id)
             }
-            return org.getMultiple(argsForOrg)
+            const orgs = JSON.parse(JSON.stringify(await org.getMultiple(argsForOrg)))
+            return orgs.map((org) => {
+                org.migrate = !!org.token
+                return org
+            })
         } catch (error) {
             log.warn(error.stack)
             throw error
@@ -81,11 +94,44 @@ class OrgAPI {
     async getGHOrgsForUser(req) {
         let organizations = []
 
+        if (req.user && req.user.login) {
+            for (let page = 1; ; page += 1) {
+                const installations = await github.call({
+                    obj: 'apps',
+                    fun: 'listInstallationsForAuthenticatedUser',
+                    arg: {
+                        per_page: 100,
+                        page
+                    },
+                    token: req.user.token,
+                    owner: req.user.login
+                })
+
+                installations.data
+                    .filter((installation) => installation.target_type === 'Organization')
+                    .map((installation) => {
+                        const account = JSON.parse(JSON.stringify(installation.account))
+                        // move the selection attribute to the account object
+                        account.repository_selection = installation.repository_selection
+                        return account
+                    })
+                    .forEach((installation) => organizations.push(installation))
+
+                if (installations.data || installations.data.length < 100) {
+                    break
+                }
+            }
+
+            return organizations
+        }
+        /*
         async function callGithub(arg) {
             const query = arg.query ? arg.query : queries.getUserOrgs(req.user.login, null)
+            logger.info('getGHOrgsForUser arg:', {arg, query})
 
             try {
                 const body = await github.callGraphql(query, req.user.token)
+                logger.info('body:', body.data.user)
 
                 if (body.errors) {
                     const errorMessage = body.errors[0] && body.errors[0].message ? body.errors[0].message : 'Error occurred by getting users organizations'
@@ -117,6 +163,7 @@ class OrgAPI {
         if (req.user && req.user.login) {
             return callGithub({})
         }
+        */
 
         throw new Error('User is undefined')
     }
@@ -136,6 +183,11 @@ class OrgAPI {
             logger.warn(new Error(error))
         }
         return dbOrg
+    }
+
+    async migrate(req) {
+        utils.validateArgs(req.args, removeOrgSchema)
+        return orgService.migrate(req.args, req.user.login)
     }
 }
 

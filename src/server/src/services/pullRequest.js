@@ -5,8 +5,9 @@
 const url = require('./url')
 const github = require('./github')
 const logger = require('../services/logger')
+const repoService = require('./repo')
 
-const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
+const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl, migrationNotice) => {
     if (signed) {
         return `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>All committers have signed the CLA.`
     }
@@ -40,6 +41,9 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl) => {
     }
     text += `<sub>You have signed the CLA already but the status is still pending? Let us [recheck](${recheckUrl}) it.</sub>`
 
+    if (migrationNotice) {
+        text += '<br />:warning: Maintainers, please migrate this repository in the [CLA-Assistant dashboard](https://cla-assistant.io).'
+    }
     return text
 }
 class PullRequestService {
@@ -51,6 +55,8 @@ class PullRequestService {
             repo: repo
         }
         try {
+            // find repository in database to check for migration status
+            const dbRepo = await repoService.get(arg)
             const comment = await this.getComment({
                 repo: repo,
                 owner: owner,
@@ -59,8 +65,7 @@ class PullRequestService {
 
             const claUrl = url.claURL(owner, repo, pullNumber)
             const recheckUrl = url.recheckPrUrl(owner, repo, pullNumber)
-            arg.body = commentText(signed, badgeUrl, claUrl, userMap, recheckUrl)
-
+            arg.body = commentText(signed, badgeUrl, claUrl, userMap, recheckUrl, dbRepo && dbRepo.token)
 
             if (!comment && !signed) {
                 fun = 'createComment'
@@ -126,7 +131,7 @@ class PullRequestService {
             }
 
             const userMap = args.userMap ? args.userMap : null
-            const body = commentText(args.signed, badgeUrl, claUrl, userMap, recheckUrl)
+            const body = commentText(args.signed, badgeUrl, claUrl, userMap, recheckUrl, false)
 
             await github.callWithGitHubApp({
                 obj: 'issues',

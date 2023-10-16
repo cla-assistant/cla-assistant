@@ -128,7 +128,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build', ['uglify', 'sass']);
     grunt.registerTask('lint', ['eslint', 'scsslint']);
     grunt.registerTask('coverage', ['mocha_istanbul']);
-    grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'karma', 'watch']);
-    grunt.registerTask('test', ['eslint', 'mochaTest:server', 'karma']);
+    grunt.registerTask('default', ['uglify', 'eslint', 'mochaTest:server', 'watch']);
+    grunt.registerTask('test', ['eslint', 'mochaTest:server']);
     grunt.registerTask('debug_test', ['mochaTest:debugServer']);
 };

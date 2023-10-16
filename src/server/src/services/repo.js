@@ -11,6 +11,7 @@ const _ = require('lodash')
 const github = require('../services/github')
 const logger = require('../services/logger')
 const orgService = require('../services/org')
+const webhookService = require('../services/webhook')
 
 //queries
 const queries = require('../graphQueries/github')
@@ -45,6 +46,10 @@ const selection = args => {
     }
 }
 
+const _resp = (message, success = false) => {
+    return {'success': success, 'message': message}
+}
+
 class RepoService {
 
     constructor() {
@@ -66,7 +71,6 @@ class RepoService {
             owner: args.owner,
             repoId: args.repoId,
             gist: args.gist,
-            token: args.token,
             sharedGist: !!args.sharedGist,
             minFileChanges: args.minFileChanges,
             minCodeChanges: args.minCodeChanges,
@@ -77,6 +81,9 @@ class RepoService {
         })
     }
 
+    /**
+     * @returns {Promise<Repo>}
+     */
     async get(args) {
         return Repo.findOne(selection(args))
         // const repo = await Repo.findOne(selection(args))
@@ -84,6 +91,39 @@ class RepoService {
         //     return repo
         // }
         // throw new Error('Repository not found in Database')
+    }
+
+    async getMigrationPending(owner) {
+        return Repo.find({
+            owner,
+            token: { $exists: true },
+        })
+    }
+
+    async getAllAccessibleByApp(userToken) {
+        // list all installations accessible to the authenticated user
+        const installations = await github.call({
+            obj: 'apps',
+            fun: 'listInstallationsForAuthenticatedUser',
+            args: {
+                per_page: 100,
+            },
+            token: userToken
+        })
+        const result = {data: []}
+        for (const installation of installations.data) {
+            const repos = await github.call({
+                obj: 'apps',
+                fun: 'listInstallationReposForAuthenticatedUser',
+                arg: {
+                    installation_id: installation.id,
+                    per_page: 100
+                },
+                token: userToken
+            })
+            result.data.push(...repos.data)
+        }
+        return result
     }
 
     async getAll(args) {
@@ -99,9 +139,9 @@ class RepoService {
             const promises = []
             for (let i = 0; i < limit; i++) {
                 promises.push(Repo.find({
-                        $or: idChunk[startIndex]
-                    }))
-                    ++startIndex
+                    $or: idChunk[startIndex]
+                }))
+                ++startIndex
             }
             return promises
         }
@@ -110,7 +150,11 @@ class RepoService {
         while (startIndex < idChunk.length) {
             const repos = await Promise.all(parallelLimit(Math.min(idChunk.length - startIndex, 3)))
             for (const set of repos) {
-                allRepos = allRepos.concat(set)
+                allRepos = allRepos.concat(set.map(r => {
+                    const temp = JSON.parse(JSON.stringify(r))
+                    temp.migrate = !!temp.token
+                    return temp
+                }))
             }
         }
         return allRepos
@@ -129,6 +173,68 @@ class RepoService {
         })
     }
 
+    async migrate(args) {
+        // find repository in database
+        const repo = await Repo.findOne({
+            repo: args.repo,
+            owner: args.owner,
+        })
+        if (!repo) {
+            return _resp('Repository not found')
+        }
+        if (!repo.token) {
+            // return a message that the repository is already migrated
+            // return success = true because technically, the migration was successful
+            return _resp('Repository already migrated', true)
+        }
+
+        // try to get GitHub Apps token
+        let appToken
+        try {
+            appToken = await github.getInstallationAccessTokenForRepo(args.owner, args.repo)
+        } catch(error) {
+            return _resp('GitHub App not installed')
+        }
+        logger.debug('generated app token:', appToken)
+
+        // check if the app has permission to list pull requests
+        try {
+            await github.call({
+                token: appToken,
+                obj: 'pulls',
+                fun: 'list',
+                arg: {
+                    owner: args.owner,
+                    repo: args.repo,
+                    state: 'open',
+                    per_page: 1
+                },
+            }, true)
+        } catch (error) {
+            logger.error(error)
+            return _resp('GitHub App has insufficient permissions')
+        }
+
+        // remove token from database
+        logger.info('Removing token from repository object')
+        repo.token = undefined
+        try {
+            await repo.save()
+        } catch(error) {
+            return _resp('Cannot save repository')
+        }
+        logger.info('done!')
+
+        // remove webhook
+        try {
+            await webhookService.removeRepoHook(args.owner, args.repo, appToken)
+        } catch(error) {
+            logger.warn('cannot remove webhook/s from repository:', error.toString())
+        }
+
+        return _resp('Migration successful', true)
+    }
+
     async update(args) {
         const repoArgs = {
             repo: args.repo,
@@ -138,7 +244,6 @@ class RepoService {
 
         repo.repoId = repo.repoId ? repo.repoId : args.repoId
         repo.gist = args.gist
-        repo.token = args.token ? args.token : repo.token
         repo.sharedGist = !!args.sharedGist
         repo.minFileChanges = args.minFileChanges
         repo.minCodeChanges = args.minCodeChanges
@@ -146,6 +251,11 @@ class RepoService {
         repo.allowListPatternOrgs = args.allowListPatternOrgs
         repo.privacyPolicy = args.privacyPolicy
         repo.updatedAt = new Date()
+
+        // only update repository token if the repository has a token
+        if (repo.token) {
+            repo.token = args.token || repo.token
+        }
 
         return repo.save()
     }

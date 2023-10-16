@@ -461,7 +461,7 @@ async function markdownRender(content, token, owner) {
         token,
         owner
     }
-    const response = await github.callWithGitHubApp(args)
+    const response = await github.callWithGitHubApp(args, false, false)
     return {
         raw: response.body || response.data || response
     }

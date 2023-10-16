@@ -27,10 +27,12 @@ Repository owners can review a list of users who signed the CLA for each version
 We also developed a [lite version](https://github.com/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/cla-assistant/github-action).
 
 ## Try
+
 CLA assistant is provided by [SAP](https://sap.com) as a free hosted offering under [cla-assistant.io](https://cla-assistant.io).
 Please open a GitHub issue if you have feedback.
 
 ## Request more information from the CLA signer
+
 If you need to collect detailed information about your contributors you can add so called "custom fields" to your CLA.
 This can be done by providing CLA assistant with some metadata that describes the data you are going to collect.
 CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
@@ -81,23 +83,30 @@ You can also define which of required information can be taken from user's GitHu
 The possible values for the "githubKey"-property can be found in the [GitHub-API description](https://developer.github.com/v3/users/#get-a-single-user).
 
 ## FAQ
+
 #### Where is the list of signees stored?
+
 Since 27.08.2021 all data is stored in a Cosmos DB (MongoDB compatible) hosted on Microsoft Azure in Europe ([#740](https://github.com/cla-assistant/cla-assistant/issues/740)).
 Before that all the data was stored in a MongoDB hosted by [mLab](https://mlab.com/).
 
 #### Where can I see the list of signees? Is there a way to import/export the signee data?
+
 You can see the list of signees on the user interface. There is also a possibility for you to export the list as a .csv file.
 
 #### What should my Contributor License Agreement say?
+
 We're no lawyers, but we can suggest using https://contributoragreements.org/ for a fill-in-the-blank approach to creating a CLA tailored to your needs.
 
 #### Who can I contact for help?
+
 In case of problems or any further questions, please check our [general trouble shooting issue](https://github.com/cla-assistant/cla-assistant/issues/567) or [open an issue](https://github.com/cla-assistant/cla-assistant/issues/new). We always appreciate helpful tips and support for the project.
 
 #### How can I contribute?
+
 You want to contribute to CLA Assistant? Welcome! Please read [here](https://github.com/cla-assistant/cla-assistant/blob/main/CONTRIBUTING.md).
 
 #### Can I allow bot user contributions?
+
 Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a CLA, you may want to allow their contributions without it. You can do so by importing their names (in this case `dependabot[bot]` and `greenkeeper[bot]`) in the CLA assistant dashboard.
 
 ## Setup your own instance of CLA assistant
@@ -112,15 +121,16 @@ npm install
 
 Please check the `package.json` for the supported and tested versions of node and npm.
 
-[Register an application on GitHub](https://github.com/settings/applications/new).
+[Register an OAuth application on GitHub](https://github.com/settings/applications/new).
 The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
-You can use ngrok to get a publicly accessible URL which redirects to your localhost:5000 by executing the following command:
-```sh
-ngrok http 5000
-```
-
-If you use ngrok, you need to update the HOST variable in your .env and set PROTOCOL to "https".
+> **Note**: You can use [ngrok](https://ngrok.com/) to get a publicly accessible URL which redirects to your `localhost:5000` by executing the following command:
+>
+> ```sh
+> ngrok http 5000
+> ```
+> 
+> If you use ngrok, you need to update the `HOST` variable in your `.env` file and set `PROTOCOL` to "https".
 
 
 Copy the sample configuration file `.env.example` file to `.env`.
@@ -133,54 +143,95 @@ You require a MongoDB or compatible database as a backend such as:
 -  [Azure Cosmos DB](https://cosmos.azure.com)
 -  [FerretDB](https://www.ferretdb.io) and [their blog post about using it with CLA Assistant](https://blog.ferretdb.io/using-cla-assistant-with-ferretdb/)
 
-For development purposes you can run MongoDB in a docker container easily:
+> **Note**: For development purposes you can run MongoDB in a docker container easily:
+>
+> ```sh
+> docker run --detach --publish 27017:27017 mongo
+> ```
+>
+> With that you need to adjust the `MONGODB` environment variable in the `.env` file to `mongodb://localhost:27017/cla_assistant`.
 
-```sh
-docker run --detach --publish 27017:27017 mongo
-```
+**Setup GitHub App**
 
-With that you need to adjust the `MONGODB` environment variable in the `.env` file to `mongodb://localhost:27017/cla_assistant`.
+- [Register an GitHub App](https://github.com/settings/apps/new) and add repository permissions for Pull Requests. 
+- Copy the App Name, App ID, Client ID and Client Secret into the `.env`.
+- Generate a new private key, download it and add the contents to the `.env` file (`GITHUB_APP_PRIVATE_KEY`)
+
+> **Note**: If your private key isn't recognized properly, you can try to fill the contents from a file:
+>
+> ```bash
+> export GITHUB_APP_PRIVATE_KEY="$(cat key.pem)"
+> ```
 
 ### Supported environment variables
 
-
 The following are the environment variables you have to configure to run a private instance:
 
-- `HOST`: This should only set the hostname of your CLA assistant instance (without the protocol).
-- `PORT`: The local port to bind to. Defaults to 5000.
-- `HOST_PORT`: You can set the port of your hosted CLA assistant instance here (in case your instance doesn't use standard http ports like 80 or 443).
-- `PROTOCOL`: Valid options are "http" or "https".
-- `GITHUB_CLIENT`: From your registered application in GitHub.
-- `GITHUB_SECRET`: From your registered application in GitHub.
-- `GITHUB_TOKEN`: Use GitHub token of CLA assistant's user for API calls of not authenticated users. It can be generated here https://github.com/settings/tokens/new. The Only scope required is `public_repo`.
-- `GITHUB_ADMIN_USERS`: (optional, comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.
-- `MONGODB`: This has to be in form of a mongodb url, e.g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`.
-- `SLACK_URL`: Optional. You can use it in case you would like to get log-notifications posted in your slack chat.
-- `SLACK_TOKEN`: Optional.
-- `REQUEST_TRACE_HEADER_NAME`: Use the value of an HTTP-header to set the name. E.g. the request id set by an ingress controller via `X-Req-Id`. If not set or no HTTP-header is present a random uuid is used.
-- `LOG_TRACE_FIELD_NAME`: The log field to log the request id to. Defaults to `req_id`.
-- `LOG_TRACE_PREFIX`: A prefix put before the traceId.
+| Name                        | Description                                                                                               |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------|
+| `GITHUB_CLIENT`             | The client ID for authenticating with the GitHub API.                                                     |
+| `GITHUB_SECRET`             | The secret key for authenticating with the GitHub API.                                                    |
+| `GITHUB_TOKEN`              | The access token for making authenticated requests to the GitHub API.                                     |
+| `GITHUB_APP_NAME`           | The name of the registered GitHub App.                                                                    |
+| `GITHUB_APP_PRIVATE_KEY`    | The contents of the private key for the registered GitHub App.                                            |
+| `GITHUB_APP_ID`             | The ID of the registered GitHub App.                                                                      |
+| `GITHUB_APP_CLIENT`         | The client ID of the registered GitHub App.                                                               |
+| `GITHUB_APP_SECRET`         | The client secret of the registered GitHub App.                                                           |
+| `MONGODB`                   | The URI for the MongoDB database (e. g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`).            |
+
+
+These are optional environment variables:
+
+| Name                        | Description                                                                                                                                                                      | Default                        |
+|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------|
+| `GITHUB_PROTOCOL`           | The protocol to use for GitHub API requests.                                                                                                                                     | https                          |
+| `GITHUB_HOST`               | The hostname of the GitHub server.                                                                                                                                               | github.com                     |
+| `GITHUB_API_HOST`           | The API hostname of the GitHub server.                                                                                                                                           | api.github.com                 |
+| `GITHUB_VERSION`            | The version of the GitHub API to use.                                                                                                                                            | 3.0.0                          |
+| `GITHUB_GRAPHQL`            | The URL for accessing the GitHub GraphQL API.                                                                                                                                    | https://api.github.com/graphql |
+| `GITHUB_ADMIN_USERS`        | (comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.                                                                     |                                |
+| `GITHUB_DELAY`              | The delay in milliseconds to enforce on webhooks.                                                                                                                                | 5000                           |
+| `TIME_TO_WAIT`              | The time to wait between API calls to avoid rate limits (in milliseconds).                                                                                                       | 1000                           |
+| `PORT`                      | The local port to bind to.                                                                                                                                                       | 5000                           |
+| `PROTOCOL`                  | The protocol to use for the CLA assistant (`http` or `https`).                                                                                                                   | http                           |
+| `HOST`                      | The hostname of the CLA assistant (without the protocol).                                                                                                                        | cla-assistant.io               |
+| `HOST_PORT`                 | The port for the CLA assistant if it doesn't use standard HTTP ports.                                                                                                            |                                |
+| `SESSION_SECRET`            | The secret key for session encryption.                                                                                                                                           | cla-assistant                  |
+| `SMTP_HOST`                 | The hostname of the SMTP server.                                                                                                                                                 |                                |
+| `SMTP_SSL`                  | Whether to use SSL/TLS for SMTP connections.                                                                                                                                     | false                          |
+| `SMTP_PORT`                 | The port number for the SMTP server.                                                                                                                                             | 465                            |
+| `SMTP_USER`                 | The username for SMTP authentication.                                                                                                                                            |                                |
+| `SMTP_PASS`                 | The password for SMTP authentication.                                                                                                                                            |                                |
+| `SLACK_URL`                 | The URL for sending log notifications to Slack.                                                                                                                                  |                                |
+| `SLACK_CHANNEL`             | The name of the Slack channel to send log notifications to.                                                                                                                      |                                |
+| `LOGIN_PAGE_TEMPLATE`       | The path to the login page HTML template.                                                                                                                                        |                                |
+| `REQUIRED_SIGNEES`          |                                                                                                                                                                                  |                                |
+| `ORG_OVERRIDE_ENABLED`      |                                                                                                                                                                                  |                                |
+| `REQUEST_TRACE_HEADER_NAME` | Use the value of an HTTP-header to set the name. E.g. the request id set by an ingress controller via `X-Req-Id`. If not set or no HTTP-header is present a random uuid is used. |                                |
+| `LOG_TRACE_FIELD_NAME`      | The log field name where the request trace ID is stored.                                                                                                                         | req_id                         |
+| `LOG_TRACE_PREFIX`          | A prefix added to the request trace ID.                                                                                                                                          |                                |
 
 > **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](https://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](https://docs.mongodb.org/manual/reference/method/db.createUser).
 
 Run grunt in order to build the application.
 ```sh
-./node_modules/grunt-cli/bin/grunt build
+npx grund build
 ```
 
 During development, just run the grunt default task to build the app, start linter checks and run unit tests on each change of relevant .js files.
 ```sh
-./node_modules/grunt-cli/bin/grunt
+npx grunt
 ```
 
 Finally, source the environment file and start the application.
 
 ```sh
 source .env
-npm start
+npm run start
 ```
 
 ### Quick start with Docker Compose
+
 To get a CLA assistant instance quickly up you can as well use Docker compose:
 
 ```sh
@@ -191,6 +242,7 @@ cp .env.example .env
 # Update GITHUB_CLIENT, GITHUB_SECRET and GITHUB_TOKEN with your values in .env
 docker-compose up
 ```
+
 Now you can navigate to `http://localhost:5000` and access your installation. To locally test webhooks you needs to expose it via e.g. `ngrok` as outlined above.
 
 ### Run the CLA assistant instance with Docker
@@ -198,11 +250,11 @@ Now you can navigate to `http://localhost:5000` and access your installation. To
 To run the CLA assistant instance with docker:
 
 ```bash
-$ docker build -t cla-assistant .
-$ docker run -d -p5000:5000 \
-      -e HOST=.. \
-      -e PORT=... \
-      cla-assistant
+docker build -t cla-assistant .
+docker run -d -p 5000:5000 \
+    -e HOST=.. \
+    -e PORT=... \
+    cla-assistant
 ```
 
 For the list of supported environments see [supported environment variables](#supported-environment-variables).
@@ -227,8 +279,6 @@ limitations under the License.
 
 ## Credits
 
-
 <p align="center">
     <img src="https://user-images.githubusercontent.com/43786652/108909769-434e3b00-7625-11eb-9abb-53a5db3a3fa6.png" title="SAP" />
 <p align="center">
-

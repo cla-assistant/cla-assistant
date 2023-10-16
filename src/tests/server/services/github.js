@@ -170,7 +170,7 @@ describe('github:call', () => {
     })
 
     it('callWithGitHubApp should use installation token if created by getInstallationAccessToken', async () => {
-        github.__set__('getInstallationAccessToken', fakeInstallationToken)
+        github.__set__('getInstallationAccessTokenForUser', fakeInstallationToken)
         const githubCall = sinon.stub(github, 'call').resolves({ data: {}, headers: {} })
 
         await github.callWithGitHubApp({
@@ -184,7 +184,7 @@ describe('github:call', () => {
     })
 
     it('callWithGitHubApp should use user token if getInstallationAccessToken throws error', async () => {
-        github.__set__('getInstallationAccessToken', fakeErrorInstallationToken)
+        github.__set__('getInstallationAccessTokenForUser', fakeErrorInstallationToken)
         const githubCall = sinon.stub(github, 'call').resolves({ data: {}, headers: {} })
 
         await github.callWithGitHubApp({
@@ -213,13 +213,13 @@ describe('github:call', () => {
     })
 
     it('should not contain owner key inside the input of github.call', async () => {
-        // custom getInstallationAccessToken function
+        // custom getInstallationAccessTokenForUser function
         function fakeInstallationToken(owner) {
             if (owner) {
                 return 'ghs_12345abc'
             }
         }
-        github.__set__('getInstallationAccessToken', fakeInstallationToken)
+        github.__set__('getInstallationAccessTokenForUser', fakeInstallationToken)
         let spy = sinon.spy(github, 'call')
         expectedAuth = 'token ghs_12345abc'
 
