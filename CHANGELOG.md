@@ -4,6 +4,13 @@ SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistan
 SPDX-License-Identifier: Apache-2.0
 -->
 
+## [v3.0.0](https://github.com/cla-assistant/cla-assistant/tree/v3.0.0) (2023-10-16)
+
+:warning: **Breaking Change** This version adds a mandatory migration to GitHub Apps. As an operator you should first create and install the GitHub App on all your organizations and repositories.
+
+**Improvements:**
+- feat: migration assistant - OAuth App <> GitHub Apps (#1024)
+
 # Change Log
 ## [v2.13.1](https://github.com/cla-assistant/cla-assistant/tree/v2.13.1) (2023-08-15)
 
