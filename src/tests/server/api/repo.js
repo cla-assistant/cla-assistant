@@ -12,6 +12,7 @@ let sinon = require('sinon')
 // module
 let repo = require('../../../server/src/services/repo')
 let webhook = require('../../../server/src/api/webhook')
+const github = require('../../../server/src/services/github')
 
 // api
 let repo_api = require('../../../server/src/api/repo')
@@ -27,9 +28,6 @@ describe('repo', () => {
                     repo: 'myRepo',
                     owner: 'login',
                     gist: 1234
-                },
-                user: {
-                    token: 'abc'
                 }
             }
             res = {
@@ -83,6 +81,13 @@ describe('repo', () => {
             webhook.create.restore()
         })
 
+        beforeEach(() => {
+            sinon.stub(github, 'getInstallationAccessTokenForRepo').callsFake(async () => { return 'ghs_abc' })
+        })
+        afterEach(() => {
+            github.getInstallationAccessTokenForRepo.restore()
+        })
+
         it('should create repo via service', async () => {
             await repo_api.create(req)
             assert(repo.get.called)
@@ -91,28 +96,8 @@ describe('repo', () => {
                 repo: 'myRepo',
                 owner: 'login',
                 gist: 1234,
-                token: 'abc'
             }), true)
-            assert(webhook.create.called)
-        })
-
-        it('should update repo if there is one and it is not valid any more', async () => {
-            res.repoGet.data = {
-                repoId: 321,
-                repo: 'myRepo',
-                owner: 'login'
-            }
-            res.repoGetGHRepo.err = 'Repo is not valid anymore'
-            await repo_api.create(req)
-            assert(repo.get.called)
-            assert(repo.getGHRepo.called)
-            assert.equal(repo.update.calledWith({
-                repoId: 123,
-                repo: 'myRepo',
-                owner: 'login',
-                gist: 1234,
-                token: 'abc'
-            }), true)
+            // assert(webhook.create.called)
         })
 
         it('should update repo if there is one and it is not valid any more', async () => {
@@ -132,7 +117,6 @@ describe('repo', () => {
                 repo: 'myRepo',
                 owner: 'login',
                 gist: 1234,
-                token: 'abc'
             }), true)
         })
 

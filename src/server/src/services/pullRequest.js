@@ -42,7 +42,7 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl, migrationNot
     text += `<sub>You have signed the CLA already but the status is still pending? Let us [recheck](${recheckUrl}) it.</sub>`
 
     if (migrationNotice) {
-        text += '<hr />:warning: Maintainers, please migrate this repository in the [CLA-Assistant dashboard](https://cla-assistant.io).'
+        text += '<br />:warning: Maintainers, please migrate this repository in the [CLA-Assistant dashboard](https://cla-assistant.io).'
     }
     return text
 }

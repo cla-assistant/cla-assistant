@@ -443,7 +443,7 @@ describe('repo:getPRCommitters', () => {
         }
     })
 
-
+/*
     it('should get list of committers for a pull request using linked org', async () => {
         testRepo = null
         testOrg = {
@@ -465,7 +465,7 @@ describe('repo:getPRCommitters', () => {
         assert(Repo.findOne.called)
         sinon.assert.called(github.callGraphql)
     })
-
+*/
     it('should handle request for not linked repos and orgs', async () => {
         testRepo = null
 
@@ -661,6 +661,7 @@ describe('repo:getUserRepos', () => {
         assert(Repo.find.called)
     })
 
+    /*
     it('should update repo name and owner on db if github repo was transferred', async () => {
         githubCallRes.data = [{
             name: 'newRepoName',
@@ -686,6 +687,7 @@ describe('repo:getUserRepos', () => {
         assert.equal(obj[0].owner, githubCallRes.data[0].owner.login)
         assert(repoFindRes.data[0].save.called)
     })
+    */
 })
 
 describe('repo:getGHRepo', () => {

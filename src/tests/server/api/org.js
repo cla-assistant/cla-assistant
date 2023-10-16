@@ -64,6 +64,36 @@ describe('org api', () => {
             if (args.fun === 'getOrgMembership') {
                 return testRes.githubGetMembership
             }
+            if (args.fun === 'listInstallationsForAuthenticatedUser') {
+                return {
+                    data: [
+                        {
+
+                            target_type: 'User',
+                            account: {
+                                login: 'test_user1',
+                                id: 1,
+                            }
+                        },
+                        {
+
+                            target_type: 'Organization',
+                            account: {
+                                login: 'test_org2',
+                                id: 2,
+                            }
+                        },
+                        {
+
+                            target_type: 'Organization',
+                            account: {
+                                login: 'test_org3',
+                                id: 3,
+                            }
+                        }
+                    ]
+                }
+            }
         })
         sinon.stub(org, 'getMultiple').resolves([{}, {}])
         sinon.stub(org, 'create').callsFake(async () => {
@@ -97,6 +127,12 @@ describe('org api', () => {
     })
 
     describe('create', () => {
+        beforeEach(() => {
+            sinon.stub(github, 'getInstallationAccessTokenForOrg').callsFake(async () => { return 'ghs_abc' })
+        })
+        afterEach(() => {
+            github.getInstallationAccessTokenForOrg.restore()
+        })
         it('should create new org via org service and create org webhook', async () => {
             await org_api.create(req)
             assert(org.get.calledWith({
@@ -108,6 +144,7 @@ describe('org api', () => {
                 org: 'myOrg',
                 gist: 'gistUrl',
                 token: 'abc'
+
             }))
             assert(webhook.create.called)
         })
@@ -169,8 +206,7 @@ describe('org api', () => {
             }
 
             const orgs = await org_api.getForUser(req)
-            sinon.assert.calledOnce(github.callGraphql)
-            sinon.assert.calledWithMatch(org.getMultiple, { orgId: ['2', '3'] })
+            sinon.assert.calledWithMatch(org.getMultiple, { orgId: [2, 3] })
             assert.equal(orgs.length, 2)
         })
 

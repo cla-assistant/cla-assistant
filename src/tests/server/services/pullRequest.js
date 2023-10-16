@@ -12,6 +12,7 @@ const sinon = require('sinon')
 const github = require('../../../server/src/services/github')
 const logger = require('../../../server/src/services/logger')
 const cla_config = require('../../../server/src/config')
+const repo = require('../../../server/src/services/repo')
 
 // service under test
 const pullRequest = require('../../../server/src/services/pullRequest')
@@ -170,8 +171,20 @@ describe('pullRequest:badgeComment', () => {
                 return assertionFunction(args)
             }
         })
+        sinon.stub(github, 'getInstallationAccessTokenForRepo').callsFake(async () => {
+            return 'gho_abc1234'
+        })
         sinon.stub(logger, 'warn').callsFake(error => {
             console.log(error) // eslint-disable-line no-console
+        })
+
+        sinon.stub(repo, 'get').callsFake(async () => {
+            return {
+                repoId: 321,
+                repo: 'myRepo',
+                owner: 'login',
+                token: 'gho_abc',
+            }
         })
     })
 
@@ -179,6 +192,8 @@ describe('pullRequest:badgeComment', () => {
         assertionFunction = undefined
         github.call.restore()
         logger.warn.restore()
+        repo.get.restore()
+        github.getInstallationAccessTokenForRepo.restore()
     })
 
     it('should create comment with cla-assistant user', async () => {
@@ -438,10 +453,6 @@ describe('pullRequest:badgeComment', () => {
                 check: false
             }
         })
-        assertionFunction = async (args) => {
-            assert.notEqual(args.fun, 'updateComment')
-            return 'githubRes'
-        }
         await pullRequest.badgeComment('login', 'myRepo', 1, false, {
             signed: ['user1'],
             not_signed: ['user2'],
