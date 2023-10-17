@@ -157,37 +157,53 @@ async.series([
     // ////////////////////////////////////////////////////////////////////////////////////////////
 
     (callback) => {
-        retryInitializeMongoose(config.server.mongodb.uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            keepAlive: true
-        }, () => {
-            bootstrap('documents', callback);
+        mongoose.connection.on('reconnected', () => {
+            log.warn('RECONNECTED')
         })
-        const session = {
-            secret: config.server.security.sessionSecret,
-            saveUninitialized: true,
-            resave: false,
-            cookie: {
-                maxAge: config.server.security.cookieMaxAge
-            },
-            // cosmosDB supports only supports autoExpire on _ts fields
-            // therefore use interval based removal to workaround that
-            store: MongoStore.create({
-                client: mongoose.connection.getClient(),
-                collection: 'cookieSession',
-                ttl: config.server.security.cookieMaxAge,
-                autoRemove: 'interval',
-                autoRemoveInterval: 10, // Value in minutes (default is 10)
-            })
+        mongoose.connection.on('error', (err) => {
+            log.error(err)
+        })
+        mongoose.connection.on('disconnected', () => {
+            log.warn('DISCONNECTED')
+        })
+        mongoose.connect(
+            config.server.mongodb.uri,
+            {keepAlive: true}
+        )
+        .then(() => bootstrap('documents', callback))
+        .catch(err => callback(err))
+    },
+
+    (callback) => {
+        try {
+            const session = {
+                secret: config.server.security.sessionSecret,
+                saveUninitialized: true,
+                resave: false,
+                cookie: {
+                    maxAge: config.server.security.cookieMaxAge
+                },
+                // cosmosDB supports only supports autoExpire on _ts fields
+                // therefore use interval based removal to workaround that
+                store: MongoStore.create({
+                    client: mongoose.connection.getClient(),
+                    collection: 'cookieSession',
+                    ttl: config.server.security.cookieMaxAge,
+                    autoRemove: 'interval',
+                    autoRemoveInterval: 10, // Value in minutes (default is 10)
+                })
+            }
+            session.cookie.secure = app.get('env') === 'production'
+
+            app.use(expressSession(session))
+            app.use(passport.initialize())
+            app.use(passport.session())
+
+            global.models = {}
+            callback()
+        } catch (err) {
+            callback(err)
         }
-        session.cookie.secure = app.get('env') === 'production'
-
-        app.use(expressSession(session))
-        app.use(passport.initialize())
-        app.use(passport.session())
-
-        global.models = {}
     },
     (callback) => {
         bootstrap('webhooks', callback)
@@ -207,12 +223,7 @@ async.series([
     (callback) => {
         bootstrap('controller', callback)
     }
-], (err) => {
-    if (err) {
-        console.log('! '.yellow + err)
-    }
-
-
+]).then(() => {
     console.log(`${'\n✓ '.bold.green}bootstrapped for ${app.get('env')}, app listening on ${config.server.http.host}:${config.server.localport}`.bold)
     log.info(`✓ bootstrapped for ${app.get('env')}!!! App listening on ${config.server.http.host}:${config.server.http.port}`)
     // eslint-disable-next-line no-console
@@ -223,7 +234,11 @@ async.series([
     const listener = server.listen(config.server.localport, function () {
         // eslint-disable-next-line no-console
         console.log('Listening on port ' + listener.address().port)
-    });
+    })
+}).catch(err => {
+    console.log('Error happens during initialize'.red)
+    console.log(err)
+    process.exit(-1)
 });
 
 // ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,21 +332,6 @@ function isRudundantWebhook(req) {
             runningWebhooks = runningWebhooks.filter(e => e !== req.args.pull_request.html_url)
         }, 2000)
     }
-}
-
-function retryInitializeMongoose(uri, options, callback) {
-    const defaultInterval = 1000;
-    mongoose.connect(uri, options, err => {
-        if (err) {
-            console.log(err, `Retry initialize mongoose in ${options.retryInitializeInterval || defaultInterval} milliseconds`);
-            setTimeout(() => {
-                retryInitializeMongoose(uri, options);
-            }, options.retryInitializeInterval || defaultInterval);
-        }
-        if (typeof callback === 'function') {
-            callback()
-        }
-    })
 }
 
 module.exports = app
