@@ -178,6 +178,7 @@ The following are the environment variables you have to configure to run a priva
 | `GITHUB_APP_CLIENT`         | The client ID of the registered GitHub App.                                                               |
 | `GITHUB_APP_SECRET`         | The client secret of the registered GitHub App.                                                           |
 | `MONGODB`                   | The URI for the MongoDB database (e. g. `mongodb://<user>:<password>@<host>:<port>/<dbname>`).            |
+| `DISABLE_FULL_INDEX`        | Whether to disable the full index of the cla database (required for AWS DocumentDB compatibility)         |
 
 
 These are optional environment variables:
