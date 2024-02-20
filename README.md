@@ -61,6 +61,22 @@ Following steps need to be done:
         "minimum": 18,
         "maximum": 99
     },
+    "jobtitle": {
+        "title": "Job Title:",
+        "type": {
+            "select": [
+                "President",
+                "Vice President",
+                "Director",
+                "Senior Manager",
+                "Manager",
+                "Architect",
+                "Software Engineer",
+                "Other"
+            ]
+        },
+        "required": true
+    }
     "agreement": {
         "title": "I have read and agree to the CLA",
         "type": "boolean",
