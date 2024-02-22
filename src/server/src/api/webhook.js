@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // module
-const webhookService = require('../services/webhook')
+const webhookService = require('../services/repo').webhookService
 class WebhookApi {
     async get(req) {
         return req.args && req.args.org ? webhookService.getOrgHook(req.args.org, req.user.token) : webhookService.getRepoHook(req.args.owner, req.args.repo, req.user.token)
