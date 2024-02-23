@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-const org = require('../services/org')
 const github = require('../services/github')
 const log = require('../services/logger')
 const Joi = require('joi')
 const webhook = require('./webhook')
 const logger = require('../services/logger')
 const utils = require('../middleware/utils')
-const orgService = require('../services/org')
+const orgService = require('../services/repo').orgService
 const newOrgSchema = Joi.object().keys({
     orgId: Joi.number().required(),
     org: Joi.string().required(),
@@ -40,7 +39,7 @@ class OrgAPI {
         }
         let dbOrg
         try {
-            dbOrg = await org.get(query)
+            dbOrg = await orgService.get(query)
         } catch (error) {
             logger.info(new Error(error).stack)
         }
@@ -57,7 +56,7 @@ class OrgAPI {
             return 'GitHub App not installed or insufficient permissions'
         }
 
-        dbOrg = await org.create(req.args)
+        dbOrg = await orgService.create(req.args)
 
         try {
             await webhook.create(req)
@@ -71,7 +70,7 @@ class OrgAPI {
         req.args.token = req.args.token || req.user.token
         utils.validateArgs(req.args, newOrgSchema, true)
 
-        return org.update(req.args)
+        return orgService.update(req.args)
     }
 
     async getForUser(req) {
@@ -80,9 +79,9 @@ class OrgAPI {
             const argsForOrg = {
                 orgId: res.map((org) => org.id)
             }
-            const orgs = JSON.parse(JSON.stringify(await org.getMultiple(argsForOrg)))
+            const orgs = JSON.parse(JSON.stringify(await orgService.getMultiple(argsForOrg)))
             return orgs.map((org) => {
-                org.migrate = !!org.token
+                orgService.migrate = !!org.token
                 return org
             })
         } catch (error) {
@@ -168,11 +167,11 @@ class OrgAPI {
         throw new Error('User is undefined')
     }
     // update(req, done){
-    //     org.update(req.args, done)
+    //     orgService.update(req.args, done)
     // }
     async remove(req) {
         utils.validateArgs(req.args, removeOrgSchema)
-        const dbOrg = await org.remove(req.args)
+        const dbOrg = await orgService.remove(req.args)
         if (!dbOrg) {
             throw new Error('Organization is not Found')
         }

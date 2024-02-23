@@ -5,7 +5,7 @@
 const url = require('./url')
 const github = require('./github')
 const logger = require('../services/logger')
-const repoService = require('./repo')
+const repoService = require('./repo').repoService
 
 const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl, migrationNotice) => {
     if (signed) {

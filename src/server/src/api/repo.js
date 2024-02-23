@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // module
-const repo = require('../services/repo')
+const repoService = require('../services/repo').repoService
 const logger = require('../services/logger')
 const Joi = require('joi')
 const webhook = require('./webhook')
@@ -32,17 +32,17 @@ const REPOREMOVESCHEMA = Joi.alternatives().try(Joi.object().keys({
 }))
 
 module.exports = {
-    check: (req) => repo.check(req.args),
+    check: (req) => repoService.check(req.args),
     migrate: async (req) => {
-        return await repo.migrate(req.args)
+        return await repoService.migrate(req.args)
     },
     migrationPending: async (req) => {
         if (!req.user || !req.user.login) {
             throw 'Invalid user'
         }
-        const pending = await repo.getMigrationPending(req.user.login)
+        const pending = await repoService.getMigrationPending(req.user.login)
         return pending.map(repo => {
-            return { owner: repo.owner, repo: repo.repo, id: repo.repoId }
+            return { owner: repoService.owner, repo: repoService.repo, id: repoService.repoId }
         })
     },
     create: async (req) => {
@@ -52,7 +52,7 @@ module.exports = {
             repo: req.args.repo,
             owner: req.args.owner,
         }
-        const dbRepo = await repo.get(repoArgs)
+        const dbRepo = await repoService.get(repoArgs)
 
         // repo not yet in database: create
         if (!dbRepo) {
@@ -64,7 +64,7 @@ module.exports = {
                 throw 'GitHub App not installed'
             }
 
-            const createdRepo = await repo.create(req.args)
+            const createdRepo = await repoService.create(req.args)
             if (createdRepo.gist) {
                 try {
                     await webhook.create(req)
@@ -76,16 +76,16 @@ module.exports = {
         }
 
         // repo already in database: check for update
-        const ghRepo = await repo.getGHRepo(repoArgs)
+        const ghRepo = await repoService.getGHRepo(repoArgs)
         if (ghRepo && ghRepo.id !== dbRepo.repoId) {
-            return repo.update(req.args)
+            return repoService.update(req.args)
         }
 
         throw 'This repository is already linked.'
     },
     // get: function(req, done){
-    // 	repo.get(req.args, function(err, found_repo){
-    // 		if (!found_repo || err || found_repo.owner !== req.user.login) {
+    // 	repoService.get(req.args, function(err, found_repo){
+    // 		if (!found_repo || err || found_repoService.owner !== req.user.login) {
     // 			log.warn(err)
     // 			done(err)
     // 			return
@@ -93,17 +93,17 @@ module.exports = {
     // 		done(err, found_repo)
     // 	})
     // },
-    getAll: (req) => repo.getAll(req.args),
-    getAllAppAccess: (req) => repo.getAllAccessibleByApp(req.user.token),
+    getAll: (req) => repoService.getAll(req.args),
+    getAllAppAccess: (req) => repoService.getAllAccessibleByApp(req.user.token),
     update: (req) => {
         req.args.token = req.args.token || req.user.token
         utils.validateArgs(req.args, REPOCREATESCHEMA)
-        return repo.update(req.args)
+        return repoService.update(req.args)
     },
     remove: async (req) => {
         utils.validateArgs(req.args, REPOREMOVESCHEMA)
 
-        const dbRepo = await repo.remove(req.args)
+        const dbRepo = await repoService.remove(req.args)
         if (dbRepo && dbRepo.gist) {
             req.args.owner = dbRepo.owner
             req.args.repo = dbRepo.repo

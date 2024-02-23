@@ -14,8 +14,8 @@ const Org = mongoose.model('Org')
 
 //services
 const logger = require('../services/logger')
-const orgService = require('../services/org')
-const repoService = require('../services/repo')
+const orgService = require('../services/repo').orgService
+const repoService = require('../services/repo').repoService
 const github = require('./github')
 const config = require('../config')
 const _ = require('lodash')

@@ -8,7 +8,7 @@ require('../documents/user')
 const pullRequest = require('../services/pullRequest')
 const status = require('../services/status')
 const cla = require('../services/cla')
-const repoService = require('../services/repo')
+const repoService = require('../services/repo').repoService
 const logger = require('../services/logger')
 const User = require('mongoose').model('User')
 
