@@ -21,10 +21,10 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl, migrationNot
     let text = `[![CLA assistant check](${badgeUrl})](${claUrl}) <br/>Thank you for your submission! We really appreciate it. Like many open source projects, we ask that ${youAll} sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution.<br/>`
     if (committersCount > 1) {
         text += '**' + userMap.signed.length + '** out of **' + (userMap.signed.length + userMap.not_signed.length) + '** committers have signed the CLA.<br/>'
-        userMap.signed.forEach(function (signee) {
+        userMap.signed.sort().forEach(function (signee) {
             text += '<br/>:white_check_mark: ' + signee
         })
-        userMap.not_signed.forEach(function (signee) {
+        userMap.not_signed.sort().forEach(function (signee) {
             text += '<br/>:x: ' + signee
         })
         text += '<br/>'
@@ -36,7 +36,7 @@ const commentText = (signed, badgeUrl, claUrl, userMap, recheckUrl, migrationNot
 
     if (userMap && userMap.unknown && userMap.unknown.length > 0) {
         let seem = (userMap.unknown.length > 1 ? 'seem' : 'seems')
-        text += `<hr/>**${userMap.unknown.join(', ')}** ${seem} not to be a GitHub user.`
+        text += `<hr/>**${userMap.unknown.sort().join(', ')}** ${seem} not to be a GitHub user.`
         text += ' You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user).<br/>'
     }
     text += `<sub>You have signed the CLA already but the status is still pending? Let us [recheck](${recheckUrl}) it.</sub>`
