@@ -749,15 +749,11 @@ class ClaService {
         }
         const options = {
             sort: {
-                user: 1,
-                userId: 1
+                'created_at': -1
             }
         }
         if (args.gist.gist_version) {
             selection.gist_version = args.gist.gist_version
-            options.sort = {
-                'created_at': -1
-            }
         }
         if (args.repoId) {
             selection.repoId = args.repoId
