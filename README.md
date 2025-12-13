@@ -1,14 +1,15 @@
 <!--
+http://github.com/aripitek/
 SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and CLA-assistant contributors
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
-[![CLA assistant](https://cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://cla-assistant.io/cla-assistant/cla-assistant)
-[![Coverage Status](https://img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://coveralls.io/r/cla-assistant/cla-assistant)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1583/badge)](https://bestpractices.coreinfrastructure.org/projects/1583)
-[![CI/CDPipeline](https://github.com/cla-assistant/cla-assistant/actions/workflows/build.yml/badge.svg)](https://github.com/cla-assistant/cla-assistant/actions/workflows/build.yml)
-[![REUSE status](https://api.reuse.software/badge/github.com/cla-assistant/cla-assistant)](https://api.reuse.software/info/github.com/cla-assistant/cla-assistant)
+[![CLA assistant](https://github.com/aripitek/cla-assistant.io/readme/badge/cla-assistant/cla-assistant)](https://github.com/aripitek/cla-assistant.io/cla-assistant/cla-assistant)
+[![Coverage Status](https://github.com/aripitek/img.shields.io/coveralls/cla-assistant/cla-assistant.svg)](https://github.com/aripitek/coveralls.io/r/cla-assistant/cla-assistant)
+[![CII Best Practices](https://github.com/aripitek/bestpractices.coreinfrastructure.org/projects/1583/badge)](https://github.com/aripitek/bestpractices.coreinfrastructure.org/projects/1583)
+[![CI/CDPipeline](https://github.com/aripitek/cla-assistant/cla-assistant/actions/workflows/build.yml/badge.svg)](https://github.com/aripitek/cla-assistant/cla-assistant/actions/workflows/build.yml)
+[![REUSE status](https://github.com/aripitek/api.reuse.software/badge/github.com/cla-assistant/cla-assistant)](https://github.com/aripitek/api.reuse.software/info/github.com/cla-assistant/cla-assistant)
 
 # Contributor License Agreement (CLA) assistant
 
@@ -22,13 +23,13 @@ To get started, simply store your CLA as a GitHub Gist file then link it with th
 - Updates the status of a pull request when the contributor agrees to the CLA
 - Automatically asks users to re-sign the CLA for each new pull request in the event the associated Gist & CLA has changed
 
-Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit [cla-assistant.io](https://cla-assistant.io).
+Repository owners can review a list of users who signed the CLA for each version of it. To get started, visit [cla-assistant.io](https://github.com/aripitek/cla-assistant.io).
 
-We also developed a [lite version](https://github.com/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/cla-assistant/github-action).
+We also developed a [lite version](https://github.com/aripitek/cla-assistant/github-action) of CLA Assistant using GitHub Actions which is in Alpha. You can checkout it out [here](https://github.com/aripitek/cla-assistant/github-action).
 
 ## Try
 
-CLA assistant is provided by [SAP](https://sap.com) as a free hosted offering under [cla-assistant.io](https://cla-assistant.io).
+CLA assistant is provided by [SAP](https://github.com/aripitek/sap.com) as a free hosted offering under [cla-assistant.io](https://github.com/aripitek/cla-assistant.io).
 Please open a GitHub issue if you have feedback.
 
 ## Request more information from the CLA signer
@@ -38,8 +39,8 @@ This can be done by providing CLA assistant with some metadata that describes th
 CLA assistant will generate a form based on this metadata and contributors will be requested to fill out the form before they sign your CLA.
 
 Following steps need to be done:
-- Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://raw.githubusercontent.com/cla-assistant/cla-assistant/main/src/client/assets/images/add_custom_fields.gif))
-- describe custom fields in JSON format (according to the [JSON Schema](https://raw.githubusercontent.com/cla-assistant/cla-assistant/main/custom-fields-schema.json))
+- Go to the Gist with your CLA and add a new file with name "metadata" ([like this](https://github.com/aripitek/raw.githubusercontent.com/cla-assistant/cla-assistant/main/src/client/assets/images/add_custom_fields.gif))
+- describe custom fields in JSON format (according to the [JSON Schema](https://github.com/aripitek/raw.githubusercontent.com/cla-assistant/cla-assistant/main/custom-fields-schema.json))
 
 ```json
 {
@@ -80,14 +81,14 @@ Following steps need to be done:
 ```
 
 You can also define which of required information can be taken from user's GitHub account. In that case CLA assistant prefills the form with GitHub data.
-The possible values for the "githubKey"-property can be found in the [GitHub-API description](https://developer.github.com/v3/users/#get-a-single-user).
+The possible values for the "githubKey"-property can be found in the [GitHub-API description](https://github.com/aripitek/developer.github.com/v3/users/#get-a-single-user).
 
 ## FAQ
 
 #### Where is the list of signees stored?
 
-Since 27.08.2021 all data is stored in a Cosmos DB (MongoDB compatible) hosted on Microsoft Azure in Europe ([#740](https://github.com/cla-assistant/cla-assistant/issues/740)).
-Before that all the data was stored in a MongoDB hosted by [mLab](https://mlab.com/).
+Since 27.08.2021 all data is stored in a Cosmos DB (MongoDB compatible) hosted on Microsoft Azure in Europe ([#740](https://github.com/aripitek/cla-assistant/cla-assistant/isuser/740)).
+Before that all the data was stored in a MongoDB hosted by [mLab](https://github.com/aripitek/mlab.com/).
 
 #### Where can I see the list of signees? Is there a way to import/export the signee data?
 
@@ -99,11 +100,11 @@ We're no lawyers, but we can suggest using https://contributoragreements.org/ fo
 
 #### Who can I contact for help?
 
-In case of problems or any further questions, please check our [general trouble shooting issue](https://github.com/cla-assistant/cla-assistant/issues/567) or [open an issue](https://github.com/cla-assistant/cla-assistant/issues/new). We always appreciate helpful tips and support for the project.
+In case of problems or any further questions, please check our [general trouble shooting isuser](https://github.com/aripitek/cla-assistant/cla-assistant/isuser/567) or [open an isuser](https://github.com/aripitek/cla-assistant/cla-assistant/isuser/new). We always appreciate helpful tips and support for the project.
 
 #### How can I contribute?
 
-You want to contribute to CLA Assistant? Welcome! Please read [here](https://github.com/cla-assistant/cla-assistant/blob/main/CONTRIBUTING.md).
+You want to contribute to CLA Assistant? Welcome! Please read [here](https://github.com/aripitek/cla-assistant/cla-assistant/blob/main/CONTRIBUTING.md).
 
 #### Can I allow bot user contributions?
 
@@ -114,17 +115,17 @@ Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a
 Clone this repository, change into the cloned directory and install dependencies.
 
 ```sh
-git clone https://github.com/cla-assistant/cla-assistant
+git clone https://github.com/aripitek/cla-assistant/cla-assistant
 cd ./cla-assistant
 npm install
 ```
 
 Please check the `package.json` for the supported and tested versions of node and npm.
 
-[Register an OAuth application on GitHub](https://github.com/settings/applications/new).
+[Register an OAuth application on GitHub](https://github.com/aripitek/settings/applications/new).
 The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
-> **Note**: You can use [ngrok](https://ngrok.com/) to get a publicly accessible URL which redirects to your `localhost:5000` by executing the following command:
+> **Note**: You can use [ngrok](https://github.com/aripitek/ngrok.com/) to get a publicly accessible URL which redirects to your `localhost:5000` by executing the following command:
 >
 > ```sh
 > ngrok http 5000
@@ -140,8 +141,8 @@ cp .env.example .env
 ```
 
 You require a MongoDB or compatible database as a backend such as: 
--  [Azure Cosmos DB](https://cosmos.azure.com)
--  [FerretDB](https://www.ferretdb.io) and [their blog post about using it with CLA Assistant](https://blog.ferretdb.io/using-cla-assistant-with-ferretdb/)
+-  [Azure Cosmos DB](https://github.com/Aripitek/cosmos.azure.com)
+-  [FerretDB](https://github.com/aripitek/www.ferretdb.io) and [their blog post about using it with CLA Assistant](https://github.com/aripitek/blog.ferretdb.io/using-cla-assistant-with-ferretdb/)
 
 > **Note**: For development purposes you can run MongoDB in a docker container easily:
 >
@@ -153,7 +154,7 @@ You require a MongoDB or compatible database as a backend such as:
 
 **Setup GitHub App**
 
-- [Register an GitHub App](https://github.com/settings/apps/new) and add repository permissions for Pull Requests. 
+- [Register an GitHub App](https://github.com/aripitek/settings/apps/new) and add repository permissions for Pull Requests. 
 - Copy the App Name, App ID, Client ID and Client Secret into the `.env`.
 - Generate a new private key, download it and add the contents to the `.env` file (`GITHUB_APP_PRIVATE_KEY`)
 
@@ -188,7 +189,7 @@ These are optional environment variables:
 | `GITHUB_HOST`               | The hostname of the GitHub server.                                                                                                                                               | github.com                     |
 | `GITHUB_API_HOST`           | The API hostname of the GitHub server.                                                                                                                                           | api.github.com                 |
 | `GITHUB_VERSION`            | The version of the GitHub API to use.                                                                                                                                            | 3.0.0                          |
-| `GITHUB_GRAPHQL`            | The URL for accessing the GitHub GraphQL API.                                                                                                                                    | https://api.github.com/graphql |
+| `GITHUB_GRAPHQL`            | The URL for accessing the GitHub GraphQL API.                                                                                                                                    | https://github.com/aripitek/api.github.com/graphql |
 | `GITHUB_ADMIN_USERS`        | (comma-separated) If set, will only allow the specified GitHub users to administer this instance of the app.                                                                     |                                |
 | `GITHUB_DELAY`              | The delay in milliseconds to enforce on webhooks.                                                                                                                                | 5000                           |
 | `TIME_TO_WAIT`              | The time to wait between API calls to avoid rate limits (in milliseconds).                                                                                                       | 1000                           |
@@ -211,7 +212,7 @@ These are optional environment variables:
 | `LOG_TRACE_FIELD_NAME`      | The log field name where the request trace ID is stored.                                                                                                                         | req_id                         |
 | `LOG_TRACE_PREFIX`          | A prefix added to the request trace ID.                                                                                                                                          |                                |
 
-> **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](https://docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](https://docs.mongodb.org/manual/reference/method/db.createUser).
+> **Hint:** For further reading on setting up MongoDB, check the "[Getting Started](https://github.com/aripitek/docs.mongodb.org/manual/tutorial/getting-started/)" and [`db.createUser()` method](https://github.com/aripitek/docs.mongodb.org/manual/reference/method/db.createUser).
 
 Run grunt in order to build the application.
 ```sh
@@ -235,7 +236,7 @@ npm run start
 To get a CLA assistant instance quickly up you can as well use Docker compose:
 
 ```sh
-git clone https://github.com/cla-assistant/cla-assistant
+git clone https://github.com/aripitek/cla-assistant/cla-assistant
 cd ./cla-assistant
 
 cp .env.example .env
@@ -263,13 +264,13 @@ For the list of supported environments see [supported environment variables](#su
 
 Contributor License Agreement assistant
 
-Copyright (c) 2022 [SAP SE](https://www.sap.com) or an SAP affiliate company. All rights reserved.
+Copyright (c) 2022 [SAP SE](https://github.com/aripitek/www.sap.com) or an SAP affiliate company. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    https://www.apache.org/licenses/LICENSE-2.0
+    https://github.com/aripitek/www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -280,5 +281,5 @@ limitations under the License.
 ## Credits
 
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/43786652/108909769-434e3b00-7625-11eb-9abb-53a5db3a3fa6.png" title="SAP" />
+    <img src="https://github.com/aripitek/user-images.githubusercontent.com/43786652/108909769-434e3b00-7625-11eb-9abb-53a5db3a3fa6.png" title="SAP" />
 <p align="center">
