@@ -11,7 +11,6 @@ const _ = require('lodash')
 const github = require('../services/github')
 const logger = require('../services/logger')
 const orgService = require('../services/org')
-const webhookService = require('../services/webhook')
 
 //queries
 const queries = require('../graphQueries/github')
@@ -226,6 +225,8 @@ class RepoService {
         logger.info('done!')
 
         // remove webhook
+        // Lazy require to avoid circular dependency: repo -> webhook -> repo
+        const webhookService = require('../services/webhook')
         try {
             await webhookService.removeRepoHook(args.owner, args.repo, appToken)
         } catch(error) {

@@ -8,7 +8,6 @@ const Org = mongoose.model('Org');
 
 const github = require('./github')
 const logger = require('./logger')
-const webhookService = require('./webhook')
 
 const selection = function (args) {
     const selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
@@ -93,6 +92,8 @@ class OrgService {
         logger.info('done!')
 
         // remove webhook from organization
+        // Lazy require to avoid circular dependency: org -> webhook -> repo -> org
+        const webhookService = require('./webhook')
         try {
             await webhookService.removeOrgHook(org.org, appToken)
         } catch(error) {
