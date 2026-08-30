@@ -6,20 +6,20 @@ const passport = require('passport')
 const express = require('express')
 const utils = require('../middleware/utils')
 const logger = require('../services/logger')
+const config = require('../config')
 const { isUserAppAuthenticated } = require('../util')
 
 const router = express.Router()
-let scope
 
 function checkReturnTo(req, res, next) {
-    scope = null
-    req.session.requiredScope = null
     if (!req.session) {
         req.session = {}
     }
+    req.session.requiredScope = null
 
     // for 'public' / 'user' routes we want to authenticate using OAuth
     // since we need to get the user's email address and can speicify the scope
+    let scope = null
     let strategy = 'github-app-auth'
     if (req.query.public === 'true') {
         scope = config.server.github.user_scope.concat()
@@ -32,6 +32,9 @@ function checkReturnTo(req, res, next) {
         req.session.requiredScope = 'admin'
     }
     if (req.query.org_admin === 'true') {
+        if (!scope) {
+            scope = []
+        }
         scope.push('admin:org_hook')
         req.session.requiredScope = 'org_admin'
     }
