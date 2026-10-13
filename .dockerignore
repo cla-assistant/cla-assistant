@@ -4,3 +4,9 @@
 
 node_modules/
 Dockerfile
+env-prod.yml
+env.yml
+kubernetes.yaml
+.env.prod
+.env*
+.git

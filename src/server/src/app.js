@@ -243,11 +243,26 @@ app.all('/api/:obj/:fun', async (req, res) => {
     }
 
     const apiFailure = (err) => {
-        if (err && typeof err === 'string') {
-            res.status(500).send(err)
-        } else if (err) {
-            return res.status(err.status > 0 ? err.status : 500).send(JSON.stringify(err.text || err.message || err))
+        if (!err) {
+            return res.status(500).send('Internal Server Error')
         }
+
+        // Determine the intended HTTP status. Client errors (4xx) are expected and their
+        // message is safe to relay (e.g. Joi validation errors that set code/status to 400).
+        const status = getErrorStatus(err)
+
+        // Always log the full error server-side for diagnostics.
+        log.error(new Error(typeof err === 'string' ? err : (err.stack || err.message || JSON.stringify(err))).stack)
+
+        // Never leak internal error details (e.g. CosmosDB ActivityId, substatus, internal
+        // query text) to the client. Only relay a message for intended client (4xx) errors;
+        // everything else returns a generic message.
+        if (status >= 400 && status < 500) {
+            const message = typeof err === 'string' ? err : (err.text || err.message || 'Bad Request')
+            return res.status(status).send(JSON.stringify(message))
+        }
+
+        return res.status(status).send('Internal Server Error')
     }
     try {
         const obj = await api[req.params.obj][req.params.fun](req)
@@ -280,6 +295,21 @@ app.all('/github/webhook/:repo', (req, res) => {
         res.status(500).send('Internal Server Error')
     }
 })
+
+// Derive the HTTP status code from a thrown error without exposing its contents.
+// Recognises the conventions used across the codebase (Joi validation errors set
+// `code = 400`; other layers may set `status`). Defaults to 500 for anything unknown.
+function getErrorStatus(err) {
+    if (err && typeof err === 'object') {
+        if (typeof err.status === 'number' && err.status >= 400 && err.status < 600) {
+            return err.status
+        }
+        if (typeof err.code === 'number' && err.code >= 400 && err.code < 600) {
+            return err.code
+        }
+    }
+    return 500
+}
 
 function isRudundantWebhook(req) {
     if (req.args.pull_request && req.args.pull_request.html_url) {

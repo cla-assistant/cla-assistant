@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const githubService = require('../services/github')
+const orgService = require('../services/org')
 const log = require('../services/logger')
 
 class Utils {
@@ -82,6 +83,23 @@ class Utils {
             throw error
         }
 
+    }
+
+    // Resolve an orgId to its linked org name (via the DB) and verify org-admin rights.
+    // This ensures authorization is independent of how the resource is named in the request.
+    async checkOrgAdminPermissionById(orgId, username, token) {
+        let linkedOrg
+        try {
+            linkedOrg = await orgService.get({ orgId: orgId })
+        } catch (error) {
+            log.info(new Error(error).stack)
+        }
+        if (!linkedOrg || !linkedOrg.org) {
+            throw new Error('Could not resolve the organization for the provided orgId')
+        }
+        await this.checkOrgAdminPermission(linkedOrg.org, username, token)
+
+        return linkedOrg
     }
 
     validateArgs(args, schema, allowUnknown = false, convert = true) {
