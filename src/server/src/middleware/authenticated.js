@@ -20,19 +20,56 @@ function authenticateForAdminOnlyApi(req, res, next) {
         if (!user) {
             return res.status(401).json({ message: 'Incorrect token credentials' })
         }
-        if (!utils.couldBeAdmin(user.login) || (req.args.org && !isUserAppAuthenticated(user))) {
+
+        const args = req.args || {}
+        const isOrgScoped = !!args.org || !!args.orgId
+        if (!utils.couldBeAdmin(user.login) || (isOrgScoped && (!isUserAppAuthenticated(user) || !user.scope || user.scope.indexOf('admin:org_hook') < 0))) {
             return res.status(403).json({ message: 'Must have admin:org_hook permission scope' })
         }
-        let promises = []
-        if ((req.args.owner && req.args.repo) || req.args.repoId) {
-            promises.push(utils.checkRepoPushPermissionByName(req.args.repo, req.args.owner, req.args.repoId, user.token))
+
+        // Build the list of permission checks. Authorization must be tied to a concrete
+        // resource, independent of how that resource is named in the request.
+        const promises = []
+        const authorizedResource = {}
+
+        if ((args.owner && args.repo) || args.repoId) {
+            promises.push(
+                utils.checkRepoPushPermissionByName(args.repo, args.owner, args.repoId, user.token)
+                    .then((repoData) => {
+                        authorizedResource.repoId = args.repoId || (repoData && repoData.id)
+                    })
+            )
         }
-        if (req.args.org) {
-            promises.push(utils.checkOrgAdminPermission(req.args.org, user.login, user.token))
+        if (args.org) {
+            promises.push(
+                utils.checkOrgAdminPermission(args.org, user.login, user.token)
+                    .then((membership) => {
+                        authorizedResource.org = args.org
+                        if (membership && membership.organization && membership.organization.id) {
+                            authorizedResource.orgId = membership.organization.id
+                        }
+                    })
+            )
+        } else if (args.orgId) {
+            // Resolve orgId -> org (via the linked Org record) and verify org-admin rights.
+            promises.push(
+                utils.checkOrgAdminPermissionById(args.orgId, user.login, user.token)
+                    .then((linkedOrg) => {
+                        authorizedResource.orgId = linkedOrg.orgId || args.orgId
+                        authorizedResource.org = linkedOrg.org
+                    })
+            )
+        }
+
+        // Fail closed: if the request carries no resource identifier that can be authorized,
+        // reject it rather than allowing it through with an empty permission-check list.
+        if (promises.length === 0) {
+            return res.status(403).json({ message: 'No authorizable resource provided' })
         }
 
         return Promise.all(promises).then(function () {
             req.user = user
+            req.authorizedResource = authorizedResource
             next()
         }).catch(function (error) {
             return res.status(403).json({ message: error.message || error })

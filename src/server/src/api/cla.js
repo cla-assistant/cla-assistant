@@ -111,18 +111,62 @@ class ClaApi {
     // Params:
     // repo (mandatory)
     // owner (mandatory)
-    getLinkedItem(req) {
-        return cla.getLinkedItem(req.args)
+    // NOTE: This is exposed as a public (unauthenticated) endpoint, so the returned
+    // item is sanitized to only expose non-sensitive fields. Internal callers that need
+    // the full linked item (with token, allowlist config, etc.) must use the cla service
+    // (cla.getLinkedItem) directly instead of this API method.
+    async getLinkedItem(req) {
+        const item = await cla.getLinkedItem(req.args)
+
+        return sanitizeLinkedItem(item)
     }
 
-    //Get all signed CLAs for given repo and gist url and/or a given gist version
-    //Params:
-    //	repo (mandatory)
-    //	owner (mandatory)
-    //	gist.gist_url (mandatory)
-    //	gist.gist_version (optional)
+    //Get all signed CLAs for the resource whose admin rights the caller has proven.
+    //
+    //Resource identification (used by the admin-only auth middleware to authorize the
+    //request; exactly one of the following shapes is required on req.args):
+    //	owner + repo, or
+    //	repoId, or
+    //	org, or
+    //	orgId
+    //
+    //Query parameters (used by this endpoint):
+    //	gist.gist_url (mandatory; enforced by the cla service)
+    //	gist.gist_version (optional; if omitted, all versions are returned)
+    //
+    // Security: this endpoint must be reached through the admin-only auth middleware, which
+    // attaches the verified scope to req.authorizedResource. We fail closed if that scope is
+    // missing, empty, or ambiguous, and forward only an allow-listed set of fields to cla.getAll
+    // so no repoId/orgId/owner/repo/token from req.args can redirect the query.
     getAll(req) {
-        return cla.getAll(req.args)
+        const scope = req.authorizedResource
+        if (!scope) {
+            logger.warn('cla.getAll refused: no authorized scope. args: ' + removeToken(req.args))
+            throw buildForbiddenError()
+        }
+        const hasRepoId = !!scope.repoId
+        const hasOrgId = !!scope.orgId
+        if (!hasRepoId && !hasOrgId) {
+            logger.warn('cla.getAll refused: empty authorized scope. args: ' + removeToken(req.args))
+            throw buildForbiddenError()
+        }
+        if (hasRepoId && hasOrgId) {
+            logger.warn('cla.getAll refused: ambiguous authorized scope. args: ' + removeToken(req.args))
+            throw buildForbiddenError()
+        }
+
+        // Secure path: build safeArgs from scratch (allow-list) so no req.args field can
+        // redirect the query, then bind the verified scope.
+        const safeArgs = { gist: req.args && req.args.gist }
+        if (hasRepoId) {
+            safeArgs.repoId = scope.repoId
+            return cla.getAll(safeArgs)
+        }
+        if (hasOrgId) {
+            safeArgs.orgId = scope.orgId
+            return cla.getAll(safeArgs)
+        }
+        throw buildForbiddenError()
     }
 
     //Get number of signed CLAs for the given repo. If no gist_version provided, the latest one will be used.
@@ -138,7 +182,7 @@ class ClaApi {
             if (params.gist && params.gist.gist_url && params.gist.gist_version && (params.repoId || params.orgId)) {
                 throw 'invalid parameters provided'
             }
-            const item = await this.getLinkedItem(req)
+            const item = await cla.getLinkedItem(req.args)
             if (!item) {
                 throw new Error('no item found')
             }
@@ -313,11 +357,9 @@ class ClaApi {
             args.custom_fields = req.args.custom_fields
         }
         try {
-            const item = await this.getLinkedItem({
-                args: {
-                    repo: args.repo,
-                    owner: args.owner
-                }
+            const item = await cla.getLinkedItem({
+                repo: args.repo,
+                owner: args.owner
             })
 
             args.item = item
@@ -390,11 +432,9 @@ class ClaApi {
         req.args.owner = req.args.owner || req.args.org
         delete req.args.org
         try {
-            const item = await this.getLinkedItem({
-                args: {
-                    repo: req.args.repo,
-                    owner: req.args.owner
-                }
+            const item = await cla.getLinkedItem({
+                repo: req.args.repo,
+                owner: req.args.owner
             })
             req.args.item = item
             req.args.token = item.token
@@ -431,7 +471,7 @@ class ClaApi {
     async revoke(req) {
         const user = await getAuthenticatedUser(req.user.token)
 
-        if(!req.args._id) {
+        if (!req.args._id) {
             logger.error('cla id is required to revoke cla')
             throw new Error('cla id is required to revoke cla')
         }
@@ -544,6 +584,15 @@ function removeToken(args) {
     let logArgs = Object.assign({}, args)
     logArgs.token = logArgs.token ? logArgs.token.slice(0, 4) + '***' : undefined
     return JSON.stringify(logArgs)
+}
+
+// Build a generic 403 error. The status field is picked up by the API dispatcher in
+// src/server/src/app.js (getErrorStatus) so the HTTP response is a plain 403 with a
+// safe generic message, never leaking internal details.
+function buildForbiddenError() {
+    const err = new Error('Forbidden')
+    err.status = 403
+    return err
 }
 
 async function claNotRequired(args, updateMethod) {
@@ -718,4 +767,27 @@ async function getAuthenticatedUser(token) {
         throw 'No User found'
     }
     return res.data
+}
+
+// Returns a sanitized version of a linked repo/org item that is safe to expose to
+// unauthenticated callers of the public getLinkedItem endpoint. Sensitive fields such
+// as the stored token and the contributor/employee allowlist configuration
+// (allowListPattern / allowListPatternOrgs) are intentionally omitted.
+function sanitizeLinkedItem(item) {
+    if (!item) {
+        return item
+    }
+    return {
+        repo: item.repo,
+        owner: item.owner,
+        org: item.org,
+        repoId: item.repoId,
+        orgId: item.orgId,
+        gist: item.gist,
+        sharedGist: item.sharedGist,
+        minFileChanges: item.minFileChanges,
+        minCodeChanges: item.minCodeChanges,
+        privacyPolicy: item.privacyPolicy,
+        excludePattern: item.excludePattern
+    }
 }
