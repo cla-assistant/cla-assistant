@@ -18,7 +18,7 @@ const User = require('mongoose').model('User')
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 function storeRequest(committers, repo, owner, number) {
-    committers.forEach(async committer => {
+    const storeSingleRequest = async committer => {
         let user
         try {
             user = await User.findOne({
@@ -34,7 +34,7 @@ function storeRequest(committers, repo, owner, number) {
         }
         if (!user) {
             try {
-                User.create({
+                await User.create({
                     name: committer,
                     requests: [pullRequest]
                 })
@@ -46,20 +46,32 @@ function storeRequest(committers, repo, owner, number) {
         if (!user.requests || user.requests.length < 1) {
             user.requests = user.requests ? user.requests : []
             user.requests.push(pullRequest)
-            await user.save()
-
+            try {
+                await user.save()
+            } catch (error) {
+                logger.warn(new Error(error).stack)
+            }
             return
         }
         const repoPullRequests = user.requests.find(request => request.repo === repo && request.owner === owner)
         if (repoPullRequests && repoPullRequests.numbers.indexOf(number) < 0) {
             repoPullRequests.numbers.push(number)
-            user.save()
+            try {
+                await user.save()
+            } catch (error) {
+                logger.warn(new Error(error).stack)
+            }
         }
         if (!repoPullRequests) {
             user.requests.push(pullRequest)
-            user.save()
+            try {
+                await user.save()
+            } catch (error) {
+                logger.warn(new Error(error).stack)
+            }
         }
-    })
+    }
+    return Promise.all(committers.map(storeSingleRequest))
 }
 
 async function updateStatusAndComment(args, item) {
@@ -92,7 +104,7 @@ async function updateStatusAndComment(args, item) {
                 checkResult.userMap
             ))
             if (checkResult.userMap && checkResult.userMap.not_signed) {
-                storeRequest(checkResult.userMap.not_signed, args.repo, args.owner, args.number)
+                promises.push(storeRequest(checkResult.userMap.not_signed, args.repo, args.owner, args.number))
             }
             try {
                 await Promise.all(promises)

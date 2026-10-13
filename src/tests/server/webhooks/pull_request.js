@@ -448,6 +448,41 @@ describe('webhook pull request', () => {
         User.create.restore()
     })
 
+    it('should not emit an unhandled promise rejection when creating a new user fails', async () => {
+        cla.check.restore()
+        testUser = null
+        const unhandledRejections = []
+        const listener = (reason) => unhandledRejections.push(reason)
+        process.on('unhandledRejection', listener)
+        sinon.stub(User, 'create').rejects(new Error('mongo write failed'))
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
+
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 50))
+        process.removeListener('unhandledRejection', listener)
+
+        sinon.assert.called(User.create)
+        assert.equal(unhandledRejections.length, 0)
+        User.create.restore()
+    })
+
+    it('should not emit an unhandled promise rejection when saving an existing user fails', async () => {
+        cla.check.restore()
+        testUser.requests = []
+        testUser.save = () => Promise.reject(new Error('save failed'))
+        const unhandledRejections = []
+        const listener = (reason) => unhandledRejections.push(reason)
+        process.on('unhandledRejection', listener)
+        sinon.stub(cla, 'check').callsFake(async () => ({ signed: false, userMap: { not_signed: ['test_user'] } }))
+
+        pull_request(test_req, res)
+        await new Promise((resolve) => setTimeout(resolve, 50))
+        process.removeListener('unhandledRejection', listener)
+
+        sinon.assert.called(User.findOne)
+        assert.equal(unhandledRejections.length, 0)
+    })
+
     it('should store only distinct PR number if not signed', async () => {
         test_req.args.number = 1
         cla.check.restore()
