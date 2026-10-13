@@ -765,19 +765,122 @@ describe('', () => {
             cla.check.restore()
         })
 
-        it('should call cla service on getAll', async () => {
+        it('should call cla service on getAll and bind the query to the authorized repoId', async () => {
             req.args.gist = testData.repo_from_db.gist
+            req.authorizedResource = { repoId: 42 }
             sinon.stub(cla, 'getAll').callsFake(async (args) => {
+                // The verified scope must drive the query, not req.args.owner/repo.
                 assert.deepEqual(args, {
-                    repo: 'Hello-World',
-                    owner: 'octocat',
-                    gist: testData.repo_from_db.gist
+                    gist: testData.repo_from_db.gist,
+                    repoId: 42
                 })
                 return []
             })
 
             await cla_api.getAll(req)
 
+            assert(cla.getAll.called)
+            cla.getAll.restore()
+        })
+
+        it('should call cla service on getAll and bind the query to the authorized orgId, ignoring conflicting args', async () => {
+            // Attacker-shaped request: authorized for orgId 7, but args try to redirect to repoId 99.
+            req.args = {
+                repoId: 99,
+                owner: 'evil',
+                repo: 'evil',
+                gist: testData.repo_from_db.gist
+            }
+            req.authorizedResource = { orgId: 7 }
+            sinon.stub(cla, 'getAll').callsFake(async (args) => {
+                assert.deepEqual(args, {
+                    gist: testData.repo_from_db.gist,
+                    orgId: 7
+                })
+                return []
+            })
+
+            await cla_api.getAll(req)
+
+            assert(cla.getAll.called)
+            cla.getAll.restore()
+        })
+
+        it('should refuse getAll when req.authorizedResource is missing (fail closed)', async () => {
+            req.args.gist = testData.repo_from_db.gist
+            // req.authorizedResource intentionally not set
+            sinon.stub(cla, 'getAll').callsFake(async () => {
+                assert.fail('cla.getAll must not be reached without an authorized scope')
+            })
+
+            try {
+                await cla_api.getAll(req)
+                assert.fail('cla_api.getAll should have thrown')
+            } catch (err) {
+                assert.equal(err.status, 403)
+                assert(!cla.getAll.called)
+            } finally {
+                cla.getAll.restore()
+            }
+        })
+
+        it('should refuse getAll when req.authorizedResource is present but empty (fail closed)', async () => {
+            req.args.gist = testData.repo_from_db.gist
+            req.authorizedResource = {}
+            sinon.stub(cla, 'getAll').callsFake(async () => {
+                assert.fail('cla.getAll must not be reached without an authorized scope')
+            })
+
+            try {
+                await cla_api.getAll(req)
+                assert.fail('cla_api.getAll should have thrown')
+            } catch (err) {
+                assert.equal(err.status, 403)
+                assert(!cla.getAll.called)
+            } finally {
+                cla.getAll.restore()
+            }
+        })
+
+        it('should refuse getAll when req.authorizedResource has both repoId and orgId (ambiguous, fail closed)', async () => {
+            req.args.gist = testData.repo_from_db.gist
+            req.authorizedResource = { repoId: 42, orgId: 7 }
+            sinon.stub(cla, 'getAll').callsFake(async () => {
+                assert.fail('cla.getAll must not be reached with an ambiguous authorized scope')
+            })
+
+            try {
+                await cla_api.getAll(req)
+                assert.fail('cla_api.getAll should have thrown')
+            } catch (err) {
+                assert.equal(err.status, 403)
+                assert(!cla.getAll.called)
+            } finally {
+                cla.getAll.restore()
+            }
+        })
+
+        it('should not forward unknown/unsafe fields from req.args to cla.getAll', async () => {
+            req.args = {
+                gist: testData.repo_from_db.gist,
+                // These must all be stripped:
+                repoId: 999,
+                orgId: 999,
+                owner: 'evil',
+                repo: 'evil',
+                token: 'attacker-token',
+                somethingElse: 'nope'
+            }
+            req.authorizedResource = { repoId: 42 }
+            sinon.stub(cla, 'getAll').callsFake(async (args) => {
+                assert.deepEqual(args, {
+                    gist: testData.repo_from_db.gist,
+                    repoId: 42
+                })
+                return []
+            })
+
+            await cla_api.getAll(req)
             assert(cla.getAll.called)
             cla.getAll.restore()
         })
