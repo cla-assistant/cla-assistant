@@ -15,6 +15,7 @@ const router = express.Router()
 //services
 const logger = require('./../services/logger')
 const github = require('./../services/github')
+const config = require('../config')
 
 router.post('/count/*', (_req, _res, next) => next())
 
@@ -27,6 +28,7 @@ router.all('/count/repos', async (req, res) => {
             text: `There are ${repoCount} registered repositories!`
         }))
     } catch (error) {
+        res.status(500).send(error)
         logger.info(error)
     }
 })
@@ -62,7 +64,7 @@ router.all('/count/clas', async (req, res) => {
     } catch (error) {
         logger.info(error)
     }
-    if (!Array.isArray(data) || data[0].count === undefined) {
+    if (!Array.isArray(data) || data.length === 0 || data[0].count === undefined) {
         data = [{ count: 0 }]
     }
     res.set('Content-Type', 'application/json')
@@ -89,7 +91,9 @@ router.all('/count/stars', async (_req, res) => {
             owner: 'cla-assistant'
         })
     } catch (error) {
+        res.status(500).send(error)
         logger.info(error)
+        return
     }
     res.send(JSON.stringify({
         count: resp.data.stargazers_count
