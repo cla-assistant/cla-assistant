@@ -19,14 +19,14 @@ SPDX-License-Identifier: Apache-2.0
             <div class="cla-box well">
                 <div ng-bind-html="cla"></div>
             </div>
-            <label ng-class="required" ng-show="linkedItem.privacyPolicy">
+            <label ng-class="required" ng-show="linkedItem.privacyPolicy && (!hasCustomFields || user.value)">
                 <input ng-disabled="signed" ng-model="privacyPolicyAccepted" type="checkbox" /> I accept that the information I provide to sign this CLA will be maintained in accordance with project
                 owner's
                 <a class="highlighted-link" ng-href="{{linkedItem.privacyPolicy}}" target="space">privacy policy</a> *
             </label>
             <form class="row" ng-if="hasCustomFields">
                 <p>
-                    <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Sign in with GitHub to agree</button>
+                    <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && !user.value" ng-click="signIn()">Login with GitHub to continue</button>
                 </p>
                 <customfield class="form-group" description="customFields[key].description" logged="user.value" min="customFields[key].minimum"
                     max="customFields[key].maximum" name="key" ng-repeat="key in customKeys" ng-show="user.value" required="customFields[key].required"
@@ -36,8 +36,8 @@ SPDX-License-Identifier: Apache-2.0
             </form>
             <p class="row" ng-hide="signed">
                 <button class="btn btn-info btn-lg" ng-show="hasCustomFields && !signed && linkedItem && claText && user.value" ng-disabled="(hasCustomFields && !isValid()) || (linkedItem.privacyPolicy && !privacyPolicyAccepted)"
-                    ng-click="agree()">I agree</button>
-                <button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Sign in with GitHub to agree</button>
+                    ng-click="agree()">I Agree</button>
+                <button class="btn btn-info btn-lg" ng-show="!hasCustomFields && !signed && linkedItem && claText" ng-click="agree()">Login with GitHub to agree</button>
             </p>
         </form>
 
