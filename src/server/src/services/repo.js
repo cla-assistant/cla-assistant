@@ -5,19 +5,292 @@
 require('../documents/repo')
 const mongoose = require('mongoose')
 const Repo = mongoose.model('Repo')
+const Org = mongoose.model('Org');
+
+const github = require('../services/github')
+const logger = require('../services/logger')
+const queries = require('../graphQueries/github')
+const url = require('../services/url')
+
 const _ = require('lodash')
 
 //services
-const github = require('../services/github')
-const logger = require('../services/logger')
-const orgService = require('../services/org')
-const webhookService = require('../services/webhook')
 
-//queries
-const queries = require('../graphQueries/github')
+const org_selection = function (args) {
+    const selectArguments = args.orgId ? { orgId: args.orgId } : { org: args.org };
 
-//services
-const url = require('../services/url')
+    return selectArguments;
+};
+
+const _resp = (message, success = false) => {
+    return {'success': success, 'message': message}
+}
+
+class OrgService {
+    async create(args) {
+        return Org.create({
+            orgId: args.orgId,
+            org: args.org,
+            gist: args.gist,
+            excludePattern: args.excludePattern,
+            sharedGist: !!args.sharedGist,
+            minFileChanges: args.minFileChanges,
+            minCodeChanges: args.minCodeChanges,
+            allowListPattern: args.allowListPattern,
+            allowListPatternOrgs: args.allowListPatternOrgs,
+            privacyPolicy: args.privacyPolicy,
+            updatedAt: new Date()
+        })
+    }
+
+    async get(args) {
+        return Org.findOne(org_selection(args))
+    }
+
+    async update(args) {
+        const org = await this.get(args)
+        org.gist = args.gist
+        org.token = args.token ? args.token : org.token
+        org.sharedGist = !!args.sharedGist
+        org.excludePattern = args.excludePattern
+        org.minFileChanges = args.minFileChanges
+        org.minCodeChanges = args.minCodeChanges
+        org.allowListPattern = args.allowListPattern
+        org.allowListPatternOrgs = args.allowListPatternOrgs
+        org.privacyPolicy = args.privacyPolicy
+        org.updatedAt = new Date()
+
+        return org.save()
+    }
+
+    async migrate(args) {
+        const { org: orgArg, orgId: orgIdArg } = args
+
+        // find organization in database
+        const org = await Org.findOne({
+            org: orgArg,
+            orgId: orgIdArg
+        })
+        if (!org) {
+            return _resp('Organization not found')
+        }
+        if (!org.token) {
+            // return a message that the organization is already migrated
+            // return success = true because technically, the migration was successful
+            return _resp('Organization already migrated', true)
+        }
+        // try to get GitHub Apps token
+        let appToken
+        try {
+            appToken = await github.getInstallationAccessTokenForOrg(orgArg)
+        } catch(error) {
+            return _resp('GitHub App not installed')
+        }
+        logger.debug('generated app token:', appToken)
+
+        // remove token from database
+        logger.info('Removing token from organization object')
+        org.token = undefined
+        try {
+            await org.save()
+        } catch(error) {
+            return _resp('Cannot save organization')
+        }
+        logger.info('done!')
+
+        // remove webhook from organization
+        try {
+            await webhookService.removeOrgHook(org.org, appToken)
+        } catch(error) {
+            logger.warn('cannot remove webhook/s from repository:', error.toString())
+        }
+
+        return _resp('Migration successful', true)
+    }
+
+    async getMultiple(args) {
+        return Org.find({ orgId: { $in: args.orgId } })
+    }
+
+    async getOrgWithSharedGist(gist) {
+        return Org.find({ gist: gist, sharedGist: true })
+    }
+
+    remove(args) {
+        return Org.findOneAndRemove(org_selection(args))
+    }
+}
+
+const orgService = new OrgService()
+
+class WebhookService {
+    async _getHook(owner, repo, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token is required.'
+        }
+        let args = {
+            fun: 'listWebhooks',
+            arg: {},
+            token: token
+        }
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.owner = owner
+            args.arg.repo = repo
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+        }
+        const hooks = await github.call(args)
+        let hook = null
+
+        if (hooks && hooks.data && hooks.data.length > 0) {
+            hooks.data.forEach(function (webhook) {
+                if (webhook.active && webhook.config.url && webhook.config.url.indexOf(url.baseWebhook) > -1) {
+                    hook = webhook
+                }
+            })
+        }
+        return hook
+    }
+
+    async getRepoHook(owner, repo, token) {
+        let hook = await this._getHook(owner, repo, token)
+        if (!hook) {
+            try {
+                hook = await this._getHook(owner, undefined, token)
+            } catch (error) {
+                if (error && error.status !== 404) {
+                    // When the owner is not an org, github returns 404.
+                    throw new Error(error)
+                }
+            }
+        }
+        return hook
+    }
+
+    getOrgHook(org, token) {
+        return this._getHook(org, undefined, token)
+    }
+
+    async _createHook(owner, repo, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token are required.'
+        }
+        let args = {
+            fun: 'createWebhook',
+            arg: {
+                config: {
+                    content_type: 'json'
+                },
+                name: 'web',
+                events: ['pull_request', 'merge_group'],
+                active: true
+            },
+            token: token
+        }
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.repo = repo
+            args.arg.owner = owner
+            args.arg.config.url = url.webhook(repo)
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+            args.arg.config.url = url.webhook(owner)
+        }
+        try {
+            const res = await github.call(args)
+            return res.data
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
+
+    }
+
+    async createRepoHook(owner, repo, token) {
+        const hook = await this.getRepoHook(owner, repo, token)
+        if (hook) {
+            return hook
+        }
+        return this._createHook(owner, repo, token)
+    }
+
+    async createOrgHook(org, token) {
+		logger.error("dfdfsfdsdfsdsfdsfdsf");
+        let hook = await this.getOrgHook(org, token)
+        if (hook) {
+            throw new Error('Webhook already exist with base url ' + url.baseWebhook)
+        }
+        hook = await this._createHook(org, undefined, token)
+        return this._handleHookForLinkedRepoInOrg(org, token, this.removeRepoHook.bind(this))
+    }
+
+    async _removeHook(owner, repo, hookId, token) {
+        if (!owner || !token) {
+            throw 'Owner/org and token is required.'
+        }
+        let args = {
+            fun: 'deleteWebhook',
+            arg: {
+                hook_id: hookId
+            },
+            token: token
+        }
+        if (repo) {
+            args.obj = 'repos'
+            args.arg.owner = owner
+            args.arg.repo = repo
+        } else {
+            args.obj = 'orgs'
+            args.arg.org = owner
+        }
+        try {
+            return github.call(args)
+        } catch (error) {
+            logger.info(new Error(error).stack)
+        }
+
+    }
+
+    async removeRepoHook(owner, repo, token) {
+        const hook = await this.getRepoHook(owner, repo, token)
+        if (!hook) {
+            throw 'No webhook found with base url ' + url.baseWebhook
+        }
+        if (hook.type === 'Organization') {
+            return null
+        }
+        return this._removeHook(owner, repo, hook.id, token)
+    }
+
+    async removeOrgHook(org, token) {
+        const hook = await this.getOrgHook(org, token)
+        if (!hook) {
+            throw 'No webhook found with base url ' + url.baseWebhook
+        }
+        await this._removeHook(org, undefined, hook.id, token)
+        await this._handleHookForLinkedRepoInOrg(org, token, this.createRepoHook.bind(this))
+        return hook
+    }
+
+    async _handleHookForLinkedRepoInOrg(org, token, delegateFun) {
+        const repos = await repoService.getByOwner(org)
+        if (!repos || repos.length === 0) {
+            throw 'No repos found for the org'
+        }
+        const promises = repos.map(repo => {
+            if (!repo.gist) {
+                // Repos with Null CLA will NOT have webhook
+                return null
+            }
+            return delegateFun(repo.owner, repo.repo, token)
+        })
+        return Promise.all(promises)
+    }
+}
+
+const webhookService = new WebhookService()
 
 const isTransferredRenamed = (dbRepo, ghRepo) => ghRepo.repoId == dbRepo.repoId && (ghRepo.repo !== dbRepo.repo || ghRepo.owner !== dbRepo.owner)
 
@@ -44,10 +317,6 @@ const selection = args => {
         repo: args.repo,
         owner: args.owner
     }
-}
-
-const _resp = (message, success = false) => {
-    return {'success': success, 'message': message}
 }
 
 class RepoService {
@@ -440,4 +709,12 @@ class RepoService {
     }
 }
 
-module.exports = new RepoService()
+const repoService = new RepoService();
+
+module.exports = {
+	orgService,
+	webhookService,
+	repoService
+}
+
+
