@@ -81,7 +81,8 @@ module.exports = {
         },
 
         mongodb: {
-            uri: process.env.MONGODB || process.env.MONGOLAB_URI
+            uri: process.env.MONGODB || process.env.MONGOLAB_URI,
+            disable_full_index: (!!process.env.DISABLE_FULL_INDEX && process.env.DISABLE_FULL_INDEX === 'true')
         },
 
         slack: {
