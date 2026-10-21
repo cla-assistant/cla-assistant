@@ -111,7 +111,7 @@ Since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a
 
 ## Setup your own instance of CLA assistant
 
-Clone this repository, change into the cloned directory and install dependencies.
+Clone this repository, change into the cloned directory, and install dependencies.
 
 ```sh
 git clone https://github.com/cla-assistant/cla-assistant
@@ -122,16 +122,38 @@ npm install
 Please check the `package.json` for the supported and tested versions of node and npm.
 
 [Register an OAuth application on GitHub](https://github.com/settings/applications/new).
-The callback URL needs to be of the form of `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
+The callback URL needs to be of the form `<PROTOCOL>://<HOST>:<PORT>/auth/github/callback`.
 
-> **Note**: You can use [ngrok](https://ngrok.com/) to get a publicly accessible URL which redirects to your `localhost:5000` by executing the following command:
+> **Note**: To expose your local development environment to the Internet, you can use tunnelling tools like Tunnelmole or ngrok.
 >
+> ### Using Tunnelmole
+> [Tunnelmole](https://github.com/robbie-cahill/tunnelmole-client) is an open source tunnelling tool that creates a public URL that forwards traffic to your local machine through a secure tunnel.
+>
+> Install Tunnelmole:
+> For Linux, Mac, and Windows Subsystem for Linux (WSL), execute the following in a terminal:
+> ```sh
+> curl -O https://install.tunnelmole.com/ad345/install && sudo bash install
+> ```
+> *For Windows without WSL, [Download tmole.exe](https://tunnelmole.com/downloads/tmole.exe) and add it to your [PATH](https://www.wikihow.com/Change-the-PATH-Environment-Variable-on-Windows).*
+>
+> Run Tunnelmole to start the tunnel:
+> ```sh
+> tmole 5000
+> ```
+> This will output a public http and https URL forwarding to `localhost:5000`.
+>
+> If you use Tunnelmole, update the `HOST` variable in your `.env` file with the provided public URL (without the protocol) and set `PROTOCOL` to "https".
+>
+> ### Using ngrok
+> [ngrok](https://ngrok.com/) is a popular closed source tunneling tool that also enables you to create a public URL that forwards to your localhost.
+>
+> To use ngrok:
 > ```sh
 > ngrok http 5000
 > ```
-> 
-> If you use ngrok, you need to update the `HOST` variable in your `.env` file and set `PROTOCOL` to "https".
-
+> This will provide a public https URL forwarding to `localhost:5000`.
+>
+> For ngrok, you need to update the `HOST` variable in your `.env` file with the provided public URL (without the protocol) and set `PROTOCOL` to "https".
 
 Copy the sample configuration file `.env.example` file to `.env`.
 
