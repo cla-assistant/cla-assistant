@@ -29,6 +29,20 @@
                   "uniqueItems": true
                 }
               }
+            },
+            {
+              "type": "object",
+              "description": "Field of type select generates a select dropdown",
+              "properties": {
+                "select": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "string"
+                  },
+                  "uniqueItems": true
+                }
+              }
             }
           ]
         },

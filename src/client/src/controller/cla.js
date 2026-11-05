@@ -190,7 +190,7 @@ module.controller('ClaController', ['$rootScope', '$log', '$window', '$scope', '
             }
 
             function typeIsValid(value, field) {
-                return typeof value == field.type || field.type.enum || field.type == 'textarea';
+                return typeof value == field.type || field.type.enum || field.type.select || field.type == 'textarea';
             }
 
             $scope.customKeys.some(function (key) {
