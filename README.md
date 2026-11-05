@@ -31,6 +31,11 @@ We also developed a [lite version](https://github.com/cla-assistant/github-actio
 CLA assistant is provided by [SAP](https://sap.com) as a free hosted offering under [cla-assistant.io](https://cla-assistant.io).
 Please open a GitHub issue if you have feedback.
 
+### Recommended: Install the GitHub App
+We strongly recommend installing the CLA assistant [GitHub App](https://github.com/apps/cla-assistant) on your organization if you use https://cla-assistant.io. Unlike user-scoped OAuth access tokens, the GitHub App uses its own organization-specific rate limits, which greatly reduces the chance of hitting GitHub API rate limits that can prevent CLA status checks or comments from being created. After installing the App, you can safely revoke any OAuth App credentials you previously authorized.
+
+> **Note:** In the long term, we plan to deprecate user-scoped OAuth access tokens in favor of the GitHub App, so migrating now is recommended.
+
 ## Request more information from the CLA signer
 
 If you need to collect detailed information about your contributors you can add so called "custom fields" to your CLA.
